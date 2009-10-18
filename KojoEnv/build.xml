@@ -8,12 +8,11 @@
 
     <import file="scala-build.xml"/>
 
-    <property name="nb_all" value="C:/Users/lalit/work/main-golden"/>
-
+    <property name="nb-jars" value="../nbjars"/>
 
     <!-- special jar target for csl -->
     <target name="jar" depends="init,compile,jar-prep" unless="is.jar.uptodate">
-        <taskdef name="csljar" classname="org.netbeans.modules.csl.CslJar" classpath="${nb_all}/csl.api/anttask/build/cslanttask.jar:${nb_all}/nbbuild/nbantext.jar"/>
+        <taskdef name="csljar" classname="org.netbeans.modules.csl.CslJar" classpath="${nb-jars}/cslanttask.jar:${nb-jars}/nbantext.jar"/>
         <csljar jarfile="${cluster}/${module.jar}" compress="${build.package.compress}" index="${build.package.index}" manifest="${manifest.mf}" stamp="${cluster}/.lastModified">
             <fileset dir="${build.classes.dir}"/>
         </csljar>

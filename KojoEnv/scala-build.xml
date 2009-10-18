@@ -104,8 +104,8 @@ Scala installation directory.
 
         <path id="test.unit.custom.cp">
             <path refid="test.unit.cp"/>
-            <pathelement location="${nb_all}/nbbuild/build/testdist/unit/ide12/org-netbeans-modules-csl-api/tests.jar"/>
-            <pathelement location="${nb_all}/nbbuild/build/testdist/unit/platform11/org-netbeans-modules-editor-mimelookup/tests.jar"/>
+            <pathelement location="${nb-jars}/csl-api-tests.jar"/>
+            <pathelement location="${nb-jars}/editor-mimelookup-tests.jar"/>
         </path>
 
         <property name="xx" refid="test.unit.run.cp"/>
