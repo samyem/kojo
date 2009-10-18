@@ -10,7 +10,7 @@ Kojo makes use of the following third-party software:
 - Components of the Scala Netbeans plugin (http://wiki.netbeans.org/Scala) and
   the Rats parser generator (http://cs.nyu.edu/rgrimm/xtc/rats.html) for the
   Script Editor
- 
+
 Kojo also makes use of the following third-party software for unit testing:
 - JMock (this includes the CGLib, Hamcrest, and Objenesis libraries)
   (http://www.jmock.org/)
@@ -24,12 +24,8 @@ specified above.
 The image of the turtle within Kojo has been obtained from the PythonTurtle
 project under the MIT License.
 
-The source code for Kojo will be made available soon at:
+The source code for Kojo is available at:
 http://code.google.com/p/kojo
-Till then, you can write to pant.lalit@gmail.com for a copy of the Kojo source.
-Please note that none of the open-source third-party software used by Kojo
-requires it to be released under any particular open-source license. Kojo is
-being released under the GNU GPL, Version 3, out of choice.
 
 
                     GNU GENERAL PUBLIC LICENSE

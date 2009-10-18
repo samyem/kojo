@@ -1,0 +1,21 @@
+To build Kojo from source, you need to do the following:
+
+- Clone the Kojo Mercurial repo. This will give you a local Kojo source tree.
+  Let's call the location of this tree $kojo
+
+- Download and install Netbeans 6.8M2. This step is required because Kojo is
+  a Netbeans Platform application, and depends on Netbeans Platforms jars for
+  things like Window-System and Code-Editor functionality.
+
+- Download and install Ant 1.7.1 or later
+
+- Download and install Scala. This involves having scala on your path, and having
+  SCALA_HOME pointing to your Scala install dir.
+  The currently supported version of Scala is: version 2.8.0.r18997-b20091009021954.
+  As beta and release canditate versions of Scala 2.8 are released, Kojo will be
+  updated to support these versions.
+
+- Fire up Netbeans and open the Kojo project located at $kojo. This is a one-time
+  operation that will update the build script to point to your Netbeans location.
+
+- Go into $kojo and run ant build to build Kojo, and ant run to run it.
