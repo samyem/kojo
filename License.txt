@@ -17,7 +17,7 @@ Kojo also makes use of the following third-party software for unit testing:
 - Scalacheck (http://code.google.com/p/scalacheck)
 
 The license files for all the third-party software used by Kojo are located in
-the licenses folder within the Kojo distribution. The source code for this
+the kojo/licenses folder. The source code for this
 third-party software may be obtained at the corresponding project urls
 specified above.
 
