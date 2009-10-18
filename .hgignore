@@ -12,7 +12,6 @@ proguard
 \.settings
 \.manager
 .*hg\.zip
-.*\.jar
 .*\~$
 .*\.pack.gz
 .*\.swp
