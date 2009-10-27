@@ -158,6 +158,9 @@ class CodePaneTest {
     outputMarker = result
     latch = new CountDownLatch(1)
     val found = latch.await(5, TimeUnit.SECONDS)
-    if (!found) throw new RuntimeException("Expected output %s not seen. Current output: %s" format(result, runCtx.getCurrentOutput))
+    if (!found) {
+      println("Expected output %s not seen. Current output: %s" format(result, runCtx.getCurrentOutput))
+      throw new RuntimeException("Expected output %s not seen" format(result))
+    }
   }
 }

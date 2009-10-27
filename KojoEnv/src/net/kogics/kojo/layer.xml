@@ -95,6 +95,12 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Samples.Rangoli.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Rangoli"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
@@ -155,6 +161,10 @@
                 <file name="net-kogics-kojo-Samples.Fence.shadow">
                     <attr name="position" intvalue="8"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Fence.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Samples.Rangoli.shadow">
+                    <attr name="position" intvalue="9"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Rangoli.instance"/>
                 </file>
             </folder>
         </folder>

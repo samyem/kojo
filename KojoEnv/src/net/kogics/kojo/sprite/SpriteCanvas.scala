@@ -23,10 +23,13 @@ import java.util.concurrent.CountDownLatch
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 import edu.umd.cs.piccolo.util.PPaintContext
+import edu.umd.cs.piccolo.event._
 
 import net.kogics.kojo.core.SCanvas
 import net.kogics.kojo.Singleton
 import net.kogics.kojo.util.Utils
+
+import org.openide.awt.StatusDisplayer
 
 object SpriteCanvas extends Singleton[SpriteCanvas] {
   protected def newInstance = new SpriteCanvas
@@ -58,10 +61,17 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val yAxis = PPath.createLine(0, 250, 0, -250)
   yAxis.setStrokePaint(Color.gray)
 
+  addInputEventListener(new PBasicInputEventHandler {
+      override def mouseMoved(e: PInputEvent) {
+        val pos = e.getPosition
+        StatusDisplayer.getDefault().setStatusText("Mouse Position: (%.0f, %.0f)" format(pos.getX, pos.getY));
+      }
+    })
+
   private def initCamera() {
     val size = getSize(null)
     getCamera.getViewTransformReference.setToScale(1, -1)
-    getCamera.setViewOffset(size.getWidth/2, size.getHeight/2)
+    getCamera.setViewOffset(size.getWidth/2f, size.getHeight/2f)
   }
 
   def axesOn() {
@@ -133,6 +143,13 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   def beamsOn() = turtle.beamsOn()
   def beamsOff() = turtle.beamsOff()
+
+  def write(text: String) = turtle.write(text)
+
+  def visible() = turtle.visible()
+  def invisible() = turtle.invisible()
+
+  def point(x: Double, y: Double) = turtle.point(x, y)
 
   def stop() = {
     val latch = new CountDownLatch(1)

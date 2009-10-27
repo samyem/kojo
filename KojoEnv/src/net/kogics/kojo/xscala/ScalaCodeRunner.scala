@@ -100,6 +100,7 @@ Here's a partial list of available commands:
   left() - Turn the turtle left
   towards(x, y) - Make the turtle turn towards the point (x, y)
   moveTo(x, y) - Make the turtle move to the point (x, y)
+  write(text) - Make the turtle write the specified text at its current location
 
   clear() - Clear the screen. To bring the turtle to the center after this step, just resize the turtle window.
 
@@ -117,6 +118,8 @@ Here's a partial list of available commands:
   axesOff() - Hide the X and Y axes
   beamsOn() - Show crossbeams centered on the turtle - to help with solving puzzles
   beamsOff() - Hide the turtle crossbeams
+  invisible() - Hide the turtle
+  visible() - Make the hidden turtle visible again
 
   repeat(n) {} - Repeat commands within braces n number of times
 
@@ -174,7 +177,9 @@ Here's a partial list of available commands:
     def setFillColor(color: Color) = tCanvas.setFillColor(color)
     def beamsOn() = tCanvas.beamsOn()
     def beamsOff() = tCanvas.beamsOff()
-
+    def write(text: String) = tCanvas.write(text)
+    def visible() = tCanvas.visible()
+    def invisible() = tCanvas.invisible()
 
     def towards(x: Double, y: Double) = tCanvas.towards(x, y)
     def position: (Double, Double) = tCanvas.position
@@ -182,6 +187,8 @@ Here's a partial list of available commands:
 
     def jumpTo(x: Double, y: Double) = tCanvas.jumpTo(x, y)
     def moveTo(x: Double, y: Double) = tCanvas.moveTo(x, y)
+    def point(x: Double, y: Double) = tCanvas.point(x, y)
+
 
     def animationDelay = tCanvas.animationDelay
     def setAnimationDelay(d: Long) = tCanvas.setAnimationDelay(d)

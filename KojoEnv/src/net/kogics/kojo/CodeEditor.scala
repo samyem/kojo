@@ -312,7 +312,11 @@ class CodePane(codeRunner: xscala.ScalaCodeRunner) extends JEditorPane {
   if (EventQueue.isDispatchThread) setKit
   else Utils.runInSwingThread(setKit _)
 
-  def setKit = setEditorKit(org.openide.text.CloneableEditorSupport.getEditorKit("text/x-scala"))
+  def setKit {
+    // trying to fix the null DataObject exception that sometimes shows up on startup
+    setText("// write your turtle commands here")
+    setEditorKit(org.openide.text.CloneableEditorSupport.getEditorKit("text/x-scala"))
+  }
 
   setBackground(Color.white)
 //  setFont(new Font(Font.MONOSPACED, Font.BOLD, 16))

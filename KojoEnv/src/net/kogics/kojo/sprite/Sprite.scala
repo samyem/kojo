@@ -56,6 +56,10 @@ case class SetPenThickness(t: Double, v: AtomicBoolean) extends Command(v)
 case class SetFillColor(color: Color, v: AtomicBoolean) extends Command(v)
 case class BeamsOn(v: AtomicBoolean) extends Command(v)
 case class BeamsOff(v: AtomicBoolean) extends Command(v)
+case class Write(text: String, v: AtomicBoolean) extends Command(v)
+case class Show(v: AtomicBoolean) extends Command(v)
+case class Hide(v: AtomicBoolean) extends Command(v)
+case class Point(x: Double, y: Double, v: AtomicBoolean) extends Command(v)
 case object CommandDone
 case object Stop
 
@@ -139,6 +143,7 @@ abstract class AbstractPen(sprite: Sprite, penPaths: mutable.ArrayBuffer[PPath],
     lineStroke = new BasicStroke(t.toFloat, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
     addNewPath()
   }
+  
   def setFillColor(color: Color) {
     fillColor = color
     addNewPath()
@@ -201,7 +206,6 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
 
   private val turtleImage = new PImage(Utils.loadImage(fname))
   private val turtle = new PNode
-  turtle.addChild(turtleImage)
   turtleImage.getTransformReference(true).setToScale(1, -1)
   turtleImage.setOffset(-16, 16)
 
@@ -213,8 +217,6 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   val (downPen, upPen) = makePens
   @volatile var pen: Pen = downPen
 
-  layer.addChild(turtle)
-
   var _position: Point2D.Double = _
   private var theta: Double = _
   @volatile var removed: Boolean = false
@@ -224,6 +226,10 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   def init() {
     _animationDelay = 1000l
     _position = new Point2D.Double(initX, initY)
+    if (!turtle.getChildrenReference.contains(turtleImage))
+      turtle.addChild(turtleImage)
+    layer.addChild(turtle)
+    
     pen.init
     turtle.setOffset(initX, initY)
     resetRotation
@@ -268,6 +274,10 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   def setFillColor(color: Color) = enqueueCommand(SetFillColor(color, cmdBool))
   def beamsOn() = enqueueCommand(BeamsOn(cmdBool))
   def beamsOff() = enqueueCommand(BeamsOff(cmdBool))
+  def write(text: String) = enqueueCommand(Write(text, cmdBool))
+  def visible() = enqueueCommand(Show(cmdBool))
+  def invisible() = enqueueCommand(Hide(cmdBool))
+  def point(x: Double, y: Double) = enqueueCommand(Point(x, y, cmdBool))
 
   def remove() = {
     enqueueCommand(Remove(cmdBool))
@@ -363,6 +373,7 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   def realClear() {
     realWorker { doneFn =>
       pen.clear()
+      layer.removeAllChildren()
       init()
       turtle.repaint()
       canvas.afterClear()
@@ -484,6 +495,49 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
       turtle.removeChild(xBeam)
       turtle.removeChild(yBeam)
       turtle.repaint()
+      doneFn()
+    }
+  }
+
+  def realWrite(text: String) {
+    realWorker { doneFn =>
+      val ptext = new PText(text)
+      ptext.getTransformReference(true).setToScale(1, -1)
+      ptext.setOffset(_position.x, _position.y)
+      layer.addChild(layer.getChildrenCount-1, ptext)
+      ptext.repaint()
+      doneFn()
+    }
+  }
+
+  def realHide() {
+    realWorker { doneFn =>
+      if (turtle.getChildrenReference.contains(turtleImage)) {
+        turtle.removeChild(turtleImage)
+        turtle.repaint()
+      }
+      doneFn()
+    }
+  }
+
+  def realShow() {
+    realWorker { doneFn =>
+      if (!turtle.getChildrenReference.contains(turtleImage)) {
+        turtle.addChild(turtleImage)
+        turtle.repaint()
+      }
+      doneFn()
+    }
+  }
+
+  def realPoint(x: Double, y: Double) {
+    realJumpTo(x, y)
+    CommandActor.receive {
+      case CommandDone =>
+    }
+    realWorker { doneFn =>
+      pen.startMove(x.toFloat, y.toFloat)
+      pen.endMove(x.toFloat, y.toFloat)
       doneFn()
     }
   }
@@ -618,6 +672,22 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
         case cmd @ BeamsOff(b) =>
           processCommand(cmd) {
             realBeamsOff
+          }
+        case cmd @ Write(text, b) =>
+          processCommand(cmd) {
+            realWrite(text)
+          }
+        case cmd @ Show(b) =>
+          processCommand(cmd) {
+            realShow()
+          }
+        case cmd @ Hide(b) =>
+          processCommand(cmd) {
+            realHide()
+          }
+        case cmd @ Point(x, y, b) =>
+          processCommand(cmd) {
+            realPoint(x, y)
           }
       }
     }
