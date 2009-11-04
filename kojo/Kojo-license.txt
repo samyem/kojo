@@ -10,6 +10,7 @@ Kojo makes use of the following third-party software:
 - Components of the Scala Netbeans plugin (http://wiki.netbeans.org/Scala) and
   the Rats parser generator (http://cs.nyu.edu/rgrimm/xtc/rats.html) for the
   Script Editor
+- Vecmath (http://github.com/Villane/vecmath)
 
 Kojo also makes use of the following third-party software for unit testing:
 - JMock (this includes the CGLib, Hamcrest, and Objenesis libraries)
