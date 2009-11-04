@@ -31,14 +31,14 @@ class PolyLine extends PNode {
   var strokePaint = Color.blue
 
   var closed = false
-  var constraint: Option[PolygonConstraint] = None
+  var constraint: Option[GeometricConstraint] = None
 
   def addPoint(x: Float, y: Float): Unit = addPoint(new Point2D.Float(x, y))
   def lineTo(x: Float, y: Float) = addPoint(new Point2D.Float(x, y))
 
   def reset() {
     points.clear()
-    if (constraint.isDefined) constraint.get.reset()
+    if (constraint.isDefined) constraint.get.clearVisualElements()
   }
 
   def setStroke(strk: Stroke) {

@@ -14,6 +14,9 @@
  */
 package net.kogics.kojo.core.geom
 
-trait PolygonView {
+trait DynamicShape {
   def showAngles()
+  def showLengths()
+  def hideAngles()
+  def hideLengths()
 }

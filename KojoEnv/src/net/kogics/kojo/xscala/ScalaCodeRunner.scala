@@ -199,8 +199,8 @@ Here's a partial list of available commands:
 
     def newPuzzler(x: Int, y: Int) = tCanvas.newPuzzler(x, y)
     def newGeometer(x: Int, y: Int) = tCanvas.newGeometer(x, y)
-    def showVertices() = tCanvas.showVertices()
     def pathToPolygon() = tCanvas.pathToPolygon()
+    def pathToParallelogram() = tCanvas.pathToParallelogram()
 
 
     def listPuzzles = PuzzleLoader.listPuzzles

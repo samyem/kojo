@@ -17,8 +17,6 @@ package net.kogics.kojo.geom
 import java.awt._
 import java.awt.geom._
 
-import org.villane.vecmath._
-
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.util._
 import edu.umd.cs.piccolo.event._
@@ -26,31 +24,48 @@ import edu.umd.cs.piccolo.nodes._
 import edu.umd.cs.piccolox.handles._
 import edu.umd.cs.piccolox.util._
 
-import net.kogics.kojo.util._
 import net.kogics.kojo.core.geom._
+import net.kogics.kojo.util._
 
-class PolygonConstraint(shape: PolyLine, handleLayer: PLayer) extends BasePolygonConstraint(shape, handleLayer) {
 
-  if (!pointsSame(points(0), points.last))
-    throw new IllegalArgumentException("Unable to convert Path to Polygon - not a closed shape")
+class PGramConstraint(shape: PolyLine, handleLayer: PLayer) extends BasePolygonConstraint(shape, handleLayer) {
+
+  if (points.size != 5)
+    throw new IllegalArgumentException("Unable to convert Path to Parallelogram - shape does not have four vertices\n")
+
+  if (!isPGram())
+    throw new IllegalArgumentException("Unable to convert Path to Parallelogram - opposite sides are not parallel and equal\n")
 
   points.remove(points.size-1)
   shape.close
 
+  def isPGram() = {
+    val delx1 = points(0).x - points(1).x
+    val dely1 = points(0).y - points(1).y
+
+    val delx2 = points(3).x - points(2).x
+    val dely2 = points(3).y - points(2).y
+
+    Utils.doublesEqual(delx1, delx2, 0.001) && Utils.doublesEqual(dely1, dely2, 0.001)
+  }
+
   def addHandles() {
-    def linkedPoint(i: Int) = {
-      if (i == 0) points(points.size-1)
-      else points(i-1)
+    def linkedIndex(i: Int) = {
+      if (i == 0) points.size-1
+      else i-1
     }
 
     for (i <- 0 until points.size) {
-      addHandle(points(i), linkedPoint(i))
+      addHandle(points(i), linkedIndex(i))
     }
 
     handleLayer.repaint()
   }
 
-  def addHandle(point: Point2D.Float, linkedPoint: Point2D.Float) {
+  def addHandle(point: Point2D.Float, linkedIndex: Int) {
+
+    val linkedPoint = points(linkedIndex)
+    
     val l = new PLocator() {
       override def locateX() = point.x
       override def locateY() = point.y
@@ -62,10 +77,14 @@ class PolygonConstraint(shape: PolyLine, handleLayer: PLayer) extends BasePolygo
         point.setLocation(point.x + aLocalDimension.getWidth(), point.y
                           + aLocalDimension.getHeight())
 
-//        linkedPoint.setLocation(linkedPoint.x + aLocalDimension.getWidth(), linkedPoint.y
-//                                + aLocalDimension.getHeight())
+        linkedPoint.setLocation(linkedPoint.x + aLocalDimension.getWidth(), linkedPoint.y
+                                + aLocalDimension.getHeight())
 
         relocateHandle()
+
+        val linkedHandle = handles(linkedIndex)
+        linkedHandle.relocateHandle()
+
         updateAngles()
         updateLengths()
         shape.updateBounds()

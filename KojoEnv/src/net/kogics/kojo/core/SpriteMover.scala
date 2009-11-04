@@ -38,7 +38,7 @@ trait SpriteMover {
   def visible(): Unit
   def invisible(): Unit
   def point(x: Double, y: Double)
-  def showVertices(): Unit
   def clear(): Unit
-  def pathToPolygon(): geom.PolygonView
+  def pathToPolygon(): geom.DynamicShape
+  def pathToParallelogram(): geom.DynamicShape
 }

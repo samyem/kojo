@@ -156,8 +156,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def invisible() = turtle.invisible()
 
   def point(x: Double, y: Double) = turtle.point(x, y)
-  def showVertices() = turtle.showVertices()
   def pathToPolygon() = turtle.pathToPolygon()
+  def pathToParallelogram() = turtle.pathToParallelogram()
 
   def stop() = {
     val latch = new CountDownLatch(1)

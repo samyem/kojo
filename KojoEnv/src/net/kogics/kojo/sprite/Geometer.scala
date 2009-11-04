@@ -71,7 +71,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   @volatile var removed: Boolean = false
 
   val CommandActor = makeCommandProcessor()
-  @volatile var geomObj: PolygonView = _
+  @volatile var geomObj: DynamicShape = _
 
   def init() {
     _animationDelay = 1000l
@@ -128,7 +128,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def visible() = enqueueCommand(Show(cmdBool))
   def invisible() = enqueueCommand(Hide(cmdBool))
   def point(x: Double, y: Double) = enqueueCommand(Point(x, y, cmdBool))
-  def showVertices() = enqueueCommand(ShowVertices(cmdBool))
 
   def remove() = {
     enqueueCommand(Remove(cmdBool))
@@ -142,6 +141,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       case 'position => GetPosition(latch, cmdBool)
       case 'heading => GetHeading(latch, cmdBool)
       case 'pathToPolygon => PathToPolygon(latch, cmdBool)
+      case 'pathToPGram => PathToPGram(latch, cmdBool)
     }
 
     enqueueCommand(cmd)
@@ -170,8 +170,13 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     thetaDegrees
   }
 
-  def pathToPolygon(): PolygonView = {
+  def pathToPolygon(): DynamicShape = {
     getWorker('pathToPolygon)
+    geomObj
+  }
+
+  def pathToParallelogram(): DynamicShape = {
+    getWorker('pathToPGram)
     geomObj
   }
 
@@ -230,7 +235,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def realClear() {
     realWorker { doneFn =>
       pen.clear()
-      layer.removeAllChildren()
       init()
       turtle.repaint()
       canvas.afterClear()
@@ -390,16 +394,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realShowVertices() {
-//    realWorker { doneFn =>
-//      penPaths.last.addHandles()
-////      penPaths.last.showAngles()
-//      penPaths.last.repaint()
-//      pen.asInstanceOf[AbstractPen].addNewPath()
-//      doneFn()
-//    }
-  }
-
   def realPoint(x: Double, y: Double) {
     realJumpTo(x, y)
     CommandActor.receive {
@@ -414,13 +408,12 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   def realPathToPolygon() {
     realWorker { doneFn =>
+      geomObj = null
       try {
         val pgon = new PolygonConstraint(penPaths.last, Geometer.handleLayer)
         pgon.addHandles()
         pgon.repaint()
-        geomObj = new PolygonView {
-          def showAngles() = pgon.showAngles()
-        }
+        geomObj = new DynamicShapeImpl(pgon)
         pen.asInstanceOf[AbstractPen].addNewPath()
       }
       catch {
@@ -429,6 +422,24 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       doneFn()
     }
   }
+
+  def realPathToPGram() {
+    realWorker { doneFn =>
+      geomObj = null
+      try {
+        val pgon = new PGramConstraint(penPaths.last, Geometer.handleLayer)
+        pgon.addHandles()
+        pgon.repaint()
+        geomObj = new DynamicShapeImpl(pgon)
+        pen.asInstanceOf[AbstractPen].addNewPath()
+      }
+      catch {
+        case e: IllegalArgumentException => canvas.outputFn(e.getMessage)
+      }
+      doneFn()
+    }
+  }
+
 
   def right() = turn(-90)
   def left() = turn(90)
@@ -576,13 +587,13 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
           processCommand(cmd) {
             realPoint(x, y)
           }
-        case cmd @ ShowVertices(b) =>
-          processCommand(cmd) {
-            realShowVertices()
-          }
         case cmd @ PathToPolygon(l, b) =>
           processGetCommand(cmd, l) {
             realPathToPolygon()
+          }
+        case cmd @ PathToPGram(l, b) =>
+          processGetCommand(cmd, l) {
+            realPathToPGram()
           }
       }
     }
@@ -681,5 +692,12 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       penPaths.last.lineTo(x, y)
       penPaths.last.repaint()
     }
+  }
+
+  class DynamicShapeImpl(pgon: GeometricConstraint) extends DynamicShape {
+    def showAngles() = pgon.showAngles()
+    def hideAngles() = pgon.hideAngles()
+    def showLengths() = pgon.showLengths()
+    def hideLengths() = pgon.hideLengths()
   }
 }

@@ -42,7 +42,7 @@ case class Write(text: String, v: AtomicBoolean) extends Command(v)
 case class Show(v: AtomicBoolean) extends Command(v)
 case class Hide(v: AtomicBoolean) extends Command(v)
 case class Point(x: Double, y: Double, v: AtomicBoolean) extends Command(v)
-case class ShowVertices(v: AtomicBoolean) extends Command(v)
 case class PathToPolygon(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
+case class PathToPGram(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
 case object CommandDone
 case object Stop
