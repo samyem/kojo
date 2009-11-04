@@ -33,7 +33,6 @@ public final class HistoryTopComponent extends TopComponent {
     /** path to the icon used by the component and its open action */
     static final String ICON_PATH = "images/history.png";
     private static final String PREFERRED_ID = "HistoryTopComponent";
-    private volatile boolean opened = false;
 
     public HistoryTopComponent() {
         initComponents();
@@ -78,15 +77,13 @@ public final class HistoryTopComponent extends TopComponent {
 
     private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
         if (!evt.getValueIsAdjusting() && jList1.getSelectedIndex() != -1) {
-            if (opened) {
-                ((CodeEditor) CodeEditor.instance()).setCode(jList1.getSelectedIndex());
-                SwingUtilities.invokeLater(new Runnable() {
+            ((CodeEditor) CodeEditor.instance()).setCode(jList1.getSelectedIndex());
+            SwingUtilities.invokeLater(new Runnable() {
 
-                    public void run() {
-                        CodeEditorTopComponent.findInstance().requestActive();
-                    }
-                });
-            }
+                public void run() {
+                    CodeEditorTopComponent.findInstance().requestActive();
+                }
+            });
         }
 }//GEN-LAST:event_jList1ValueChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -131,7 +128,6 @@ public final class HistoryTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-        opened = true;
         int n = jList1.getModel().getSize() - 1;
         jList1.setSelectedIndex(n);
         jList1.ensureIndexIsVisible(n);

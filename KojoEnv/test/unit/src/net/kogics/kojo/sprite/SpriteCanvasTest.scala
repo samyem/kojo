@@ -68,7 +68,7 @@ class SpriteCanvasTest {
 
   // @Test
   def runPattern {
-    def pattern(turtle: Sprite, n: Int): Unit = {
+    def pattern(turtle: Geometer, n: Int): Unit = {
       if (n < 2) return
       turtle.forward(n)
       turtle.right
@@ -82,7 +82,7 @@ class SpriteCanvasTest {
     tCanvas.turtle.setAnimationDelay(10000)
     tCanvas.turtle.forward(400)
 
-    val turtles = new collection.mutable.ArrayBuffer[Sprite]
+    val turtles = new collection.mutable.ArrayBuffer[Geometer]
 
     val latch = new java.util.concurrent.CountDownLatch(25)
     for (i <- 0 until 5) {

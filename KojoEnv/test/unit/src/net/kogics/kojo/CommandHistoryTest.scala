@@ -22,12 +22,27 @@ import org.junit.runner.RunWith
 
 import org.jmock.integration.junit4.{JMock, JUnit4Mockery=>Mockery}
 import org.jmock.Expectations
+import org.jmock.Expectations._
+import org.jmock.lib.legacy.ClassImposteriser
 
 @RunWith(classOf[JMock])
 class CommandHistoryTest {
 
-  var context = new Mockery
-  val commandHistory = new CommandHistory
+  val context: Mockery = new Mockery() {
+    {
+      setImposteriser(ClassImposteriser.INSTANCE)
+    }
+  }
+
+  val commandHistory = new CommandHistory(mockSaver, CommandHistory.MaxHistorySize)
+
+  def mockSaver: HistorySaver = {
+    val saver = (context.mock(classOf[HistorySaver])).asInstanceOf[HistorySaver]
+    context.checking (new Expectations {
+        allowing(saver).append(`with`(any(classOf[String])))
+      })
+    saver
+  }
 
   @Before
   def setUp: Unit = {
@@ -159,4 +174,39 @@ class CommandHistoryTest {
     assertEquals(None, commandHistory.previous)
   }
 
+  @Test
+  def testLoadFrom {
+    val historyStr = "1---Seperator---2---Seperator---3\n3.1---Seperator---"
+    commandHistory.loadFrom(historyStr)
+    assertEquals(3, commandHistory.size)
+    assertEquals("1", commandHistory(0))
+    assertEquals("2", commandHistory(1))
+    assertEquals("3\n3.1", commandHistory(2))
+  }
+
+  @Test
+  def testLoadFromWithTruncate {
+    def mockSaver2: HistorySaver = {
+      val saver = (context.mock(classOf[HistorySaver], "saver2")).asInstanceOf[HistorySaver]
+      context.checking (new Expectations {
+          allowing(saver).append(`with`(any(classOf[String])))
+          one(saver).write(`with`(Array("3\n3.1", "4")))
+        })
+      saver
+    }
+
+    val historyStr = "1---Seperator---2---Seperator---3\n3.1---Seperator---4---Seperator---"
+    val commandHistory = new CommandHistory(mockSaver2, 2)
+    commandHistory.loadFrom(historyStr)
+    assertEquals(2, commandHistory.size)
+    assertEquals("3\n3.1", commandHistory(0))
+    assertEquals("4", commandHistory(1))
+  }
+
+  @Test
+  def testLoadFromEmptyStr {
+    val historyStr = ""
+    commandHistory.loadFrom(historyStr)
+    assertEquals(0, commandHistory.size)
+  }
 }

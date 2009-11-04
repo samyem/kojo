@@ -12,15 +12,8 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.core
+package net.kogics.kojo.core.geom
 
-trait SCanvas extends SpriteMover {
-  def clear(): Unit
-  def clearPuzzlers(): Unit
-  def newTurtle(x: Int, y: Int): Sprite
-  def newPuzzler(x: Int, y: Int): Sprite
-  def newGeometer(x: Int, y: Int): Sprite
-  def turtle0: Sprite
-  def axesOn(): Unit
-  def axesOff(): Unit
+trait PolygonView {
+  def showAngles()
 }

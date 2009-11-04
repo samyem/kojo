@@ -56,7 +56,7 @@ public final class CodeEditorTopComponent extends TopComponent {
         ActionMap actionMap = getActionMap();
         final Action copyAction = new DefaultEditorKit.CopyAction();
         final Action cutAction = new DefaultEditorKit.CutAction();
-        
+
         cutAction.setEnabled(false);
         copyAction.setEnabled(false);
 
@@ -67,6 +67,7 @@ public final class CodeEditorTopComponent extends TopComponent {
         // For code pane window, enable only copy and cut buttons
         // when text is selected
         ce.codePane().addCaretListener(new CaretListener() {
+
             public void caretUpdate(CaretEvent e) {
                 int dot = e.getDot();
                 int mark = e.getMark();
@@ -83,6 +84,7 @@ public final class CodeEditorTopComponent extends TopComponent {
         // For output window, enable only copy (and not cut) button
         // when text is selected
         ce.output().addCaretListener(new CaretListener() {
+
             public void caretUpdate(CaretEvent e) {
                 int dot = e.getDot();
                 int mark = e.getMark();
@@ -154,7 +156,7 @@ public final class CodeEditorTopComponent extends TopComponent {
 
     @Override
     public int getPersistenceType() {
-        return TopComponent.PERSISTENCE_ALWAYS;
+        return TopComponent.PERSISTENCE_NEVER;
     }
 
     @Override
@@ -178,15 +180,6 @@ public final class CodeEditorTopComponent extends TopComponent {
         super.componentActivated();
     }
 
-//    @Override
-//    protected void componentDeactivated() {
-//        ActionMap actionMap = getActionMap();
-//        actionMap.put(DefaultEditorKit.copyAction, SystemAction.get(CopyAction.class));
-//        actionMap.put(DefaultEditorKit.cutAction, SystemAction.get(CutAction.class));
-//        actionMap.put(DefaultEditorKit.pasteAction, SystemAction.get(PasteAction.class));
-//
-//        super.componentDeactivated();
-//    }
     @Override
     public void componentClosed() {
         // TODO add custom code on component closing
@@ -196,14 +189,7 @@ public final class CodeEditorTopComponent extends TopComponent {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
-        CommandHistory ch = (CommandHistory) CommandHistory.instance();
-        try {
-            p.setProperty("history", XMLUtil.toAttributeValue(ch.asString()));
-            // TODO store your settings
-        } catch (Throwable ex) {
-            Exceptions.printStackTrace(ex);
-            p.setProperty("history", "");
-        }
+        // TODO store your settings
     }
 
     Object readProperties(java.util.Properties p) {
@@ -217,14 +203,6 @@ public final class CodeEditorTopComponent extends TopComponent {
     private void readPropertiesImpl(java.util.Properties p) {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
-        try {
-            String history = p.getProperty("history");
-            CommandHistory ch = (CommandHistory) CommandHistory.instance();
-            ch.loadFrom(history);
-        } catch (Throwable t) {
-            Exceptions.printStackTrace(t);
-            // do nothing and proceed with startup
-        }
     }
 
     @Override

@@ -33,6 +33,8 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   val Log = Logger.getLogger(getClass.getName);
 
   val tCanvas = sprite.SpriteCanvas.instance
+  tCanvas.outputFn = showOutput _
+  
   val commandHistory = CommandHistory.instance
   @volatile var pendingCommands = false
 
@@ -154,19 +156,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
           setCode(commandHistory.size-1)
         }
 
-        def reportOutput(lineFragment: String) {
-          def maybeTruncateOutput {
-            val doc = output.getDocument
-            if (doc.getLength > 50000) doc.remove(0, 10000)
-          }
-
-          Utils.runInSwingThread {
-            maybeTruncateOutput
-            output.append(lineFragment)
-            output.setCaretPosition(output.getDocument().getLength())
-            if (!clearButton.isEnabled) clearButton.setEnabled(true)
-          }
-        }
+        def reportOutput(lineFragment: String) = showOutput(lineFragment)
 
         def getCurrentOutput = output.getText
 
@@ -276,12 +266,31 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     }
   }
 
+  def showOutput(lineFragment: String) {
+    def maybeTruncateOutput {
+      val doc = output.getDocument
+      if (doc.getLength > 50000) doc.remove(0, 10000)
+    }
+
+    Utils.runInSwingThread {
+      maybeTruncateOutput
+      output.append(lineFragment)
+      output.setCaretPosition(output.getDocument().getLength())
+      if (!clearButton.isEnabled) clearButton.setEnabled(true)
+    }
+  }
+
   def runCode() {
     // Runs on swing thread
     val code = codePane.getText()
     if (code == null || code.trim.length == 0) return
 
-    commandHistory.add(code)
+    try {
+      commandHistory.add(code)
+    }
+    catch {
+      case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))
+    }
     codeRunner.runCode(code)
   }
 

@@ -32,175 +32,23 @@ import scala.actors.Actor._
 
 import net.kogics.kojo._
 import net.kogics.kojo.util._
+import net.kogics.kojo.geom._
+import net.kogics.kojo.core.geom._
 
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
-
-abstract sealed class Command(val valid: AtomicBoolean)
-case class Forward(n: Double, v: AtomicBoolean) extends Command(v)
-case class Turn(angle: Double, v: AtomicBoolean)  extends Command(v)
-case class Clear(v: AtomicBoolean) extends Command(v)
-case class Remove(v: AtomicBoolean) extends Command(v)
-case class PenUp(v: AtomicBoolean) extends Command(v)
-case class PenDown(v: AtomicBoolean) extends Command(v)
-case class Towards(x: Double, y: Double, v: AtomicBoolean) extends Command(v)
-case class JumpTo(x: Double, y: Double, v: AtomicBoolean) extends Command(v)
-case class MoveTo(x: Double, y: Double, v: AtomicBoolean) extends Command(v)
-case class SetAnimationDelay(d: Long, v: AtomicBoolean) extends Command(v)
-case class GetAnimationDelay(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
-case class GetPosition(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
-case class GetHeading(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
-case class SetPenColor(color: Color, v: AtomicBoolean) extends Command(v)
-case class SetPenThickness(t: Double, v: AtomicBoolean) extends Command(v)
-case class SetFillColor(color: Color, v: AtomicBoolean) extends Command(v)
-case class BeamsOn(v: AtomicBoolean) extends Command(v)
-case class BeamsOff(v: AtomicBoolean) extends Command(v)
-case class Write(text: String, v: AtomicBoolean) extends Command(v)
-case class Show(v: AtomicBoolean) extends Command(v)
-case class Hide(v: AtomicBoolean) extends Command(v)
-case class Point(x: Double, y: Double, v: AtomicBoolean) extends Command(v)
-case object CommandDone
-case object Stop
-
-trait SpriteListener {
-  /**
-   * The Sprite has pending commands in its queue
-   */
-  def hasPendingCommands: Unit
-
-  /**
-   * The Sprite has no more pending commands.
-   */
-  def pendingCommandsDone(): Unit
-
-  def commandStarted(cmd: Command): Unit
-  def commandDiscarded(cmd: Command): Unit
-  def commandDone(cmd: Command): Unit
-
+object Geometer {
+  val handleLayer = new PLayer
 }
 
-abstract class AbstractSpriteListener extends SpriteListener {
-  def hasPendingCommands: Unit = {}
-  def pendingCommandsDone(): Unit = {}
-  def commandStarted(cmd: Command): Unit = {}
-  def commandDiscarded(cmd: Command): Unit = {}
-  def commandDone(cmd: Command): Unit = {}
-}
-
-object NoOpListener extends AbstractSpriteListener {}
-
-trait Pen {
-  def init(): Unit
-  def clear(): Unit
-  def positionAt(x: Float, y: Float): Unit
-  def startMove(x: Float, y: Float): Unit
-  def move(x: Float, y: Float): Unit
-  def endMove(x: Float, y: Float): Unit
-  def setColor(color: Color): Unit
-  def setThickness(t: Double): Unit
-  def setFillColor(color: Color): Unit
-}
-
-abstract class AbstractPen(sprite: Sprite, penPaths: mutable.ArrayBuffer[PPath], layer: PLayer) extends Pen {
-  val Log = Logger.getLogger(getClass.getName);
-
-  val DefaultColor = Color.red
-  val DefaultFillColor = null
-  val DefaultStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
-  var lineColor: Color = _
-  var fillColor: Color = _
-  var lineStroke: Stroke = _
-
-  def init() {
-    lineColor = DefaultColor
-    fillColor = DefaultFillColor
-    lineStroke = DefaultStroke
-    addNewPath()
-  }
-
-  def newPath(): PPath = {
-    val penPath = new PPath
-    penPath.moveTo(sprite._position.x.toFloat, sprite._position.y.toFloat)
-    penPath.setStroke(lineStroke)
-    penPath.setStrokePaint(lineColor)
-    penPath.setPaint(fillColor)
-    penPath
-  }
-
-  def addNewPath() {
-    val penPath = newPath()
-    penPaths += penPath
-    layer.addChild(layer.getChildrenCount-1, penPath)
-  }
-
-  def setColor(color: Color) {
-    lineColor = color
-    addNewPath()
-  }
-
-  def setThickness(t: Double) {
-    lineStroke = new BasicStroke(t.toFloat, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
-    addNewPath()
-  }
-  
-  def setFillColor(color: Color) {
-    fillColor = color
-    addNewPath()
-  }
-
-  def addToLayer() = {
-    penPaths.foreach {penPath => layer.addChild(layer.getChildrenCount-1, penPath)}
-  }
-
-  def clear() = {
-    penPaths.foreach { penPath =>
-      penPath.reset()
-      layer.removeChild(penPath)
-    }
-    penPaths.clear
-  }
-
-  def positionAt(x: Float, y: Float) = penPaths.last.moveTo(x, y)
-}
-
-class UpPen(sprite: Sprite, penPaths: mutable.ArrayBuffer[PPath], layer: PLayer) extends AbstractPen(sprite, penPaths, layer) {
-  def startMove(x: Float, y: Float) {}
-  def move(x: Float, y: Float) {}
-  def endMove(x: Float, y: Float) {
-    penPaths.last.moveTo(x, y)
-  }
-}
-
-class DownPen(sprite: Sprite, penPaths: mutable.ArrayBuffer[PPath], layer: PLayer) extends AbstractPen(sprite, penPaths, layer) {
-  var tempLine = new PPath
-  val lineAnimationColor = Color.orange
-
-  def startMove(x: Float, y: Float) {
-    tempLine.setStroke(lineStroke)
-    tempLine.setStrokePaint(lineAnimationColor)
-    tempLine.moveTo(x, y)
-    layer.addChild(layer.getChildrenCount-1, tempLine)
-  }
-  def move(x: Float, y: Float) {
-    tempLine.lineTo(x, y)
-    tempLine.repaint()
-  }
-  def endMove(x: Float, y: Float) {
-    layer.removeChild(tempLine)
-    tempLine.reset
-    penPaths.last.lineTo(x, y)
-    penPaths.last.repaint()
-  }
-}
-
-class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Double = 0, bottomLayer: Boolean = false) extends core.Sprite {
-  val Log = Logger.getLogger(getClass.getName);
+class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Double = 0, bottomLayer: Boolean = false) extends core.Sprite {
+  val Log = Logger.getLogger(getClass.getName)
   Log.info("Sprite being created in thread: " + Thread.currentThread.getName)
 
   private val layer = new PLayer
   private val camera = canvas.getCamera
-  if (bottomLayer) camera.addLayer(0, layer) else camera.addLayer(layer)
+  if (bottomLayer) camera.addLayer(0, layer) else camera.addLayer(camera.getLayerCount-1, layer)
   private val throttler = new Throttler {}
   @volatile var _animationDelay = 0l
 
@@ -214,6 +62,7 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   val yBeam = PPath.createLine(-20, 0, 50, 0)
   yBeam.setStrokePaint(Color.gray)
 
+  val penPaths = new mutable.ArrayBuffer[PolyLine]
   val (downPen, upPen) = makePens
   @volatile var pen: Pen = downPen
 
@@ -222,6 +71,7 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   @volatile var removed: Boolean = false
 
   val CommandActor = makeCommandProcessor()
+  @volatile var geomObj: PolygonView = _
 
   def init() {
     _animationDelay = 1000l
@@ -229,7 +79,7 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
     if (!turtle.getChildrenReference.contains(turtleImage))
       turtle.addChild(turtleImage)
     layer.addChild(turtle)
-    
+
     pen.init
     turtle.setOffset(initX, initY)
     resetRotation
@@ -246,7 +96,7 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   def thetaRadians = theta
 
   def realWorker(fn: (() => Unit) => Unit) {
-    Utils.runInSwingThread { 
+    Utils.runInSwingThread {
       fn { () =>
         CommandActor ! CommandDone
       }
@@ -255,7 +105,7 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
 
   def enqueueCommand(cmd: Command) {
     if (removed) return
-    
+
     CommandActor ! cmd
     throttler.throttle
   }
@@ -278,6 +128,7 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   def visible() = enqueueCommand(Show(cmdBool))
   def invisible() = enqueueCommand(Hide(cmdBool))
   def point(x: Double, y: Double) = enqueueCommand(Point(x, y, cmdBool))
+  def showVertices() = enqueueCommand(ShowVertices(cmdBool))
 
   def remove() = {
     enqueueCommand(Remove(cmdBool))
@@ -290,6 +141,7 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
       case 'animationDelay => GetAnimationDelay(latch, cmdBool)
       case 'position => GetPosition(latch, cmdBool)
       case 'heading => GetHeading(latch, cmdBool)
+      case 'pathToPolygon => PathToPolygon(latch, cmdBool)
     }
 
     enqueueCommand(cmd)
@@ -299,7 +151,7 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
       listener.hasPendingCommands
       done = latch.await(10, TimeUnit.MILLISECONDS)
     }
-    
+
     listener.pendingCommandsDone
   }
 
@@ -316,6 +168,11 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   def heading: Double = {
     getWorker('heading)
     thetaDegrees
+  }
+
+  def pathToPolygon(): PolygonView = {
+    getWorker('pathToPolygon)
+    geomObj
   }
 
   def realForward(n: Double) {
@@ -397,7 +254,10 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   }
 
   def realPenDown() {
-    pen = downPen
+    if (pen != downPen) {
+      pen = downPen
+      pen.updatePosition()
+    }
     CommandActor ! CommandDone
   }
 
@@ -429,7 +289,7 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   def realJumpTo(x: Double, y: Double) {
     realWorker { doneFn =>
       _position.setLocation(x, y)
-      pen.positionAt(x.toFloat, y.toFloat)
+      pen.updatePosition()
       turtle.setOffset(x, y)
       turtle.repaint()
       doneFn()
@@ -530,6 +390,16 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
     }
   }
 
+  def realShowVertices() {
+//    realWorker { doneFn =>
+//      penPaths.last.addHandles()
+////      penPaths.last.showAngles()
+//      penPaths.last.repaint()
+//      pen.asInstanceOf[AbstractPen].addNewPath()
+//      doneFn()
+//    }
+  }
+
   def realPoint(x: Double, y: Double) {
     realJumpTo(x, y)
     CommandActor.receive {
@@ -538,6 +408,24 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
     realWorker { doneFn =>
       pen.startMove(x.toFloat, y.toFloat)
       pen.endMove(x.toFloat, y.toFloat)
+      doneFn()
+    }
+  }
+
+  def realPathToPolygon() {
+    realWorker { doneFn =>
+      try {
+        val pgon = new PolygonConstraint(penPaths.last, Geometer.handleLayer)
+        pgon.addHandles()
+        pgon.repaint()
+        geomObj = new PolygonView {
+          def showAngles() = pgon.showAngles()
+        }
+        pen.asInstanceOf[AbstractPen].addNewPath()
+      }
+      catch {
+        case e: IllegalArgumentException => canvas.outputFn(e.getMessage)
+      }
       doneFn()
     }
   }
@@ -561,9 +449,8 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   }
 
   def makePens(): (Pen, Pen) = {
-    val paths = new mutable.ArrayBuffer[PPath]
-    val downPen = new DownPen(this, paths, layer)
-    val upPen = new UpPen(this, paths, layer)
+    val downPen = new DownPen()
+    val upPen = new UpPen()
     (downPen, upPen)
   }
 
@@ -689,8 +576,110 @@ class Sprite(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
           processCommand(cmd) {
             realPoint(x, y)
           }
+        case cmd @ ShowVertices(b) =>
+          processCommand(cmd) {
+            realShowVertices()
+          }
+        case cmd @ PathToPolygon(l, b) =>
+          processGetCommand(cmd, l) {
+            realPathToPolygon()
+          }
       }
     }
   }
-}
 
+  abstract class AbstractPen extends Pen {
+    val Log = Logger.getLogger(getClass.getName);
+
+    val sprite = Geometer.this
+    val DefaultColor = Color.red
+    val DefaultFillColor = null
+    val DefaultStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+    var lineColor: Color = _
+    var fillColor: Color = _
+    var lineStroke: Stroke = _
+
+    def init() {
+      lineColor = DefaultColor
+      fillColor = DefaultFillColor
+      lineStroke = DefaultStroke
+      addNewPath()
+    }
+
+    def newPath(): PolyLine = {
+      val penPath = new PolyLine()
+      penPath.addPoint(sprite._position.x.toFloat, sprite._position.y.toFloat)
+      penPath.setStroke(lineStroke)
+      penPath.setStrokePaint(lineColor)
+      penPath.setPaint(fillColor)
+      penPath
+    }
+
+    def addNewPath() {
+      val penPath = newPath()
+      penPaths += penPath
+      layer.addChild(layer.getChildrenCount-1, penPath)
+    }
+
+    def setColor(color: Color) {
+      lineColor = color
+      addNewPath()
+    }
+
+    def setThickness(t: Double) {
+      lineStroke = new BasicStroke(t.toFloat, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+      addNewPath()
+    }
+
+    def setFillColor(color: Color) {
+      fillColor = color
+      addNewPath()
+    }
+
+    def addToLayer() = {
+      penPaths.foreach {penPath => layer.addChild(layer.getChildrenCount-1, penPath)}
+    }
+
+    def clear() = {
+      penPaths.foreach { penPath =>
+        penPath.reset()
+        layer.removeChild(penPath)
+      }
+      penPaths.clear
+    }
+
+    def updatePosition() = {
+      addNewPath()
+    }
+  }
+
+  class UpPen extends AbstractPen {
+    def startMove(x: Float, y: Float) {}
+    def move(x: Float, y: Float) {}
+    def endMove(x: Float, y: Float) {
+//      penPaths.last.moveTo(x, y)
+    }
+  }
+
+  class DownPen extends AbstractPen {
+    var tempLine = new PPath
+    val lineAnimationColor = Color.orange
+
+    def startMove(x: Float, y: Float) {
+      tempLine.setStroke(lineStroke)
+      tempLine.setStrokePaint(lineAnimationColor)
+      tempLine.moveTo(x, y)
+      layer.addChild(layer.getChildrenCount-1, tempLine)
+    }
+    def move(x: Float, y: Float) {
+      tempLine.lineTo(x, y)
+      tempLine.repaint()
+    }
+    def endMove(x: Float, y: Float) {
+      layer.removeChild(tempLine)
+      tempLine.reset
+      penPaths.last.lineTo(x, y)
+      penPaths.last.repaint()
+    }
+  }
+}

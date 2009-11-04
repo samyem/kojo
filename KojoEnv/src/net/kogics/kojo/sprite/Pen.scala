@@ -12,15 +12,18 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.core
+package net.kogics.kojo.sprite
 
-trait SCanvas extends SpriteMover {
+import java.awt.Color
+
+trait Pen {
+  def init(): Unit
   def clear(): Unit
-  def clearPuzzlers(): Unit
-  def newTurtle(x: Int, y: Int): Sprite
-  def newPuzzler(x: Int, y: Int): Sprite
-  def newGeometer(x: Int, y: Int): Sprite
-  def turtle0: Sprite
-  def axesOn(): Unit
-  def axesOff(): Unit
+  def updatePosition(): Unit
+  def startMove(x: Float, y: Float): Unit
+  def move(x: Float, y: Float): Unit
+  def endMove(x: Float, y: Float): Unit
+  def setColor(color: Color): Unit
+  def setThickness(t: Double): Unit
+  def setFillColor(color: Color): Unit
 }

@@ -138,8 +138,8 @@ Here's a partial list of available commands:
     def axesOn() = tCanvas.axesOn()
     def axesOff() = tCanvas.axesOff()
 
-
-    def forward() = println("Please provide the distance to move - e.g. forward(100)")
+    def forward() = println("Please provide the distance to move forward - e.g. forward(100)")
+    def back() = println("Please provide the distance to move back - e.g. back(100)")
     def turn() = println("Please provide the angle to turn in degrees - e.g. turn(45)")
     def towards() = println("Please provide the coordinates of the point that the turtle should turn towards - e.g. towards(100, 100)")
     def moveTo() = println("Please provide the coordinates of the point that the turtle should move to - e.g. moveTo(100, 100)")
@@ -198,6 +198,10 @@ Here's a partial list of available commands:
     val turtle0 = tCanvas.turtle0
 
     def newPuzzler(x: Int, y: Int) = tCanvas.newPuzzler(x, y)
+    def newGeometer(x: Int, y: Int) = tCanvas.newGeometer(x, y)
+    def showVertices() = tCanvas.showVertices()
+    def pathToPolygon() = tCanvas.pathToPolygon()
+
 
     def listPuzzles = PuzzleLoader.listPuzzles
     def clearOutput() = ctx.clearOutput()

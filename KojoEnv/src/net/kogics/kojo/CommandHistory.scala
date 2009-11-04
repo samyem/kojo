@@ -15,18 +15,65 @@
 package net.kogics.kojo
 
 import scala.collection._
+import java.io._
 
 trait HistoryListener {
   def itemAdded
   def selectionChanged(n: Int)
 }
 
-object CommandHistory extends Singleton[CommandHistory] {
-  protected def newInstance = new CommandHistory
+class HistorySaver {
+  var writer = new BufferedWriter(new FileWriter(CommandHistory.historyFile, true))
+
+  def append(script: String) = {
+    writer.append(script)
+    writer.append(CommandHistory.Seperator)
+    writer.flush()
+  }
+
+  def write(items: Array[String]) {
+    writer.close()
+    writer = new BufferedWriter(new FileWriter(CommandHistory.historyFile, false))
+    items.foreach { hItem =>
+      writer.append(hItem)
+      writer.append(CommandHistory.Seperator)
+    }
+    writer.close()
+    writer = new BufferedWriter(new FileWriter(CommandHistory.historyFile, true))
+  }
 }
 
-class CommandHistory private[kojo] {
-  val Log = java.util.logging.Logger.getLogger(getClass.getName);
+object CommandHistory extends Singleton[CommandHistory] {
+//  val Log = java.util.logging.Logger.getLogger("CommandHistoryO");
+  val Seperator = "---Seperator---"
+  val MaxHistorySize = 1000
+
+  val historyFile = {
+    val userDir = System.getProperty("netbeans.user")
+    val historyFileName = userDir + File.separator + "config" + File.separator + "history.txt"
+    new File(historyFileName)
+  }
+
+  def loadHistory(): String = {
+    if (!historyFile.exists) {
+      historyFile.createNewFile()
+      ""
+    }
+    else {
+      import net.kogics.kojo.util.RichFile._
+      historyFile.readAsString
+    }
+  }
+
+  protected def newInstance = {
+    val hist = new CommandHistory(new HistorySaver(), CommandHistory.MaxHistorySize)
+    hist.loadFrom(loadHistory())
+    hist
+  }
+}
+
+class CommandHistory private[kojo] (historySaver: HistorySaver, maxHistorySize: Int) {
+  val Log = java.util.logging.Logger.getLogger(getClass.getName)
 
   val history = new mutable.ArrayBuffer[String]
   var hIndex = 0
@@ -41,10 +88,15 @@ class CommandHistory private[kojo] {
     listener = None
   }
 
-  def add(code: String) {
+  def internalAdd(code: String) {
     history += code
     hIndex = history.size
+  }
+
+  def add(code: String) {
+    internalAdd(code)
     if(listener.isDefined) listener.get.itemAdded
+    historySaver.append(code)
   }
 
   def hasPrevious = hIndex > 0
@@ -86,21 +138,15 @@ class CommandHistory private[kojo] {
     listener = None
   }
 
-  val Seperator = "---Seperator---"
-  def asString: String = {
-    val sb = new StringBuilder
-    history.foreach { hitem =>
-      sb.append(hitem.replaceAll("\n", "---LineBreak---"))
-      sb.append(Seperator)
-    }
-    sb.toString
-  }
-
   def loadFrom(stringHistory: String) {
 //    Log.info("Loading History from: " + stringHistory)
-    if (stringHistory == null) return
+    if (stringHistory == null || stringHistory.trim() == "") return
     
-    val items = stringHistory.split(Seperator)
-    items.foreach {hItem => add(hItem.replaceAll("---LineBreak---", "\n"))}
+    var items = stringHistory.split(CommandHistory.Seperator)
+    if (items.length > maxHistorySize) {
+      items = items.slice(items.size - maxHistorySize, items.size)
+      historySaver.write(items)
+    }
+    items.foreach {hItem => internalAdd(hItem)}
   }
 }

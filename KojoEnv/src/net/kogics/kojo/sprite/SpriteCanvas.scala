@@ -39,13 +39,19 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val Log = Logger.getLogger(getClass.getName);
   val defLayer = getLayer
 
+  var outputFn: (String) => Unit = { msg =>
+    Log.info(msg)
+  }
+
   setBackground(Color.white)
   setPreferredSize(new Dimension(200, 400))
   setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING)
   setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING)
 
-  var turtles: List[Sprite] = Nil
-  var puzzlers: List[Sprite] = Nil
+  var turtles: List[Geometer] = Nil
+  var puzzlers: List[Geometer] = Nil
+
+  getCamera.addLayer(Geometer.handleLayer)
 
   initCamera()
 
@@ -150,6 +156,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def invisible() = turtle.invisible()
 
   def point(x: Double, y: Double) = turtle.point(x, y)
+  def showVertices() = turtle.showVertices()
+  def pathToPolygon() = turtle.pathToPolygon()
 
   def stop() = {
     val latch = new CountDownLatch(1)
@@ -164,10 +172,11 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def turtle0 = turtle
 
   def newTurtle(x: Int = 0, y: Int = 0) = {
-    var t: Sprite = null
+    var t: Geometer = null
     val latch = new CountDownLatch(1)
     Utils.runInSwingThread {
-      t = new Sprite(this, "/images/turtle32.png", x, y)
+//      t = new Sprite(this, "/images/turtle32.png", x, y)
+      t = new Geometer(this, "/images/turtle32.png", x, y)
       t.setSpriteListener(megaListener)
       turtles = t :: turtles
       latch.countDown()
@@ -178,15 +187,29 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def newPuzzler(x: Int = 0, y: Int = 0) = {
-    var t: Sprite = null
+    var t: Geometer = null
     val latch = new CountDownLatch(1)
     Utils.runInSwingThread {
-      t = new Sprite(this, "/images/puzzler32.png", x, y, true)
+      t = new Geometer(this, "/images/puzzler32.png", x, y, true)
       t.setSpriteListener(megaListener)
       t.setPenThickness(1)
       t.setPenColor(Color.blue)
       t.setAnimationDelay(10)
       puzzlers = t :: puzzlers
+      latch.countDown()
+    }
+    latch.await
+    this.repaint()
+    t
+  }
+
+  def newGeometer(x: Int = 0, y: Int = 0) = {
+    var t: Geometer = null
+    val latch = new CountDownLatch(1)
+    Utils.runInSwingThread {
+      t = new Geometer(this, "/images/turtle32.png", x, y)
+      t.setSpriteListener(megaListener)
+//      turtles = t :: turtles
       latch.countDown()
     }
     latch.await

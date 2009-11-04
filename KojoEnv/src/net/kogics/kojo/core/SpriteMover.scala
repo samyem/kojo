@@ -16,6 +16,7 @@ package net.kogics.kojo.core
 
 trait SpriteMover {
   def forward(n: Double): Unit
+  def back(n: Double) = forward(-n)
   def turn(angle: Double): Unit
   def right(): Unit
   def left(): Unit
@@ -37,4 +38,7 @@ trait SpriteMover {
   def visible(): Unit
   def invisible(): Unit
   def point(x: Double, y: Double)
+  def showVertices(): Unit
+  def clear(): Unit
+  def pathToPolygon(): geom.PolygonView
 }

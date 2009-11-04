@@ -454,11 +454,10 @@ rail(t13)
   val Rangoli = """
 clear()
 
-
 val t1=newTurtle(-600,-150)
 val t2=newTurtle(-600, 150)
 
-def border(t: Sprite, a: Double){
+def border(t: Sprite, a: Double) {
     t.setAnimationDelay(100)
     t.setPenColor(black)
     t.right
@@ -476,7 +475,9 @@ def border(t: Sprite, a: Double){
         t.forward(40)
         t.turn(a)
         t.forward(40)
-        t.turn(a)}}
+        t.turn(a)
+    }
+}
 
 border(t1,120)
 border(t2,-120)
@@ -490,7 +491,9 @@ repeat(6){
     turn(-120)
     repeat(90){
         turn(-2)
-        forward(2)}}
+        forward(2)
+    }
+}
 
 val t3=newTurtle(-300,100)
 val t4=newTurtle(-400,0)
@@ -502,7 +505,7 @@ val t8=newTurtle(300,0)
 val t9=newTurtle(400,100)
 val t10=newTurtle(500,0)
 
-def flower(tt:Sprite, c:Color){
+def flower(tt:Sprite, c:Color) {
     tt.setAnimationDelay(20)
     tt.setPenColor(black)
     tt.setFillColor(c)
@@ -510,7 +513,10 @@ def flower(tt:Sprite, c:Color){
         tt.right
         repeat(90){
             tt.turn(-2)
-            tt.forward(2)}}}
+            tt.forward(2)
+        }
+    }
+}
 
 flower(t3, orange)
 flower(t4, yellow)
@@ -533,6 +539,5 @@ t7.invisible
 t8.invisible
 t9.invisible
 t10.invisible
-  
-  """
+"""
 }
