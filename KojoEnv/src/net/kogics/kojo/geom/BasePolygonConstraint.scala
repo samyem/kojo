@@ -122,7 +122,7 @@ class BasePolygonConstraint(shape: PolyLine, handleLayer: PLayer) extends Geomet
 
   def updateLength(p0: Point2D.Float, p1: Point2D.Float, length: PText) {
     val len = Vector2(p1.x-p0.x, p1.y-p0.y).length
-    length.setText("%.0f" format(len))
+    length.setText("%.1f" format(len))
     length.setOffset((p0.x+p1.x)/2, (p0.y+p1.y)/2)
   }
 

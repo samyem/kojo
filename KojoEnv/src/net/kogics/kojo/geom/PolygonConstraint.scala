@@ -32,25 +32,20 @@ import net.kogics.kojo.core.geom._
 class PolygonConstraint(shape: PolyLine, handleLayer: PLayer) extends BasePolygonConstraint(shape, handleLayer) {
 
   if (!pointsSame(points(0), points.last))
-    throw new IllegalArgumentException("Unable to convert Path to Polygon - not a closed shape")
+    throw new IllegalArgumentException("Unable to convert Path to Polygon - not a closed shape\n")
 
   points.remove(points.size-1)
   shape.close
 
   def addHandles() {
-    def linkedPoint(i: Int) = {
-      if (i == 0) points(points.size-1)
-      else points(i-1)
-    }
-
     for (i <- 0 until points.size) {
-      addHandle(points(i), linkedPoint(i))
+      addHandle(points(i))
     }
 
     handleLayer.repaint()
   }
 
-  def addHandle(point: Point2D.Float, linkedPoint: Point2D.Float) {
+  def addHandle(point: Point2D.Float) {
     val l = new PLocator() {
       override def locateX() = point.x
       override def locateY() = point.y
@@ -62,10 +57,8 @@ class PolygonConstraint(shape: PolyLine, handleLayer: PLayer) extends BasePolygo
         point.setLocation(point.x + aLocalDimension.getWidth(), point.y
                           + aLocalDimension.getHeight())
 
-//        linkedPoint.setLocation(linkedPoint.x + aLocalDimension.getWidth(), linkedPoint.y
-//                                + aLocalDimension.getHeight())
-
         relocateHandle()
+        this.repaint()
         updateAngles()
         updateLengths()
         shape.updateBounds()

@@ -30,6 +30,9 @@ import net.kogics.kojo.util._
 
 class PGramConstraint(shape: PolyLine, handleLayer: PLayer) extends BasePolygonConstraint(shape, handleLayer) {
 
+  if (!pointsSame(points(0), points.last))
+    throw new IllegalArgumentException("Unable to convert Path to Parallelogram - not a closed shape\n")
+
   if (points.size != 5)
     throw new IllegalArgumentException("Unable to convert Path to Parallelogram - shape does not have four vertices\n")
 
@@ -81,9 +84,11 @@ class PGramConstraint(shape: PolyLine, handleLayer: PLayer) extends BasePolygonC
                                 + aLocalDimension.getHeight())
 
         relocateHandle()
+        this.repaint()
 
         val linkedHandle = handles(linkedIndex)
         linkedHandle.relocateHandle()
+        linkedHandle.repaint()
 
         updateAngles()
         updateLengths()
