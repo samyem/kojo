@@ -12,12 +12,21 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.core.geom
+package net.kogics.kojo.geom
 
-trait DynamicShape {
-  def showAngles()
-  def showLengths()
-  def hideAngles()
-  def hideLengths()
-  def trackVars(fn: scala.collection.mutable.Map[String, Float] => Unit)
+object LabelCounters {
+
+  var angleCounter = 1
+  var lengthCounter = 1
+
+  def nextAngleCounter = {
+    angleCounter += 1
+    angleCounter - 1
+  }
+
+  def nextLengthCounter = {
+    lengthCounter += 1
+    lengthCounter - 1
+  }
+
 }

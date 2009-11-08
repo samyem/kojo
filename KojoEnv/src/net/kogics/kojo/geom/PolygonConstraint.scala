@@ -29,14 +29,13 @@ import edu.umd.cs.piccolox.util._
 import net.kogics.kojo.util._
 import net.kogics.kojo.core.geom._
 
-class PolygonConstraint(shape: PolyLine, handleLayer: PLayer) extends BasePolygonConstraint(shape, handleLayer) {
+class PolygonConstraint(shape: PolyLine, handleLayer: PLayer, outputFn: String=>Unit) extends BasePolygonConstraint(shape, handleLayer, outputFn) {
 
-  if (!pointsSame(points(0), points.last))
-    throw new IllegalArgumentException("Unable to convert Path to Polygon - not a closed shape\n")
-
-  points.remove(points.size-1)
-  shape.close
-
+  def init(shape: PolyLine) {
+    if (!pointsSame(points(0), points.last))
+      throw new IllegalArgumentException("Unable to convert Path to Polygon - not a closed shape\n")
+  }
+  
   def addHandles() {
     for (i <- 0 until points.size) {
       addHandle(points(i))

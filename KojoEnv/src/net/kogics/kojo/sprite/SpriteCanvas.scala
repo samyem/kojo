@@ -39,7 +39,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val Log = Logger.getLogger(getClass.getName);
   val defLayer = getLayer
 
-  var outputFn: (String) => Unit = { msg =>
+  var outputFn: String => Unit = { msg =>
     Log.info(msg)
   }
 

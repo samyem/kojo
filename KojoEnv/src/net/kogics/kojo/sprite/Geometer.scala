@@ -410,7 +410,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     realWorker { doneFn =>
       geomObj = null
       try {
-        val pgon = new PolygonConstraint(penPaths.last, Geometer.handleLayer)
+        val pgon = new PolygonConstraint(penPaths.last, Geometer.handleLayer, canvas.outputFn)
         pgon.addHandles()
         pgon.repaint()
         geomObj = new DynamicShapeImpl(pgon)
@@ -427,7 +427,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     realWorker { doneFn =>
       geomObj = null
       try {
-        val pgon = new PGramConstraint(penPaths.last, Geometer.handleLayer)
+        val pgon = new PGramConstraint(penPaths.last, Geometer.handleLayer, canvas.outputFn)
         pgon.addHandles()
         pgon.repaint()
         geomObj = new DynamicShapeImpl(pgon)
@@ -699,5 +699,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     def hideAngles() = pgon.hideAngles()
     def showLengths() = pgon.showLengths()
     def hideLengths() = pgon.hideLengths()
+    def trackVars(fn: scala.collection.mutable.Map[String, Float] => Unit) = pgon.trackVars(fn)
   }
 }

@@ -28,19 +28,18 @@ import net.kogics.kojo.core.geom._
 import net.kogics.kojo.util._
 
 
-class PGramConstraint(shape: PolyLine, handleLayer: PLayer) extends BasePolygonConstraint(shape, handleLayer) {
+class PGramConstraint(shape: PolyLine, handleLayer: PLayer, outputFn: String=>Unit) extends BasePolygonConstraint(shape, handleLayer, outputFn) {
 
-  if (!pointsSame(points(0), points.last))
-    throw new IllegalArgumentException("Unable to convert Path to Parallelogram - not a closed shape\n")
+  def init(shape: PolyLine) {
+    if (!pointsSame(points(0), points.last))
+      throw new IllegalArgumentException("Unable to convert Path to Parallelogram - not a closed shape\n")
 
-  if (points.size != 5)
-    throw new IllegalArgumentException("Unable to convert Path to Parallelogram - shape does not have four vertices\n")
+    if (points.size != 5)
+      throw new IllegalArgumentException("Unable to convert Path to Parallelogram - shape does not have four vertices\n")
 
-  if (!isPGram())
-    throw new IllegalArgumentException("Unable to convert Path to Parallelogram - opposite sides are not parallel and equal\n")
-
-  points.remove(points.size-1)
-  shape.close
+    if (!isPGram())
+      throw new IllegalArgumentException("Unable to convert Path to Parallelogram - opposite sides are not parallel and equal\n")
+  }
 
   def isPGram() = {
     val delx1 = points(0).x - points(1).x
