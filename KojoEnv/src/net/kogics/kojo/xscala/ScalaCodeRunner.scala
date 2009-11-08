@@ -168,8 +168,6 @@ Here's a partial list of available commands:
     def turn(angle: Double) = tCanvas.turn(angle)
     def clear() = tCanvas.clear()
     def clearPuzzlers() = tCanvas.clearPuzzlers()
-    def right() = tCanvas.right()
-    def left() = tCanvas.left()
     def penUp() = tCanvas.penUp()
     def penDown() = tCanvas.penDown()
     def setPenColor(color: Color) = tCanvas.setPenColor(color)

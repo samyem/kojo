@@ -440,10 +440,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-
-  def right() = turn(-90)
-  def left() = turn(90)
-
   def resetRotation() {
     theta = deg2radians(90)
     turtle.setRotation(theta)

@@ -126,9 +126,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     latch.await
   }
 
-  def right() = turtle.right()
-  def left() = turtle.left()
-
   def penUp() = turtle.penUp()
   def penDown() = turtle.penDown()
   def setPenColor(color: Color) = turtle.setPenColor(color)
