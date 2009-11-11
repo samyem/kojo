@@ -32,6 +32,8 @@ object SampleCode {
       case "Plant" => Plant
       case "Sun, Fence, and Flower" => SunFenceFlower
       case "Rangoli" => Rangoli
+      case "Koch Snowflake" => Snowflake
+      case "Tree" => Tree
     }
   }
 
@@ -540,4 +542,66 @@ t8.invisible
 t9.invisible
 t10.invisible
 """
+
+  val Snowflake = """
+def line(count: Int, length: Int) {
+    if (count == 1) forward(length)
+    else {
+        line(count-1, length)
+        left(60)
+        line(count-1, length)
+        right(120)
+        line(count-1, length)
+        left(60)
+        line(count-1, length)
+    }
+}
+
+def koch(count: Int, length: Int) {
+    right(30)
+    line(count, length)
+    right(120)
+    line(count, length)
+    right(120)
+    line(count, length)
+}
+
+clear()
+invisible()
+setPenThickness(1)
+setPenColor(new Color(128, 128, 128))
+setFillColor(new Color(250, 250, 250))
+setAnimationDelay(10)
+penUp
+back(100)
+left
+forward(150)
+right
+penDown
+koch(5, 5)
+  """
+
+  val Tree = """
+def tree(distance: Double) {
+    if (distance > 4) {
+        setPenThickness(distance/7)
+        setPenColor(new Color(distance.toInt, Math.abs(255-distance*3).toInt, 125))
+        forward(distance)
+        right(25)
+        tree(distance*0.8-2)
+        left(45)
+        tree(distance-10)
+        right(20)
+        back(distance)
+    }
+}
+
+clear()
+invisible
+setAnimationDelay(10)
+penUp
+back(200)
+penDown
+tree(90)
+  """
 }

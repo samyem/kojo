@@ -248,7 +248,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       layer.removeChild(turtle)
       camera.removeLayer(layer)
       doneFn()
-      CommandActor ! Stop
     }
   }
 

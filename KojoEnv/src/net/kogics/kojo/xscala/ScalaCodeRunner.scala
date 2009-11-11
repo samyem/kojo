@@ -40,7 +40,18 @@ class ScalaCodeRunner(ctx: net.kogics.kojo.RunContext, tCanvas: SCanvas) {
            "modules/ext/piccolo2d-extras-1.3-SNAPSHOT.jar"
       )
     ))
-  val iSettings = new Settings()
+
+  // Scala Interpreter cannot be loaded by Kojo as of Revision 19285 because of changes in Settings
+  // and MainGenericRunner
+  // I need to follow up with the Scala folks about this when I have some time
+  // Fix for now reverts the behavior of Settings to Revision 19284 by subclassing it and overriding the
+  // classpathDefault method
+  val iSettings = new Settings {
+    private def syspropopt(name: String): Option[String] = onull(System.getProperty(name))
+
+    override protected def classpathDefault =
+      syspropopt("env.classpath") orElse syspropopt("java.class.path") getOrElse ""
+  }
 
   val interpOutput = new PipedInputStream
   val pipedOutput = new PipedOutputStream(interpOutput)
