@@ -38,6 +38,8 @@ object SpriteCanvas extends Singleton[SpriteCanvas] {
 class SpriteCanvas private extends PCanvas with SCanvas {
   val Log = Logger.getLogger(getClass.getName);
   val defLayer = getLayer
+  val AxesColor = new Color(100, 100, 100)
+  val GridColor = new Color(200, 200, 200)
 
   var outputFn: String => Unit = { msg =>
     Log.info(msg)
@@ -53,6 +55,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   getCamera.addLayer(Geometer.handleLayer)
 
+  var grid = new PNode()
   initCamera()
 
   addComponentListener(new ComponentAdapter {
@@ -62,11 +65,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val megaListener = new CompositeListener()
   val turtle = newTurtle()
 
-  val xAxis = PPath.createLine(-250, 0, 250, 0)
-  xAxis.setStrokePaint(Color.gray)
-  val yAxis = PPath.createLine(0, 250, 0, -250)
-  yAxis.setStrokePaint(Color.gray)
-
   addInputEventListener(new PBasicInputEventHandler {
       override def mouseMoved(e: PInputEvent) {
         val pos = e.getPosition
@@ -74,21 +72,88 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       }
     })
 
+  addInputEventListener(new PZoomEventHandler {
+      override def dragActivityStep(event: PInputEvent) {
+        Utils.schedule(0.05) {
+          updateGrid()
+        }
+      }
+    })
+
+  addInputEventListener(new PPanEventHandler{
+      override def pan(event: PInputEvent) {
+        Utils.schedule(0.05) {
+          updateGrid()
+        }
+      }
+    })
+
+//  getPanEventHandler().setAutopan(false)
+
   private def initCamera() {
     val size = getSize(null)
     getCamera.getViewTransformReference.setToScale(1, -1)
     getCamera.setViewOffset(size.getWidth/2f, size.getHeight/2f)
+    updateGrid()
   }
 
-  def axesOn() {
-    defLayer.addChild(0, xAxis)
-    defLayer.addChild(1, yAxis)
+  def updateGrid() {
+    if (!defLayer.getChildrenReference.contains(grid))
+      return
+    
+    val viewBounds = getCamera.getViewBounds()
+    val width = viewBounds.width.toFloat
+    val height = viewBounds.height.toFloat
+    val vbx = viewBounds.x.toFloat
+    val vby = viewBounds.y.toFloat
+
+    val screenCenter = new java.awt.geom.Point2D.Float(vbx + width/2, vby + height/2)
+
+    val numxGridlines = Math.ceil(height / 100).toInt + 4
+    val numyGridlines = Math.ceil(width / 100).toInt + 4
+
+    val yStart = {
+      val y = viewBounds.y
+      if (y < 0) Math.floor(y/100) * 100
+      else Math.ceil(y/100) * 100
+    } - 200
+
+    val xStart = {
+      val x = viewBounds.x
+      if (x < 0) Math.floor(x/100) * 100
+      else Math.ceil(x/100) * 100
+    } - 200
+
+    grid.removeAllChildren()
+
+    for (i <- 0 until numxGridlines) {
+      val gridline = PPath.createLine(screenCenter.x-width/2, (yStart + 100*i).toFloat, screenCenter.x+width/2, (yStart + 100*i).toFloat)
+      gridline.setStrokePaint(GridColor)
+      grid.addChild(gridline)
+    }
+
+    for (i <- 0 until numyGridlines) {
+      val gridline = PPath.createLine((xStart + 100*i).toFloat, screenCenter.y+height/2, (xStart + 100*i).toFloat, screenCenter.y-height/2)
+      gridline.setStrokePaint(GridColor)
+      grid.addChild(gridline)
+    }
+
+    val xAxis = PPath.createLine(screenCenter.x-width/2, 0, screenCenter.x+width/2, 0)
+    xAxis.setStrokePaint(AxesColor)
+    val yAxis = PPath.createLine(0, screenCenter.y+height/2, 0, screenCenter.y-height/2)
+    yAxis.setStrokePaint(AxesColor)
+    grid.addChild(xAxis)
+    grid.addChild(yAxis)
+  }
+
+  def gridOn() {
+    defLayer.addChild(grid)
+    updateGrid()
     repaint()
   }
 
-  def axesOff() {
-    defLayer.removeChild(xAxis)
-    defLayer.removeChild(yAxis)
+  def gridOff() {
+    defLayer.removeChild(grid)
     repaint()
   }
 
@@ -172,7 +237,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     var t: Geometer = null
     val latch = new CountDownLatch(1)
     Utils.runInSwingThread {
-//      t = new Sprite(this, "/images/turtle32.png", x, y)
       t = new Geometer(this, "/images/turtle32.png", x, y)
       t.setSpriteListener(megaListener)
       turtles = t :: turtles
@@ -193,20 +257,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       t.setPenColor(Color.blue)
       t.setAnimationDelay(10)
       puzzlers = t :: puzzlers
-      latch.countDown()
-    }
-    latch.await
-    this.repaint()
-    t
-  }
-
-  def newGeometer(x: Int = 0, y: Int = 0) = {
-    var t: Geometer = null
-    val latch = new CountDownLatch(1)
-    Utils.runInSwingThread {
-      t = new Geometer(this, "/images/turtle32.png", x, y)
-      t.setSpriteListener(megaListener)
-//      turtles = t :: turtles
       latch.countDown()
     }
     latch.await

@@ -34,6 +34,8 @@ object SampleCode {
       case "Rangoli" => Rangoli
       case "Koch Snowflake" => Snowflake
       case "Tree" => Tree
+      case "Polygon" => Polygon
+      case "Parallelogram" => Parallelogram
     }
   }
 
@@ -570,7 +572,7 @@ clear()
 invisible()
 setPenThickness(1)
 setPenColor(new Color(128, 128, 128))
-setFillColor(new Color(250, 250, 250))
+setFillColor(new Color(0xC9C0BB))
 setAnimationDelay(10)
 penUp
 back(100)
@@ -603,5 +605,36 @@ penUp
 back(200)
 penDown
 tree(90)
+  """
+
+  val Polygon = """
+clear()
+def regularPoly(n: Int, size: Int) {
+    repeat(n) {
+        forward(size)
+        left(360.0/n)
+    }
+}
+
+regularPoly(5, 100)
+invisible
+val p = pathToPolygon()
+p.showAngles()
+jumpTo(100, 75)
+write("Drag the vertices\naround to play\nwith the Shape.")
+  """
+
+  val Parallelogram = """
+clear()
+repeat(4) {
+    forward(200)
+    right()
+}
+invisible
+val p = pathToParallelogram()
+p.showAngles()
+p.showLengths()
+jumpTo(-200, 130)
+write("Drag the vertices\naround to play\nwith the Shape.")
   """
 }

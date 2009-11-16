@@ -154,6 +154,94 @@ class SpriteTest {
     assertEquals(315, sprite.thetaDegrees, 0.001)
   }
 
+  @Test
+  def testTowardsRightLeft {
+    var latch = listenToSprite
+    sprite.jumpTo(100, 0)
+    latch.await
+    latch = listenToSprite
+    sprite.towards(0, 0)
+    latch.await
+    assertEquals(180, sprite.thetaDegrees, 0.001)
+  }
+
+  @Test
+  def testTowardsRightRight {
+    var latch = listenToSprite
+    sprite.jumpTo(100, 0)
+    latch.await
+    latch = listenToSprite
+    sprite.towards(200, 0)
+    latch.await
+    assertEquals(0, sprite.thetaDegrees, 0.001)
+  }
+
+  @Test
+  def testTowardsLeftRight {
+    var latch = listenToSprite
+    sprite.jumpTo(-100, 0)
+    latch.await
+    latch = listenToSprite
+    sprite.towards(0, 0)
+    latch.await
+    assertEquals(0, sprite.thetaDegrees, 0.001)
+  }
+
+  @Test
+  def testTowardsLeftLeft {
+    var latch = listenToSprite
+    sprite.jumpTo(-100, 0)
+    latch.await
+    latch = listenToSprite
+    sprite.towards(-200, 0)
+    latch.await
+    assertEquals(180, sprite.thetaDegrees, 0.001)
+  }
+
+  @Test
+  def testTowardsTopBottom {
+    var latch = listenToSprite
+    sprite.jumpTo(0, 100)
+    latch.await
+    latch = listenToSprite
+    sprite.towards(0, 0)
+    latch.await
+    assertEquals(270, sprite.thetaDegrees, 0.001)
+  }
+
+  @Test
+  def testTowardsTopTop {
+    var latch = listenToSprite
+    sprite.jumpTo(0, 100)
+    latch.await
+    latch = listenToSprite
+    sprite.towards(0, 200)
+    latch.await
+    assertEquals(90, sprite.thetaDegrees, 0.001)
+  }
+
+  @Test
+  def testTowardsBottomTop {
+    var latch = listenToSprite
+    sprite.jumpTo(0, -100)
+    latch.await
+    latch = listenToSprite
+    sprite.towards(0, 0)
+    latch.await
+    assertEquals(90, sprite.thetaDegrees, 0.001)
+  }
+
+  @Test
+  def testTowardsBottomBottom {
+    var latch = listenToSprite
+    sprite.jumpTo(0, -100)
+    latch.await
+    latch = listenToSprite
+    sprite.towards(0, -200)
+    latch.await
+    assertEquals(270, sprite.thetaDegrees, 0.001)
+  }
+
   def listenToSprite: java.util.concurrent.CountDownLatch = {
     val latch = new java.util.concurrent.CountDownLatch(1)
 
@@ -177,105 +265,103 @@ class SpriteTest {
     doublesEqual(theta1, theta0 + turnSize, 0.001)
   }
 
-  /*
-   @Test
-   def testManyForwards {
-   val propForward = forAll { stepSize: Int =>
-   val pos0 = sprite.position
-   val latch = listenToSprite
-   sprite.forward(stepSize)
-   latch.await
-   val pos1 = sprite.position
-   (doublesEqual(pos0._1, pos1._1, 0.001)
-   && doublesEqual(pos0._2 + stepSize, pos1._2, 0.001))
-   }
-   assertTrue(SCTest.check(propForward).passed)
-   }
+  @Test
+  def testManyForwards {
+    val propForward = forAll { stepSize: Int =>
+      val pos0 = sprite.position
+      val latch = listenToSprite
+      sprite.forward(stepSize)
+      latch.await
+      val pos1 = sprite.position
+      (doublesEqual(pos0._1, pos1._1, 0.001)
+       && doublesEqual(pos0._2 + stepSize, pos1._2, 0.001))
+    }
+    assertTrue(SCTest.check(propForward).passed)
+  }
 
-   @Test
-   def testManyTurns {
-   val propTurn = forAll { turnSize: Int =>
-   val theta0 = sprite.heading
-   val latch = listenToSprite
-   sprite.turn(turnSize)
-   latch.await
-   val theta1 = sprite.heading
-   val e0 = theta0 + turnSize
-   val expected = {
-   if (e0 < 0) 360 + e0 % 360
-   else if (e0 > 360)  e0 % 360
-   else e0
-   }
-   doublesEqual(expected, theta1, 0.001)
-   }
-   assertTrue(SCTest.check(propTurn).passed)
-   }
+  @Test
+  def testManyTurns {
+    val propTurn = forAll { turnSize: Int =>
+      val theta0 = sprite.heading
+      val latch = listenToSprite
+      sprite.turn(turnSize)
+      latch.await
+      val theta1 = sprite.heading
+      val e0 = theta0 + turnSize
+      val expected = {
+        if (e0 < 0) 360 + e0 % 360
+        else if (e0 > 360)  e0 % 360
+        else e0
+      }
+      doublesEqual(expected, theta1, 0.001)
+    }
+    assertTrue(SCTest.check(propTurn).passed)
+  }
 
-   @Test
-   def testManyTowardsQ1 {
-   val propTowards = forAll { n: Double =>
-   val latch = listenToSprite
-   val x = Math.abs(n)
-   val y = x+10
-   sprite.towards(x, y)
-   latch.await
-   doublesEqual(Math.atan(y/x), sprite.thetaRadians, 0.001)
-   }
-   assertTrue(SCTest.check(propTowards).passed)
-   }
+  @Test
+  def testManyTowardsQ1 {
+    val propTowards = forAll { n: Double =>
+      val latch = listenToSprite
+      val x = Math.abs(n)
+      val y = x+10
+      sprite.towards(x, y)
+      latch.await
+      doublesEqual(Math.atan(y/x), sprite.thetaRadians, 0.001)
+    }
+    assertTrue(SCTest.check(propTowards).passed)
+  }
 
-   @Test
-   def testManyTowardsQ2 {
-   val propTowards = forAll { n: Double =>
-   val latch = listenToSprite
-   val x = -Math.abs(n)
-   val y = Math.abs(n+20)
-   sprite.towards(x, y)
-   latch.await
-   doublesEqual(Math.Pi + Math.atan(y/x), sprite.thetaRadians, 0.001)
-   }
-   assertTrue(SCTest.check(propTowards).passed)
-   }
+  @Test
+  def testManyTowardsQ2 {
+    val propTowards = forAll { n: Double =>
+      val latch = listenToSprite
+      val x = -Math.abs(n)
+      val y = Math.abs(n+20)
+      sprite.towards(x, y)
+      latch.await
+      doublesEqual(Math.Pi + Math.atan(y/x), sprite.thetaRadians, 0.001)
+    }
+    assertTrue(SCTest.check(propTowards).passed)
+  }
 
-   @Test
-   def testManyTowardsQ3 {
-   val propTowards = forAll { n: Double =>
-   val latch = listenToSprite
-   val x = -Math.abs(n) - 1
-   val y = x - 30
-   sprite.towards(x, y)
-   latch.await
-   doublesEqual(Math.Pi + Math.atan(y/x), sprite.thetaRadians, 0.001)
-   }
-   assertTrue(SCTest.check(propTowards).passed)
-   }
+  @Test
+  def testManyTowardsQ3 {
+    val propTowards = forAll { n: Double =>
+      val latch = listenToSprite
+      val x = -Math.abs(n) - 1
+      val y = x - 30
+      sprite.towards(x, y)
+      latch.await
+      doublesEqual(Math.Pi + Math.atan(y/x), sprite.thetaRadians, 0.001)
+    }
+    assertTrue(SCTest.check(propTowards).passed)
+  }
 
-   @Test
-   def testManyTowardsQ4 {
-   val propTowards = forAll { n: Double =>
-   val latch = listenToSprite
-   val x = Math.abs(n)
-   val y = -x - 10
-   sprite.towards(x, y)
-   latch.await
-   doublesEqual(2*Math.Pi + Math.atan(y/x), sprite.thetaRadians, 0.001)
-   }
-   assertTrue(SCTest.check(propTowards).passed)
-   }
+  @Test
+  def testManyTowardsQ4 {
+    val propTowards = forAll { n: Double =>
+      val latch = listenToSprite
+      val x = Math.abs(n)
+      val y = -x - 10
+      sprite.towards(x, y)
+      latch.await
+      doublesEqual(2*Math.Pi + Math.atan(y/x), sprite.thetaRadians, 0.001)
+    }
+    assertTrue(SCTest.check(propTowards).passed)
+  }
 
-   @Test
-   def testManyMoveTos {
-   val propMoveTo = forAll { n: Double =>
-   val x = n
-   val y = n+15
-   val latch = listenToSprite
-   sprite.moveTo(x, y)
-   latch.await
-   val pos1 = sprite.position
-   (doublesEqual(x, pos1._1, 0.001)
-   && doublesEqual(y, pos1._2, 0.001))
-   }
-   assertTrue(SCTest.check(propMoveTo).passed)
-   }
-   */
+  @Test
+  def testManyMoveTos {
+    val propMoveTo = forAll { n: Double =>
+      val x = n
+      val y = n+15
+      val latch = listenToSprite
+      sprite.moveTo(x, y)
+      latch.await
+      val pos1 = sprite.position
+      (doublesEqual(x, pos1._1, 0.001)
+       && doublesEqual(y, pos1._2, 0.001))
+    }
+    assertTrue(SCTest.check(propMoveTo).passed)
+  }
 }

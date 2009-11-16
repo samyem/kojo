@@ -15,6 +15,7 @@
 package net.kogics.kojo.xscala
 
 import org.netbeans.modules.csl.spi.DefaultLanguageConfig
+import org.netbeans.api.lexer.{TokenId, Language}
 
 class ScalaLanguage extends DefaultLanguageConfig {
 
@@ -27,7 +28,7 @@ class ScalaLanguage extends DefaultLanguageConfig {
   }
 
   override
-  def getLexerLanguage = org.netbeans.modules.scala.core.lexer.ScalaTokenId.language
+  def getLexerLanguage: Language[TokenId] = org.netbeans.modules.scala.core.lexer.ScalaTokenId.language
 
   override def getParser = new ScalaParser
 

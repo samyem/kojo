@@ -48,7 +48,9 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   private val layer = new PLayer
   private val camera = canvas.getCamera
-  if (bottomLayer) camera.addLayer(0, layer) else camera.addLayer(camera.getLayerCount-1, layer)
+  // the zeroth layer is for the grid etc
+  // bottom sprite layer is at index 1
+  if (bottomLayer) camera.addLayer(1, layer) else camera.addLayer(camera.getLayerCount-1, layer)
   private val throttler = new Throttler {}
   @volatile var _animationDelay = 0l
 
@@ -126,8 +128,12 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def beamsOff() = enqueueCommand(BeamsOff(cmdBool))
   def write(text: String) = enqueueCommand(Write(text, cmdBool))
   def visible() = enqueueCommand(Show(cmdBool))
-  def invisible() = enqueueCommand(Hide(cmdBool))
   def point(x: Double, y: Double) = enqueueCommand(Point(x, y, cmdBool))
+
+  def invisible() {
+    beamsOff()
+    enqueueCommand(Hide(cmdBool))
+  }
 
   def remove() = {
     enqueueCommand(Remove(cmdBool))
@@ -235,6 +241,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def realClear() {
     realWorker { doneFn =>
       pen.clear()
+      layer.removeAllChildren() // get rid of stuff not written by pen, like text nodes
       init()
       turtle.repaint()
       canvas.afterClear()
@@ -272,6 +279,10 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       if (Utils.doublesEqual(delY,0,0.001)) theta
       else if (delY > 0) Math.Pi/2
       else 3*Math.Pi/2
+    }
+    else if (Utils.doublesEqual(delY,0,0.001)) {
+      if (delX > 0) 0
+      else Math.Pi
     }
     else {
       var nt2 = Math.atan(delY/delX)

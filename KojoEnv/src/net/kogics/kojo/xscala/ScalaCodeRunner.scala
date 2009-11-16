@@ -105,10 +105,13 @@ Run the help command, i.e. type help and press Ctrl+Enter in the script window, 
       println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
 
 Here's a partial list of available commands:
-  forward(distance) - move turtle forward
-  turn(angle) - Turn the turtle by the specified angle. Angles are positive for counter-clockwise turns
+  forward(numSteps) - Move the turtle forward by a given number of steps
+  back(numSteps) - Move the turtle back by a given number of steps
+  turn(angle) - Turn the turtle by a specified angle. Angles are positive for counter-clockwise turns
   right() - Turn the turtle right
+  right(angle) - Turn the turtle right by a specified angle
   left() - Turn the turtle left
+  left(angle) - Turn the turtle left by a specified angle
   towards(x, y) - Make the turtle turn towards the point (x, y)
   moveTo(x, y) - Make the turtle move to the point (x, y)
   write(text) - Make the turtle write the specified text at its current location
@@ -125,8 +128,8 @@ Here's a partial list of available commands:
   loadPuzzle(name) - load the named puzzle
   clearPuzzlers() - clear out the puzzler turtles and the puzzles from the screen
 
-  axesOn() - Show the X and Y axes
-  axesOff() - Hide the X and Y axes
+  gridOn() - Show a grid on the canvas
+  gridOff() - Hide the grid
   beamsOn() - Show crossbeams centered on the turtle - to help with solving puzzles
   beamsOff() - Hide the turtle crossbeams
   invisible() - Hide the turtle
@@ -146,8 +149,8 @@ Here's a partial list of available commands:
       }
     }
 
-    def axesOn() = tCanvas.axesOn()
-    def axesOff() = tCanvas.axesOff()
+    def gridOn() = tCanvas.gridOn()
+    def gridOff() = tCanvas.gridOff()
 
     def forward() = println("Please provide the distance to move forward - e.g. forward(100)")
     def back() = println("Please provide the distance to move back - e.g. back(100)")
@@ -207,7 +210,6 @@ Here's a partial list of available commands:
     val turtle0 = tCanvas.turtle0
 
     def newPuzzler(x: Int, y: Int) = tCanvas.newPuzzler(x, y)
-    def newGeometer(x: Int, y: Int) = tCanvas.newGeometer(x, y)
     def pathToPolygon() = tCanvas.pathToPolygon()
     def pathToParallelogram() = tCanvas.pathToParallelogram()
 
