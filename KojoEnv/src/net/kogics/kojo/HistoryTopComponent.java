@@ -77,7 +77,7 @@ public final class HistoryTopComponent extends TopComponent {
 
     private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
         if (!evt.getValueIsAdjusting() && jList1.getSelectedIndex() != -1) {
-            ((CodeEditor) CodeEditor.instance()).setCode(jList1.getSelectedIndex());
+            ((CodeEditor) CodeEditor.instance()).loadCodeFromHistory(jList1.getSelectedIndex());
             SwingUtilities.invokeLater(new Runnable() {
 
                 public void run() {

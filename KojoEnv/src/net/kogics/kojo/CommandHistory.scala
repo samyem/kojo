@@ -80,7 +80,7 @@ class CommandHistory private[kojo] (historySaver: HistorySaver, maxHistorySize: 
   var listener: Option[HistoryListener] = None
 
   def setListener(l: HistoryListener) {
-    if (listener.isDefined) throw new IllegalArgumentException("Listener already defined")
+//    if (listener.isDefined) throw new IllegalArgumentException("Listener already defined")
     listener = Some(l)
   }
 
@@ -104,8 +104,10 @@ class CommandHistory private[kojo] (historySaver: HistorySaver, maxHistorySize: 
   def toPosition(idx: Int): Option[String] = {
     if (idx < 0 || idx > size-1) None
     else {
-      hIndex = idx
-      if(listener.isDefined) listener.get.selectionChanged(hIndex)
+      if (hIndex != idx) {
+        hIndex = idx
+        if(listener.isDefined) listener.get.selectionChanged(hIndex)
+      }
       Some(history(hIndex))
     }
   }

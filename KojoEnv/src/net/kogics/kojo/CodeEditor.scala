@@ -36,6 +36,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   tCanvas.outputFn = showOutput _
   
   val commandHistory = CommandHistory.instance
+  val historyManager = new HistoryManager()
   @volatile var pendingCommands = false
 
   setLayout(new BorderLayout)
@@ -52,7 +53,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   codeRunner.runCode("welcome")
 
   Utils.schedule(3) {
-    setCode(commandHistory.size)
+    loadCodeFromHistory(commandHistory.size)
   }
 
   def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton) = {
@@ -73,9 +74,9 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
           codeRunner.interruptInterpreter()
           tCanvas.stop
         case HistoryNext =>
-          historyMoveForward
+          loadCodeFromHistoryNext
         case HistoryPrev =>
-          historyMoveBack
+          loadCodeFromHistoryPrev
         case ClearOutput =>
           clrOutput()
       }
@@ -153,7 +154,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     val codeRunner = new xscala.ScalaCodeRunner(new RunContext {
 
         def reportRunError() {
-          setCode(commandHistory.size-1)
+          historyManager.codeRunError()
         }
 
         def reportOutput(lineFragment: String) = showOutput(lineFragment)
@@ -192,12 +193,12 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
               }
             case KeyEvent.VK_UP =>
               if(evt.isControlDown) {
-                historyMoveBack
+                loadCodeFromHistoryPrev
                 evt.consume
               }
             case KeyEvent.VK_DOWN =>
               if(evt.isControlDown) {
-                historyMoveForward
+                loadCodeFromHistoryNext
                 evt.consume
               }
             case _ => // do nothing special
@@ -222,42 +223,9 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
       })
   }
 
-  def historyMoveBack {
-    val prevCode = commandHistory.previous
-    hPrevButton.setEnabled(commandHistory.hasPrevious)
-    hNextButton.setEnabled(true)
-  }
-
-  def historyMoveForward {
-    val nextCode = commandHistory.next
-    if(!nextCode.isDefined) {
-      hNextButton.setEnabled(false)
-    }
-    hPrevButton.setEnabled(true)
-  }
-
-  def setCode(historyIdx: Int) {
-    if (commandHistory.size > 0 && historyIdx != 0)
-      hPrevButton.setEnabled(true)
-    else
-      hPrevButton.setEnabled(false)
-
-    if (historyIdx < commandHistory.size)
-      hNextButton.setEnabled(true)
-    else
-      hNextButton.setEnabled(false)
-
-    val codeAtIdx = commandHistory.toPosition(historyIdx)
-    Utils.runInSwingThread {
-      if(codeAtIdx.isDefined) {
-        codePane.setText(codeAtIdx.get)
-      }
-      else {
-        codePane.setText(null)
-      }
-      codePane.requestFocusInWindow
-    }
-  }
+  def loadCodeFromHistoryPrev = historyManager.historyMoveBack
+  def loadCodeFromHistoryNext = historyManager.historyMoveForward
+  def loadCodeFromHistory(historyIdx: Int) = historyManager.setCode(historyIdx)
 
   def clrOutput() {
     Utils.runInSwingThread {
@@ -285,19 +253,88 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     val code = codePane.getText()
     if (code == null || code.trim.length == 0) return
 
+    val selStart = codePane.getSelectionStart
+    val selEnd = codePane.getSelectionEnd
+
+    val selectedCode = codePane.getSelectedText
+    val codeToRun = if (selectedCode == null) code else selectedCode
+
     try {
-      commandHistory.add(code)
+      // always add full code to history
+      historyManager.codeRun(code, selectedCode != null, (selStart, selEnd))
     }
     catch {
       case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))
     }
-    codeRunner.runCode(code)
+    codeRunner.runCode(codeToRun)
   }
 
   def stripCR(str: String) = str.replaceAll("\r\n", "\n")
   def methodCompletions(caretOffset: Int) = codeRunner.methodCompletions(stripCR(codePane.getText).substring(0, caretOffset))
   def varCompletions(caretOffset: Int) = codeRunner.varCompletions(stripCR(codePane.getText).substring(0, caretOffset))
   def keywordCompletions(caretOffset: Int) = codeRunner.keywordCompletions(stripCR(codePane.getText).substring(0, caretOffset))
+
+
+  class HistoryManager {
+    var _selRange = (0, 0)
+
+    def historyMoveBack {
+      // depend on history listener mechanism to move back
+      val prevCode = commandHistory.previous
+      hPrevButton.setEnabled(commandHistory.hasPrevious)
+      hNextButton.setEnabled(true)
+    }
+
+    def historyMoveForward {
+      // depend on history listener mechanism to move forward
+      val nextCode = commandHistory.next
+      if(!nextCode.isDefined) {
+        hNextButton.setEnabled(false)
+      }
+      hPrevButton.setEnabled(true)
+    }
+
+    def setCode(historyIdx: Int, selRange: (Int, Int) = (0,0)) {
+      if (commandHistory.size > 0 && historyIdx != 0)
+        hPrevButton.setEnabled(true)
+      else
+        hPrevButton.setEnabled(false)
+
+      if (historyIdx < commandHistory.size)
+        hNextButton.setEnabled(true)
+      else
+        hNextButton.setEnabled(false)
+
+      val codeAtIdx = commandHistory.toPosition(historyIdx)
+      Utils.runInSwingThread {
+        if(codeAtIdx.isDefined) {
+          codePane.setText(codeAtIdx.get)
+          if (selRange._1 != selRange._2) {
+            codePane.setSelectionStart(selRange._1)
+            codePane.setSelectionEnd(selRange._2)
+          }
+        }
+        else {
+          codePane.setText(null)
+        }
+        codePane.requestFocusInWindow
+      }
+    }
+
+    def codeRunError() = {
+      setCode(commandHistory.size-1, (_selRange._1, _selRange._2))
+      _selRange = (0,0)
+    }
+
+    def codeRun(code: String, stayPut: Boolean, selRange: (Int, Int)) {
+      _selRange = selRange
+      // automatically shows the last (blank) history entry through listener mechanism
+      commandHistory.add(code)
+      if (stayPut) {
+        setCode(commandHistory.size-1, (selRange._1, selRange._2))
+      }
+    }
+  }
 }
 
 trait RunContext {

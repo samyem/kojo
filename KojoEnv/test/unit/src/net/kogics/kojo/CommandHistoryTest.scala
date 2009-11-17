@@ -133,7 +133,9 @@ class CommandHistoryTest {
     commandHistory.setListener(listener)
 
     commandHistory.toPosition(1)
+    commandHistory.toPosition(1) // listener should not be called
     commandHistory.toPosition(0)
+    commandHistory.toPosition(0) // listener should not be called
     commandHistory.toPosition(2)
   }
 
