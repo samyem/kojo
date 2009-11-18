@@ -43,4 +43,5 @@ trait SpriteMover {
   def clear(): Unit
   def pathToPolygon(): geom.DynamicShape
   def pathToParallelogram(): geom.DynamicShape
+  def undo(): Unit
 }

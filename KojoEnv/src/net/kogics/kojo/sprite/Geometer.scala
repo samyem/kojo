@@ -65,8 +65,10 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   yBeam.setStrokePaint(Color.gray)
 
   val penPaths = new mutable.ArrayBuffer[PolyLine]
-  val (downPen, upPen) = makePens
-  @volatile var pen: Pen = downPen
+  val pens = makePens
+  val DownPen = pens._1
+  val UpPen = pens._2
+  @volatile var pen: Pen = DownPen
 
   var _position: Point2D.Double = _
   private var theta: Double = _
@@ -74,16 +76,26 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   val CommandActor = makeCommandProcessor()
   @volatile var geomObj: DynamicShape = _
+  val history = new mutable.Stack[Command]
+
+  def changePos(x: Double, y: Double) {
+    _position = new Point2D.Double(x, y)
+    turtle.setOffset(x, y)
+  }
+
+  def changeHeading(newTheta: Double) {
+    theta = newTheta
+    turtle.setRotation(theta)
+  }
 
   def init() {
     _animationDelay = 1000l
-    _position = new Point2D.Double(initX, initY)
+    changePos(initX, initY)
     if (!turtle.getChildrenReference.contains(turtleImage))
       turtle.addChild(turtleImage)
     layer.addChild(turtle)
 
     pen.init
-    turtle.setOffset(initX, initY)
     resetRotation
   }
 
@@ -107,11 +119,15 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   def enqueueCommand(cmd: Command) {
     if (removed) return
+    internalEnqueueCommand(cmd)
+  }
 
+  def internalEnqueueCommand(cmd: Command) {
     CommandActor ! cmd
     throttler.throttle
   }
 
+  def undo() = enqueueCommand(Undo())
   def forward(n: Double) = enqueueCommand(Forward(n, cmdBool))
   def turn(angle: Double) = enqueueCommand(Turn(angle, cmdBool))
   def clear() = enqueueCommand(Clear(cmdBool))
@@ -215,9 +231,8 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
           override def activityStarted(activity: PActivity) {}
           override def activityStepped(activity: PActivity) {}
           override def activityFinished(activity: PActivity) {
-            _position = pf
             pen.endMove(pf.x.toFloat, pf.y.toFloat)
-            turtle.setOffset(pf.x, pf.y)
+            changePos(pf.x, pf.y)
             turtle.repaint()
             doneFn()
           }
@@ -229,10 +244,10 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   def realTurn(angle: Double) {
     realWorker { doneFn =>
-      theta += deg2radians(angle)
-      if (theta < 0) theta = theta % (2*Math.Pi) + 2*Math.Pi
-      else if (theta > 2*Math.Pi) theta = theta % (2*Math.Pi)
-      turtle.setRotation(theta)
+      var newTheta = theta + deg2radians(angle)
+      if (newTheta < 0) newTheta = newTheta % (2*Math.Pi) + 2*Math.Pi
+      else if (newTheta > 2*Math.Pi) newTheta = newTheta % (2*Math.Pi)
+      changeHeading(newTheta)
       turtle.repaint()
       doneFn()
     }
@@ -259,13 +274,13 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   }
 
   def realPenUp() {
-    pen = upPen
+    pen = UpPen
     CommandActor ! CommandDone
   }
 
   def realPenDown() {
-    if (pen != downPen) {
-      pen = downPen
+    if (pen != DownPen) {
+      pen = DownPen
       pen.updatePosition()
     }
     CommandActor ! CommandDone
@@ -293,8 +308,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
 
     realWorker { doneFn =>
-      theta = newTheta
-      turtle.setRotation(theta)
+      changeHeading(newTheta)
       turtle.repaint()
       doneFn()
     }
@@ -302,9 +316,8 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   def realJumpTo(x: Double, y: Double) {
     realWorker { doneFn =>
-      _position.setLocation(x, y)
       pen.updatePosition()
-      turtle.setOffset(x, y)
+      changePos(x, y)
       turtle.repaint()
       doneFn()
     }
@@ -376,6 +389,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def realWrite(text: String) {
     realWorker { doneFn =>
       val ptext = new PText(text)
+      history.push(UndoWrite(ptext))
       ptext.getTransformReference(true).setToScale(1, -1)
       ptext.setOffset(_position.x, _position.y)
       layer.addChild(layer.getChildrenCount-1, ptext)
@@ -419,12 +433,13 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def realPathToPolygon() {
     realWorker { doneFn =>
       geomObj = null
+      history.clear()
       try {
         val pgon = new PolygonConstraint(penPaths.last, Geometer.handleLayer, canvas.outputFn)
         pgon.addHandles()
         pgon.repaint()
         geomObj = new DynamicShapeImpl(pgon)
-        pen.asInstanceOf[AbstractPen].addNewPath()
+        pen.addNewPath()
       }
       catch {
         case e: IllegalArgumentException => canvas.outputFn(e.getMessage)
@@ -436,12 +451,13 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def realPathToPGram() {
     realWorker { doneFn =>
       geomObj = null
+      history.clear()
       try {
         val pgon = new PGramConstraint(penPaths.last, Geometer.handleLayer, canvas.outputFn)
         pgon.addHandles()
         pgon.repaint()
         geomObj = new DynamicShapeImpl(pgon)
-        pen.asInstanceOf[AbstractPen].addNewPath()
+        pen.addNewPath()
       }
       catch {
         case e: IllegalArgumentException => canvas.outputFn(e.getMessage)
@@ -450,9 +466,73 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
+  def realUndo() {
+    realWorker { doneFn =>
+      if (!history.isEmpty) {
+        val cmd = history.pop()
+        println("Popped command from history: " + cmd)
+        internalEnqueueCommand(cmd)
+      }
+      doneFn()
+    }
+  }
+
+  def realUndoChangeInPos(oldPos: (Double, Double)) {
+    println("UndoChangeInPosition; oldPos: " + oldPos)
+    realWorker { doneFn =>
+      pen.undoMove()
+      changePos(oldPos._1, oldPos._2)
+      turtle.repaint()
+      doneFn()
+    }
+  }
+
+  def realUndoChangeInHeading(oldHeading: Double) {
+    println("UndoChangeInHeading; oldHeading: " + oldHeading)
+    realWorker { doneFn =>
+      changeHeading(oldHeading)
+      turtle.repaint()
+      doneFn()
+    }
+  }
+
+  def realHandleCompositeCommand(cmds: scala.List[Command]) {
+    realWorker { doneFn =>
+      cmds.foreach {cmd => internalEnqueueCommand(cmd)}
+      doneFn()
+    }
+  }
+
+  def realUndoPenAttrs(color: Color, thickness: Double, fillColor: Color) {
+    realWorker { doneFn =>
+      pen.removeLastPath()
+      pen.rawSetAttrs(color, thickness, fillColor)
+      doneFn()
+    }
+  }
+
+  def realUndoPenState(apen: Pen) {
+    realWorker { doneFn =>
+      apen match {
+        case UpPen =>
+          pen.removeLastPath()
+          pen = UpPen
+        case DownPen =>
+          pen = DownPen
+      }
+      doneFn()
+    }
+  }
+
+  def realUndoWrite(ptext: PText) {
+    realWorker { doneFn =>
+      layer.removeChild(ptext)
+      doneFn()
+    }
+  }
+
   def resetRotation() {
-    theta = deg2radians(90)
-    turtle.setRotation(theta)
+    changeHeading(deg2radians(90))
   }
 
   def stop() {
@@ -478,10 +558,13 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       latch.countDown()
     }
 
-    def processCommand(cmd: Command)(fn: => Unit) {
+    def processCommand(cmd: Command, undoCmd: Option[Command] = None)(fn: => Unit) {
       if (cmd.valid.get) {
         listener.hasPendingCommands
         listener.commandStarted(cmd)
+
+        if (undoCmd.isDefined) history.push(undoCmd.get)
+
         try {
           fn
           receive {
@@ -506,11 +589,11 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
         case Stop =>
           done = true
         case cmd @ Forward(n, b) =>
-          processCommand(cmd) {
+          processCommand(cmd, Some(UndoChangeInPos((_position.x, _position.y)))) {
             realForward(n)
           }
         case cmd @ Turn(angle, b) =>
-          processCommand(cmd) {
+          processCommand(cmd, Some(UndoChangeInHeading(theta))) {
             realTurn(angle)
           }
         case cmd @ Clear(b) =>
@@ -522,23 +605,29 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
             realRemove
           }
         case cmd @ PenUp(b) =>
-          processCommand(cmd) {
+          processCommand(cmd, Some(UndoPenState(pen))) {
             realPenUp
           }
         case cmd @ PenDown(b) =>
-          processCommand(cmd) {
+          processCommand(cmd, Some(UndoPenState(pen))) {
             realPenDown
           }
         case cmd @ Towards(x, y, b) =>
-          processCommand(cmd) {
+          processCommand(cmd, Some(UndoChangeInHeading(theta))) {
             realTowards(x, y)
           }
         case cmd @ JumpTo(x, y, b) =>
-          processCommand(cmd) {
+          processCommand(cmd, Some(UndoChangeInPos((_position.x, _position.y)))) {
             realJumpTo(x, y)
           }
         case cmd @ MoveTo(x, y, b) =>
-          processCommand(cmd) {
+          val undoCmd = CompositeCommand(
+            scala.List(
+              UndoChangeInPos((_position.x, _position.y)),
+              UndoChangeInHeading(theta)
+            )
+          )
+          processCommand(cmd, Some(undoCmd)) {
             realMoveTo(x, y)
           }
         case cmd @ SetAnimationDelay(d, b) =>
@@ -558,15 +647,15 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
             realGetWorker()
           }
         case cmd @ SetPenColor(color, b) =>
-          processCommand(cmd) {
+          processCommand(cmd, Some(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))) {
             realSetPenColor(color)
           }
         case cmd @ SetPenThickness(t, b) =>
-          processCommand(cmd) {
+          processCommand(cmd, Some(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))) {
             realSetPenThickness(t)
           }
         case cmd @ SetFillColor(color, b) =>
-          processCommand(cmd) {
+          processCommand(cmd, Some(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))) {
             realSetFillColor(color)
           }
         case cmd @ BeamsOn(b) =>
@@ -600,6 +689,34 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
         case cmd @ PathToPGram(l, b) =>
           processGetCommand(cmd, l) {
             realPathToPGram()
+          }
+        case cmd @ Undo() =>
+          processCommand(cmd) {
+            realUndo()
+          }
+        case cmd @ UndoChangeInPos((x, y)) =>
+          processCommand(cmd) {
+            realUndoChangeInPos((x, y))
+          }
+        case cmd @ UndoChangeInHeading(oldHeading) =>
+          processCommand(cmd) {
+            realUndoChangeInHeading(oldHeading)
+          }
+        case cmd @ UndoPenAttrs(color, thickness, fillColor) =>
+          processCommand(cmd) {
+            realUndoPenAttrs(color, thickness, fillColor)
+          }
+        case cmd @ UndoPenState(apen) =>
+          processCommand(cmd) {
+            realUndoPenState(apen)
+          }
+        case cmd @ UndoWrite(ptext) =>
+          processCommand(cmd) {
+            realUndoWrite(ptext)
+          }
+        case cmd @ CompositeCommand(cmds) =>
+          processCommand(cmd) {
+            realHandleCompositeCommand(cmds)
           }
       }
     }
@@ -638,6 +755,22 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       layer.addChild(layer.getChildrenCount-1, penPath)
     }
 
+    def removeLastPath() {
+      val penPath = penPaths.last
+      penPaths.remove(penPaths.size-1)
+      layer.removeChild(penPath)
+    }
+
+    def getColor = lineColor
+    def getFillColor = fillColor
+    def getThickness = lineStroke.asInstanceOf[BasicStroke].getLineWidth
+
+    def rawSetAttrs(color: Color, thickness: Double, fColor: Color) {
+      lineColor = color
+      lineStroke = new BasicStroke(thickness.toFloat, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+      fillColor = fColor
+    }
+
     def setColor(color: Color) {
       lineColor = color
       addNewPath()
@@ -662,7 +795,8 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
         penPath.reset()
         layer.removeChild(penPath)
       }
-      penPaths.clear
+      penPaths.clear()
+      history.clear()
     }
 
     def updatePosition() = {
@@ -676,6 +810,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     def endMove(x: Float, y: Float) {
 //      penPaths.last.moveTo(x, y)
     }
+    def undoMove() {}
   }
 
   class DownPen extends AbstractPen {
@@ -696,6 +831,11 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       layer.removeChild(tempLine)
       tempLine.reset
       penPaths.last.lineTo(x, y)
+      penPaths.last.repaint()
+    }
+
+    def undoMove() {
+      penPaths.last.removeLastPoint()
       penPaths.last.repaint()
     }
   }

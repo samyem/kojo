@@ -18,6 +18,11 @@ import java.awt.Color
 
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.CountDownLatch
+import edu.umd.cs.piccolo.nodes.PText
+
+object Command {
+  val AlwaysValid = new AtomicBoolean(true)
+}
 
 abstract sealed class Command(val valid: AtomicBoolean)
 case class Forward(n: Double, v: AtomicBoolean) extends Command(v)
@@ -46,3 +51,10 @@ case class PathToPolygon(latch: CountDownLatch, v: AtomicBoolean) extends Comman
 case class PathToPGram(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
 case object CommandDone
 case object Stop
+case class Undo() extends Command(Command.AlwaysValid)
+case class UndoChangeInPos(oldPos: (Double, Double)) extends Command(Command.AlwaysValid)
+case class UndoChangeInHeading(oldHeading: Double) extends Command(Command.AlwaysValid)
+case class UndoPenAttrs(color: Color, thickness: Double, fillColor: Color) extends Command(Command.AlwaysValid)
+case class UndoPenState(currPen: Pen) extends Command(Command.AlwaysValid)
+case class UndoWrite(ptext: PText) extends Command(Command.AlwaysValid)
+case class CompositeCommand(cmds: List[Command]) extends Command(Command.AlwaysValid)

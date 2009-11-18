@@ -35,6 +35,7 @@ class PolyLine extends PNode {
 
   def addPoint(x: Float, y: Float): Unit = addPoint(new Point2D.Float(x, y))
   def lineTo(x: Float, y: Float) = addPoint(new Point2D.Float(x, y))
+  def removeLastPoint() = points.remove(points.size-1)
 
   def reset() {
     points.clear()

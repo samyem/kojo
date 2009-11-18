@@ -51,7 +51,7 @@ abstract class BasePolygonConstraint(shape: PolyLine, handleLayer: PLayer, outpu
 
   init(shape)
 
-  points.remove(points.size-1)
+  shape.removeLastPoint()
   shape.close
 
   addAngles()

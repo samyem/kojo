@@ -26,4 +26,11 @@ trait Pen {
   def setColor(color: Color): Unit
   def setThickness(t: Double): Unit
   def setFillColor(color: Color): Unit
+  def undoMove(): Unit
+  def getColor: Color
+  def getFillColor: Color
+  def getThickness: Double
+  def rawSetAttrs(color: Color, thickness: Double, fColor: Color): Unit
+  def addNewPath(): Unit
+  def removeLastPath(): Unit
 }

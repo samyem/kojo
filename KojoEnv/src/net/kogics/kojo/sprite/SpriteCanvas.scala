@@ -161,14 +161,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     // initCamera()
   }
 
-  def forward(n: Double) {
-    turtle.forward(n)
-  }
-
-  def turn(angle: Double) {
-    turtle.turn(angle)
-  }
-
   def clear() {
     stop()
     val latch = new CountDownLatch(1)
@@ -191,6 +183,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     latch.await
   }
 
+  def forward(n: Double) = turtle.forward(n)
+  def turn(angle: Double) = turtle.turn(angle)
   def penUp() = turtle.penUp()
   def penDown() = turtle.penDown()
   def setPenColor(color: Color) = turtle.setPenColor(color)
@@ -220,6 +214,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def point(x: Double, y: Double) = turtle.point(x, y)
   def pathToPolygon() = turtle.pathToPolygon()
   def pathToParallelogram() = turtle.pathToParallelogram()
+
+  def undo() = turtle.undo()
 
   def stop() = {
     val latch = new CountDownLatch(1)
