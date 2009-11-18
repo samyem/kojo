@@ -41,7 +41,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
 
   setLayout(new BorderLayout)
 
-  val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton) = makeToolbar()
+  val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton) = makeToolbar()
   val output = makeOutput()
   val codeRunner = makeCodeRunner()
   val codePane = makeCodePane()
@@ -56,13 +56,14 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     loadCodeFromHistory(commandHistory.size)
   }
 
-  def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton) = {
+  def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton, JButton) = {
 
     val RunScript = "RunScript"
     val StopScript = "StopScript"
     val HistoryNext = "HistoryNext"
     val HistoryPrev = "HistoryPrev"
     val ClearOutput = "ClearOutput"
+    val UndoCommand = "UndoCommand"
 
     var clearButton: JButton = null
 
@@ -79,6 +80,9 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
           loadCodeFromHistoryPrev
         case ClearOutput =>
           clrOutput()
+        case UndoCommand =>
+          codePane.setText("undo")
+          runCode()
       }
     }
 
@@ -102,6 +106,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     val hNextButton = makeNavigationButton("/images/history-next.png", HistoryNext, "Go to Next Script in History (Ctrl + Down Arrow)", "Next in History")
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
     clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, "Clear Output", "Clear the Output")
+    val undoButton = makeNavigationButton("/images/undo.png", UndoCommand, "Undo Last Turtle Command", "Undo")
 
     toolbar.add(runButton)
 
@@ -117,8 +122,11 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     clearButton.setEnabled(false)
     toolbar.add(clearButton)
 
+    undoButton.setEnabled(false)
+    toolbar.add(undoButton)
+
     add(toolbar, BorderLayout.NORTH)
-    (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton)
+    (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton)
   }
 
 
@@ -219,6 +227,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
         override def pendingCommandsDone {
           pendingCommands = false
           if (interpreterDone) stopButton.setEnabled(false)
+          if (tCanvas.hasUndoHistory) undoButton.setEnabled(true) else undoButton.setEnabled(false)
         }
       })
   }
@@ -328,10 +337,17 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
 
     def codeRun(code: String, stayPut: Boolean, selRange: (Int, Int)) {
       _selRange = selRange
-      // automatically shows the last (blank) history entry through listener mechanism
-      commandHistory.add(code)
-      if (stayPut) {
-        setCode(commandHistory.size-1, (selRange._1, selRange._2))
+      val undo = (code.trim() == "undo" || code.trim() == "undo()")
+      if (!undo) {
+        // automatically shows the last (blank) history entry through listener mechanism
+        commandHistory.add(code)
+      }
+      else {
+        // undo
+        _selRange = (0, 0)
+      }
+      if (stayPut || undo) {
+        setCode(commandHistory.size-1, (_selRange._1, _selRange._2))
       }
     }
   }

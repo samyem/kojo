@@ -217,6 +217,11 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   def undo() = turtle.undo()
 
+  def hasUndoHistory: Boolean = {
+    val twh = turtles.find {t => t.history.size > 0}
+    return twh.isDefined
+  }
+
   def stop() = {
     val latch = new CountDownLatch(1)
     Utils.runInSwingThread {

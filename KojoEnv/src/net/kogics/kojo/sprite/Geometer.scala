@@ -505,6 +505,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   def realUndoPenAttrs(color: Color, thickness: Double, fillColor: Color) {
     realWorker { doneFn =>
+      canvas.outputFn("Undoing Pen attribute (Color/Thickness/FillColor) change.\n")
       pen.removeLastPath()
       pen.rawSetAttrs(color, thickness, fillColor)
       doneFn()
@@ -513,6 +514,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   def realUndoPenState(apen: Pen) {
     realWorker { doneFn =>
+      canvas.outputFn("Undoing Pen State (Up/Down) change.\n")
       apen match {
         case UpPen =>
           pen.removeLastPath()
