@@ -250,6 +250,13 @@
     </folder>
 
     <folder name="Editors">
+        <folder name="FontsColors">
+            <folder name="NetBeans">
+                <file name="org-netbeans-modules-editor-settings-CustomFontsColors-highlights.xml" url="xscala/highlightsFontsColors.xml">
+                    <attr name="nbeditor-settings-ColoringType" stringvalue="highlight"/>
+                </file>
+            </folder>
+        </folder>
         <folder name="text">
             <folder name="x-scala">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.xscala.Bundle"/>
