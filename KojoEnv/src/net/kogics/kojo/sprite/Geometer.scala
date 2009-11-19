@@ -400,9 +400,9 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   }
 
   def realWrite(text: String) {
+    val ptext = new PText(text)
+    history.push(UndoWrite(ptext))
     realWorker2 {
-      val ptext = new PText(text)
-      history.push(UndoWrite(ptext))
       ptext.getTransformReference(true).setToScale(1, -1)
       ptext.setOffset(_position.x, _position.y)
       layer.addChild(layer.getChildrenCount-1, ptext)
@@ -571,14 +571,14 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
 
     def realUndo() {
-      realWorker { doneFn =>
-        if (!history.isEmpty) {
-          val cmd = history.pop()
-//          Log.info("Popped command from history: " + cmd)
+      if (!history.isEmpty) {
+        val cmd = history.pop()
+        realWorker2 {
           undoHandler(cmd)
         }
-        doneFn()
       }
+      else
+        workDone()
     }
 
     def handleCompositeCommand(cmds: scala.List[UndoCommand]) {
@@ -724,9 +724,9 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     val DefaultColor = Color.red
     val DefaultFillColor = null
     val DefaultStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
-    var lineColor: Color = _
-    var fillColor: Color = _
-    var lineStroke: Stroke = _
+    @volatile var lineColor: Color = _
+    @volatile var fillColor: Color = _
+    @volatile var lineStroke: Stroke = _
 
     def init() {
       lineColor = DefaultColor
