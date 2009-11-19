@@ -70,15 +70,16 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   val UpPen = pens._2
   @volatile var pen: Pen = DownPen
 
-  var _position: Point2D.Double = _
-  private var theta: Double = _
+  @volatile var _position: Point2D.Double = _
+  @volatile private var theta: Double = _
   @volatile var removed: Boolean = false
 
   val CommandActor = makeCommandProcessor()
   @volatile var geomObj: DynamicShape = _
-  val history = new mutable.Stack[Command]
+  val history = new mutable.Stack[UndoCommand]
 
   def changePos(x: Double, y: Double) {
+    Log.info("Changing position to: " + (x, y))
     _position = new Point2D.Double(x, y)
     turtle.setOffset(x, y)
   }
@@ -316,8 +317,8 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   def realJumpTo(x: Double, y: Double) {
     realWorker { doneFn =>
-      pen.updatePosition()
       changePos(x, y)
+      pen.updatePosition()
       turtle.repaint()
       doneFn()
     }
@@ -466,71 +467,42 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realUndo() {
-    realWorker { doneFn =>
-      if (!history.isEmpty) {
-        val cmd = history.pop()
-        println("Popped command from history: " + cmd)
-        internalEnqueueCommand(cmd)
-      }
-      doneFn()
-    }
+  def realUndoChangeInPos(oldPos: (Double, Double)) {
+    pen.undoMove()
+    changePos(oldPos._1, oldPos._2)
+    turtle.repaint()
   }
 
-  def realUndoChangeInPos(oldPos: (Double, Double)) {
-    println("UndoChangeInPosition; oldPos: " + oldPos)
-    realWorker { doneFn =>
-      pen.undoMove()
-      changePos(oldPos._1, oldPos._2)
-      turtle.repaint()
-      doneFn()
-    }
+  def realUndoJump(oldPos: (Double, Double)) {
+    pen.removeLastPath()
+    changePos(oldPos._1, oldPos._2)
+    turtle.repaint()
   }
 
   def realUndoChangeInHeading(oldHeading: Double) {
-    println("UndoChangeInHeading; oldHeading: " + oldHeading)
-    realWorker { doneFn =>
-      changeHeading(oldHeading)
-      turtle.repaint()
-      doneFn()
-    }
-  }
-
-  def realHandleCompositeCommand(cmds: scala.List[Command]) {
-    realWorker { doneFn =>
-      cmds.foreach {cmd => internalEnqueueCommand(cmd)}
-      doneFn()
-    }
+    changeHeading(oldHeading)
+    turtle.repaint()
   }
 
   def realUndoPenAttrs(color: Color, thickness: Double, fillColor: Color) {
-    realWorker { doneFn =>
-      canvas.outputFn("Undoing Pen attribute (Color/Thickness/FillColor) change.\n")
-      pen.removeLastPath()
-      pen.rawSetAttrs(color, thickness, fillColor)
-      doneFn()
-    }
+    canvas.outputFn("Undoing Pen attribute (Color/Thickness/FillColor) change.\n")
+    pen.removeLastPath()
+    pen.rawSetAttrs(color, thickness, fillColor)
   }
 
   def realUndoPenState(apen: Pen) {
-    realWorker { doneFn =>
-      canvas.outputFn("Undoing Pen State (Up/Down) change.\n")
-      apen match {
-        case UpPen =>
-          pen.removeLastPath()
-          pen = UpPen
-        case DownPen =>
-          pen = DownPen
-      }
-      doneFn()
+    canvas.outputFn("Undoing Pen State (Up/Down) change.\n")
+    apen match {
+      case UpPen =>
+        pen = UpPen
+        pen.removeLastPath()
+      case DownPen =>
+        pen = DownPen
     }
   }
 
   def realUndoWrite(ptext: PText) {
-    realWorker { doneFn =>
-      layer.removeChild(ptext)
-      doneFn()
-    }
+    layer.removeChild(ptext)
   }
 
   def resetRotation() {
@@ -560,7 +532,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       latch.countDown()
     }
 
-    def processCommand(cmd: Command, undoCmd: Option[Command] = None)(fn: => Unit) {
+    def processCommand(cmd: Command, undoCmd: Option[UndoCommand] = None)(fn: => Unit) {
       if (cmd.valid.get) {
         listener.hasPendingCommands
         listener.commandStarted(cmd)
@@ -582,6 +554,38 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       }
 //      Log.info("Command Handled. Mailbox size: " + mailboxSize)
       if (mailboxSize == 0) listener.pendingCommandsDone
+    }
+
+    def undoHandler: PartialFunction[UndoCommand, Unit] = {
+      case cmd @ UndoChangeInPos((x, y)) =>
+        realUndoChangeInPos((x, y))
+      case cmd @ UndoJump((x, y)) =>
+        realUndoJump((x, y))
+      case cmd @ UndoChangeInHeading(oldHeading) =>
+        realUndoChangeInHeading(oldHeading)
+      case cmd @ UndoPenAttrs(color, thickness, fillColor) =>
+        realUndoPenAttrs(color, thickness, fillColor)
+      case cmd @ UndoPenState(apen) =>
+        realUndoPenState(apen)
+      case cmd @ UndoWrite(ptext) =>
+        realUndoWrite(ptext)
+      case cmd @ CompositeCommand(cmds) =>
+        realHandleCompositeCommand(cmds)
+    }
+
+    def realUndo() {
+      realWorker { doneFn =>
+        if (!history.isEmpty) {
+          val cmd = history.pop()
+          Log.info("Popped command from history: " + cmd)
+          undoHandler(cmd)
+        }
+        doneFn()
+      }
+    }
+
+    def realHandleCompositeCommand(cmds: scala.List[UndoCommand]) {
+      cmds.foreach {cmd => undoHandler(cmd)}
     }
 
     var done = false
@@ -619,7 +623,23 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
             realTowards(x, y)
           }
         case cmd @ JumpTo(x, y, b) =>
-          processCommand(cmd, Some(UndoChangeInPos((_position.x, _position.y)))) {
+          val undoCmd = 
+            if (pen == UpPen)
+              CompositeCommand(
+              scala.List(
+                UndoPenState(pens._2),
+                UndoChangeInPos((_position.x, _position.y))
+              )
+            )
+          else 
+            CompositeCommand(
+              scala.List(
+                UndoPenState(pens._2),
+                UndoChangeInPos((_position.x, _position.y)),
+                UndoPenState(pens._1)
+              )
+            )
+          processCommand(cmd, Some(undoCmd)) {
             realJumpTo(x, y)
           }
         case cmd @ MoveTo(x, y, b) =>
@@ -695,30 +715,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
         case cmd @ Undo() =>
           processCommand(cmd) {
             realUndo()
-          }
-        case cmd @ UndoChangeInPos((x, y)) =>
-          processCommand(cmd) {
-            realUndoChangeInPos((x, y))
-          }
-        case cmd @ UndoChangeInHeading(oldHeading) =>
-          processCommand(cmd) {
-            realUndoChangeInHeading(oldHeading)
-          }
-        case cmd @ UndoPenAttrs(color, thickness, fillColor) =>
-          processCommand(cmd) {
-            realUndoPenAttrs(color, thickness, fillColor)
-          }
-        case cmd @ UndoPenState(apen) =>
-          processCommand(cmd) {
-            realUndoPenState(apen)
-          }
-        case cmd @ UndoWrite(ptext) =>
-          processCommand(cmd) {
-            realUndoWrite(ptext)
-          }
-        case cmd @ CompositeCommand(cmds) =>
-          processCommand(cmd) {
-            realHandleCompositeCommand(cmds)
           }
       }
     }

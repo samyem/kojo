@@ -51,10 +51,13 @@ case class PathToPolygon(latch: CountDownLatch, v: AtomicBoolean) extends Comman
 case class PathToPGram(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
 case object CommandDone
 case object Stop
-case class Undo() extends Command(Command.AlwaysValid)
-case class UndoChangeInPos(oldPos: (Double, Double)) extends Command(Command.AlwaysValid)
-case class UndoChangeInHeading(oldHeading: Double) extends Command(Command.AlwaysValid)
-case class UndoPenAttrs(color: Color, thickness: Double, fillColor: Color) extends Command(Command.AlwaysValid)
-case class UndoPenState(currPen: Pen) extends Command(Command.AlwaysValid)
-case class UndoWrite(ptext: PText) extends Command(Command.AlwaysValid)
-case class CompositeCommand(cmds: List[Command]) extends Command(Command.AlwaysValid)
+case class Undo extends Command(Command.AlwaysValid)
+
+abstract sealed class UndoCommand
+case class UndoChangeInPos(oldPos: (Double, Double)) extends UndoCommand
+case class UndoJump(oldPos: (Double, Double)) extends UndoCommand
+case class UndoChangeInHeading(oldHeading: Double) extends UndoCommand
+case class UndoPenAttrs(color: Color, thickness: Double, fillColor: Color) extends UndoCommand
+case class UndoPenState(currPen: Pen) extends UndoCommand
+case class UndoWrite(ptext: PText) extends UndoCommand
+case class CompositeCommand(cmds: List[UndoCommand]) extends UndoCommand
