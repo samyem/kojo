@@ -55,9 +55,8 @@ case class Undo extends Command(Command.AlwaysValid)
 
 abstract sealed class UndoCommand
 case class UndoChangeInPos(oldPos: (Double, Double)) extends UndoCommand
-case class UndoJump(oldPos: (Double, Double)) extends UndoCommand
 case class UndoChangeInHeading(oldHeading: Double) extends UndoCommand
 case class UndoPenAttrs(color: Color, thickness: Double, fillColor: Color) extends UndoCommand
 case class UndoPenState(currPen: Pen) extends UndoCommand
 case class UndoWrite(ptext: PText) extends UndoCommand
-case class CompositeCommand(cmds: List[UndoCommand]) extends UndoCommand
+case class CompositeUndoCommand(cmds: List[UndoCommand]) extends UndoCommand

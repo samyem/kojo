@@ -79,7 +79,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   val history = new mutable.Stack[UndoCommand]
 
   def changePos(x: Double, y: Double) {
-    Log.info("Changing position to: " + (x, y))
     _position = new Point2D.Double(x, y)
     turtle.setOffset(x, y)
   }
@@ -109,14 +108,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def rad2degrees(angle: Double) = angle * 180 / Math.Pi
   def thetaDegrees = rad2degrees(theta)
   def thetaRadians = theta
-
-  def realWorker(fn: (() => Unit) => Unit) {
-    Utils.runInSwingThread {
-      fn { () =>
-        CommandActor ! CommandDone
-      }
-    }
-  }
 
   def enqueueCommand(cmd: Command) {
     if (removed) return
@@ -203,6 +194,39 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     geomObj
   }
 
+  def realWorker(fn: (() => Unit) => Unit) {
+    Utils.runInSwingThread {
+      fn {() => workDone()}
+    }
+  }
+
+  def realWorker2(fn:  => Unit) {
+    realWorker { doneFn =>
+      fn
+      doneFn()
+    }
+  }
+
+  def workDone() {
+    CommandActor ! CommandDone
+  }
+
+  def waitForDoneMsg() {
+    CommandActor.receive {
+      case CommandDone =>
+    }
+  }
+
+  // real* methods are called in the Agent thread
+  // realWorker allows them to do work in the GUI thread
+  // but they need to call doneFn() at the end to carry on
+  // after the GUI thread is done - because the processCommand method
+  // waits for a CommandDone msg after calling the work funtion -
+  // and doneFn sends this msg to the actor from the GUI thread
+  // In an earlier version of the code, a latch was used to synchronize between the
+  // GUI and actor threads. But after a certain Scala 2.8.0 nightly build, this
+  // resulted in thread starvation in the Actor thread-pool
+  
   def realForward(n: Double) {
     val p0 = _position
     val delX = Math.cos(theta) * n
@@ -244,39 +268,36 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   }
 
   def realTurn(angle: Double) {
-    realWorker { doneFn =>
+    realWorker2 {
       var newTheta = theta + deg2radians(angle)
       if (newTheta < 0) newTheta = newTheta % (2*Math.Pi) + 2*Math.Pi
       else if (newTheta > 2*Math.Pi) newTheta = newTheta % (2*Math.Pi)
       changeHeading(newTheta)
       turtle.repaint()
-      doneFn()
     }
   }
 
   def realClear() {
-    realWorker { doneFn =>
+    realWorker2 {
       pen.clear()
       layer.removeAllChildren() // get rid of stuff not written by pen, like text nodes
       init()
       turtle.repaint()
       canvas.afterClear()
-      doneFn()
     }
   }
 
   def realRemove() {
-    realWorker { doneFn =>
+    realWorker2 {
       pen.clear
       layer.removeChild(turtle)
       camera.removeLayer(layer)
-      doneFn()
     }
   }
 
   def realPenUp() {
     pen = UpPen
-    CommandActor ! CommandDone
+    workDone()
   }
 
   def realPenDown() {
@@ -284,7 +305,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       pen = DownPen
       pen.updatePosition()
     }
-    CommandActor ! CommandDone
+    workDone()
   }
 
   def realTowards(x: Double, y: Double) {
@@ -308,19 +329,17 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       nt2
     }
 
-    realWorker { doneFn =>
+    realWorker2 {
       changeHeading(newTheta)
       turtle.repaint()
-      doneFn()
     }
   }
 
   def realJumpTo(x: Double, y: Double) {
-    realWorker { doneFn =>
+    realWorker2 {
       changePos(x, y)
       pen.updatePosition()
       turtle.repaint()
-      doneFn()
     }
   }
 
@@ -333,106 +352,93 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
 
     realTowards(x, y)
-    CommandActor.receive {
-      case CommandDone =>
-    }
+    waitForDoneMsg()
     realForward(distanceTo(x,y))
   }
 
   def realSetAnimationDelay(d: Long) {
     _animationDelay = d
-    CommandActor ! CommandDone
+    workDone()
   }
 
   def realGetWorker() {
-    CommandActor ! CommandDone
+    workDone()
   }
 
   def realSetPenColor(color: Color) {
-    realWorker { doneFn =>
+    realWorker2 {
       pen.setColor(color)
-      doneFn()
     }
   }
 
   def realSetPenThickness(t: Double) {
-    realWorker { doneFn =>
+    realWorker2 {
       pen.setThickness(t)
-      doneFn()
     }
   }
 
   def realSetFillColor(color: Color) {
-    realWorker { doneFn =>
+    realWorker2 {
       pen.setFillColor(color)
-      doneFn()
     }
   }
 
   def realBeamsOn() {
-    realWorker { doneFn =>
+    realWorker2 {
       turtle.addChild(0, xBeam)
       turtle.addChild(1, yBeam)
       turtle.repaint()
-      doneFn()
     }
   }
 
   def realBeamsOff() {
-    realWorker { doneFn =>
+    realWorker2 {
       turtle.removeChild(xBeam)
       turtle.removeChild(yBeam)
       turtle.repaint()
-      doneFn()
     }
   }
 
   def realWrite(text: String) {
-    realWorker { doneFn =>
+    realWorker2 {
       val ptext = new PText(text)
       history.push(UndoWrite(ptext))
       ptext.getTransformReference(true).setToScale(1, -1)
       ptext.setOffset(_position.x, _position.y)
       layer.addChild(layer.getChildrenCount-1, ptext)
       ptext.repaint()
-      doneFn()
     }
   }
 
   def realHide() {
-    realWorker { doneFn =>
+    realWorker2 {
       if (turtle.getChildrenReference.contains(turtleImage)) {
         turtle.removeChild(turtleImage)
         turtle.repaint()
       }
-      doneFn()
     }
   }
 
   def realShow() {
-    realWorker { doneFn =>
+    realWorker2 {
       if (!turtle.getChildrenReference.contains(turtleImage)) {
         turtle.addChild(turtleImage)
         turtle.repaint()
       }
-      doneFn()
     }
   }
 
   def realPoint(x: Double, y: Double) {
     realJumpTo(x, y)
-    CommandActor.receive {
-      case CommandDone =>
-    }
-    realWorker { doneFn =>
+    waitForDoneMsg()
+    realWorker2 {
       pen.startMove(x.toFloat, y.toFloat)
       pen.endMove(x.toFloat, y.toFloat)
-      doneFn()
     }
   }
 
   def realPathToPolygon() {
-    realWorker { doneFn =>
+    realWorker2 {
       geomObj = null
       history.clear()
       try {
@@ -445,12 +451,11 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       catch {
         case e: IllegalArgumentException => canvas.outputFn(e.getMessage)
       }
-      doneFn()
     }
   }
 
   def realPathToPGram() {
-    realWorker { doneFn =>
+    realWorker2 {
       geomObj = null
       history.clear()
       try {
@@ -463,34 +468,28 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       catch {
         case e: IllegalArgumentException => canvas.outputFn(e.getMessage)
       }
-      doneFn()
     }
   }
 
-  def realUndoChangeInPos(oldPos: (Double, Double)) {
+  // undo methods are called in the GUI thread via realUndo
+  def undoChangeInPos(oldPos: (Double, Double)) {
     pen.undoMove()
     changePos(oldPos._1, oldPos._2)
     turtle.repaint()
   }
 
-  def realUndoJump(oldPos: (Double, Double)) {
-    pen.removeLastPath()
-    changePos(oldPos._1, oldPos._2)
-    turtle.repaint()
-  }
-
-  def realUndoChangeInHeading(oldHeading: Double) {
+  def undoChangeInHeading(oldHeading: Double) {
     changeHeading(oldHeading)
     turtle.repaint()
   }
 
-  def realUndoPenAttrs(color: Color, thickness: Double, fillColor: Color) {
+  def undoPenAttrs(color: Color, thickness: Double, fillColor: Color) {
     canvas.outputFn("Undoing Pen attribute (Color/Thickness/FillColor) change.\n")
     pen.removeLastPath()
     pen.rawSetAttrs(color, thickness, fillColor)
   }
 
-  def realUndoPenState(apen: Pen) {
+  def undoPenState(apen: Pen) {
     canvas.outputFn("Undoing Pen State (Up/Down) change.\n")
     apen match {
       case UpPen =>
@@ -501,7 +500,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realUndoWrite(ptext: PText) {
+  def undoWrite(ptext: PText) {
     layer.removeChild(ptext)
   }
 
@@ -558,33 +557,31 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
     def undoHandler: PartialFunction[UndoCommand, Unit] = {
       case cmd @ UndoChangeInPos((x, y)) =>
-        realUndoChangeInPos((x, y))
-      case cmd @ UndoJump((x, y)) =>
-        realUndoJump((x, y))
+        undoChangeInPos((x, y))
       case cmd @ UndoChangeInHeading(oldHeading) =>
-        realUndoChangeInHeading(oldHeading)
+        undoChangeInHeading(oldHeading)
       case cmd @ UndoPenAttrs(color, thickness, fillColor) =>
-        realUndoPenAttrs(color, thickness, fillColor)
+        undoPenAttrs(color, thickness, fillColor)
       case cmd @ UndoPenState(apen) =>
-        realUndoPenState(apen)
+        undoPenState(apen)
       case cmd @ UndoWrite(ptext) =>
-        realUndoWrite(ptext)
-      case cmd @ CompositeCommand(cmds) =>
-        realHandleCompositeCommand(cmds)
+        undoWrite(ptext)
+      case cmd @ CompositeUndoCommand(cmds) =>
+        handleCompositeCommand(cmds)
     }
 
     def realUndo() {
       realWorker { doneFn =>
         if (!history.isEmpty) {
           val cmd = history.pop()
-          Log.info("Popped command from history: " + cmd)
+//          Log.info("Popped command from history: " + cmd)
           undoHandler(cmd)
         }
         doneFn()
       }
     }
 
-    def realHandleCompositeCommand(cmds: scala.List[UndoCommand]) {
+    def handleCompositeCommand(cmds: scala.List[UndoCommand]) {
       cmds.foreach {cmd => undoHandler(cmd)}
     }
 
@@ -625,14 +622,14 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
         case cmd @ JumpTo(x, y, b) =>
           val undoCmd = 
             if (pen == UpPen)
-              CompositeCommand(
+              CompositeUndoCommand(
               scala.List(
                 UndoPenState(pens._2),
                 UndoChangeInPos((_position.x, _position.y))
               )
             )
           else 
-            CompositeCommand(
+            CompositeUndoCommand(
               scala.List(
                 UndoPenState(pens._2),
                 UndoChangeInPos((_position.x, _position.y)),
@@ -643,7 +640,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
             realJumpTo(x, y)
           }
         case cmd @ MoveTo(x, y, b) =>
-          val undoCmd = CompositeCommand(
+          val undoCmd = CompositeUndoCommand(
             scala.List(
               UndoChangeInPos((_position.x, _position.y)),
               UndoChangeInHeading(theta)
