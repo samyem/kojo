@@ -77,6 +77,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   val CommandActor = makeCommandProcessor()
   @volatile var geomObj: DynamicShape = _
   val history = new mutable.Stack[UndoCommand]
+  @volatile var isVisible = true
 
   def changePos(x: Double, y: Double) {
     _position = new Point2D.Double(x, y)
@@ -447,23 +448,11 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  // version of isVisible that can be called from actor thread
-  def isVisibleTS: Boolean = {
-    var vis = false
-    realWorker3 {
-      vis = isVisible
-    }
-    vis
-  }
-
-  def isVisible: Boolean = {
-    turtle.getChildrenReference.contains(turtleImage)
-  }
-
   def hideWorker() {
     if (isVisible) {
       turtle.removeChild(turtleImage)
       turtle.repaint()
+      isVisible = false
     }
   }
 
@@ -471,6 +460,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     if (!isVisible) {
       turtle.addChild(turtleImage)
       turtle.repaint()
+      isVisible = true
     }
   }
 
@@ -738,11 +728,11 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
             realWrite(text)
           }
         case cmd @ Show(b) =>
-          processCommand(cmd, Some(UndoVisibility(isVisibleTS))) {
+          processCommand(cmd, Some(UndoVisibility(isVisible))) {
             realShow()
           }
         case cmd @ Hide(b) =>
-          processCommand(cmd, Some(UndoVisibility(isVisibleTS))) {
+          processCommand(cmd, Some(UndoVisibility(isVisible))) {
             realHide()
           }
         case cmd @ Point(x, y, b) =>
