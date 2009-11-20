@@ -88,6 +88,18 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     turtle.setRotation(theta)
   }
 
+  def dumpState() {
+    Utils.runInSwingThread {
+      val output = canvas.outputFn
+      val cIter = layer.getChildrenReference.iterator
+      output("Turtle Layer (%d children)\n" format(layer.getChildrenReference.size))
+      while (cIter.hasNext) {
+        val node = cIter.next
+        output(node.toString)
+      }
+    }
+  }
+
   def init() {
     _animationDelay = 1000l
     changePos(initX, initY)
@@ -194,17 +206,29 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     geomObj
   }
 
+  // invoke fn in GUI thread, supplying it doneFn to call at the end
   def realWorker(fn: (() => Unit) => Unit) {
     Utils.runInSwingThread {
       fn {() => workDone()}
     }
   }
 
+  // invoke fn in GUI thread, and call doneFn after it is done
   def realWorker2(fn:  => Unit) {
     realWorker { doneFn =>
       fn
       doneFn()
     }
+  }
+
+  // invoke fn in GUI thread, call doneFn after it is done, and block till done
+  // message is received in this thread
+  // Like SwingUtilities.invokeAndWait
+  def realWorker3(fn:  => Unit) {
+    realWorker2 {
+      fn
+    }
+    waitForDoneMsg()
   }
 
   def workDone() {
@@ -407,24 +431,46 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       ptext.setOffset(_position.x, _position.y)
       layer.addChild(layer.getChildrenCount-1, ptext)
       ptext.repaint()
+      turtle.repaint()
     }
   }
 
   def realHide() {
     realWorker2 {
-      if (turtle.getChildrenReference.contains(turtleImage)) {
-        turtle.removeChild(turtleImage)
-        turtle.repaint()
-      }
+      hideWorker()
     }
   }
 
   def realShow() {
     realWorker2 {
-      if (!turtle.getChildrenReference.contains(turtleImage)) {
-        turtle.addChild(turtleImage)
-        turtle.repaint()
-      }
+      showWorker()
+    }
+  }
+
+  // version of isVisible that can be called from actor thread
+  def isVisibleTS: Boolean = {
+    var vis = false
+    realWorker3 {
+      vis = isVisible
+    }
+    vis
+  }
+
+  def isVisible: Boolean = {
+    turtle.getChildrenReference.contains(turtleImage)
+  }
+
+  def hideWorker() {
+    if (isVisible) {
+      turtle.removeChild(turtleImage)
+      turtle.repaint()
+    }
+  }
+
+  def showWorker() {
+    if (!isVisible) {
+      turtle.addChild(turtleImage)
+      turtle.repaint()
     }
   }
 
@@ -504,6 +550,11 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     layer.removeChild(ptext)
   }
 
+  def undoVisibility(visible: Boolean) {
+    if (visible) showWorker()
+    else hideWorker()
+  }
+
   def resetRotation() {
     changeHeading(deg2radians(90))
   }
@@ -566,6 +617,8 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
         undoPenState(apen)
       case cmd @ UndoWrite(ptext) =>
         undoWrite(ptext)
+      case cmd @ UndoVisibility(visible) =>
+        undoVisibility(visible)
       case cmd @ CompositeUndoCommand(cmds) =>
         handleCompositeCommand(cmds)
     }
@@ -622,13 +675,8 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
         case cmd @ JumpTo(x, y, b) =>
           val undoCmd = 
             if (pen == UpPen)
-              CompositeUndoCommand(
-              scala.List(
-                UndoPenState(pens._2),
-                UndoChangeInPos((_position.x, _position.y))
-              )
-            )
-          else 
+              UndoChangeInPos((_position.x, _position.y))
+          else
             CompositeUndoCommand(
               scala.List(
                 UndoPenState(pens._2),
@@ -690,11 +738,11 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
             realWrite(text)
           }
         case cmd @ Show(b) =>
-          processCommand(cmd) {
+          processCommand(cmd, Some(UndoVisibility(isVisibleTS))) {
             realShow()
           }
         case cmd @ Hide(b) =>
-          processCommand(cmd) {
+          processCommand(cmd, Some(UndoVisibility(isVisibleTS))) {
             realHide()
           }
         case cmd @ Point(x, y, b) =>
@@ -793,18 +841,13 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       penPaths.clear()
       history.clear()
     }
-
-    def updatePosition() = {
-      addNewPath()
-    }
   }
 
   class UpPen extends AbstractPen {
     def startMove(x: Float, y: Float) {}
     def move(x: Float, y: Float) {}
-    def endMove(x: Float, y: Float) {
-//      penPaths.last.moveTo(x, y)
-    }
+    def endMove(x: Float, y: Float) {}
+    def updatePosition() {}
     def undoMove() {}
   }
 
@@ -827,6 +870,10 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       tempLine.reset
       penPaths.last.lineTo(x, y)
       penPaths.last.repaint()
+    }
+
+    def updatePosition() {
+      addNewPath()
     }
 
     def undoMove() {

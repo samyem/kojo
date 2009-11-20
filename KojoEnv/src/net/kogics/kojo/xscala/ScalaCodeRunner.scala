@@ -62,7 +62,7 @@ class ScalaCodeRunner(ctx: net.kogics.kojo.RunContext, tCanvas: SCanvas) {
   interp.setContextClassLoader
   
   val interpOutputReader = new Runnable {
-    def run() {
+    def readOutput() {
       // Runs on Interpreter pipe reader thread
       val reader = new BufferedReader(new InputStreamReader(interpOutput))
       val buf = new Array[Char](1024)
@@ -74,9 +74,37 @@ class ScalaCodeRunner(ctx: net.kogics.kojo.RunContext, tCanvas: SCanvas) {
         nbytes = reader.read(buf)
       }
     }
+
+    def run() {
+      try {
+        readOutput()
+      }
+      catch {
+        case e: Exception => 
+      }
+      
+      val dos = new DataOutputStream(pipedOutput)
+      dos.writeBytes("Resetting Output Reader.\n"); dos.flush()
+      run()
+    }
   }
 
   new Thread(interpOutputReader).start
+
+// Test Pipe Exceptions
+// TODO: This needs to go into a unit test
+//  val rxx = new Runnable {
+//    def run {
+//      Thread.sleep(10000)
+//      val dos = new DataOutputStream(pipedOutput)
+//      dos.writeBytes("Hi There.\n")
+//      dos.flush()
+////      Thread.sleep(5000)
+//      new Thread(this).start()
+//    }
+//  }
+//
+//  new Thread(rxx).start()
 
   object Builtins extends SCanvas {
     type Sprite = net.kogics.kojo.core.Sprite
@@ -360,8 +388,8 @@ Here's a partial list of available commands:
   case class RunCode(code: String)
 
   def startCodeRunner() = actor {
-    loop {
-      react {
+    while(true) {
+      receive {
         // Runs on Actor pool thread
         case RunCode(code) =>
           try {
