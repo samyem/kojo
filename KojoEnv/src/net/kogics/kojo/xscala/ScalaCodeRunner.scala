@@ -114,7 +114,9 @@ class ScalaCodeRunner(ctx: net.kogics.kojo.RunContext, tCanvas: SCanvas) {
 
     private val throttler = new Throttler {}
 
-    def println(s: String) = {
+    def println(obj: Any): Unit = println(obj.toString)
+
+    def println(s: String): Unit = {
       // Runs on Actor pool (interpreter) thread
       showOutput(s + "\n")
       throttler.throttle

@@ -37,6 +37,7 @@ trait SpriteMover {
   def beamsOn(): Unit
   def beamsOff(): Unit
   def write(text: String): Unit
+  def write(obj: Any): Unit = write(obj.toString)
   def visible(): Unit
   def invisible(): Unit
   def point(x: Double, y: Double)
