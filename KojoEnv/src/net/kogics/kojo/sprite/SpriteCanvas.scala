@@ -68,7 +68,14 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   addInputEventListener(new PBasicInputEventHandler {
       override def mouseMoved(e: PInputEvent) {
         val pos = e.getPosition
-        StatusDisplayer.getDefault().setStatusText("Mouse Position: (%.0f, %.0f)" format(pos.getX, pos.getY));
+        val prec0 = Math.round(getCamera.getViewTransformReference.getScale) - 1
+        val prec = {
+          if (prec0 < 0) 0
+          else if (prec0 > 18) 18
+          else prec0
+        }
+        val statusStr = "Mouse Position: (%%.%df, %%.%df)" format(prec, prec)
+        StatusDisplayer.getDefault().setStatusText(statusStr format(pos.getX, pos.getY));
       }
     })
 
