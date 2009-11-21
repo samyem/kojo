@@ -81,8 +81,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
         case ClearOutput =>
           clrOutput()
         case UndoCommand =>
-          codePane.setText("undo")
-          runCode()
+          smartUndo()
       }
     }
 
@@ -240,6 +239,20 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     Utils.runInSwingThread {
       output.setText(null)
       clearButton.setEnabled(false)
+    }
+  }
+
+  def smartUndo() {
+    if (codePane.getText.trim() == "") {
+      // if code pane is blank, do undo via the interp, so that we go back in
+      // history to the last command/script (which we are trying to undo)
+      codePane.setText("undo")
+      runCode()
+    }
+    else {
+      // if code pane is not blank, selected text was run (or an error occurred - not relevant here)
+      // call tCanvas directly so that the buffer is retained
+      tCanvas.undo()
     }
   }
 

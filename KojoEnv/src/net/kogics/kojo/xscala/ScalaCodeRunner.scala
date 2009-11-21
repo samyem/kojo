@@ -324,7 +324,7 @@ Here's a partial list of available commands:
 
   def runCode(code: String) {
     // Runs on swing thread
-    Log.info("Running Code:\n---\n%s\n---\n" format(code))
+//    Log.info("Running Code:\n---\n%s\n---\n" format(code))
     codeRunner ! RunCode(code)
   }
   
@@ -432,6 +432,8 @@ Here's a partial list of available commands:
         case RunCode(code) =>
           try {
             Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
+//            val ct = Thread.currentThread
+//            Log.info("CodeRunner actor running on thread: %s, Id: %d" format(ct.getName, System.identityHashCode(ct)))
             InterpreterManager.interpreterStarted
             val ret = interpret(code)
             Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
