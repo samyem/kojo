@@ -80,7 +80,8 @@ class ScalaCodeRunner(ctx: net.kogics.kojo.RunContext, tCanvas: SCanvas) {
         readOutput()
       }
       catch {
-        case e: Exception => 
+        case e: Exception =>
+          Log.warning("Output Reader Exception: " + Utils.stackTraceAsString(e))
       }
       
       val dos = new DataOutputStream(pipedOutput)

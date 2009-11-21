@@ -83,4 +83,11 @@ object Utils {
     }
     sb.toString
   }
+
+  def stackTraceAsString(t: Throwable): String = {
+    val result = new StringWriter()
+    val printWriter = new PrintWriter(result)
+    t.printStackTrace(printWriter)
+    result.toString()
+  }
 }

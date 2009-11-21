@@ -93,12 +93,19 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     Utils.runInSwingThread {
       val output = canvas.outputFn
       val cIter = layer.getChildrenReference.iterator
-      output("Turtle Layer (%d children)\n" format(layer.getChildrenReference.size))
+      output("Turtle Layer (%d children):\n" format(layer.getChildrenReference.size))
       while (cIter.hasNext) {
-        val node = cIter.next
-        output(node.toString)
+        val node = cIter.next.asInstanceOf[PNode]
+        output(stringRep(node))
       }
     }
+  }
+
+  def stringRep(node: PNode): String = node match {
+    case l: PolyLine => 
+      new StringBuilder().append("  Polyline:\n").append("    Points: %s\n" format l.points).toString
+    case n: PNode =>
+      new StringBuilder().append("  PNode:\n").append("    Children: %s\n" format n.getChildrenReference).toString
   }
 
   def init() {
