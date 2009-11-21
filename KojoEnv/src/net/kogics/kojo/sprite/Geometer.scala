@@ -260,36 +260,44 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     val pf = new Point2D.Double(p0.x + delX, p0.y + delY)
 
     realWorker { doneFn =>
+
+      def endMove() {
+        pen.endMove(pf.x.toFloat, pf.y.toFloat)
+        changePos(pf.x, pf.y)
+        turtle.repaint()
+        doneFn()
+      }
+
       if (Utils.doublesEqual(n, 0, 0.001)) {
         doneFn()
-        return
       }
-
-      pen.startMove(p0.x.toFloat, p0.y.toFloat)
-
-      val lineAnimation = new PActivity(_animationDelay) {
-        override def activityStep(elapsedTime: Long) {
-          val frac = if (_animationDelay == 0) 1d else elapsedTime.toDouble / _animationDelay
-          val currX = p0.x * (1-frac) + pf.x * frac
-          val currY = p0.y * (1-frac) + pf.y * frac
-          pen.move(currX.toFloat, currY.toFloat)
-          turtle.setOffset(currX, currY)
-          turtle.repaint()
-        }
+      else if (_animationDelay < 10) {
+        endMove()
       }
+      else {
+        pen.startMove(p0.x.toFloat, p0.y.toFloat)
 
-      lineAnimation.setDelegate(new PActivityDelegate {
-          override def activityStarted(activity: PActivity) {}
-          override def activityStepped(activity: PActivity) {}
-          override def activityFinished(activity: PActivity) {
-            pen.endMove(pf.x.toFloat, pf.y.toFloat)
-            changePos(pf.x, pf.y)
+        val lineAnimation = new PActivity(_animationDelay) {
+          override def activityStep(elapsedTime: Long) {
+            val frac = if (_animationDelay == 0) 1d else elapsedTime.toDouble / _animationDelay
+            val currX = p0.x * (1-frac) + pf.x * frac
+            val currY = p0.y * (1-frac) + pf.y * frac
+            pen.move(currX.toFloat, currY.toFloat)
+            turtle.setOffset(currX, currY)
             turtle.repaint()
-            doneFn()
           }
-        })
+        }
 
-      canvas.getRoot.addActivity(lineAnimation)
+        lineAnimation.setDelegate(new PActivityDelegate {
+            override def activityStarted(activity: PActivity) {}
+            override def activityStepped(activity: PActivity) {}
+            override def activityFinished(activity: PActivity) {
+              endMove()
+            }
+          })
+
+        canvas.getRoot.addActivity(lineAnimation)
+      }
     }
   }
 
