@@ -390,6 +390,41 @@ Here's a partial list of available commands:
   case class RunCode(code: String)
 
   def startCodeRunner() = actor {
+
+    val varPattern = java.util.regex.Pattern.compile("\\bvar\\b")
+
+    def interpretLine(lines: List[String]): IR.Result = lines match {
+      case Nil => IR.Success
+      case code :: tail =>
+//        Log.info("Interpreting code: %s\n" format(code))
+        interp.interpret(code) match {
+          case IR.Error       => IR.Error
+          case IR.Success     => interpretLine(lines.tail)
+          case IR.Incomplete  =>
+            tail match {
+              case Nil => IR.Incomplete
+              case code2 :: tail2 => interpretLine(code + "\n" + code2 :: tail2)
+            }
+        }
+    }
+
+    def interpretLineByLine(code: String): IR.Result = {
+      val lines = code.split("\r?\n").toList.filter(line => line.trim() != "" && !line.trim().startsWith("//"))
+//            Log.info("Code Lines: " + lines)
+      interpretLine(lines)
+    }
+
+    def interpretAllLines(code: String): IR.Result = interp.interpret(code)
+
+    def interpret(code: String): IR.Result = {
+      if (needsLineByLineInterpretation(code)) interpretLineByLine(code)
+      else interpretAllLines(code)
+    }
+
+    def needsLineByLineInterpretation(code: String): Boolean = {
+      varPattern.matcher(code).find()
+    }
+
     while(true) {
       receive {
         // Runs on Actor pool thread
@@ -397,7 +432,7 @@ Here's a partial list of available commands:
           try {
             Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
             InterpreterManager.interpreterStarted
-            val ret = interp.interpret(code)
+            val ret = interpret(code)
             Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
             if (ret == IR.Incomplete) showOutput("Incomplete code fragment.\n")
             if (ret != IR.Success) ctx.reportRunError

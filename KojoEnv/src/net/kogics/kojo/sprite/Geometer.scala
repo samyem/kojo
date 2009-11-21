@@ -77,7 +77,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   val CommandActor = makeCommandProcessor()
   @volatile var geomObj: DynamicShape = _
   val history = new mutable.Stack[UndoCommand]
-  @volatile var isVisible = true
+  @volatile var isVisible: Boolean = _
 
   def changePos(x: Double, y: Double) {
     _position = new Point2D.Double(x, y)
@@ -110,6 +110,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
     pen.init
     resetRotation
+    isVisible = true
   }
 
   init
@@ -306,6 +307,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     realWorker2 {
       pen.clear()
       layer.removeAllChildren() // get rid of stuff not written by pen, like text nodes
+      history.clear()
       init()
       turtle.repaint()
       canvas.afterClear()
@@ -829,7 +831,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
         layer.removeChild(penPath)
       }
       penPaths.clear()
-      history.clear()
     }
   }
 
