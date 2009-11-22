@@ -59,5 +59,12 @@ case class UndoChangeInHeading(oldHeading: Double) extends UndoCommand
 case class UndoPenAttrs(color: Color, thickness: Double, fillColor: Color) extends UndoCommand
 case class UndoPenState(currPen: Pen) extends UndoCommand
 case class UndoWrite(ptext: PText) extends UndoCommand
-case class UndoVisibility(visible: Boolean) extends UndoCommand
+case class UndoVisibility(visible: Boolean, beamsOn: Boolean) extends UndoCommand
 case class CompositeUndoCommand(cmds: List[UndoCommand]) extends UndoCommand
+
+case class SpriteState(oldPos: (Double, Double),
+                       oldHeading: Double,
+                       color: Color, thickness: Double, fillColor: Color,
+                       currPen: Pen,
+                       textNodes: List[PText],
+                       visible: Boolean, beamsOn: Boolean)

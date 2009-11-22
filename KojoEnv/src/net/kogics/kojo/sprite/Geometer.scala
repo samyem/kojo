@@ -78,6 +78,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   @volatile var geomObj: DynamicShape = _
   val history = new mutable.Stack[UndoCommand]
   @volatile var isVisible: Boolean = _
+  @volatile var areBeamsOn: Boolean = _
 
   def changePos(x: Double, y: Double) {
     _position = new Point2D.Double(x, y)
@@ -118,6 +119,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     pen.init
     resetRotation
     isVisible = true
+    areBeamsOn = false
   }
 
   init
@@ -157,12 +159,8 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def beamsOff() = enqueueCommand(BeamsOff(cmdBool))
   def write(text: String) = enqueueCommand(Write(text, cmdBool))
   def visible() = enqueueCommand(Show(cmdBool))
+  def invisible() = enqueueCommand(Hide(cmdBool))
   def point(x: Double, y: Double) = enqueueCommand(Point(x, y, cmdBool))
-
-  def invisible() {
-    beamsOff()
-    enqueueCommand(Hide(cmdBool))
-  }
 
   def remove() = {
     enqueueCommand(Remove(cmdBool))
@@ -425,19 +423,33 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realBeamsOn() {
-    realWorker2 {
+  def beamsOnWorker() {
+    if (!areBeamsOn) {
       turtle.addChild(0, xBeam)
       turtle.addChild(1, yBeam)
       turtle.repaint()
+      areBeamsOn = true
+    }
+  }
+
+  def beamsOffWorker() {
+    if (areBeamsOn) {
+      turtle.removeChild(xBeam)
+      turtle.removeChild(yBeam)
+      turtle.repaint()
+      areBeamsOn = false
+    }
+  }
+
+  def realBeamsOn() {
+    realWorker2 {
+      beamsOnWorker()
     }
   }
 
   def realBeamsOff() {
     realWorker2 {
-      turtle.removeChild(xBeam)
-      turtle.removeChild(yBeam)
-      turtle.repaint()
+      beamsOffWorker()
     }
   }
 
@@ -468,6 +480,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def hideWorker() {
     if (isVisible) {
       turtle.removeChild(turtleImage)
+      beamsOffWorker()
       turtle.repaint()
       isVisible = false
     }
@@ -557,9 +570,12 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     layer.removeChild(ptext)
   }
 
-  def undoVisibility(visible: Boolean) {
+  def undoVisibility(visible: Boolean, beamsOn: Boolean) {
     if (visible) showWorker()
     else hideWorker()
+
+    if (beamsOn) beamsOnWorker()
+    else beamsOffWorker()
   }
 
   def resetRotation() {
@@ -624,8 +640,8 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
         undoPenState(apen)
       case cmd @ UndoWrite(ptext) =>
         undoWrite(ptext)
-      case cmd @ UndoVisibility(visible) =>
-        undoVisibility(visible)
+      case cmd @ UndoVisibility(visible, areBeamsOn) =>
+        undoVisibility(visible, areBeamsOn)
       case cmd @ CompositeUndoCommand(cmds) =>
         handleCompositeCommand(cmds)
     }
@@ -745,11 +761,11 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
             realWrite(text)
           }
         case cmd @ Show(b) =>
-          processCommand(cmd, Some(UndoVisibility(isVisible))) {
+          processCommand(cmd, Some(UndoVisibility(isVisible, areBeamsOn))) {
             realShow()
           }
         case cmd @ Hide(b) =>
-          processCommand(cmd, Some(UndoVisibility(isVisible))) {
+          processCommand(cmd, Some(UndoVisibility(isVisible, areBeamsOn))) {
             realHide()
           }
         case cmd @ Point(x, y, b) =>
