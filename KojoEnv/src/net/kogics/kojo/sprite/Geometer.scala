@@ -112,14 +112,13 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def init() {
     _animationDelay = 1000l
     changePos(initX, initY)
-    if (!turtle.getChildrenReference.contains(turtleImage))
-      turtle.addChild(turtleImage)
     layer.addChild(turtle)
 
     pen.init
     resetRotation
-    isVisible = true
-    areBeamsOn = false
+
+    showWorker()
+    beamsOffWorker()
   }
 
   init
@@ -213,11 +212,16 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     geomObj
   }
 
-  // invoke fn in GUI thread, supplying it doneFn to call at the end
+  // invoke fn in GUI thread, supplying it doneFn to call at the end,
+  // and wait for doneFn to get called
+  // Kinda like SwingUtilities.invokeAndWait, except that it uses actor messages
+  // and blocks inside actor.receive() - to give the actor thread pool a chance
+  // to grow with the number of turtles
   def realWorker(fn: (() => Unit) => Unit) {
     Utils.runInSwingThread {
       fn {() => workDone()}
     }
+    waitForDoneMsg()
   }
 
   // invoke fn in GUI thread, and call doneFn after it is done
@@ -226,16 +230,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       fn
       doneFn()
     }
-  }
-
-  // invoke fn in GUI thread, call doneFn after it is done, and block till done
-  // message is received in this thread
-  // Like SwingUtilities.invokeAndWait
-  def realWorker3(fn:  => Unit) {
-    realWorker2 {
-      fn
-    }
-    waitForDoneMsg()
   }
 
   def workDone() {
@@ -337,7 +331,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   def realPenUp() {
     pen = UpPen
-    workDone()
   }
 
   def realPenDown() {
@@ -345,7 +338,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       pen = DownPen
       pen.updatePosition()
     }
-    workDone()
   }
 
   def realTowards(x: Double, y: Double) {
@@ -392,17 +384,14 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
 
     realTowards(x, y)
-    waitForDoneMsg()
     realForward(distanceTo(x,y))
   }
 
   def realSetAnimationDelay(d: Long) {
     _animationDelay = d
-    workDone()
   }
 
   def realGetWorker() {
-    workDone()
   }
 
   def realSetPenColor(color: Color) {
@@ -496,7 +485,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   def realPoint(x: Double, y: Double) {
     realJumpTo(x, y)
-    waitForDoneMsg()
     realWorker2 {
       pen.startMove(x.toFloat, y.toFloat)
       pen.endMove(x.toFloat, y.toFloat)
@@ -614,9 +602,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
         try {
           fn
-          receive {
-            case CommandDone =>
-          }
         }
         finally {
           listener.commandDone(cmd)
@@ -653,8 +638,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
           undoHandler(cmd)
         }
       }
-      else
-        workDone()
     }
 
     def handleCompositeCommand(cmds: scala.List[UndoCommand]) {

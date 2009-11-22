@@ -92,7 +92,10 @@ class CodeEditorTest {
     assertEquals(23, pane.getSelectionEnd)
   }
 
-  def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
+  def stripCrLfs(str: String): String  = {
+    val str0 = str.replaceAll("\r?\n", "")
+    str0.replaceAll("---", "")
+  }
 
   def awaitResult(res: String) {
     var totalSleep = 0l
