@@ -16,11 +16,12 @@ package net.kogics.kojo
 
 import javax.swing._
 import java.awt._
+import java.awt.event._
+import javax.swing.border._
 
 class HistoryListModel(myList: JList) extends AbstractListModel {
   val commandHistory = CommandHistory.instance
 
-  myList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
   def getSize = commandHistory.size + 1
 
   def getElementAt(idx: Int) = {
@@ -43,7 +44,56 @@ class HistoryListModel(myList: JList) extends AbstractListModel {
         }
       }
     })
+
+  def addStar(idx: Int) = commandHistory.addStar(idx)
+  def removeStar(idx: Int) = commandHistory.removeStar(idx)
+  def isStarred(idx: Int) = commandHistory.isStarred(idx)
 }
+
+class HistoryPopupMenu(myList: JList) extends JPopupMenu {
+  val starItem = new JMenuItem("Star")
+  starItem.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent) {
+        myList.getModel.asInstanceOf[HistoryListModel].addStar(myList.getSelectedIndex)
+        myList.repaint()
+      }
+    })
+  add(starItem)
+  val unstarItem = new JMenuItem("UnStar")
+  unstarItem.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent) {
+        myList.getModel.asInstanceOf[HistoryListModel].removeStar(myList.getSelectedIndex)
+        myList.repaint()
+      }
+    })
+  add(unstarItem)
+}
+
+class HistoryCellRenderer extends DefaultListCellRenderer {
+
+  val star = net.kogics.kojo.util.Utils.loadIcon("/images/star.png")
+  val outsideBorder = BorderFactory.createLineBorder(new Color(240, 240, 240), 1);
+  val insideBorder = new EmptyBorder(3, 3, 2, 1)
+  val border = new CompoundBorder(outsideBorder, insideBorder)
+
+  override def getListCellRendererComponent(list: JList,
+                                            value: Object,
+                                            index: Int,
+                                            isSelected: Boolean,
+                                            cellHasFocus: Boolean): Component =  {
+
+    val isStarred = list.getModel.asInstanceOf[HistoryListModel].isStarred(index)
+    val text = value.asInstanceOf[String].replaceAll("\n", " | ")
+    val c = super.getListCellRendererComponent(list, text,
+                                               index, isSelected, cellHasFocus)
+    val label = c.asInstanceOf[JLabel]
+    label.setBorder(border)
+    if (isStarred) label.setIcon(star)
+
+    return label;
+  }
+}
+
 
 
 

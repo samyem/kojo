@@ -24,14 +24,21 @@ trait HistoryListener {
 
 class HistorySaver {
   var writer = new BufferedWriter(new FileWriter(CommandHistory.historyFile, true))
+  var starsWriter = new BufferedWriter(new FileWriter(CommandHistory.starsFile, true))
 
-  def append(script: String) = {
+  def append(script: String) {
     writer.append(script)
     writer.append(CommandHistory.Seperator)
     writer.flush()
   }
 
-  def write(items: Array[String]) {
+  def appendStar(idx: Int) {
+    starsWriter.append(idx.toString)
+    starsWriter.append(CommandHistory.StarSeperator)
+    starsWriter.flush()
+  }
+
+  def write(items: mutable.ArrayBuffer[String]) {
     writer.close()
     writer = new BufferedWriter(new FileWriter(CommandHistory.historyFile, false))
     items.foreach { hItem =>
@@ -41,17 +48,34 @@ class HistorySaver {
     writer.close()
     writer = new BufferedWriter(new FileWriter(CommandHistory.historyFile, true))
   }
+
+  def writeStars(stars: mutable.ArrayBuffer[Int]) {
+    starsWriter.close()
+    starsWriter = new BufferedWriter(new FileWriter(CommandHistory.starsFile, false))
+    stars.foreach { idx =>
+      starsWriter.append(idx.toString)
+      starsWriter.append(CommandHistory.StarSeperator)
+    }
+    starsWriter.close()
+    starsWriter = new BufferedWriter(new FileWriter(CommandHistory.starsFile, true))
+  }
 }
 
 object CommandHistory extends Singleton[CommandHistory] {
 //  val Log = java.util.logging.Logger.getLogger("CommandHistoryO");
   val Seperator = "---Seperator---"
+  val StarSeperator = ", "
   val MaxHistorySize = 1000
+  val userDir = System.getProperty("netbeans.user")
 
   val historyFile = {
-    val userDir = System.getProperty("netbeans.user")
-    val historyFileName = userDir + File.separator + "config" + File.separator + "history.txt"
-    new File(historyFileName)
+    val fileName = userDir + File.separator + "config" + File.separator + "history.txt"
+    new File(fileName)
+  }
+
+  val starsFile = {
+    val fileName = userDir + File.separator + "config" + File.separator + "stars.txt"
+    new File(fileName)
   }
 
   def loadHistory(): String = {
@@ -65,9 +89,21 @@ object CommandHistory extends Singleton[CommandHistory] {
     }
   }
 
+  def loadStars(): String = {
+    if (!starsFile.exists) {
+      starsFile.createNewFile()
+      ""
+    }
+    else {
+      import net.kogics.kojo.util.RichFile._
+      starsFile.readAsString
+    }
+  }
+
   protected def newInstance = {
+    val (history, stars) = (loadHistory(), loadStars())
     val hist = new CommandHistory(new HistorySaver(), CommandHistory.MaxHistorySize)
-    hist.loadFrom(loadHistory())
+    hist.loadFrom(history, stars)
     hist
   }
 }
@@ -76,6 +112,8 @@ class CommandHistory private[kojo] (historySaver: HistorySaver, maxHistorySize: 
   val Log = java.util.logging.Logger.getLogger(getClass.getName)
 
   val history = new mutable.ArrayBuffer[String]
+  val stars = new scala.collection.mutable.HashSet[Int]
+
   var hIndex = 0
   var listener: Option[HistoryListener] = None
 
@@ -140,15 +178,54 @@ class CommandHistory private[kojo] (historySaver: HistorySaver, maxHistorySize: 
     listener = None
   }
 
-  def loadFrom(stringHistory: String) {
+  def loadFrom(stringHistory: String, stringStars: String) {
 //    Log.info("Loading History from: " + stringHistory)
     if (stringHistory == null || stringHistory.trim() == "") return
     
-    var items = stringHistory.split(CommandHistory.Seperator)
-    if (items.length > maxHistorySize) {
-      items = items.slice(items.size - maxHistorySize, items.size)
+    val itemsA = stringHistory.split(CommandHistory.Seperator)
+    val starsA = stringStars.split(CommandHistory.StarSeperator)
+
+    var items = new mutable.ArrayBuffer[String](); items.appendAll(itemsA)
+    var stars0 = new mutable.ArrayBuffer[String](); stars0.appendAll(starsA)
+
+    var stars1 = stars0.filter {sidx => sidx.trim() != ""}.map {sidx => sidx.toInt}
+
+    if (items.size > maxHistorySize) {
+      val extraItems = items.size - maxHistorySize
+      val gone = stars1.filter { idx => idx < extraItems}.sortWith((e1, e2) => e1 < e2)
+      val droppedStarredItems = gone.map {idx => items(idx)}
+
+      items = items.slice(extraItems, items.size)
+      items.insert(0, droppedStarredItems:_*)
       historySaver.write(items)
+
+      stars1 = stars1.filterNot {idx => idx < extraItems}.map {idx => idx - extraItems + droppedStarredItems.size}
+      val gone2 = new mutable.ArrayBuffer[Int]
+      var dropped = 0
+      var prev = -1
+      for (i <- 0 until gone.size) {
+        dropped += gone(i) - prev - 1
+        prev = gone(i)
+        gone2 += gone(i) - dropped
+      }
+      stars1.insert(0, gone2:_*)
+      historySaver.writeStars(stars1)
     }
+
     items.foreach {hItem => internalAdd(hItem)}
+    stars1.foreach {idx => stars += idx}
   }
+
+  def addStar(idx: Int) {
+    stars += idx
+    historySaver.appendStar(idx)
+  }
+
+  def removeStar(idx: Int) {
+    stars -= idx
+    val stars0 = new mutable.ArrayBuffer[Int](); stars0.appendAll(stars)
+    historySaver.writeStars(stars0)
+  }
+
+  def isStarred(idx: Int) = stars.contains(idx)
 }

@@ -154,14 +154,22 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def gridOn() {
-    defLayer.addChild(grid)
-    updateGrid()
-    repaint()
+    Utils.runInSwingThread {
+      if (!defLayer.getChildrenReference.contains(grid)) {
+        defLayer.addChild(grid)
+        updateGrid()
+        repaint()
+      }
+    }
   }
 
   def gridOff() {
-    defLayer.removeChild(grid)
-    repaint()
+    Utils.runInSwingThread {
+      if (defLayer.getChildrenReference.contains(grid)) {
+        defLayer.removeChild(grid)
+        repaint()
+      }
+    }
   }
 
   def afterClear() = {

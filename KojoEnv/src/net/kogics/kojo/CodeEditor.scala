@@ -197,6 +197,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
             case KeyEvent.VK_ENTER =>
               if(evt.isControlDown && isRunningEnabled) {
                 runCode()
+                evt.consume
               }
             case KeyEvent.VK_UP =>
               if(evt.isControlDown) {

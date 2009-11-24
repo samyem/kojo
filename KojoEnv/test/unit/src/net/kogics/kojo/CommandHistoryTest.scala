@@ -25,6 +25,8 @@ import org.jmock.Expectations
 import org.jmock.Expectations._
 import org.jmock.lib.legacy.ClassImposteriser
 
+import scala.collection.mutable.ArrayBuffer
+
 @RunWith(classOf[JMock])
 class CommandHistoryTest {
 
@@ -179,7 +181,8 @@ class CommandHistoryTest {
   @Test
   def testLoadFrom {
     val historyStr = "1---Seperator---2---Seperator---3\n3.1---Seperator---"
-    commandHistory.loadFrom(historyStr)
+    val starsStr = ""
+    commandHistory.loadFrom(historyStr, starsStr)
     assertEquals(3, commandHistory.size)
     assertEquals("1", commandHistory(0))
     assertEquals("2", commandHistory(1))
@@ -192,14 +195,16 @@ class CommandHistoryTest {
       val saver = (context.mock(classOf[HistorySaver], "saver2")).asInstanceOf[HistorySaver]
       context.checking (new Expectations {
           allowing(saver).append(`with`(any(classOf[String])))
-          one(saver).write(`with`(Array("3\n3.1", "4")))
+          one(saver).write(`with`(ArrayBuffer("3\n3.1", "4")))
+          one(saver).writeStars(`with`(ArrayBuffer[Int]()))
         })
       saver
     }
 
     val historyStr = "1---Seperator---2---Seperator---3\n3.1---Seperator---4---Seperator---"
+    val starsStr = ""
     val commandHistory = new CommandHistory(mockSaver2, 2)
-    commandHistory.loadFrom(historyStr)
+    commandHistory.loadFrom(historyStr, starsStr)
     assertEquals(2, commandHistory.size)
     assertEquals("3\n3.1", commandHistory(0))
     assertEquals("4", commandHistory(1))
@@ -208,7 +213,124 @@ class CommandHistoryTest {
   @Test
   def testLoadFromEmptyStr {
     val historyStr = ""
-    commandHistory.loadFrom(historyStr)
+    val starsStr = ""
+    commandHistory.loadFrom(historyStr, starsStr)
     assertEquals(0, commandHistory.size)
+  }
+
+  @Test
+  def testLoadFromWithStarsAndTruncate {
+    def mockSaver2: HistorySaver = {
+      val saver = (context.mock(classOf[HistorySaver], "saver2")).asInstanceOf[HistorySaver]
+      context.checking (new Expectations {
+          allowing(saver).append(`with`(any(classOf[String])))
+          one(saver).write(`with`(ArrayBuffer("1", "3\n3.1", "4", "5")))
+          one(saver).writeStars(`with`(ArrayBuffer(0,1,3)))
+        })
+      saver
+    }
+
+    val historyStr = "1---Seperator---2---Seperator---3\n3.1---Seperator---4---Seperator---5---Seperator---"
+    val starsStr = "0, 2, 4"
+    val commandHistory = new CommandHistory(mockSaver2, 3)
+    commandHistory.loadFrom(historyStr, starsStr)
+    assertEquals(4, commandHistory.size)
+    assertEquals("1", commandHistory(0))
+    assertEquals("3\n3.1", commandHistory(1))
+    assertEquals("4", commandHistory(2))
+    assertEquals("5", commandHistory(3))
+
+    assertEquals(3, commandHistory.stars.size)
+    assertEquals(true, commandHistory.stars(0))
+    assertEquals(true, commandHistory.stars(1))
+    assertEquals(true, commandHistory.stars(3))
+  }
+
+  @Test
+  def testLoadFromWithStarsAndTruncate2 {
+    def mockSaver2: HistorySaver = {
+      val saver = (context.mock(classOf[HistorySaver], "saver2")).asInstanceOf[HistorySaver]
+      context.checking (new Expectations {
+          allowing(saver).append(`with`(any(classOf[String])))
+          one(saver).write(`with`(ArrayBuffer("0", "2", "3", "4", "5")))
+          one(saver).writeStars(`with`(ArrayBuffer(0,1,3,2)))
+        })
+      saver
+    }
+
+    val historyStr = "0---Seperator---1---Seperator---2---Seperator---3---Seperator---4---Seperator---5---Seperator---"
+    val starsStr = "0, 4, 3, 2"
+    val commandHistory = new CommandHistory(mockSaver2, 3)
+    commandHistory.loadFrom(historyStr, starsStr)
+    assertEquals(5, commandHistory.size)
+    assertEquals("0", commandHistory(0))
+    assertEquals("2", commandHistory(1))
+    assertEquals("3", commandHistory(2))
+    assertEquals("4", commandHistory(3))
+    assertEquals("5", commandHistory(4))
+
+    assertEquals(4, commandHistory.stars.size)
+    assertEquals(true, commandHistory.stars(0))
+    assertEquals(true, commandHistory.stars(1))
+    assertEquals(true, commandHistory.stars(2))
+    assertEquals(true, commandHistory.stars(3))
+  }
+
+  @Test
+  def testLoadFromWithStarsAndTruncate3 {
+    def mockSaver2: HistorySaver = {
+      val saver = (context.mock(classOf[HistorySaver], "saver2")).asInstanceOf[HistorySaver]
+      context.checking (new Expectations {
+          allowing(saver).append(`with`(any(classOf[String])))
+          one(saver).write(`with`(ArrayBuffer("0", "1", "2", "3", "4", "5")))
+          one(saver).writeStars(`with`(ArrayBuffer(0,1,4)))
+        })
+      saver
+    }
+
+    val historyStr = "0---Seperator---1---Seperator---2---Seperator---3---Seperator---4---Seperator---5---Seperator---"
+    val starsStr = "0, 1, 4"
+    val commandHistory = new CommandHistory(mockSaver2, 4)
+    commandHistory.loadFrom(historyStr, starsStr)
+    assertEquals(6, commandHistory.size)
+    assertEquals("0", commandHistory(0))
+    assertEquals("1", commandHistory(1))
+    assertEquals("2", commandHistory(2))
+    assertEquals("3", commandHistory(3))
+    assertEquals("4", commandHistory(4))
+    assertEquals("5", commandHistory(5))
+
+    assertEquals(3, commandHistory.stars.size)
+    assertEquals(true, commandHistory.stars(0))
+    assertEquals(true, commandHistory.stars(1))
+    assertEquals(true, commandHistory.stars(4))
+  }
+
+  @Test
+  def testLoadFromWithStarsAndTruncate4 {
+    def mockSaver2: HistorySaver = {
+      val saver = (context.mock(classOf[HistorySaver], "saver2")).asInstanceOf[HistorySaver]
+      context.checking (new Expectations {
+          allowing(saver).append(`with`(any(classOf[String])))
+          one(saver).write(`with`(ArrayBuffer("0", "1", "4", "5")))
+          one(saver).writeStars(`with`(ArrayBuffer(0,1,2)))
+        })
+      saver
+    }
+
+    val historyStr = "0---Seperator---1---Seperator---2---Seperator---3---Seperator---4---Seperator---5---Seperator---"
+    val starsStr = "0, 1, 4"
+    val commandHistory = new CommandHistory(mockSaver2, 2)
+    commandHistory.loadFrom(historyStr, starsStr)
+    assertEquals(4, commandHistory.size)
+    assertEquals("0", commandHistory(0))
+    assertEquals("1", commandHistory(1))
+    assertEquals("4", commandHistory(2))
+    assertEquals("5", commandHistory(3))
+
+    assertEquals(3, commandHistory.stars.size)
+    assertEquals(true, commandHistory.stars(0))
+    assertEquals(true, commandHistory.stars(1))
+    assertEquals(true, commandHistory.stars(2))
   }
 }

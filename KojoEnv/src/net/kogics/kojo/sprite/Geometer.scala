@@ -330,13 +330,17 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   }
 
   def realPenUp() {
-    pen = UpPen
+    realWorker2 {
+      pen = UpPen
+    }
   }
 
   def realPenDown() {
-    if (pen != DownPen) {
-      pen = DownPen
-      pen.updatePosition()
+    realWorker2 {
+      if (pen != DownPen) {
+        pen = DownPen
+        pen.updatePosition()
+      }
     }
   }
 

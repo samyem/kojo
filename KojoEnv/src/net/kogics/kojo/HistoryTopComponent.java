@@ -14,6 +14,9 @@
  */
 package net.kogics.kojo;
 
+import java.awt.AWTException;
+import java.awt.Robot;
+import java.awt.event.InputEvent;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.openide.util.NbBundle;
@@ -56,6 +59,14 @@ public final class HistoryTopComponent extends TopComponent {
         jList1 = new javax.swing.JList();
 
         jList1.setModel(new HistoryListModel(jList1));
+        jList1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jList1.setCellRenderer(new HistoryCellRenderer());
+        jList1.setComponentPopupMenu(new HistoryPopupMenu(jList1));
+        jList1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jList1MousePressed(evt);
+            }
+        });
         jList1.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 jList1ValueChanged(evt);
@@ -86,6 +97,24 @@ public final class HistoryTopComponent extends TopComponent {
             });
         }
 }//GEN-LAST:event_jList1ValueChanged
+
+    private void jList1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MousePressed
+        if (SwingUtilities.isRightMouseButton(evt)) {
+            jList1.setSelectedIndex(jList1.locationToIndex(evt.getPoint()));
+            // if one needs to simulate a 'true' left mouse click so that, for example,
+            // multiple item selection works even with right mouse click, the correct
+            // approach is to use the Robot (as shown below). I dunno if this
+            // will work on Linux/OSX though, so I'm just setting the selected
+            // index (above). This works fine for me
+            // because the History List just supports single selection
+//            try {
+//                Robot robot = new java.awt.Robot();
+//                robot.mousePress(InputEvent.BUTTON1_MASK);
+//                robot.mouseRelease(InputEvent.BUTTON1_MASK);
+//            } catch (AWTException ae) {
+//            }
+        }
+    }//GEN-LAST:event_jList1MousePressed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList jList1;
     private javax.swing.JScrollPane jScrollPane1;
