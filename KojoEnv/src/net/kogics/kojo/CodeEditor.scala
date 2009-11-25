@@ -279,8 +279,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
       showOutput(
         """|Sorry, you can't have the word %s in your script. This is an
            |internal reserved word within Kojo.
-           |Please change %s to something else and rerun your
-           |script""".stripMargin.format(CommandHistory.Separator, CommandHistory.Separator))
+           |Please change %s to something else and rerun your script.""".stripMargin.format(CommandHistory.Separator, CommandHistory.Separator))
       return
     }
 

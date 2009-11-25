@@ -40,6 +40,7 @@ import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 object Geometer {
   val handleLayer = new PLayer
+  val writeFont = new Font(new PText().getFont.getName, Font.PLAIN, 15)
 }
 
 class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Double = 0, bottomLayer: Boolean = false) extends core.Sprite {
@@ -452,6 +453,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     realWorker2 {
       ptext.getTransformReference(true).setToScale(1, -1)
       ptext.setOffset(_position.x, _position.y)
+      ptext.setFont(Geometer.writeFont)
       layer.addChild(layer.getChildrenCount-1, ptext)
       ptext.repaint()
       turtle.repaint()

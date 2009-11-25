@@ -47,6 +47,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   setBackground(Color.white)
   setPreferredSize(new Dimension(200, 400))
+  setDefaultRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING)
   setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING)
   setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING)
 
