@@ -275,6 +275,14 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     // Runs on swing thread
     val code = codePane.getText()
     if (code == null || code.trim.length == 0) return
+    if (code.contains(CommandHistory.Separator)) {
+      showOutput(
+        """|Sorry, you can't have the word %s in your script. This is an
+           |internal reserved word within Kojo.
+           |Please change %s to something else and rerun your
+           |script""".stripMargin.format(CommandHistory.Separator, CommandHistory.Separator))
+      return
+    }
 
     val selStart = codePane.getSelectionStart
     val selEnd = codePane.getSelectionEnd

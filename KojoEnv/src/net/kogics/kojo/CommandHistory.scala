@@ -28,13 +28,13 @@ class HistorySaver {
 
   def append(script: String) {
     writer.append(script)
-    writer.append(CommandHistory.Seperator)
+    writer.append(CommandHistory.Separator)
     writer.flush()
   }
 
   def appendStar(idx: Int) {
     starsWriter.append(idx.toString)
-    starsWriter.append(CommandHistory.StarSeperator)
+    starsWriter.append(CommandHistory.StarSeparator)
     starsWriter.flush()
   }
 
@@ -43,7 +43,7 @@ class HistorySaver {
     writer = new BufferedWriter(new FileWriter(CommandHistory.historyFile, false))
     items.foreach { hItem =>
       writer.append(hItem)
-      writer.append(CommandHistory.Seperator)
+      writer.append(CommandHistory.Separator)
     }
     writer.close()
     writer = new BufferedWriter(new FileWriter(CommandHistory.historyFile, true))
@@ -54,7 +54,7 @@ class HistorySaver {
     starsWriter = new BufferedWriter(new FileWriter(CommandHistory.starsFile, false))
     stars.foreach { idx =>
       starsWriter.append(idx.toString)
-      starsWriter.append(CommandHistory.StarSeperator)
+      starsWriter.append(CommandHistory.StarSeparator)
     }
     starsWriter.close()
     starsWriter = new BufferedWriter(new FileWriter(CommandHistory.starsFile, true))
@@ -63,8 +63,8 @@ class HistorySaver {
 
 object CommandHistory extends Singleton[CommandHistory] {
 //  val Log = java.util.logging.Logger.getLogger("CommandHistoryO");
-  val Seperator = "---Seperator---"
-  val StarSeperator = ", "
+  val Separator = "---Seperator---"
+  val StarSeparator = ", "
   val MaxHistorySize = 1000
   val userDir = System.getProperty("netbeans.user")
 
@@ -182,8 +182,8 @@ class CommandHistory private[kojo] (historySaver: HistorySaver, maxHistorySize: 
 //    Log.info("Loading History from: " + stringHistory)
     if (stringHistory == null || stringHistory.trim() == "") return
     
-    val itemsA = stringHistory.split(CommandHistory.Seperator)
-    val starsA = stringStars.split(CommandHistory.StarSeperator)
+    val itemsA = stringHistory.split(CommandHistory.Separator)
+    val starsA = stringStars.split(CommandHistory.StarSeparator)
 
     var items = new mutable.ArrayBuffer[String](); items.appendAll(itemsA)
     var stars0 = new mutable.ArrayBuffer[String](); stars0.appendAll(starsA)
