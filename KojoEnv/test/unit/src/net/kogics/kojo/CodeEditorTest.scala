@@ -10,12 +10,18 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.Assert._
 
+import java.io.File
+
 class CodeEditorTest {
 
   val netbeansDir = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
   val userDir = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/testuserdir"
-  val file = new java.io.File(netbeansDir)
-  assertTrue(file.exists)
+  val nbd = new File(netbeansDir)
+  assertTrue(nbd.exists)
+  // make sure user config dir exists
+  val configDir = new File(userDir + File.separator + "config")
+  if (!configDir.exists) configDir.mkdir()
+
   System.setProperty("netbeans.dirs", netbeansDir)
   System.setProperty("netbeans.user", userDir)
   val ce = CodeEditor.instance

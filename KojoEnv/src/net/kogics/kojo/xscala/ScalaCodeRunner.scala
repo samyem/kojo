@@ -136,16 +136,17 @@ Run the help command, i.e. type help and press Ctrl+Enter in the script window, 
       println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
 
 Here's a partial list of available commands:
-  forward(numSteps) - Move the turtle forward by a given number of steps
-  back(numSteps) - Move the turtle back by a given number of steps
-  turn(angle) - Turn the turtle by a specified angle. Angles are positive for counter-clockwise turns
+  forward(numSteps) - Move the turtle forward a given number of steps
+  back(numSteps) - Move the turtle back a given number of steps
+  turn(angle) - Turn the turtle through a specified angle. Angles are positive for counter-clockwise turns
   right() - Turn the turtle right
-  right(angle) - Turn the turtle right by a specified angle
+  right(angle) - Turn the turtle right through a specified angle
   left() - Turn the turtle left
-  left(angle) - Turn the turtle left by a specified angle
+  left(angle) - Turn the turtle left through a specified angle
   towards(x, y) - Make the turtle turn towards the point (x, y)
   moveTo(x, y) - Make the turtle move to the point (x, y)
   write(text) - Make the turtle write the specified text at its current location
+  undo() - Undo the last turtle command
 
   clear() - Clear the screen. To bring the turtle to the center after this step, just resize the turtle window.
 
