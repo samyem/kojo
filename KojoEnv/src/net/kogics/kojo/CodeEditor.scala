@@ -359,7 +359,12 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
 
     def codeRun(code: String, stayPut: Boolean, selRange: (Int, Int)) {
       _selRange = selRange
-      val undo = (code.trim() == "undo" || code.trim() == "undo()")
+      val tcode = code.trim()
+      val undo = (tcode == "undo"
+                  || tcode == "undo()"
+                  || tcode.endsWith(".undo")
+                  || tcode.endsWith(".undo()"))
+
       if (!undo) {
         // automatically shows the last (blank) history entry through listener mechanism
         commandHistory.add(code)

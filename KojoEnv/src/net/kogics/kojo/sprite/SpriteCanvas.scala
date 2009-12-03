@@ -177,20 +177,9 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     // initCamera()
   }
 
-  def undo() = {
-    if (turtle.historySize > 0) {
-      turtle.syncUndo()
-    }
-    else {
-      val twh = turtles.reverse.filter {_ != turtle}.find {t => t.historySize > 0}
-      if (twh.isDefined) twh.get.syncUndo()
-    }
-  }
+  def undo() = turtle.undo
 
-  def hasUndoHistory: Boolean = {
-    val twh = turtles.find {t => t.historySize > 0}
-    twh.isDefined
-  }
+  def hasUndoHistory: Boolean = turtle.historySize > 0
 
   def clear() {
     stop()
