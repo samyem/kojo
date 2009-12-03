@@ -26,12 +26,12 @@ import org.openide.util.Exceptions
 class ScalaKeystrokeHandler extends KeystrokeHandler {
 
   @throws(classOf[BadLocationException])
-  override def beforeCharInserted(document: Document, acaretOffset: Int, target: JTextComponent, c: char): Boolean = {
+  override def beforeCharInserted(document: Document, acaretOffset: Int, target: JTextComponent, c: Char): Boolean = {
     return false
   }
 
   @throws(classOf[BadLocationException])
-  override def afterCharInserted(document: Document, dotPos: Int, target: JTextComponent, ch: char): Boolean = {
+  override def afterCharInserted(document: Document, dotPos: Int, target: JTextComponent, ch: Char): Boolean = {
     val doc = document.asInstanceOf[BaseDocument]
     val caret = target.getCaret
 
@@ -44,7 +44,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
   }
 
   @throws(classOf[BadLocationException])
-  override def charBackspaced(document: Document, dotPos: Int, target: JTextComponent, ch: char): Boolean = {
+  override def charBackspaced(document: Document, dotPos: Int, target: JTextComponent, ch: Char): Boolean = {
     return true
   }
 
@@ -68,7 +68,7 @@ class ScalaKeystrokeHandler extends KeystrokeHandler {
 
 
   @throws(classOf[BadLocationException])
-  private def completeOpeningBracket(doc: BaseDocument, dotPos: int, caret: Caret, bracket: Char): Unit =  {
+  private def completeOpeningBracket(doc: BaseDocument, dotPos: Int, caret: Caret, bracket: Char): Unit =  {
     if (isCompletablePosition(doc, dotPos + 1)) {
       val matchingBracket = "" + matching(bracket)
       doc.insertString(dotPos + 1, matchingBracket, null)

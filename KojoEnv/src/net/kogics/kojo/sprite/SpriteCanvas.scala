@@ -51,7 +51,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING)
   setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING)
 
-  var turtles: List[Geometer] = Nil
+  @volatile var turtles: List[Geometer] = Nil
   var puzzlers: List[Geometer] = Nil
 
   getCamera.addLayer(Geometer.handleLayer)
@@ -177,6 +177,21 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     // initCamera()
   }
 
+  def undo() = {
+    if (turtle.historySize > 0) {
+      turtle.syncUndo()
+    }
+    else {
+      val twh = turtles.reverse.filter {_ != turtle}.find {t => t.historySize > 0}
+      if (twh.isDefined) twh.get.syncUndo()
+    }
+  }
+
+  def hasUndoHistory: Boolean = {
+    val twh = turtles.find {t => t.historySize > 0}
+    twh.isDefined
+  }
+
   def clear() {
     stop()
     val latch = new CountDownLatch(1)
@@ -230,13 +245,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def point(x: Double, y: Double) = turtle.point(x, y)
   def pathToPolygon() = turtle.pathToPolygon()
   def pathToParallelogram() = turtle.pathToParallelogram()
-
-  def undo() = turtle.undo()
-
-  def hasUndoHistory: Boolean = {
-    val twh = turtles.find {t => t.history.size > 0}
-    return twh.isDefined
-  }
 
   def stop() = {
     val latch = new CountDownLatch(1)

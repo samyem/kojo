@@ -77,9 +77,10 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   val CommandActor = makeCommandProcessor()
   @volatile var geomObj: DynamicShape = _
-  val history = new mutable.Stack[UndoCommand]
+  private val history = new mutable.Stack[UndoCommand]
   @volatile var isVisible: Boolean = _
   @volatile var areBeamsOn: Boolean = _
+  @volatile var historySize = 0
 
   def changePos(x: Double, y: Double) {
     _position = new Point2D.Double(x, y)
@@ -110,8 +111,24 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       new StringBuilder().append("  PNode:\n").append("    Children: %s\n" format n.getChildrenReference).toString
   }
 
+  def clearHistory() {
+    history.clear()
+    historySize = 0
+  }
+
+  def pushHistory(cmd: UndoCommand) {
+    history.push(cmd)
+    historySize = history.size
+  }
+
+  def popHistory(): UndoCommand = {
+    historySize = history.size - 1
+    history.pop()
+  }
+
   def init() {
     _animationDelay = 1000l
+    clearHistory()
     changePos(initX, initY)
     layer.addChild(turtle)
 
@@ -134,12 +151,14 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   def enqueueCommand(cmd: Command) {
     if (removed) return
-    internalEnqueueCommand(cmd)
-  }
-
-  def internalEnqueueCommand(cmd: Command) {
     CommandActor ! cmd
     throttler.throttle
+  }
+
+  def syncUndo() {
+    undo()
+    // wait for undo to get done by reading animation delay value synchronously
+    animationDelay
   }
 
   def undo() = enqueueCommand(Undo())
@@ -315,7 +334,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     realWorker2 {
       pen.clear()
       layer.removeAllChildren() // get rid of stuff not written by pen, like text nodes
-      history.clear()
       init()
       turtle.repaint()
       canvas.afterClear()
@@ -449,7 +467,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   def realWrite(text: String) {
     val ptext = new PText(text)
-    history.push(UndoWrite(ptext))
+    pushHistory(UndoWrite(ptext))
     realWorker2 {
       ptext.getTransformReference(true).setToScale(1, -1)
       ptext.setOffset(_position.x, _position.y)
@@ -500,7 +518,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def realPathToPolygon() {
     realWorker2 {
       geomObj = null
-      history.clear()
+      clearHistory()
       try {
         val pgon = new PolygonConstraint(penPaths.last, Geometer.handleLayer, canvas.outputFn)
         pgon.addHandles()
@@ -517,7 +535,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   def realPathToPGram() {
     realWorker2 {
       geomObj = null
-      history.clear()
+      clearHistory()
       try {
         val pgon = new PGramConstraint(penPaths.last, Geometer.handleLayer, canvas.outputFn)
         pgon.addHandles()
@@ -604,7 +622,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
         listener.hasPendingCommands
         listener.commandStarted(cmd)
 
-        if (undoCmd.isDefined) history.push(undoCmd.get)
+        if (undoCmd.isDefined) pushHistory(undoCmd.get)
 
         try {
           fn
@@ -639,7 +657,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
     def realUndo() {
       if (!history.isEmpty) {
-        val cmd = history.pop()
+        val cmd = popHistory()
         realWorker2 {
           undoHandler(cmd)
         }

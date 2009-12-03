@@ -251,9 +251,10 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
       runCode()
     }
     else {
-      // if code pane is not blank, selected text was run (or an error occurred - not relevant here)
-      // call tCanvas directly so that the buffer is retained
-      tCanvas.undo()
+      // if code pane is not blank, selected text was run or the user has loaded
+      // something from history (or an error occurred - not relevant here)
+      // call coderunner directly so that the buffer is retained
+      codeRunner.runCode("undo")
     }
   }
 

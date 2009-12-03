@@ -20,7 +20,7 @@ class CodeEditorTest {
   assertTrue(nbd.exists)
   // make sure user config dir exists
   val configDir = new File(userDir + File.separator + "config")
-  if (!configDir.exists) configDir.mkdir()
+  if (!configDir.exists) configDir.mkdirs()
 
   System.setProperty("netbeans.dirs", netbeansDir)
   System.setProperty("netbeans.user", userDir)
