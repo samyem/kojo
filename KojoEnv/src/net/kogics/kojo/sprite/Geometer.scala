@@ -80,7 +80,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   private val history = new mutable.Stack[UndoCommand]
   @volatile var isVisible: Boolean = _
   @volatile var areBeamsOn: Boolean = _
-  @volatile var historySize = 0
 
   def changePos(x: Double, y: Double) {
     _position = new Point2D.Double(x, y)
@@ -111,18 +110,18 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       new StringBuilder().append("  PNode:\n").append("    Children: %s\n" format n.getChildrenReference).toString
   }
 
-  def clearHistory() {
+  def clearHistory() = {
+    canvas.clearHistory()
     history.clear()
-    historySize = 0
   }
 
   def pushHistory(cmd: UndoCommand) {
+    canvas.pushHistory(this)
     history.push(cmd)
-    historySize = history.size
   }
 
   def popHistory(): UndoCommand = {
-    historySize = history.size - 1
+    canvas.popHistory()
     history.pop()
   }
 

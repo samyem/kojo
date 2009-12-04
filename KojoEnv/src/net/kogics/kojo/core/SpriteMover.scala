@@ -45,4 +45,5 @@ trait SpriteMover {
   def pathToPolygon(): geom.DynamicShape
   def pathToParallelogram(): geom.DynamicShape
   def undo(): Unit
+  def waitFor(): Unit = animationDelay
 }

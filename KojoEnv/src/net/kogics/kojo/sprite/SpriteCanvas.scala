@@ -30,6 +30,7 @@ import net.kogics.kojo.Singleton
 import net.kogics.kojo.util.Utils
 
 import org.openide.awt.StatusDisplayer
+import scala.collection._
 
 object SpriteCanvas extends Singleton[SpriteCanvas] {
   protected def newInstance = new SpriteCanvas
@@ -58,6 +59,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   var grid = new PNode()
   initCamera()
+
+  val history = new mutable.SynchronizedStack[Geometer]()
 
   addComponentListener(new ComponentAdapter {
       override def componentResized(e: ComponentEvent) = initCamera()
@@ -177,9 +180,21 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     // initCamera()
   }
 
-  def undo() = turtle.undo
+  def pushHistory(sprite: Geometer) = history.push(sprite)
+  def popHistory() = history.pop()
+  def clearHistory() = history.clear()
 
-  def hasUndoHistory: Boolean = turtle.historySize > 0
+  def undo() {
+    if (history.size > 0) {
+      val undoTurtle = history.head
+      // this will also pop the turtle from the canvas history
+      // need to do it from within the sprite because users can
+      // do a direct undo on a turtle and bypass the canvas
+      undoTurtle.syncUndo()
+    }
+  }
+
+  def hasUndoHistory = history.size > 0
 
   def clear() {
     stop()
