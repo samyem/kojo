@@ -323,7 +323,7 @@ Here's a partial list of available commands:
       showOutput(OutputDelimiter)
   }
 
-  def runCode(code: String) {
+  def runCode(code: String) = synchronized {
     // Runs on swing thread
 //    Log.info("Running Code:\n---\n%s\n---\n" format(code))
     codeRunner ! RunCode(code)
@@ -461,7 +461,7 @@ Here's a partial list of available commands:
     completions
   }
 
-  def methodCompletions(str: String): (List[String], Int) = {
+  def methodCompletions(str: String): (List[String], Int) = synchronized {
     val (oIdentifier, oPrefix) = findIdentifier(str)
     val prefix = if(oPrefix.isDefined) oPrefix.get else ""
     if (oIdentifier.isDefined) {
@@ -474,7 +474,7 @@ Here's a partial list of available commands:
     }
   }
 
-  def varCompletions(str: String): (List[String], Int) = {
+  def varCompletions(str: String): (List[String], Int) = synchronized {
     val (oIdentifier, oPrefix) = findIdentifier(str)
     val prefix = if(oPrefix.isDefined) oPrefix.get else ""
     if (oIdentifier.isDefined) {

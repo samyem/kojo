@@ -301,9 +301,14 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   }
 
   def stripCR(str: String) = str.replaceAll("\r\n", "\n")
-  def methodCompletions(caretOffset: Int) = codeRunner.methodCompletions(stripCR(codePane.getText).substring(0, caretOffset))
-  def varCompletions(caretOffset: Int) = codeRunner.varCompletions(stripCR(codePane.getText).substring(0, caretOffset))
-  def keywordCompletions(caretOffset: Int) = codeRunner.keywordCompletions(stripCR(codePane.getText).substring(0, caretOffset))
+  def codeFragment(caretOffset: Int) = {
+    val cpt = codePane.getText
+    if (caretOffset > cpt.length) ""
+    else stripCR(cpt).substring(0, caretOffset)
+  }
+  def methodCompletions(caretOffset: Int) = codeRunner.methodCompletions(codeFragment(caretOffset))
+  def varCompletions(caretOffset: Int) = codeRunner.varCompletions(codeFragment(caretOffset))
+  def keywordCompletions(caretOffset: Int) = codeRunner.keywordCompletions(codeFragment(caretOffset))
 
 
   class HistoryManager {
