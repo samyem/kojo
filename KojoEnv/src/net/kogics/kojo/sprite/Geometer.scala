@@ -110,10 +110,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       new StringBuilder().append("  PNode:\n").append("    Children: %s\n" format n.getChildrenReference).toString
   }
 
-  def clearHistory() = {
-    canvas.clearHistory()
-    history.clear()
-  }
+  def clearHistory() = history.clear()
 
   def pushHistory(cmd: UndoCommand) {
     canvas.pushHistory(this)

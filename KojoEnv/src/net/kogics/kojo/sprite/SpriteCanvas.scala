@@ -60,7 +60,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   var grid = new PNode()
   initCamera()
 
-  val history = new mutable.SynchronizedStack[Geometer]()
+  val history = new mutable.Stack[Geometer]()
 
   addComponentListener(new ComponentAdapter {
       override def componentResized(e: ComponentEvent) = initCamera()
@@ -180,31 +180,44 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     // initCamera()
   }
 
-  def pushHistory(sprite: Geometer) = history.push(sprite)
-  def popHistory() = history.pop()
-  def clearHistory() = history.clear()
+  def pushHistory(sprite: Geometer) = synchronized {
+    history.push(sprite)
+  }
+
+  def popHistory() = synchronized { 
+    history.pop()
+  }
+
+  def clearHistory() = synchronized {
+    history.clear()
+  }
 
   def undo() {
-    if (history.size > 0) {
-      val undoTurtle = history.head
+    var undoTurtle: Option[Geometer] = None
+    synchronized {
+      if (history.size > 0) {
+        undoTurtle = Some(history.top)
+      }
+    }
+
+    if (undoTurtle.isDefined) {
       // this will also pop the turtle from the canvas history
       // need to do it from within the sprite because users can
       // do a direct undo on a turtle and bypass the canvas
-      undoTurtle.syncUndo()
+      undoTurtle.get.syncUndo()
     }
   }
 
-  def hasUndoHistory = history.size > 0
+  def hasUndoHistory = synchronized {history.size > 0}
 
   def clear() {
     stop()
-    val latch = new CountDownLatch(1)
     Utils.runInSwingThread {
       turtles.foreach {t => if (t == turtle) t.clear() else t.remove()}
       turtles = List(turtles.last)
-      latch.countDown
     }
-    latch.await
+    turtle.waitFor
+    clearHistory()
   }
 
   def clearPuzzlers() {
