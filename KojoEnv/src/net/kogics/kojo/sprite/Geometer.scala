@@ -66,10 +66,14 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   yBeam.setStrokePaint(Color.gray)
 
   val penPaths = new mutable.ArrayBuffer[PolyLine]
+  @volatile var lineColor: Color = _
+  @volatile var fillColor: Color = _
+  @volatile var lineStroke: Stroke = _
+
   val pens = makePens
   val DownPen = pens._1
   val UpPen = pens._2
-  @volatile var pen: Pen = DownPen
+  @volatile var pen: Pen = _
 
   @volatile var _position: Point2D.Double = _
   @volatile private var theta: Double = _
@@ -128,6 +132,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     changePos(initX, initY)
     layer.addChild(turtle)
 
+    pen = DownPen
     pen.init
     resetRotation
 
@@ -614,6 +619,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
 
     def processCommand(cmd: Command, undoCmd: Option[UndoCommand] = None)(fn: => Unit) {
+//      Log.info("Command Being Processed: %s." format(cmd))
       if (cmd.valid.get) {
         listener.hasPendingCommands
         listener.commandStarted(cmd)
@@ -630,7 +636,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       else {
         listener.commandDiscarded(cmd)
       }
-//      Log.info("Command Handled. Mailbox size: " + mailboxSize)
+//      Log.info("Command Handled: %s. Mailbox size: %d" format(cmd, mailboxSize))
       if (mailboxSize == 0) listener.pendingCommandsDone
     }
 
@@ -798,9 +804,6 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     val DefaultColor = Color.red
     val DefaultFillColor = null
     val DefaultStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
-    @volatile var lineColor: Color = _
-    @volatile var fillColor: Color = _
-    @volatile var lineStroke: Stroke = _
 
     def init() {
       lineColor = DefaultColor

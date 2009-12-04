@@ -184,7 +184,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     history.push(sprite)
   }
 
-  def popHistory() = synchronized { 
+  def popHistory() = synchronized {
     history.pop()
   }
 
@@ -212,10 +212,13 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   def clear() {
     stop()
+    val latch = new CountDownLatch(1)
     Utils.runInSwingThread {
       turtles.foreach {t => if (t == turtle) t.clear() else t.remove()}
       turtles = List(turtles.last)
+      latch.countDown
     }
+    latch.await
     turtle.waitFor
     clearHistory()
   }
