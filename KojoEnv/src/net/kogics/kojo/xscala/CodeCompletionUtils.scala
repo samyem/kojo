@@ -26,7 +26,7 @@ object CodeCompletionUtils {
     "repeat" -> "repeat(3){\n}"
   )
   
-  val MethodDropFilter = List("getClass", "toString")
+  val MethodDropFilter = List("turtle0")
   val VarDropFilter = List("builtins", "predef")
   val InternalVarsRe = java.util.regex.Pattern.compile("""res\d+""")
 

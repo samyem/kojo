@@ -276,7 +276,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     latch.await
   }
 
-  def turtle0 = turtle
+  val turtle0 = turtle
 
   def newTurtle(x: Int = 0, y: Int = 0) = {
     var t: Geometer = null

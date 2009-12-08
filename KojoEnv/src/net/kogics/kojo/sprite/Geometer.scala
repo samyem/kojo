@@ -126,7 +126,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     history.pop()
   }
 
-  private def init() {
+  private [sprite] def init() {
     _animationDelay = 1000l
     clearHistory()
     changePos(initX, initY)
@@ -145,10 +145,10 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   @volatile private var cmdBool = new AtomicBoolean(true)
   @volatile private var listener: SpriteListener = NoOpListener
 
-  private def deg2radians(angle: Double) = angle * Math.Pi / 180
-  private def rad2degrees(angle: Double) = angle * 180 / Math.Pi
-  private def thetaDegrees = rad2degrees(theta)
-  private def thetaRadians = theta
+  private [sprite] def deg2radians(angle: Double) = angle * Math.Pi / 180
+  private [sprite] def rad2degrees(angle: Double) = angle * 180 / Math.Pi
+  private [sprite] def thetaDegrees = rad2degrees(theta)
+  private [sprite] def thetaRadians = theta
 
   private def enqueueCommand(cmd: Command) {
     if (removed) return
@@ -591,7 +591,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     else beamsOffWorker()
   }
 
-  private def resetRotation() {
+  private [sprite] def resetRotation() {
     changeHeading(deg2radians(90))
   }
 

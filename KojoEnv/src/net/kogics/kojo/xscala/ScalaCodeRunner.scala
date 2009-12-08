@@ -278,6 +278,7 @@ Here's a partial list of available commands:
   interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", this)
   interp.interpret("val builtins = predef.Builtins")
   interp.interpret("import predef.Builtins._")
+  interp.bind("turtle0", "net.kogics.kojo.core.Sprite", tCanvas.turtle0)
   interp.interpret("\"" + Marker + "\"")
 
   val codeRunner = startCodeRunner()

@@ -19,7 +19,7 @@ trait SCanvas extends SpriteMover {
   def clearPuzzlers(): Unit
   def newTurtle(x: Int, y: Int): Sprite
   def newPuzzler(x: Int, y: Int): Sprite
-  def turtle0: Sprite
+  val turtle0: Sprite
   def gridOn(): Unit
   def gridOff(): Unit
 }
