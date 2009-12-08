@@ -670,12 +670,8 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       cmds.foreach {cmd => undoHandler(cmd)}
     }
 
-    var done = false
-
-    loopWhile(!done) {
+    loop {
       react {
-        case Stop =>
-          done = true
         case cmd @ Forward(n, b) =>
           processCommand(cmd, Some(UndoChangeInPos((_position.x, _position.y)))) {
             realForward(n)
@@ -692,6 +688,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
           processCommand(cmd) {
             realRemove
           }
+          exit()
         case cmd @ PenUp(b) =>
           processCommand(cmd, Some(UndoPenState(pen))) {
             realPenUp

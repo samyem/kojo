@@ -192,6 +192,9 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     val codePane = new CodePane(codeRunner)
 
     codePane.addKeyListener(new KeyAdapter {
+
+        val findAction = new org.netbeans.editor.ext.ExtKit.FindAction()
+
         override def keyPressed(evt: KeyEvent) {
           evt.getKeyCode match {
             case KeyEvent.VK_ENTER =>
@@ -207,6 +210,11 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
             case KeyEvent.VK_DOWN =>
               if(evt.isControlDown) {
                 loadCodeFromHistoryNext
+                evt.consume
+              }
+            case KeyEvent.VK_F =>
+              if(evt.isControlDown) {
+                findAction.actionPerformed(null, codePane);
                 evt.consume
               }
             case _ => // do nothing special

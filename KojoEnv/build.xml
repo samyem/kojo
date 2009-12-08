@@ -18,6 +18,11 @@
         </csljar>
     </target>
 
+    <!--
+    compile cleans out the classes because they seem to get zapped anyway,
+    and that creates compilation problems when we try to compile only waht has
+    changed
+    -->
     <target name="compile" depends="clean,init,scala-compile,projectized-common.compile"/>
     <target name="do-test-build" depends="compile,scala-module.do-test-build"/>
 </project>

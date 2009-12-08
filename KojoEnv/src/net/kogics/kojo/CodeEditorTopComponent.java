@@ -15,22 +15,25 @@
 package net.kogics.kojo;
 
 import java.awt.BorderLayout;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultEditorKit;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
+import org.openide.actions.FindAction;
+import org.openide.actions.ReplaceAction;
 import org.openide.awt.UndoRedo;
-import org.openide.xml.XMLUtil;
+import org.openide.util.actions.CallbackSystemAction;
+import org.openide.util.actions.SystemAction;
 
 /**
  * Top component which displays something.
@@ -98,9 +101,23 @@ public final class CodeEditorTopComponent extends TopComponent {
             }
         });
 
+        enableFindReplace();
+
+        ce.codePane().addFocusListener(new FocusAdapter() {
+
+            public void focusGained(FocusEvent e) {
+                enableFindReplace();
+            }
+        });
+
+        ce.output().addFocusListener(new FocusAdapter() {
+
+            public void focusGained(FocusEvent e) {
+                disableFindReplace();
+            }
+        });
+
         add(ce, BorderLayout.CENTER);
-
-
 
         setName(NbBundle.getMessage(CodeEditorTopComponent.class,
                 "CTL_CodeEditorTopComponent"));
@@ -109,6 +126,26 @@ public final class CodeEditorTopComponent extends TopComponent {
         putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
         putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
 
+    }
+
+    void enableFindReplace() {
+        ActionMap actionMap = getActionMap();
+
+        CallbackSystemAction callFindAction = (CallbackSystemAction) SystemAction.get(FindAction.class);
+        actionMap.put(callFindAction.getActionMapKey(), new org.netbeans.editor.ext.ExtKit.FindAction());
+
+        CallbackSystemAction callReplaceAction = (CallbackSystemAction) SystemAction.get(ReplaceAction.class);
+        actionMap.put(callReplaceAction.getActionMapKey(), new org.netbeans.editor.ext.ExtKit.ReplaceAction());
+    }
+
+    void disableFindReplace() {
+        ActionMap actionMap = getActionMap();
+
+        CallbackSystemAction callFindAction = (CallbackSystemAction) SystemAction.get(FindAction.class);
+        actionMap.remove(callFindAction.getActionMapKey());
+
+        CallbackSystemAction callReplaceAction = (CallbackSystemAction) SystemAction.get(ReplaceAction.class);
+        actionMap.remove(callReplaceAction.getActionMapKey());
     }
 
     /** This method is called from within the constructor to

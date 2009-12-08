@@ -8,9 +8,9 @@
         <isset property="env.SCALA_HOME"/>
     </condition>
     <fail unless="scala.home">
-You must set SCALA_HOME or environment property and append "-J-Dscala.home=scalahomepath"
-property to the end of "netbeans_default_options" in NetBeansInstallationPath/etc/netbeans.conf to point to
-Scala installation directory.
+        You must set SCALA_HOME or environment property and append "-J-Dscala.home=scalahomepath"
+        property to the end of "netbeans_default_options" in NetBeansInstallationPath/etc/netbeans.conf to point to
+        Scala installation directory.
     </fail>
     <property name="scala.compiler" value="${scala.home}/lib/scala-compiler.jar"/>
     <property name="scala.library" value="${scala.home}/lib/scala-library.jar"/>
@@ -23,7 +23,7 @@ Scala installation directory.
 
     <!-- scalac will check class dependencies deeply, so we can not rely on public package only which is refed by ${module.classpath} -->
     <path id="scalac.cp">
-        <path refid="scala.libs"/>
+    <path refid="scala.libs"/>
         <pathelement path="${module.run.classpath}"/>
         <pathelement path="${cp.extra}"/>
     </path>
@@ -55,15 +55,16 @@ Scala installation directory.
     <target name="-do-fast-scalac" depends="init,up-to-date,scala-taskdef" if="condition-scala-fsc">
         <echo message="*************************************Doing fast scalac"/>
         <fsc classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
-            encoding="UTF-8" target="jvm-${javac.target}" >
-        </fsc>
+             encoding="UTF-8" target="jvm-${javac.target}" unchecked="${scalac.unchecked}"
+             deprecation="${scalac.deprecation}"/>
     </target>
 
     <target name="-do-norm-scalac" depends="init,up-to-date,scala-taskdef" unless="condition-scala-fsc">
         <echo message="*************************************Doing normal scalac"/>
         <scalac classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
-            encoding="UTF-8" target="jvm-${javac.target}">
-        </scalac>
+                encoding="UTF-8" target="jvm-${javac.target}" unchecked="${scalac.unchecked}"
+                deprecation="${scalac.deprecation}"
+                addparams="-make:transitive -dependencyfile ${build.classes.dir}/.scala_dependencies"/>
     </target>
 
     <target name="scala-compile" depends="init,up-to-date,scala-taskdef" unless="is.jar.uptodate">
@@ -71,7 +72,7 @@ Scala installation directory.
         <!-- javac's classpath should include scala.library and all these paths of "cp" -->
         <!-- if I try to put this at the top level, javac fails with missing classes/packages -->
         <path id="javac.cp">
-            <path refid="scala.libs"/>
+        <path refid="scala.libs"/>
             <pathelement path="${module.classpath}"/>
             <pathelement path="${cp.extra}"/>
         </path>
@@ -80,7 +81,7 @@ Scala installation directory.
         <depend srcdir="${src.dir}" destdir="${build.classes.dir}" cache="build/depcache">
             <classpath refid="scalac.cp"/>
         </depend>
-
+        
         <!-- scalac -->
         <antcall target="-do-scalac"/>
 
@@ -103,7 +104,7 @@ Scala installation directory.
     <target name="do-test-build" depends="init, test-init, test-up-to-date,projectized-common.do-test-build" unless="is.test.jar.uptodate">
 
         <path id="test.unit.custom.cp">
-            <path refid="test.unit.cp"/>
+        <path refid="test.unit.cp"/>
             <pathelement location="${nb-jars}/csl-api-tests.jar"/>
             <pathelement location="${nb-jars}/editor-mimelookup-tests.jar"/>
         </path>
@@ -112,7 +113,7 @@ Scala installation directory.
         <echo message="Test run cp: ${xx}"/>
 
         <scalac srcdir="${test.unit.src.dir}" destdir="${build.test.unit.classes.dir}" excludes="${test.excludes}"
-               encoding="UTF-8">
+                encoding="UTF-8">
             <classpath refid="test.unit.custom.cp"/>
         </scalac>
     </target>
