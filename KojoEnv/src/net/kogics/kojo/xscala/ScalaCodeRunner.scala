@@ -456,7 +456,7 @@ Here's a partial list of available commands:
 
   def completions(identifier: String) = {
     Log.fine("Finding Identifier completions for: " + identifier)
-    val completions = interp.membersOfIdentifier(identifier)
+    val completions = interp.membersOfIdentifier(identifier).filter {s => !MethodDropFilter.contains(s)}
     Log.fine("Completions: " + completions)
     completions
   }
@@ -468,20 +468,23 @@ Here's a partial list of available commands:
       (completions(oIdentifier.get).filter {s => s.startsWith(prefix)}, prefix.length)
     }
     else {
-      val c1s = completions("builtins").filter {s => s.startsWith(prefix) && !MethodFilter.contains(s)}
+      val c1s = completions("builtins").filter {s => s.startsWith(prefix)}
       Log.fine("Filtered builtins completions for prefix '%s' - %s " format(prefix, c1s))
       (c1s, prefix.length)
     }
   }
 
   def varCompletions(str: String): (List[String], Int) = synchronized {
+
+    def varFilter(s: String) = !VarDropFilter.contains(s) && !InternalVarsRe.matcher(s).matches
+
     val (oIdentifier, oPrefix) = findIdentifier(str)
     val prefix = if(oPrefix.isDefined) oPrefix.get else ""
     if (oIdentifier.isDefined) {
       (Nil, 0)
     }
     else {
-      val c2s = interp.unqualifiedIds.filter {s => s.startsWith(prefix) && !VarFilter.contains(s)}
+      val c2s = interp.unqualifiedIds.filter {s => s.startsWith(prefix) && varFilter(s)}
       (c2s, prefix.length)
     }
   }

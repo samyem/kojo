@@ -44,7 +44,7 @@ object Geometer {
 }
 
 class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Double = 0, bottomLayer: Boolean = false) extends core.Sprite {
-  val Log = Logger.getLogger(getClass.getName)
+  private val Log = Logger.getLogger(getClass.getName)
   Log.info("Sprite being created in thread: " + Thread.currentThread.getName)
 
   private val layer = new PLayer
@@ -53,44 +53,44 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   // bottom sprite layer is at index 1
   if (bottomLayer) camera.addLayer(1, layer) else camera.addLayer(camera.getLayerCount-1, layer)
   private val throttler = new Throttler {}
-  @volatile var _animationDelay = 0l
+  @volatile private var _animationDelay = 0l
 
   private val turtleImage = new PImage(Utils.loadImage(fname))
   private val turtle = new PNode
   turtleImage.getTransformReference(true).setToScale(1, -1)
   turtleImage.setOffset(-16, 16)
 
-  val xBeam = PPath.createLine(0, 30, 0, -30)
+  private val xBeam = PPath.createLine(0, 30, 0, -30)
   xBeam.setStrokePaint(Color.gray)
-  val yBeam = PPath.createLine(-20, 0, 50, 0)
+  private val yBeam = PPath.createLine(-20, 0, 50, 0)
   yBeam.setStrokePaint(Color.gray)
 
-  val penPaths = new mutable.ArrayBuffer[PolyLine]
-  @volatile var lineColor: Color = _
-  @volatile var fillColor: Color = _
-  @volatile var lineStroke: Stroke = _
+  private val penPaths = new mutable.ArrayBuffer[PolyLine]
+  @volatile private var lineColor: Color = _
+  @volatile private var fillColor: Color = _
+  @volatile private var lineStroke: Stroke = _
 
-  val pens = makePens
-  val DownPen = pens._1
-  val UpPen = pens._2
-  @volatile var pen: Pen = _
+  private val pens = makePens
+  private val DownPen = pens._1
+  private val UpPen = pens._2
+  @volatile private var pen: Pen = _
 
-  @volatile var _position: Point2D.Double = _
+  @volatile private var _position: Point2D.Double = _
   @volatile private var theta: Double = _
-  @volatile var removed: Boolean = false
+  @volatile private var removed: Boolean = false
 
-  val CommandActor = makeCommandProcessor()
-  @volatile var geomObj: DynamicShape = _
+  private val CommandActor = makeCommandProcessor()
+  @volatile private var geomObj: DynamicShape = _
   private val history = new mutable.Stack[UndoCommand]
-  @volatile var isVisible: Boolean = _
-  @volatile var areBeamsOn: Boolean = _
+  @volatile private var isVisible: Boolean = _
+  @volatile private var areBeamsOn: Boolean = _
 
-  def changePos(x: Double, y: Double) {
+  private def changePos(x: Double, y: Double) {
     _position = new Point2D.Double(x, y)
     turtle.setOffset(x, y)
   }
 
-  def changeHeading(newTheta: Double) {
+  private def changeHeading(newTheta: Double) {
     theta = newTheta
     turtle.setRotation(theta)
   }
@@ -107,26 +107,26 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def stringRep(node: PNode): String = node match {
+  private def stringRep(node: PNode): String = node match {
     case l: PolyLine => 
       new StringBuilder().append("  Polyline:\n").append("    Points: %s\n" format l.points).toString
     case n: PNode =>
       new StringBuilder().append("  PNode:\n").append("    Children: %s\n" format n.getChildrenReference).toString
   }
 
-  def clearHistory() = history.clear()
+  private def clearHistory() = history.clear()
 
-  def pushHistory(cmd: UndoCommand) {
+  private def pushHistory(cmd: UndoCommand) {
     canvas.pushHistory(this)
     history.push(cmd)
   }
 
-  def popHistory(): UndoCommand = {
+  private def popHistory(): UndoCommand = {
     canvas.popHistory()
     history.pop()
   }
 
-  def init() {
+  private def init() {
     _animationDelay = 1000l
     clearHistory()
     changePos(initX, initY)
@@ -142,15 +142,15 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
 
   init
 
-  @volatile var cmdBool = new AtomicBoolean(true)
-  @volatile var listener: SpriteListener = NoOpListener
+  @volatile private var cmdBool = new AtomicBoolean(true)
+  @volatile private var listener: SpriteListener = NoOpListener
 
-  def deg2radians(angle: Double) = angle * Math.Pi / 180
-  def rad2degrees(angle: Double) = angle * 180 / Math.Pi
-  def thetaDegrees = rad2degrees(theta)
-  def thetaRadians = theta
+  private def deg2radians(angle: Double) = angle * Math.Pi / 180
+  private def rad2degrees(angle: Double) = angle * 180 / Math.Pi
+  private def thetaDegrees = rad2degrees(theta)
+  private def thetaRadians = theta
 
-  def enqueueCommand(cmd: Command) {
+  private def enqueueCommand(cmd: Command) {
     if (removed) return
     CommandActor ! cmd
     throttler.throttle
@@ -187,7 +187,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     removed = true
   }
 
-  def getWorker(action: Symbol) {
+  private def getWorker(action: Symbol) {
     val latch = new CountDownLatch(1)
     val cmd = action match {
       case 'animationDelay => GetAnimationDelay(latch, cmdBool)
@@ -238,7 +238,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   // Kinda like SwingUtilities.invokeAndWait, except that it uses actor messages
   // and blocks inside actor.receive() - to give the actor thread pool a chance
   // to grow with the number of turtles
-  def realWorker(fn: (() => Unit) => Unit) {
+  private def realWorker(fn: (() => Unit) => Unit) {
     Utils.runInSwingThread {
       fn {() => workDone()}
     }
@@ -246,18 +246,18 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   }
 
   // invoke fn in GUI thread, and call doneFn after it is done
-  def realWorker2(fn:  => Unit) {
+  private def realWorker2(fn:  => Unit) {
     realWorker { doneFn =>
       fn
       doneFn()
     }
   }
 
-  def workDone() {
+  private def workDone() {
     CommandActor ! CommandDone
   }
 
-  def waitForDoneMsg() {
+  private def waitForDoneMsg() {
     CommandActor.receive {
       case CommandDone =>
     }
@@ -273,7 +273,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   // GUI and actor threads. But after a certain Scala 2.8.0 nightly build, this
   // resulted in thread starvation in the Actor thread-pool
   
-  def realForward(n: Double) {
+  private def realForward(n: Double) {
     val p0 = _position
     val delX = Math.cos(theta) * n
     val delY = Math.sin(theta) * n
@@ -321,7 +321,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realTurn(angle: Double) {
+  private def realTurn(angle: Double) {
     realWorker2 {
       var newTheta = theta + deg2radians(angle)
       if (newTheta < 0) newTheta = newTheta % (2*Math.Pi) + 2*Math.Pi
@@ -331,7 +331,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realClear() {
+  private def realClear() {
     realWorker2 {
       pen.clear()
       layer.removeAllChildren() // get rid of stuff not written by pen, like text nodes
@@ -341,7 +341,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realRemove() {
+  private def realRemove() {
     realWorker2 {
       pen.clear
       layer.removeChild(turtle)
@@ -349,13 +349,13 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realPenUp() {
+  private def realPenUp() {
     realWorker2 {
       pen = UpPen
     }
   }
 
-  def realPenDown() {
+  private def realPenDown() {
     realWorker2 {
       if (pen != DownPen) {
         pen = DownPen
@@ -364,7 +364,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realTowards(x: Double, y: Double) {
+  private def realTowards(x: Double, y: Double) {
     val (x0, y0) = (_position.x, _position.y)
     val delX = x - x0
     val delY = y - y0
@@ -391,7 +391,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realJumpTo(x: Double, y: Double) {
+  private def realJumpTo(x: Double, y: Double) {
     realWorker2 {
       changePos(x, y)
       pen.updatePosition()
@@ -399,7 +399,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realMoveTo(x: Double, y: Double) {
+  private def realMoveTo(x: Double, y: Double) {
     def distanceTo(x: Double, y: Double): Double = {
       val (x0,y0) = (_position.x, _position.y)
       val delX = Math.abs(x-x0)
@@ -411,32 +411,32 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     realForward(distanceTo(x,y))
   }
 
-  def realSetAnimationDelay(d: Long) {
+  private def realSetAnimationDelay(d: Long) {
     _animationDelay = d
   }
 
-  def realGetWorker() {
+  private def realGetWorker() {
   }
 
-  def realSetPenColor(color: Color) {
+  private def realSetPenColor(color: Color) {
     realWorker2 {
       pen.setColor(color)
     }
   }
 
-  def realSetPenThickness(t: Double) {
+  private def realSetPenThickness(t: Double) {
     realWorker2 {
       pen.setThickness(t)
     }
   }
 
-  def realSetFillColor(color: Color) {
+  private def realSetFillColor(color: Color) {
     realWorker2 {
       pen.setFillColor(color)
     }
   }
 
-  def beamsOnWorker() {
+  private def beamsOnWorker() {
     if (!areBeamsOn) {
       turtle.addChild(0, xBeam)
       turtle.addChild(1, yBeam)
@@ -445,7 +445,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def beamsOffWorker() {
+  private def beamsOffWorker() {
     if (areBeamsOn) {
       turtle.removeChild(xBeam)
       turtle.removeChild(yBeam)
@@ -454,19 +454,19 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realBeamsOn() {
+  private def realBeamsOn() {
     realWorker2 {
       beamsOnWorker()
     }
   }
 
-  def realBeamsOff() {
+  private def realBeamsOff() {
     realWorker2 {
       beamsOffWorker()
     }
   }
 
-  def realWrite(text: String) {
+  private def realWrite(text: String) {
     val ptext = new PText(text)
     pushHistory(UndoWrite(ptext))
     realWorker2 {
@@ -479,19 +479,19 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realHide() {
+  private def realHide() {
     realWorker2 {
       hideWorker()
     }
   }
 
-  def realShow() {
+  private def realShow() {
     realWorker2 {
       showWorker()
     }
   }
 
-  def hideWorker() {
+  private def hideWorker() {
     if (isVisible) {
       turtle.removeChild(turtleImage)
       beamsOffWorker()
@@ -500,7 +500,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def showWorker() {
+  private def showWorker() {
     if (!isVisible) {
       turtle.addChild(turtleImage)
       turtle.repaint()
@@ -508,7 +508,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realPoint(x: Double, y: Double) {
+  private def realPoint(x: Double, y: Double) {
     realJumpTo(x, y)
     realWorker2 {
       pen.startMove(x.toFloat, y.toFloat)
@@ -516,7 +516,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realPathToPolygon() {
+  private def realPathToPolygon() {
     realWorker2 {
       geomObj = null
       clearHistory()
@@ -533,7 +533,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def realPathToPGram() {
+  private def realPathToPGram() {
     realWorker2 {
       geomObj = null
       clearHistory()
@@ -551,24 +551,24 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   }
 
   // undo methods are called in the GUI thread via realUndo
-  def undoChangeInPos(oldPos: (Double, Double)) {
+  private def undoChangeInPos(oldPos: (Double, Double)) {
     pen.undoMove()
     changePos(oldPos._1, oldPos._2)
     turtle.repaint()
   }
 
-  def undoChangeInHeading(oldHeading: Double) {
+  private def undoChangeInHeading(oldHeading: Double) {
     changeHeading(oldHeading)
     turtle.repaint()
   }
 
-  def undoPenAttrs(color: Color, thickness: Double, fillColor: Color) {
+  private def undoPenAttrs(color: Color, thickness: Double, fillColor: Color) {
     canvas.outputFn("Undoing Pen attribute (Color/Thickness/FillColor) change.\n")
     pen.removeLastPath()
     pen.rawSetAttrs(color, thickness, fillColor)
   }
 
-  def undoPenState(apen: Pen) {
+  private def undoPenState(apen: Pen) {
     canvas.outputFn("Undoing Pen State (Up/Down) change.\n")
     apen match {
       case UpPen =>
@@ -579,11 +579,11 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     }
   }
 
-  def undoWrite(ptext: PText) {
+  private def undoWrite(ptext: PText) {
     layer.removeChild(ptext)
   }
 
-  def undoVisibility(visible: Boolean, beamsOn: Boolean) {
+  private def undoVisibility(visible: Boolean, beamsOn: Boolean) {
     if (visible) showWorker()
     else hideWorker()
 
@@ -591,27 +591,27 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     else beamsOffWorker()
   }
 
-  def resetRotation() {
+  private def resetRotation() {
     changeHeading(deg2radians(90))
   }
 
-  def stop() {
+  private [sprite] def stop() {
     cmdBool.set(false)
     cmdBool = new AtomicBoolean(true)
   }
 
-  def setSpriteListener(l: SpriteListener) {
+  private [sprite] def setSpriteListener(l: SpriteListener) {
 //    if (listener != NoOpListener) throw new RuntimeException("Cannot re-set Sprite listener")
     listener = l
   }
 
-  def makePens(): (Pen, Pen) = {
+  private def makePens(): (Pen, Pen) = {
     val downPen = new DownPen()
     val upPen = new UpPen()
     (downPen, upPen)
   }
 
-  def makeCommandProcessor() = actor {
+  private def makeCommandProcessor() = actor {
 
     def processGetCommand(cmd: Command, latch: CountDownLatch)(fn: => Unit) {
       processCommand(cmd)(fn)

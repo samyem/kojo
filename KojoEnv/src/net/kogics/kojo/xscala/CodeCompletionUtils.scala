@@ -26,8 +26,9 @@ object CodeCompletionUtils {
     "repeat" -> "repeat(3){\n}"
   )
   
-  val MethodFilter = List("animationDelay_=")
-  val VarFilter = List("builtins", "predef")
+  val MethodDropFilter = List("getClass", "toString")
+  val VarDropFilter = List("builtins", "predef")
+  val InternalVarsRe = java.util.regex.Pattern.compile("""res\d+""")
 
   def notIdChar(c: Char): Boolean =  NotIdChars.contains(c)
 
