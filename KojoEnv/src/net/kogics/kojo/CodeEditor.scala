@@ -38,10 +38,11 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   val commandHistory = CommandHistory.instance
   val historyManager = new HistoryManager()
   @volatile var pendingCommands = false
+  val findAction = new org.netbeans.editor.ext.ExtKit.FindAction()
 
   setLayout(new BorderLayout)
 
-  val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton) = makeToolbar()
+  val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton, errorLocateButton) = makeToolbar()
   val output = makeOutput()
   val codeRunner = makeCodeRunner()
   val codePane = makeCodePane()
@@ -56,7 +57,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     loadCodeFromHistory(commandHistory.size)
   }
 
-  def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton, JButton) = {
+  def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton, JButton, JButton) = {
 
     val RunScript = "RunScript"
     val StopScript = "StopScript"
@@ -64,6 +65,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     val HistoryPrev = "HistoryPrev"
     val ClearOutput = "ClearOutput"
     val UndoCommand = "UndoCommand"
+    val LocateError = "LocateError"
 
     var clearButton: JButton = null
 
@@ -82,6 +84,8 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
           clrOutput()
         case UndoCommand =>
           smartUndo()
+        case LocateError =>
+          locateError()
       }
     }
 
@@ -106,6 +110,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
     clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, "Clear Output", "Clear the Output")
     val undoButton = makeNavigationButton("/images/undo.png", UndoCommand, "Undo Last Turtle Command", "Undo")
+    val errorLocateButton = makeNavigationButton("/images/error-locate.png", LocateError, "Locate Error", "Locate the Error")
 
     toolbar.add(runButton)
 
@@ -124,8 +129,11 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     undoButton.setEnabled(false)
     toolbar.add(undoButton)
 
+    errorLocateButton.setEnabled(false)
+    toolbar.add(errorLocateButton)
+
     add(toolbar, BorderLayout.NORTH)
-    (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton)
+    (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton, errorLocateButton)
   }
 
 
@@ -138,6 +146,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     override def paste {}
 
     addKeyListener(new KeyAdapter {
+
         override def keyPressed(evt: KeyEvent) {
           evt.getKeyCode match {
             case KeyEvent.VK_UP => // let em through
@@ -162,6 +171,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
 
         def reportRunError() {
           historyManager.codeRunError()
+          errorLocateButton.setEnabled(true)
         }
 
         def reportOutput(lineFragment: String) = showOutput(lineFragment)
@@ -171,6 +181,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
         def interpreterStarted {
           runButton.setEnabled(false)
           stopButton.setEnabled(true)
+          errorLocateButton.setEnabled(false)
         }
       
         def interpreterDone {
@@ -192,9 +203,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     val codePane = new CodePane(codeRunner)
 
     codePane.addKeyListener(new KeyAdapter {
-
-        val findAction = new org.netbeans.editor.ext.ExtKit.FindAction()
-
         override def keyPressed(evt: KeyEvent) {
           evt.getKeyCode match {
             case KeyEvent.VK_ENTER =>
@@ -213,8 +221,8 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
                 evt.consume
               }
             case KeyEvent.VK_F =>
-              if(evt.isControlDown) {
-                findAction.actionPerformed(null, codePane);
+              if(evt.isControlDown && !evt.isShiftDown) {
+                showFindDialog()
                 evt.consume
               }
             case _ => // do nothing special
@@ -263,6 +271,56 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
       // something from history (or an error occurred - not relevant here)
       // call coderunner directly so that the buffer is retained
       codeRunner.runCode("undo")
+    }
+  }
+
+  def showFindDialog() {
+    findAction.actionPerformed(null, codePane)
+
+    // work around 'disabled find button' bug in Find Dialog
+    if (codePane.getSelectedText != null) {
+      import org.netbeans.editor.ext.FindDialogSupport
+      val findBtnsField = classOf[FindDialogSupport].getDeclaredField("findButtons")
+      if (findBtnsField != null) {
+        findBtnsField.setAccessible(true)
+        val findBtn = findBtnsField.get(null).asInstanceOf[Array[JButton]](0)
+        findBtn.setEnabled(true)
+      }
+    }
+  }
+
+  def locateError() {
+
+    def showHelpMessage() {
+      val msg = """
+      |You need to select the error text before trying to locate the error.
+      |For example, if the error message is:
+      |
+      |<console>:10: error: not found: value forawrd
+      |forawrd(100)
+      |^
+      |
+      |Then - you need to select 'forawrd' before clicking on the 'Locate Error' button.
+      """.stripMargin
+      JOptionPane.showMessageDialog(null, msg, "Error Locator", JOptionPane.INFORMATION_MESSAGE)
+    }
+
+    val sel = output.getSelectedText
+    if (sel == null || sel.trim == "") {
+      showHelpMessage()
+    }
+    else {
+      val sel2 = sel.trim
+      val code = stripCR(codePane.getText)
+      val idx = code.indexOf(sel2)
+      if (idx == -1) {
+        showHelpMessage()
+      }
+      else {
+        codePane.select(idx, idx + sel2.length)
+        val idx2 = code.lastIndexOf(sel2)
+        if (idx != idx2) showFindDialog()
+      }
     }
   }
 
