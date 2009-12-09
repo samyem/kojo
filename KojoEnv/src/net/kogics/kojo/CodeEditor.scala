@@ -256,6 +256,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     Utils.runInSwingThread {
       output.setText(null)
       clearButton.setEnabled(false)
+      errorLocateButton.setEnabled(false)
     }
   }
 
@@ -293,14 +294,18 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
 
     def showHelpMessage() {
       val msg = """
-      |You need to select the error text before trying to locate the error.
+      |You need to select the error text within the output window
+      |before trying to locate the error.
+      |
       |For example, if the error message is:
       |
       |<console>:10: error: not found: value forawrd
       |forawrd(100)
       |^
       |
-      |Then - you need to select 'forawrd' before clicking on the 'Locate Error' button.
+      |Then - you need to select 'forawrd(100)' before clicking on the 'Locate Error' button.
+      |
+      |Hint - the '^' character points to the location from which you need to start selecting text.
       """.stripMargin
       JOptionPane.showMessageDialog(null, msg, "Error Locator", JOptionPane.INFORMATION_MESSAGE)
     }
