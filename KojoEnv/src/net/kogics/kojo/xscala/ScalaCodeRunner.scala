@@ -428,6 +428,14 @@ Here's a partial list of available commands:
       varPattern.matcher(code).find()
     }
 
+    def showIncompleteCodeMsg(code: String) {
+      val msg = """
+      |<console>:9: error: Incomplete code fragment
+      |You probably have a missing brace/bracket somewhere in your script
+      """.stripMargin
+      showOutput(msg)
+    }
+
     while(true) {
       receive {
         // Runs on Actor pool thread
@@ -439,7 +447,7 @@ Here's a partial list of available commands:
             InterpreterManager.interpreterStarted
             val ret = interpret(code)
             Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
-            if (ret == IR.Incomplete) showOutput("Incomplete code fragment.\n")
+            if (ret == IR.Incomplete) showIncompleteCodeMsg(code)
             if (ret != IR.Success) ctx.reportRunError
           }
           catch {
