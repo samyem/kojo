@@ -294,18 +294,43 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
 
     def showHelpMessage() {
       val msg = """
-      |You need to select the error text within the output window
-      |before trying to locate the error.
+      |You need to select the 'error text' within the output window  before trying
+      |to locate the error.
       |
-      |For example, if the error message is:
+      |For example, in the following error message:
       |
       |<console>:10: error: not found: value forawrd
       |forawrd(100)
       |^
       |
-      |Then - you need to select 'forawrd(100)' before clicking on the 'Locate Error' button.
+      |The error text is 'forawrd(100)', and you need to select it  before clicking
+      |on the 'Locate Error' button.
       |
-      |Hint - the '^' character points to the location from which you need to start selecting text.
+      |Hint - the '^' character points to the beginning of the 'error text'.
+      """.stripMargin
+      JOptionPane.showMessageDialog(null, msg, "Error Locator", JOptionPane.INFORMATION_MESSAGE)
+    }
+
+    def showHelpMessage2() {
+      val msg = """
+      |The text that you selected within the output window is not present in your script.
+      |This can happen if:
+      |(a) You did not select the 'error text' correctly before trying to locate
+      |the error.
+      |OR
+      |(b) You tried to locate an error *after* making changes to your script.
+      |
+      |Here's some information on how to correctly locate 'error text' within the
+      |output window. In the following error message:
+      |
+      |<console>:10: error: not found: value forawrd
+      |forawrd(100)
+      |^
+      |
+      |The error text is 'forawrd(100)', and you need to select it  before clicking
+      |on the 'Locate Error' button.
+      |
+      |Hint - the '^' character points to the beginning of the 'error text'.
       """.stripMargin
       JOptionPane.showMessageDialog(null, msg, "Error Locator", JOptionPane.INFORMATION_MESSAGE)
     }
@@ -319,7 +344,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
       val code = stripCR(codePane.getText)
       val idx = code.indexOf(sel2)
       if (idx == -1) {
-        showHelpMessage()
+        showHelpMessage2()
       }
       else {
         codePane.select(idx, idx + sel2.length)
