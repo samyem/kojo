@@ -2,6 +2,20 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
     <folder name="Actions">
+        <folder name="Edit">
+            <file name="net-kogics-kojo-Find.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.FindReplaceAction"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Find"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+            <file name="net-kogics-kojo-Replace.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.FindReplaceAction"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Replace"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+        </folder>
         <folder name="Window">
             <file name="net-kogics-kojo-CodeEditorAction.instance">
                 <attr name="component" methodvalue="net.kogics.kojo.CodeEditorTopComponent.findInstance"/>
@@ -128,9 +142,19 @@
         </folder>
     </folder>
     <folder name="Menu">
+        <folder name="Edit">
+            <file name="net-kogics-kojo-Find.shadow">
+                <attr name="position" intvalue="2000"/>
+                <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-Find.instance"/>
+            </file>
+            <file name="net-kogics-kojo-Replace.shadow">
+                <attr name="position" intvalue="2100"/>
+                <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-Replace.instance"/>
+            </file>
+        </folder>
         <folder name="Samples">
             <attr name="position" intvalue="1250"/>
-            <folder name ="Basic ">
+            <folder name="Basic ">
                 <attr name="position" intvalue="1"/>
                 <file name="net-kogics-kojo-Samples.Square.shadow">
                     <attr name="position" intvalue="1"/>
@@ -141,7 +165,7 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Circle.instance"/>
                 </file>
             </folder>
-            <folder name ="Advanced ">
+            <folder name="Advanced ">
                 <attr name="position" intvalue="2"/>
                 <file name="net-kogics-kojo-Samples.FerrisWheel.shadow">
                     <attr name="position" intvalue="1"/>
@@ -160,7 +184,7 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Tree.instance"/>
                 </file>
             </folder>
-            <folder name ="Turtle Art ">
+            <folder name="Turtle Art ">
                 <attr name="position" intvalue="3"/>
                 <file name="net-kogics-kojo-Samples.TurningSquares.shadow">
                     <attr name="position" intvalue="1"/>
@@ -199,7 +223,7 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Rangoli.instance"/>
                 </file>
             </folder>
-            <folder name ="Geometry ">
+            <folder name="Geometry ">
                 <attr name="position" intvalue="4"/>
                 <file name="net-kogics-kojo-Samples.Polygon.shadow">
                     <attr name="position" intvalue="1"/>
@@ -222,6 +246,14 @@
                 <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-SCanvasAction.instance"/>
             </file>
         </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="D-F.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-Find.instance"/>
+        </file>
+        <file name="D-R.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-Replace.instance"/>
+        </file>
     </folder>
     <folder name="Windows2">
         <folder name="Components">

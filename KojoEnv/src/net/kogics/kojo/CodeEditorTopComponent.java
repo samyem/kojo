@@ -59,13 +59,14 @@ public final class CodeEditorTopComponent extends TopComponent {
         ActionMap actionMap = getActionMap();
         final Action copyAction = new DefaultEditorKit.CopyAction();
         final Action cutAction = new DefaultEditorKit.CutAction();
+        final Action pasteAction = new DefaultEditorKit.PasteAction();
 
         cutAction.setEnabled(false);
         copyAction.setEnabled(false);
 
         actionMap.put(DefaultEditorKit.copyAction, copyAction);
         actionMap.put(DefaultEditorKit.cutAction, cutAction);
-        actionMap.put(DefaultEditorKit.pasteAction, new DefaultEditorKit.PasteAction());
+        actionMap.put(DefaultEditorKit.pasteAction, pasteAction);
 
         // For code pane window, enable only copy and cut buttons
         // when text is selected
@@ -101,19 +102,17 @@ public final class CodeEditorTopComponent extends TopComponent {
             }
         });
 
-        enableFindReplace();
-
         ce.codePane().addFocusListener(new FocusAdapter() {
 
             public void focusGained(FocusEvent e) {
-                enableFindReplace();
+                pasteAction.setEnabled(true);
             }
         });
 
         ce.output().addFocusListener(new FocusAdapter() {
 
             public void focusGained(FocusEvent e) {
-                disableFindReplace();
+                pasteAction.setEnabled(false);
             }
         });
 
@@ -125,27 +124,6 @@ public final class CodeEditorTopComponent extends TopComponent {
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
         putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
-
-    }
-
-    void enableFindReplace() {
-        ActionMap actionMap = getActionMap();
-
-        CallbackSystemAction callFindAction = (CallbackSystemAction) SystemAction.get(FindAction.class);
-        actionMap.put(callFindAction.getActionMapKey(), new org.netbeans.editor.ext.ExtKit.FindAction());
-
-        CallbackSystemAction callReplaceAction = (CallbackSystemAction) SystemAction.get(ReplaceAction.class);
-        actionMap.put(callReplaceAction.getActionMapKey(), new org.netbeans.editor.ext.ExtKit.ReplaceAction());
-    }
-
-    void disableFindReplace() {
-        ActionMap actionMap = getActionMap();
-
-        CallbackSystemAction callFindAction = (CallbackSystemAction) SystemAction.get(FindAction.class);
-        actionMap.remove(callFindAction.getActionMapKey());
-
-        CallbackSystemAction callReplaceAction = (CallbackSystemAction) SystemAction.get(ReplaceAction.class);
-        actionMap.remove(callReplaceAction.getActionMapKey());
     }
 
     /** This method is called from within the constructor to

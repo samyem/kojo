@@ -39,6 +39,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   val historyManager = new HistoryManager()
   @volatile var pendingCommands = false
   val findAction = new org.netbeans.editor.ext.ExtKit.FindAction()
+  val replaceAction = new org.netbeans.editor.ext.ExtKit.ReplaceAction()
 
   setLayout(new BorderLayout)
 
@@ -155,6 +156,8 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
             case KeyEvent.VK_RIGHT =>
             case KeyEvent.VK_V => evt.consume // disallow pasting
             case KeyEvent.VK_X => evt.consume // disallow cutting
+            case KeyEvent.VK_F => maybeShowFindDialog(evt)
+            case KeyEvent.VK_R => maybeShowReplaceDialog(evt)
             case kc if (evt.isControlDown) => // allow copying
             case _ => evt.consume // disallow everything else
           }
@@ -220,11 +223,8 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
                 loadCodeFromHistoryNext
                 evt.consume
               }
-            case KeyEvent.VK_F =>
-              if(evt.isControlDown && !evt.isShiftDown) {
-                showFindDialog()
-                evt.consume
-              }
+            case KeyEvent.VK_F => maybeShowFindDialog(evt)
+            case KeyEvent.VK_R => maybeShowReplaceDialog(evt)
             case _ => // do nothing special
           }
         }
@@ -275,18 +275,58 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     }
   }
 
+  def maybeShowFindDialog(evt: KeyEvent) {
+    if(evt.isControlDown && !evt.isShiftDown) {
+      showFindDialog()
+      evt.consume
+    }
+  }
+
+  def maybeShowReplaceDialog(evt: KeyEvent) {
+    if(evt.isControlDown && !evt.isShiftDown) {
+      showReplaceDialog()
+      evt.consume
+    }
+  }
+
   def showFindDialog() {
     findAction.actionPerformed(null, codePane)
+    tweakFindReplaceDialog()
+  }
 
-    // work around 'disabled find button' bug in Find Dialog
-    if (codePane.getSelectedText != null) {
-      import org.netbeans.editor.ext.FindDialogSupport
-      val findBtnsField = classOf[FindDialogSupport].getDeclaredField("findButtons")
-      if (findBtnsField != null) {
+  def showReplaceDialog() {
+    replaceAction.actionPerformed(null, codePane)
+    tweakFindReplaceDialog()
+  }
+
+  def tweakFindReplaceDialog() {
+    // hacks to control appearance and behavior of Find/Replace Dialog
+    import org.netbeans.editor.ext.FindDialogSupport
+    try {
+      // work around 'disabled find button' bug in Find Dialog
+      if (codePane.getSelectedText != null) {
+        val findBtnsField = classOf[FindDialogSupport].getDeclaredField("findButtons")
         findBtnsField.setAccessible(true)
         val findBtn = findBtnsField.get(null).asInstanceOf[Array[JButton]](0)
         findBtn.setEnabled(true)
       }
+
+      // disable help button
+      val findDialogField = classOf[FindDialogSupport].getDeclaredField("findDialog")
+      findDialogField.setAccessible(true)
+      val findDlg = findDialogField.get(null).asInstanceOf[Dialog]
+      val rootPane = findDlg.getComponent(0).asInstanceOf[JRootPane]
+      val pane = rootPane.getComponent(1).asInstanceOf[JLayeredPane]
+      val panel = pane.getComponent(0).asInstanceOf[JPanel]
+      val panel2 = panel.getComponent(1).asInstanceOf[JPanel]
+      panel2.getComponents.foreach {c => c match {
+          case button: JButton => if (button.getText == "Help") button.setEnabled(false)
+          case _ => // pass
+        }
+      }
+    }
+    catch {
+      case t: Throwable => // pass
     }
   }
 
