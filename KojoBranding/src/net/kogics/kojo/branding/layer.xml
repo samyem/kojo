@@ -52,12 +52,30 @@
             <file name="org-netbeans-modules-project-ui-OpenProject.shadow_hidden"/>
             <file name="org-netbeans-modules-project-ui-RecentProjects.shadow_hidden"/>
             <file name="org-netbeans-modules-project-ui-groups-GroupsMenu.shadow_hidden"/>
+            <file name="org-openide-actions-PageSetupAction.shadow_hidden"/>
+            <file name="org-openide-actions-PrintAction.shadow_hidden"/>
             <file name="org-openide-actions-SaveAction.shadow_hidden"/>
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
             <file name="org-openide-actions-SaveAsAction.shadow_hidden"/>
         </folder>
         <file name="GoTo_hidden"/>
-        <file name="Source_hidden"/>
+        <folder name="Source">
+            <file name="FixCode.shadow_hidden"/>
+            <file name="SeparatorAfterLineTools.instance_hidden"/>
+            <file name="SeparatorBeforeScanForExternalChanges.instance_hidden"/>
+            <file name="SeparatorBeforeWordMatchInsert.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-MainMenuAction$ToggleCommentAction.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-MainMenuAction$WordMatchNextAction.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-MainMenuAction$WordMatchPrevAction.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-codegen-NbGenerateCodeAction$GlobalAction.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-completion-CompletionActionsMainMenu$CompletionShow.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-completion-CompletionActionsMainMenu$DocumentationShow.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-completion-CompletionActionsMainMenu$ToolTipShow.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-impl-actions-LineActionsMainMenu$DuplicateDown.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-impl-actions-LineActionsMainMenu$DuplicateUp.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-java-JavaKit$JavaFixImports$GlobalAction.shadow_hidden"/>
+            <file name="org-netbeans-modules-parsing-impl-indexing-ScanForExternalChanges.shadow_hidden"/>
+        </folder>
         <file name="Tools_hidden"/>
         <folder name="View">
             <file name="Separator1.instance_hidden"/>
