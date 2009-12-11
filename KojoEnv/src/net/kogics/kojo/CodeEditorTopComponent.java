@@ -15,12 +15,16 @@
 package net.kogics.kojo;
 
 import java.awt.BorderLayout;
+import java.awt.Frame;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.DefaultEditorKit;
@@ -29,11 +33,7 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
-import org.openide.actions.FindAction;
-import org.openide.actions.ReplaceAction;
 import org.openide.awt.UndoRedo;
-import org.openide.util.actions.CallbackSystemAction;
-import org.openide.util.actions.SystemAction;
 
 /**
  * Top component which displays something.
@@ -106,6 +106,7 @@ public final class CodeEditorTopComponent extends TopComponent {
 
             public void focusGained(FocusEvent e) {
                 pasteAction.setEnabled(true);
+                tweakSourceMenuEtc(true);
             }
         });
 
@@ -113,6 +114,7 @@ public final class CodeEditorTopComponent extends TopComponent {
 
             public void focusGained(FocusEvent e) {
                 pasteAction.setEnabled(false);
+                tweakSourceMenuEtc(false);
             }
         });
 
@@ -124,6 +126,57 @@ public final class CodeEditorTopComponent extends TopComponent {
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
         putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
+    }
+
+    private void tweakSourceMenuEtc(boolean enable) {
+        try {
+            JMenu sourceMenu = findMenu("Source");
+            if (sourceMenu != null) {
+                int n = sourceMenu.getItemCount();
+                for (int i = 0; i < n; i++) {
+                    sourceMenu.getItem(i).setEnabled(enable);
+                }
+            }
+
+            JMenu editMenu = findMenu("Edit");
+            if (editMenu != null) {
+                int n = editMenu.getItemCount();
+                for (int i = 0; i < n; i++) {
+                    JMenuItem menuItem = editMenu.getItem(i);
+                    if (menuItem == null) {
+                        continue;
+                    }
+
+                    String itemText = menuItem.getText();
+                    if (itemText != null && itemText.equals("Select All")) {
+                        menuItem.setEnabled(enable);
+                        break;
+                    }
+                }
+
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+            // ignore
+        }
+    }
+
+    private JMenu findMenu(String menuToFind) {
+        Frame frame = WindowManager.getDefault().getMainWindow();
+        JMenuBar menuBar = ((JFrame) frame).getRootPane().getJMenuBar();
+        int n = menuBar.getMenuCount();
+        for (int i = 0; i < n; i++) {
+            JMenu menu = menuBar.getMenu(i);
+            if (menu == null) {
+                continue;
+            }
+
+            String menuText = menu.getText();
+            if (menuText != null && menuText.equals(menuToFind)) {
+                return menu;
+            }
+        }
+        return null;
     }
 
     /** This method is called from within the constructor to
