@@ -311,7 +311,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
         findBtn.setEnabled(true)
       }
 
-      // disable help button
+      // hide help button
       val findDialogField = classOf[FindDialogSupport].getDeclaredField("findDialog")
       findDialogField.setAccessible(true)
       val findDlg = findDialogField.get(null).asInstanceOf[Dialog]
@@ -320,7 +320,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
       val panel = pane.getComponent(0).asInstanceOf[JPanel]
       val panel2 = panel.getComponent(1).asInstanceOf[JPanel]
       panel2.getComponents.foreach {c => c match {
-          case button: JButton => if (button.getText == "Help") button.setEnabled(false)
+          case button: JButton => if (button.getText == "Help") button.setVisible(false)
           case _ => // pass
         }
       }
