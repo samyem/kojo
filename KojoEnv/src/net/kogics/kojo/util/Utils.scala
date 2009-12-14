@@ -43,6 +43,19 @@ object Utils {
     }
   }
 
+  def runInSwingThreadAndWait(fn: => Unit) {
+    if(EventQueue.isDispatchThread) {
+      fn
+    }
+    else {
+      javax.swing.SwingUtilities.invokeAndWait(new Runnable {
+          override def run {
+            fn
+          }
+        })
+    }
+  }
+
   def doublesEqual(d1: Double, d2: Double, tol: Double): Boolean = {
     if (d1 == d2) return true
     else if (Math.abs(d1 - d2) < tol) return true

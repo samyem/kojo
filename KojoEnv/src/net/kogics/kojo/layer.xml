@@ -29,6 +29,11 @@
                 <attr name="iconBase" stringvalue="images/history.png"/>
                 <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
             </file>
+            <file name="net-kogics-kojo-OutputAction.instance">
+                <attr name="component" methodvalue="net.kogics.kojo.OutputTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_OutputAction"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+            </file>
             <file name="net-kogics-kojo-SCanvasAction.instance">
                 <attr name="component" methodvalue="net.kogics.kojo.SCanvasTopComponent.findInstance"/>
                 <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_SCanvasAction"/>
@@ -242,6 +247,9 @@
             <file name="HistoryAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-HistoryAction.instance"/>
             </file>
+            <file name="OutputAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-OutputAction.instance"/>
+            </file>
             <file name="SCanvasAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-SCanvasAction.instance"/>
             </file>
@@ -259,9 +267,14 @@
         <folder name="Components">
             <file name="CodeEditorTopComponent.settings" url="CodeEditorTopComponentSettings.xml"/>
             <file name="HistoryTopComponent.settings" url="HistoryTopComponentSettings.xml"/>
+            <file name="OutputTopComponent.settings" url="OutputTopComponentSettings.xml"/>
             <file name="SCanvasTopComponent.settings" url="SCanvasTopComponentSettings.xml"/>
         </folder>
         <folder name="Modes">
+            <folder name="anonymousMode_1">
+                <file name="CodeEditorTopComponent.wstcref" url="CodeEditorTopComponentWstcref_1.xml"/>
+            </folder>
+            <file name="anonymousMode_1.wsmode" url="anonymousMode_1Wsmode.xml"/>
             <folder name="leftSlidingSide">
                 <file name="HistoryTopComponent.wstcref" url="HistoryTopComponentWstcref.xml"/>
             </folder>
@@ -269,7 +282,7 @@
                 <file name="SCanvasTopComponent.wstcref" url="SCanvasTopComponentWstcref.xml"/>
             </folder>
             <folder name="output">
-                <file name="CodeEditorTopComponent.wstcref" url="CodeEditorTopComponentWstcref.xml"/>
+                <file name="OutputTopComponent.wstcref" url="OutputTopComponentWstcref.xml"/>
             </folder>
         </folder>
     </folder>

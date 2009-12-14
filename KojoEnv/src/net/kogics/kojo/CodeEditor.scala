@@ -18,12 +18,15 @@ import javax.swing._
 import java.awt.{List => AwtList, _}
 import java.awt.event._
 
+import java.util.concurrent.CountDownLatch
 import java.util.logging._
 
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 
 import util._
+
+import org.openide.windows._
 
 object CodeEditor extends Singleton[CodeEditor] {
   protected def newInstance = new CodeEditor
@@ -44,18 +47,28 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   setLayout(new BorderLayout)
 
   val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton, errorLocateButton) = makeToolbar()
-  val output = makeOutput()
+
+  @volatile var runMonitor: RunMonitor = new NoOpRunMonitor()
+
   val codeRunner = makeCodeRunner()
   val codePane = makeCodePane()
 
-  val splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
-                                 new JScrollPane(codePane), new JScrollPane(output))
-  add(splitPane, BorderLayout.CENTER)
+//  val splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
+//                                 new JScrollPane(codePane), new JScrollPane(output))
+
+  lazy val IO = makeOutput2()
+  
+  add(new JScrollPane(codePane), BorderLayout.CENTER)
   setSpriteListener()
   codeRunner.runCode("welcome")
 
   Utils.schedule(3) {
     loadCodeFromHistory(commandHistory.size)
+  }
+
+  def makeOutput2(): org.openide.windows.InputOutput = {
+    val ioc = IOContainer.create(OutputTopComponent.findInstance)
+    IOProvider.getDefault().getIO("Script Output", Array[Action](), ioc)
   }
 
   def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton, JButton, JButton) = {
@@ -86,7 +99,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
         case UndoCommand =>
           smartUndo()
         case LocateError =>
-          locateError()
+//          locateError()
       }
     }
 
@@ -137,61 +150,44 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton, errorLocateButton)
   }
 
-
-  def makeOutput() = new JTextArea {
-    // setEditable(false)
-    setFont(new Font(Font.MONOSPACED, Font.BOLD, 15))
-    setLineWrap(true)
-    setWrapStyleWord(true)
-
-    override def paste {}
-
-    addKeyListener(new KeyAdapter {
-
-        override def keyPressed(evt: KeyEvent) {
-          evt.getKeyCode match {
-            case KeyEvent.VK_UP => // let em through
-            case KeyEvent.VK_DOWN =>
-            case KeyEvent.VK_LEFT =>
-            case KeyEvent.VK_RIGHT =>
-            case KeyEvent.VK_V => evt.consume // disallow pasting
-            case KeyEvent.VK_X => evt.consume // disallow cutting
-            case KeyEvent.VK_F => maybeShowFindDialog(evt)
-            case KeyEvent.VK_R => maybeShowReplaceDialog(evt)
-            case kc if (evt.isControlDown) => // allow copying
-            case _ => evt.consume // disallow everything else
-          }
-        }
-
-        override def keyTyped(evt: KeyEvent) {
-          evt.consume
-        }
-      })
-  }
-
   def makeCodeRunner() = {
     val codeRunner = new xscala.ScalaCodeRunner(new RunContext {
 
-        def reportRunError() {
+        def onRunError() {
           historyManager.codeRunError()
           errorLocateButton.setEnabled(true)
+          interpreterDone()
         }
 
-        def reportOutput(lineFragment: String) = showOutput(lineFragment)
+        def onRunSuccess() = interpreterDone()
+        def onRunInterpError() = interpreterDone()
 
-        def getCurrentOutput = output.getText
+        def reportOutput(outText: String) {
+          showOutput(outText)
+          runMonitor.reportOutput(outText)
+        }
+        def reportErrorMsg(errMsg: String) {
+          showErrorMsg(errMsg)
+          runMonitor.reportOutput(errMsg)
+        }
+        def reportErrorText(errText: String) {
+          showErrorText(errText)
+          runMonitor.reportOutput(errText)
+        }
 
         def interpreterStarted {
           runButton.setEnabled(false)
           stopButton.setEnabled(true)
           errorLocateButton.setEnabled(false)
+          runMonitor.onRunStart()
         }
       
-        def interpreterDone {
+        private def interpreterDone() {
           runButton.setEnabled(true)
           if (!pendingCommands) {
             stopButton.setEnabled(false)
           }
+          runMonitor.onRunEnd()
         }
 
         def clearOutput() = clrOutput()
@@ -251,14 +247,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   def loadCodeFromHistoryPrev = historyManager.historyMoveBack
   def loadCodeFromHistoryNext = historyManager.historyMoveForward
   def loadCodeFromHistory(historyIdx: Int) = historyManager.setCode(historyIdx)
-
-  def clrOutput() {
-    Utils.runInSwingThread {
-      output.setText(null)
-      clearButton.setEnabled(false)
-      errorLocateButton.setEnabled(false)
-    }
-  }
 
   def smartUndo() {
     if (codePane.getText.trim() == "") {
@@ -330,7 +318,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     }
   }
 
-  def locateError() {
+  def locateError(errorText: String) {
 
     def showHelpMessage() {
       val msg = """
@@ -375,7 +363,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
       JOptionPane.showMessageDialog(null, msg, "Error Locator", JOptionPane.INFORMATION_MESSAGE)
     }
 
-    val sel = output.getSelectedText
+    val sel = errorText
     if (sel == null || sel.trim == "") {
       showHelpMessage()
     }
@@ -394,17 +382,48 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     }
   }
 
-  def showOutput(lineFragment: String) {
-    def maybeTruncateOutput {
-      val doc = output.getDocument
-      if (doc.getLength > 50000) doc.remove(0, 10000)
+  def clrOutput() {
+    Utils.runInSwingThread {
+      IO.getOut().reset()
+      clearButton.setEnabled(false)
+      errorLocateButton.setEnabled(false)
+    }
+  }
+
+  val listener = new OutputListener() {
+    def outputLineAction(ev: OutputEvent) {
+      locateError(ev.getLine)
     }
 
+    def outputLineSelected(ev: OutputEvent) {
+      // Let's not do anything special.
+    }
+
+    def outputLineCleared(ev: OutputEvent) {
+      // Leave it blank, no state to remove.
+    }
+  }
+
+  def enableClearButton() = if (!clearButton.isEnabled) clearButton.setEnabled(true)
+
+  def showOutput(outText: String) {
     Utils.runInSwingThread {
-      maybeTruncateOutput
-      output.append(lineFragment)
-      output.setCaretPosition(output.getDocument().getLength())
-      if (!clearButton.isEnabled) clearButton.setEnabled(true)
+      IOColorPrint.print(IO, outText, Color.black);
+      enableClearButton()
+    }
+  }
+
+  def showErrorMsg(errMsg: String) {
+    Utils.runInSwingThread {
+      IOColorPrint.print(IO, errMsg, Color.red);
+      enableClearButton()
+    }
+  }
+
+  def showErrorText(errText: String) {
+    Utils.runInSwingThread {
+      IOColorPrint.print(IO, errText, listener, true, Color.red);
+      enableClearButton()
     }
   }
 
@@ -519,14 +538,56 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
       }
     }
   }
+
+  def runCodeWithOutputCapture(): String = {
+    runMonitor = new OutputCapturingRunner()
+    val ret = runMonitor.asInstanceOf[OutputCapturingRunner].go()
+    runMonitor = new NoOpRunMonitor()
+    ret
+  }
+
+  class OutputCapturingRunner extends RunMonitor {
+    val outputx: StringBuilder = new StringBuilder()
+    val latch = new CountDownLatch(1)
+
+    def reportOutput(outText: String) = captureOutput(outText)
+    def onRunStart() {}
+    def onRunEnd() = latch.countDown()
+
+    def go(): String = {
+      runCode()
+      latch.await()
+      outputx.toString
+    }
+
+    def captureOutput(output: String) {
+      outputx.append(output)
+    }
+  }
+}
+
+trait RunMonitor {
+  def reportOutput(outText: String)
+  def onRunStart()
+  def onRunEnd()
+}
+
+class NoOpRunMonitor extends RunMonitor {
+  def reportOutput(outText: String) {}
+  def onRunStart() {}
+  def onRunEnd() {}
 }
 
 trait RunContext {
-  def reportRunError()
-  def reportOutput(lineFragment: String)
-  def getCurrentOutput(): String
   def interpreterStarted()
-  def interpreterDone()
+  def onRunError()
+  def onRunSuccess()
+  def onRunInterpError()
+
+  def reportOutput(outText: String)
+  def reportErrorMsg(errMsg: String)
+  def reportErrorText(errText: String)
+
   def clearOutput()
 }
 

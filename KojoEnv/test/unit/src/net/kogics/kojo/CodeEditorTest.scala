@@ -11,6 +11,7 @@ import org.junit.Test
 import org.junit.Assert._
 
 import java.io.File
+import net.kogics.kojo.util._
 
 class CodeEditorTest {
 
@@ -26,12 +27,6 @@ class CodeEditorTest {
   System.setProperty("netbeans.user", userDir)
   val ce = CodeEditor.instance
   val pane = ce.codePane
-  val output = ce.output
-
-  // run something and get rid of welcome message
-  pane.setText("3")
-  ce.runCode()
-  awaitResult("3")
 
   val commandHistory = CommandHistory.instance
   commandHistory.setListener(new HistoryListener {
@@ -48,10 +43,9 @@ class CodeEditorTest {
   @Test
   def testRunAllText {
     pane.setText("val x = 10; val y = 20")
-    ce.clrOutput()
-    ce.runCode()
-    awaitResult("20")
-    assertEquals("x: Int = 10y: Int = 20", stripCrLfs(output.getText))
+    val output = ce.runCodeWithOutputCapture()
+    assertEquals("x: Int = 10y: Int = 20", stripCrLfs(output))
+    Utils.runInSwingThreadAndWait {  /* noop */  }
     assertEquals("", pane.getText)
     assertTrue(pane.getSelectionStart == pane.getSelectionEnd)
   }
@@ -60,9 +54,9 @@ class CodeEditorTest {
   def testRunAllTextWithError {
     val code = "val x = 10; val y = 20x"
     pane.setText(code)
-    ce.clrOutput()
-    ce.runCode()
-    awaitResult("20x")
+    val output = ce.runCodeWithOutputCapture()
+    assertTrue(output.contains(": error:"))
+    Utils.runInSwingThreadAndWait {  /* noop */  }
     assertEquals(code, pane.getText)
     assertTrue(pane.getSelectionStart == pane.getSelectionEnd)
   }
@@ -74,10 +68,9 @@ class CodeEditorTest {
     pane.setSelectionStart(12)
     pane.setSelectionEnd(22)
 
-    ce.clrOutput()
-    ce.runCode()
-    awaitResult("20")
-    assertEquals("y: Int = 20", stripCrLfs(output.getText))
+    val output = ce.runCodeWithOutputCapture()
+    assertEquals("y: Int = 20", stripCrLfs(output))
+    Utils.runInSwingThreadAndWait {  /* noop */  }
     assertEquals(code, pane.getText)
     assertEquals(12, pane.getSelectionStart)
     assertEquals(22, pane.getSelectionEnd)
@@ -90,9 +83,9 @@ class CodeEditorTest {
     pane.setSelectionStart(12)
     pane.setSelectionEnd(23)
 
-    ce.clrOutput()
-    ce.runCode()
-    awaitResult("20x")
+    val output = ce.runCodeWithOutputCapture()
+    assertTrue(output.contains(": error:"))
+    Utils.runInSwingThreadAndWait {  /* noop */  }
     assertEquals(code, pane.getText)
     assertEquals(12, pane.getSelectionStart)
     assertEquals(23, pane.getSelectionEnd)
@@ -101,19 +94,5 @@ class CodeEditorTest {
   def stripCrLfs(str: String): String  = {
     val str0 = str.replaceAll("\r?\n", "")
     str0.replaceAll("---", "")
-  }
-
-  def awaitResult(res: String) {
-    var totalSleep = 0l
-    val sleepTime = 100
-    Thread.sleep(sleepTime)
-    totalSleep += sleepTime
-    var outText = output.getText
-    while (!outText.contains(res)) {
-      if (totalSleep > 6000) throw new RuntimeException("Timeout waiting for: " + res)
-      Thread.sleep(sleepTime)
-      totalSleep += sleepTime
-      outText = output.getText
-    }
   }
 }

@@ -19,6 +19,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.Assert._
 
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 
@@ -29,138 +30,131 @@ class CodePaneTest {
   assertTrue(file.exists)
   System.setProperty("netbeans.dirs", fileStr)
 
-  var latch: CountDownLatch = _
-
-  @volatile var outputMarker: String = _
-  val DefaultMarker = "\u0000"
-
   val runCtx = new RunContext {
-    val currOutput = new StringBuilder
+    val currOutput = new StringBuilder()
+    val success = new AtomicBoolean()
+    val error = new AtomicBoolean()
 
     def reportRunError() {}
 
     def reportOutput(lineFragment: String) {
-      if (lineFragment.contains(outputMarker)) {
-        currOutput.append(lineFragment)
-        // signal waiters
-        latch.countDown
-      } else {
-        currOutput.append(lineFragment)
-      }
+      currOutput.append(lineFragment)
     }
 
-    def getCurrentOutput: String  = currOutput.toString
-    def isRunningEnabled: Boolean = true
     def interpreterStarted {}
-    def interpreterDone {}
     def clearOutput {currOutput.clear}
+    def getCurrentOutput: String  = currOutput.toString
+
+    def onRunError() {
+      error.set(true)
+      latch.countDown()
+    }
+    def onRunSuccess() {
+      success.set(true)
+      latch.countDown()
+    }
+    def onRunInterpError() {latch.countDown()}
+
+    def reportErrorMsg(errMsg: String) {
+      currOutput.append(errMsg)
+    }
+    def reportErrorText(errText: String) {
+      currOutput.append(errText)
+    }
   }
 
   val codeRunner = new xscala.ScalaCodeRunner(runCtx, sprite.SpriteCanvas.instance)
   val pane = new CodePane(codeRunner)
   val Delimiter = pane.OutputDelimiter
-
+  var latch: CountDownLatch = _
 
   def runCode() {
+    latch = new CountDownLatch(1)
     codeRunner.runCode(pane.getText())
+    latch.await()
   }
 
-  def interruptInterpreter() {
-    codeRunner.interruptInterpreter()
+  def scheduleInterruption() {
+    new Thread(new Runnable {
+        def run() {
+          Thread.sleep(1000)
+          codeRunner.interruptInterpreter()
+        }
+      }).start()
   }
 
   // if we have more than five tests, we run out of heap space - maybe a leak in the Scala interpreter/compiler
   // subsystem. So we run (mostly) everything in one test
   @Test
   def testEvalSession = {
-    
+
     pane.setText("12")
+    runCtx.success.set(false)
     runCode()
-    awaitResult("12")
+    assertTrue(runCtx.success.get)
     assertEquals("res1: Int = 12", stripCrLfs(runCtx.getCurrentOutput))
-//    assertEquals(1, pane.commandHistory.hIndex)
 
     pane.setText("13")
     runCode()
-    awaitResult("13")
-
     assertEquals("res1: Int = 12" +
                  stripCrLfs(Delimiter) +
                  "res2: Int = 13",
                  stripCrLfs(runCtx.getCurrentOutput))
-//    assertEquals(2, pane.commandHistory.hIndex)
+
 
     pane.setText("forward(100)")
     runCode()
-    awaitResult(Delimiter)
-
     assertEquals("res1: Int = 12" +
                  stripCrLfs(Delimiter) +
                  "res2: Int = 13" +
                  stripCrLfs(Delimiter),
                  stripCrLfs(runCtx.getCurrentOutput))
-//    assertEquals(3, pane.commandHistory.hIndex)
 
     pane.setText("14")
     runCode()
-    awaitResult("14")
-
     assertEquals("res1: Int = 12" +
                  stripCrLfs(Delimiter) +
                  "res2: Int = 13" +
                  stripCrLfs(Delimiter) +
                  "res4: Int = 14",
                  stripCrLfs(runCtx.getCurrentOutput))
-//    assertEquals(4, pane.commandHistory.hIndex)
 
     runCtx.clearOutput
 
     pane.setText("while (true) {println(\"42\")}")
+    scheduleInterruption()
     runCode()
     Thread.sleep(500)
-    interruptInterpreter()
-    awaitResult("Script Stopped")
-    assertTrue(runCtx.getCurrentOutput.endsWith("Script Stopped.\n"))
+    println("***********Post Interruption Output: " + runCtx.getCurrentOutput)
+    assertTrue(runCtx.getCurrentOutput.contains("Script Stopped."))
 
     runCtx.clearOutput
     assertEquals("", runCtx.getCurrentOutput)
 
     pane.setText("while (true) {forward(100)}")
+    scheduleInterruption()
     runCode()
     Thread.sleep(500)
-    interruptInterpreter()
-    awaitResult("Script Stopped")
-    assertTrue(runCtx.getCurrentOutput.endsWith("Script Stopped.\n"))
+    assertTrue(runCtx.getCurrentOutput.contains("Script Stopped."))
   }
 
   @Test
   def testTwoEvalsAndAnError = {
     pane.setText("12")
     runCode()
-    awaitResult("12")
+    assertTrue(runCtx.getCurrentOutput.contains("12"))
 
     pane.setText("13")
     runCode()
-    awaitResult("13")
+    assertTrue(runCtx.getCurrentOutput.contains("13"))
 
     runCtx.clearOutput
 
     pane.setText("some junk")
     runCode()
-    awaitResult("^")
 
     assertTrue(runCtx.getCurrentOutput.contains("error: not found: value some"))
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
-
-  def awaitResult(result: String) {
-    outputMarker = result
-    latch = new CountDownLatch(1)
-    val found = latch.await(5, TimeUnit.SECONDS)
-    if (!found) {
-      println("Expected output %s not seen. Current output: %s" format(result, runCtx.getCurrentOutput))
-      throw new RuntimeException("Expected output %s not seen" format(result))
-    }
-  }
 }

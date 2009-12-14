@@ -53,60 +53,11 @@ class ScalaCodeRunner(ctx: net.kogics.kojo.RunContext, tCanvas: SCanvas) {
       syspropopt("env.classpath") orElse syspropopt("java.class.path") getOrElse ""
   }
 
-  val interpOutput = new PipedInputStream
-  val pipedOutput = new PipedOutputStream(interpOutput)
-
-  val interp = new Interpreter(iSettings, new NewLinePrintWriter(pipedOutput)) {
+  val interp = new Interpreter(iSettings, new NewLinePrintWriter()) {
     override protected def parentClassLoader = Thread.currentThread.getContextClassLoader
   }
   interp.setContextClassLoader
   
-  val interpOutputReader = new Runnable {
-    def readOutput() {
-      // Runs on Interpreter pipe reader thread
-      val reader = new BufferedReader(new InputStreamReader(interpOutput))
-      val buf = new Array[Char](1024)
-      var nbytes = reader.read(buf)
-      while (nbytes != -1) {
-        val iOutput = new String(buf, 0, nbytes)
-        Log.info("Output received from Interpreter: " + iOutput)
-        showOutput(iOutput)
-        nbytes = reader.read(buf)
-      }
-    }
-
-    def run() {
-      try {
-        readOutput()
-      }
-      catch {
-        case e: Exception =>
-          Log.warning("Output Reader Exception: " + Utils.stackTraceAsString(e))
-      }
-      
-      val dos = new DataOutputStream(pipedOutput)
-      dos.writeBytes("Resetting Output Reader.\n"); dos.flush()
-      run()
-    }
-  }
-
-  new Thread(interpOutputReader).start
-
-// Test Pipe Exceptions
-// TODO: This needs to go into a unit test
-//  val rxx = new Runnable {
-//    def run {
-//      Thread.sleep(10000)
-//      val dos = new DataOutputStream(pipedOutput)
-//      dos.writeBytes("Hi There.\n")
-//      dos.flush()
-////      Thread.sleep(5000)
-//      new Thread(this).start()
-//    }
-//  }
-//
-//  new Thread(rxx).start()
-
   object Builtins extends SCanvas {
     type Sprite = net.kogics.kojo.core.Sprite
     type Color = java.awt.Color
@@ -311,16 +262,42 @@ Here's a partial list of available commands:
       if (lineFragment.contains(Marker)) initDone = true
     }
     else {
-      if (!InterpreterManager.interruptionInProgress) ctx.reportOutput(lineFragment)
+      if (!InterpreterManager.interruptionInProgress) reallyShowOutput(lineFragment)
+    }
+  }
+
+  var lastOutputLine = ""
+  var errorSeen = false
+  val errorPattern = java.util.regex.Pattern.compile("""^<console>:\d+: error:""")
+
+  def reallyShowOutput(output: String) {
+    if (output == "") return
+    
+    val lines = output.split('\n')
+    lines.foreach {line =>
+      val eSeen = errorPattern.matcher(line).find
+      val outLine = line + "\n"
+
+      if (errorSeen) {
+        errorSeen = false
+        ctx.reportErrorText(outLine)
+      }
+      else if (eSeen) {
+        ctx.reportErrorMsg(outLine)
+      }
+      else {
+        ctx.reportOutput(outLine)
+      }
+
+      errorSeen = eSeen
+      lastOutputLine = outLine
     }
   }
 
   def unconditionallyShowOutput(s: String) = ctx.reportOutput(s)
 
   def maybeOutputDelimiter {
-    val output = ctx.getCurrentOutput
-
-    if (output.length > 0 && !output.endsWith(OutputDelimiter))
+    if (lastOutputLine.length > 0 && !lastOutputLine.endsWith(OutputDelimiter))
       showOutput(OutputDelimiter)
   }
 
@@ -384,7 +361,6 @@ Here's a partial list of available commands:
         unconditionallyShowOutput("Script Stopped.\n")
       }
       interpreterThread = None
-      ctx.interpreterDone
     }
   }
 
@@ -448,10 +424,11 @@ Here's a partial list of available commands:
             val ret = interpret(code)
             Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
             if (ret == IR.Incomplete) showIncompleteCodeMsg(code)
-            if (ret != IR.Success) ctx.reportRunError
+            if (ret == IR.Success) ctx.onRunSuccess else ctx.onRunError
           }
           catch {
             case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
+              ctx.onRunInterpError
           }
           finally {
             Log.info("CodeRunner actor doing final handling for code.")
@@ -509,12 +486,25 @@ Here's a partial list of available commands:
       (c2s, prefix.length)
     }
   }
-}
 
-class NewLinePrintWriter(out: OutputStream) extends PrintWriter(out, true) {
-  override def print(string: String) {
-    // scala.Console.println("Received from Interpreter: " + string)
-    super.print(string)
-    flush()
+  class GuiWriter extends Writer {
+    override def write(s: String) {
+      showOutput(s)
+    }
+
+    def write(cbuf: Array[Char], off: Int, len: Int) {
+      showOutput(new String(cbuf, off, len))
+    }
+
+    def close() {}
+    def flush() {}
+  }
+
+  class NewLinePrintWriter() extends PrintWriter(new GuiWriter(), false) {
+
+    override def write(s: String) {
+      // intercept string writes and forward to the GuiWriter's string write() method
+      out.write(s)
+    }
   }
 }

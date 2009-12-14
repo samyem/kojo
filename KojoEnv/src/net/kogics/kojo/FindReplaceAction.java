@@ -22,9 +22,9 @@ public final class FindReplaceAction implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         CodeEditor ce = (CodeEditor) CodeEditor.instance();
         String cmd = e.getActionCommand();
-        if (cmd.equals("Find...")) {
+        if (cmd.equals("Find in Script")) {
             ce.showFindDialog();
-        } else if (cmd.equals("Replace...")) {
+        } else if (cmd.equals("Replace in Script")) {
             ce.showReplaceDialog();
         }
     }
