@@ -315,8 +315,8 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
       val msg = """
       |The error text is not present in your current script.
       |
-      |This can happen if you made a change to your script after seeing an
-      |error message in the output window, and then tried to locate the error
+      |This can happen - if you made a change to your script after seeing an
+      |error message in the output window, and *then* tried to locate the error
       |by clicking on the error hyperlink.
       """.stripMargin
       JOptionPane.showMessageDialog(null, msg, "Error Locator", JOptionPane.INFORMATION_MESSAGE)

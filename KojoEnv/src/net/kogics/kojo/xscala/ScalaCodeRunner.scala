@@ -266,8 +266,8 @@ Here's a partial list of available commands:
     }
   }
 
-  var lastOutputLine = ""
-  var errorSeen = false
+  @volatile var lastOutputLine = ""
+  @volatile var errorSeen = false
   val errorPattern = java.util.regex.Pattern.compile("""^<console>:\d+: error:""")
 
   def reallyShowOutput(output: String) {
@@ -294,9 +294,12 @@ Here's a partial list of available commands:
     }
   }
 
-  def unconditionallyShowOutput(s: String) = ctx.reportOutput(s)
+  def unconditionallyShowOutput(s: String) = {
+    ctx.reportOutput(s)
+    lastOutputLine = s
+  }
 
-  def maybeOutputDelimiter {
+  def maybeOutputDelimiter() {
     if (lastOutputLine.length > 0 && !lastOutputLine.endsWith(OutputDelimiter))
       showOutput(OutputDelimiter)
   }
@@ -345,7 +348,7 @@ Here's a partial list of available commands:
       // do this here instead of the done method to allow filtering of
       // interruption stack trace from interpreter
       interruptTimer = None
-      maybeOutputDelimiter
+      maybeOutputDelimiter()
       ctx.interpreterStarted
     }
 
