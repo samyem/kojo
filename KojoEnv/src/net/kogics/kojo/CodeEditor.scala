@@ -46,7 +46,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
 
   setLayout(new BorderLayout)
 
-  val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton, errorLocateButton) = makeToolbar()
+  val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton) = makeToolbar()
 
   @volatile var runMonitor: RunMonitor = new NoOpRunMonitor()
 
@@ -71,7 +71,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     IOProvider.getDefault().getIO("Script Output", Array[Action](), ioc)
   }
 
-  def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton, JButton, JButton) = {
+  def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton, JButton) = {
 
     val RunScript = "RunScript"
     val StopScript = "StopScript"
@@ -79,7 +79,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     val HistoryPrev = "HistoryPrev"
     val ClearOutput = "ClearOutput"
     val UndoCommand = "UndoCommand"
-    val LocateError = "LocateError"
 
     var clearButton: JButton = null
 
@@ -98,8 +97,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
           clrOutput()
         case UndoCommand =>
           smartUndo()
-        case LocateError =>
-//          locateError()
       }
     }
 
@@ -124,7 +121,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
     clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, "Clear Output", "Clear the Output")
     val undoButton = makeNavigationButton("/images/undo.png", UndoCommand, "Undo Last Turtle Command", "Undo")
-    val errorLocateButton = makeNavigationButton("/images/error-locate.png", LocateError, "Locate Error", "Locate the Error")
 
     toolbar.add(runButton)
 
@@ -143,11 +139,8 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     undoButton.setEnabled(false)
     toolbar.add(undoButton)
 
-    errorLocateButton.setEnabled(false)
-    toolbar.add(errorLocateButton)
-
     add(toolbar, BorderLayout.NORTH)
-    (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton, errorLocateButton)
+    (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton)
   }
 
   def makeCodeRunner() = {
@@ -155,7 +148,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
 
         def onRunError() {
           historyManager.codeRunError()
-          errorLocateButton.setEnabled(true)
           interpreterDone()
         }
 
@@ -178,7 +170,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
         def interpreterStarted {
           runButton.setEnabled(false)
           stopButton.setEnabled(true)
-          errorLocateButton.setEnabled(false)
           runMonitor.onRunStart()
         }
       
@@ -318,65 +309,32 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     }
   }
 
-  def locateError(errorText: String) {
+  def locateError(errorText0: String) {
 
     def showHelpMessage() {
       val msg = """
-      |You need to select the 'error text' within the output window  before trying
-      |to locate the error.
+      |The error text is not present in your current script.
       |
-      |For example, in the following error message:
-      |
-      |<console>:10: error: not found: value forawrd
-      |forawrd(100)
-      |^
-      |
-      |The error text is 'forawrd(100)', and you need to select it  before clicking
-      |on the 'Locate Error' button.
-      |
-      |Hint - the '^' character points to the beginning of the 'error text'.
+      |This can happen if you made a change to your script after seeing an
+      |error message in the output window, and then tried to locate the error
+      |by clicking on the error hyperlink.
       """.stripMargin
       JOptionPane.showMessageDialog(null, msg, "Error Locator", JOptionPane.INFORMATION_MESSAGE)
     }
 
-    def showHelpMessage2() {
-      val msg = """
-      |The text that you selected within the output window is not present in your script.
-      |This can happen if:
-      |(a) You did not select the 'error text' correctly before trying to locate
-      |the error.
-      |OR
-      |(b) You tried to locate an error *after* making changes to your script.
-      |
-      |Here's some information on how to correctly locate 'error text' within the
-      |output window. In the following error message:
-      |
-      |<console>:10: error: not found: value forawrd
-      |forawrd(100)
-      |^
-      |
-      |The error text is 'forawrd(100)', and you need to select it  before clicking
-      |on the 'Locate Error' button.
-      |
-      |Hint - the '^' character points to the beginning of the 'error text'.
-      """.stripMargin
-      JOptionPane.showMessageDialog(null, msg, "Error Locator", JOptionPane.INFORMATION_MESSAGE)
-    }
-
-    val sel = errorText
-    if (sel == null || sel.trim == "") {
-      showHelpMessage()
+    if (errorText0 == null || errorText0.trim() == "") {
+      return
     }
     else {
-      val sel2 = sel.trim
+      val errorText = errorText0.trim()
       val code = stripCR(codePane.getText)
-      val idx = code.indexOf(sel2)
+      val idx = code.indexOf(errorText)
       if (idx == -1) {
-        showHelpMessage2()
+        showHelpMessage()
       }
       else {
-        codePane.select(idx, idx + sel2.length)
-        val idx2 = code.lastIndexOf(sel2)
+        codePane.select(idx, idx + errorText.length)
+        val idx2 = code.lastIndexOf(errorText)
         if (idx != idx2) showFindDialog()
       }
     }
@@ -386,7 +344,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     Utils.runInSwingThread {
       IO.getOut().reset()
       clearButton.setEnabled(false)
-      errorLocateButton.setEnabled(false)
     }
   }
 

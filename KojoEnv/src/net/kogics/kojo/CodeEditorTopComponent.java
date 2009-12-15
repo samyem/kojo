@@ -15,9 +15,17 @@
 package net.kogics.kojo;
 
 import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.DefaultEditorKit;
@@ -26,7 +34,17 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
+import org.openide.ErrorManager;
+import org.openide.awt.Actions;
+import org.openide.awt.Mnemonics;
 import org.openide.awt.UndoRedo;
+import org.openide.cookies.InstanceCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
+import org.openide.util.actions.BooleanStateAction;
+import org.openide.util.actions.Presenter;
 
 /**
  * Top component which displays something.
@@ -79,6 +97,23 @@ public final class CodeEditorTopComponent extends TopComponent {
             }
         });
 
+        ce.codePane().addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mousePressed(MouseEvent evt) {
+                if (evt.isPopupTrigger()) {
+                    showPopup(evt);
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent evt) {
+                if (evt.isPopupTrigger()) {
+                    showPopup(evt);
+                }
+            }
+        });
+
         add(ce, BorderLayout.CENTER);
 
         setName(NbBundle.getMessage(CodeEditorTopComponent.class,
@@ -87,6 +122,16 @@ public final class CodeEditorTopComponent extends TopComponent {
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
         putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
+    }
+    JPopupMenu popupMenu;
+
+    private void showPopup(MouseEvent evt) {
+        CodeEditor ce = (CodeEditor) CodeEditor.instance();
+        if (popupMenu == null) {
+            popupMenu = new CodeEditorPopupMenu();
+        }
+
+        popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
     /** This method is called from within the constructor to
@@ -149,13 +194,12 @@ public final class CodeEditorTopComponent extends TopComponent {
 
     @Override
     protected void componentActivated() {
+        super.componentActivated();
         CodeEditor ce = (CodeEditor) CodeEditor.instance();
         boolean success = ce.codePane().requestFocusInWindow();
         if (!success) {
             ce.codePane().scheduleFocusRequest();
         }
-
-        super.componentActivated();
     }
 
     @Override
@@ -186,5 +230,77 @@ public final class CodeEditorTopComponent extends TopComponent {
     @Override
     protected String preferredID() {
         return PREFERRED_ID;
+    }
+
+//    @Override
+//    public Action[] getActions() {
+//        return new Action[]{copyAction};
+//    }
+    class CodeEditorPopupMenu extends JPopupMenu {
+
+        public CodeEditorPopupMenu() {
+            FileObject configRoot = FileUtil.getConfigRoot();
+            buildPopupMenu(configRoot, "Menu/Edit", "Edit");
+            buildPopupMenu(configRoot, "Menu/Source", "Source");
+        }
+
+        private void buildPopupMenu(FileObject configRoot, String folderName, String menuName) {
+            FileObject fo = configRoot.getFileObject(folderName);
+            if (fo == null) {
+                return;
+            }
+            JMenu menu = new JMenu(menuName);
+            buildPopupMenu(fo, menu);
+            add(menu);
+        }
+
+        private void buildPopupMenu(FileObject fo, JComponent comp) {
+
+            DataFolder df = DataFolder.findFolder(fo);
+            DataObject[] childs = df.getChildren();
+            DataObject dob;
+            Object instanceObj;
+
+            for (int i = 0; i < childs.length; i++) {
+                dob = childs[i];
+                if (dob.getPrimaryFile().isFolder()) {
+                    FileObject childFo = childs[i].getPrimaryFile();
+                    JMenu menu = new JMenu();
+                    Mnemonics.setLocalizedText(menu, dob.getNodeDelegate().getDisplayName());
+                    comp.add(menu);
+                    buildPopupMenu(childFo, menu);
+                } else {
+                    //Cookie or Lookup API discovery:
+                    InstanceCookie ck = dob.getCookie(InstanceCookie.class);
+                    try {
+                        instanceObj = ck.instanceCreate();
+                    } catch (Exception ex) {
+                        instanceObj = null;
+                        ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+                    }
+                    if (instanceObj == null) {
+                        continue;
+                    }
+                    if (instanceObj instanceof JSeparator) {
+                        comp.add((JSeparator) instanceObj);
+                    } else if (instanceObj instanceof BooleanStateAction) {
+                        JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem();
+                        Actions.connect(menuItem, (BooleanStateAction) instanceObj, true);
+                        comp.add(menuItem);
+                    } else if (instanceObj instanceof Action) {
+                        JMenuItem menuItem = new JMenuItem();
+                        Actions.connect(menuItem, (Action) instanceObj, true);
+                        comp.add(menuItem);
+                    } else if (instanceObj instanceof Presenter.Menu) {
+                        Action action = ((Presenter.Menu) instanceObj).getMenuPresenter().getAction();
+                        if (action != null) {
+                            JMenuItem menuItem = new JMenuItem();
+                            Actions.connect(menuItem, action, true);
+                            comp.add(menuItem);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
