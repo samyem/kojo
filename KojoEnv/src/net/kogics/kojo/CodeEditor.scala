@@ -27,6 +27,7 @@ import edu.umd.cs.piccolo.nodes._
 import util._
 
 import org.openide.windows._
+import org.openide.awt.UndoRedo
 
 object CodeEditor extends Singleton[CodeEditor] {
   protected def newInstance = new CodeEditor
@@ -49,6 +50,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton) = makeToolbar()
 
   @volatile var runMonitor: RunMonitor = new NoOpRunMonitor()
+  var undoRedoManager: UndoRedo.Manager = new UndoRedo.Manager()
 
   val codeRunner = makeCodeRunner()
   val codePane = makeCodePane()
@@ -57,7 +59,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
 //                                 new JScrollPane(codePane), new JScrollPane(output))
 
   lazy val IO = makeOutput2()
-  
+
   add(new JScrollPane(codePane), BorderLayout.CENTER)
   setSpriteListener()
   codeRunner.runCode("welcome")
@@ -171,6 +173,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
           runButton.setEnabled(false)
           stopButton.setEnabled(true)
           runMonitor.onRunStart()
+          undoRedoManager.discardAllEdits()
         }
       
         private def interpreterDone() {
@@ -191,6 +194,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   
   def makeCodePane(): CodePane = {
     val codePane = new CodePane(codeRunner)
+    codePane.getDocument().addUndoableEditListener(undoRedoManager)
 
     codePane.addKeyListener(new KeyAdapter {
         override def keyPressed(evt: KeyEvent) {
@@ -212,6 +216,16 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
               }
             case KeyEvent.VK_F => maybeShowFindDialog(evt)
             case KeyEvent.VK_R => maybeShowReplaceDialog(evt)
+            case KeyEvent.VK_Z =>
+              if(evt.isControlDown) {
+                if (undoRedoManager.canUndo) undoRedoManager.undo
+                evt.consume
+              }
+            case KeyEvent.VK_Y =>
+              if(evt.isControlDown) {
+                if (undoRedoManager.canRedo) undoRedoManager.redo
+                evt.consume
+              }
             case _ => // do nothing special
           }
         }
@@ -421,7 +435,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   def methodCompletions(caretOffset: Int) = codeRunner.methodCompletions(codeFragment(caretOffset))
   def varCompletions(caretOffset: Int) = codeRunner.varCompletions(codeFragment(caretOffset))
   def keywordCompletions(caretOffset: Int) = codeRunner.keywordCompletions(codeFragment(caretOffset))
-
 
   class HistoryManager {
     var _selRange = (0, 0)

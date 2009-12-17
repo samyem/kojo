@@ -57,15 +57,12 @@ public final class CodeEditorTopComponent extends TopComponent {
     /** path to the icon used by the component and its open action */
     static final String ICON_PATH = "net/kogics/kojo/code-editor.png";
     private static final String PREFERRED_ID = "CodeEditorTopComponent";
-    private UndoRedo.Manager manager = new UndoRedo.Manager();
 
     public CodeEditorTopComponent() {
         initComponents();
 
         CodeEditor ce = (CodeEditor) CodeEditor.instance();
         ce.setPreferredSize(this.getPreferredSize());
-
-        ce.codePane().getDocument().addUndoableEditListener(manager);
 
         ActionMap actionMap = getActionMap();
         final Action copyAction = new DefaultEditorKit.CopyAction();
@@ -189,7 +186,8 @@ public final class CodeEditorTopComponent extends TopComponent {
 
     @Override
     public UndoRedo getUndoRedo() {
-        return manager;
+        CodeEditor ce = (CodeEditor) CodeEditor.instance();
+        return ce.undoRedoManager();
     }
 
     @Override
