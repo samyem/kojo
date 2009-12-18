@@ -61,6 +61,7 @@ public final class CodeEditorTopComponent extends TopComponent {
     /** path to the icon used by the component and its open action */
     static final String ICON_PATH = "net/kogics/kojo/code-editor.png";
     private static final String PREFERRED_ID = "CodeEditorTopComponent";
+    JPopupMenu popupMenu;
 
     public CodeEditorTopComponent() {
         initComponents();
@@ -68,60 +69,19 @@ public final class CodeEditorTopComponent extends TopComponent {
         CodeEditor ce = (CodeEditor) CodeEditor.instance();
         ce.setPreferredSize(this.getPreferredSize());
 
-        ActionMap actionMap = getActionMap();
-        final Action copyAction = new DefaultEditorKit.CopyAction();
-        final Action cutAction = new DefaultEditorKit.CutAction();
-        final Action pasteAction = new DefaultEditorKit.PasteAction();
+        tweakActions(ce);
+        installPopup(ce);
 
-        cutAction.setEnabled(false);
-        copyAction.setEnabled(false);
-        pasteAction.setEnabled(true);
+        add(ce, BorderLayout.CENTER);
+        setName(NbBundle.getMessage(CodeEditorTopComponent.class,
+                "CTL_CodeEditorTopComponent"));
+        setToolTipText(NbBundle.getMessage(CodeEditorTopComponent.class, "HINT_CodeEditorTopComponent"));
+        setIcon(ImageUtilities.loadImage(ICON_PATH, true));
+        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
+        putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
+    }
 
-        actionMap.put(DefaultEditorKit.copyAction, copyAction);
-        actionMap.put(DefaultEditorKit.cutAction, cutAction);
-        actionMap.put(DefaultEditorKit.pasteAction, pasteAction);
-
-        Object findKey = SystemAction.get(org.openide.actions.FindAction.class).getActionMapKey();
-        Action findAction = new FindAction();
-        actionMap.put(findKey, findAction);
-        KeyStroke ctrlF = Utilities.stringToKey("D-F"); // tight coupling with layer shortcut entry here. Bad!
-        ce.codePane().getInputMap().put(ctrlF, findKey);
-        ce.codePane().getActionMap().put(findKey, findAction);
-
-        Object replaceKey = SystemAction.get(org.openide.actions.ReplaceAction.class).getActionMapKey();
-        Action replaceAction = new ReplaceAction();
-        actionMap.put(replaceKey, replaceAction);
-        KeyStroke ctrlR = Utilities.stringToKey("D-R"); // tight coupling with layer shortcut entry here. Bad!
-        ce.codePane().getInputMap().put(ctrlR, replaceKey);
-        ce.codePane().getActionMap().put(replaceKey, replaceAction);
-
-        org.openide.actions.UndoAction undoAction = SystemAction.get(org.openide.actions.UndoAction.class);
-        KeyStroke ctrlZ = Utilities.stringToKey("D-Z"); // tight coupling with layer shortcut entry here. Bad!
-        ce.codePane().getInputMap().put(ctrlZ, "Undo");
-        ce.codePane().getActionMap().put("Undo", undoAction);
-
-        org.openide.actions.RedoAction redoAction = SystemAction.get(org.openide.actions.RedoAction.class);
-        KeyStroke ctrlY = Utilities.stringToKey("D-Y"); // tight coupling with layer shortcut entry here. Bad!
-        ce.codePane().getInputMap().put(ctrlY, "Redo");
-        ce.codePane().getActionMap().put("Redo", redoAction);
-
-        // For code pane window, enable only copy and cut buttons
-        // when text is selected
-        ce.codePane().addCaretListener(new CaretListener() {
-
-            public void caretUpdate(CaretEvent e) {
-                int dot = e.getDot();
-                int mark = e.getMark();
-                if (dot == mark) {  // no selection
-                    cutAction.setEnabled(false);
-                    copyAction.setEnabled(false);
-                } else {
-                    cutAction.setEnabled(true);
-                    copyAction.setEnabled(true);
-                }
-            }
-        });
-
+    private void installPopup(CodeEditor ce) {
         ce.codePane().addMouseListener(new MouseAdapter() {
 
             @Override
@@ -138,17 +98,72 @@ public final class CodeEditorTopComponent extends TopComponent {
                 }
             }
         });
-
-        add(ce, BorderLayout.CENTER);
-
-        setName(NbBundle.getMessage(CodeEditorTopComponent.class,
-                "CTL_CodeEditorTopComponent"));
-        setToolTipText(NbBundle.getMessage(CodeEditorTopComponent.class, "HINT_CodeEditorTopComponent"));
-        setIcon(ImageUtilities.loadImage(ICON_PATH, true));
-        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
-        putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
     }
-    JPopupMenu popupMenu;
+
+    private void tweakActions(CodeEditor ce) {
+
+        ActionMap actionMap = getActionMap();
+
+        // Cut/Copy/Paste
+        final Action copyAction = new DefaultEditorKit.CopyAction();
+        final Action cutAction = new DefaultEditorKit.CutAction();
+        final Action pasteAction = new DefaultEditorKit.PasteAction();
+
+        cutAction.setEnabled(false);
+        copyAction.setEnabled(false);
+        pasteAction.setEnabled(true);
+
+        actionMap.put(DefaultEditorKit.copyAction, copyAction);
+        actionMap.put(DefaultEditorKit.cutAction, cutAction);
+        actionMap.put(DefaultEditorKit.pasteAction, pasteAction);
+
+        ce.codePane().addCaretListener(new CaretListener() {
+
+            public void caretUpdate(CaretEvent e) {
+                int dot = e.getDot();
+                int mark = e.getMark();
+                if (dot == mark) {
+                    // no selection
+                    cutAction.setEnabled(false);
+                    copyAction.setEnabled(false);
+                } else {
+                    cutAction.setEnabled(true);
+                    copyAction.setEnabled(true);
+                }
+            }
+        });
+
+
+        // Find/Replace
+        Object findKey = SystemAction.get(org.openide.actions.FindAction.class).getActionMapKey();
+        Action findAction = new FindAction();
+        // link Find Menu item to Find action
+        actionMap.put(findKey, findAction);
+        // Enable shortcut
+        KeyStroke ctrlF = Utilities.stringToKey("D-F"); // tight coupling with layer shortcut entry here. Bad!
+        ce.codePane().getInputMap().put(ctrlF, findKey);
+        ce.codePane().getActionMap().put(findKey, findAction);
+
+        Object replaceKey = SystemAction.get(org.openide.actions.ReplaceAction.class).getActionMapKey();
+        Action replaceAction = new ReplaceAction();
+        actionMap.put(replaceKey, replaceAction);
+        KeyStroke ctrlR = Utilities.stringToKey("D-R"); // tight coupling with layer shortcut entry here. Bad!
+        ce.codePane().getInputMap().put(ctrlR, replaceKey);
+        ce.codePane().getActionMap().put(replaceKey, replaceAction);
+
+        // Make Keyboard and Menu Undo/Redo actions the same
+        // so that things stay in sync irrespective of whether the user uses
+        // shortcuts or menu items
+        org.openide.actions.UndoAction undoAction = SystemAction.get(org.openide.actions.UndoAction.class);
+        KeyStroke ctrlZ = Utilities.stringToKey("D-Z"); // tight coupling with layer shortcut entry here. Bad!
+        ce.codePane().getInputMap().put(ctrlZ, "Undo");
+        ce.codePane().getActionMap().put("Undo", undoAction);
+
+        org.openide.actions.RedoAction redoAction = SystemAction.get(org.openide.actions.RedoAction.class);
+        KeyStroke ctrlY = Utilities.stringToKey("D-Y"); // tight coupling with layer shortcut entry here. Bad!
+        ce.codePane().getInputMap().put(ctrlY, "Redo");
+        ce.codePane().getActionMap().put("Redo", redoAction);
+    }
 
     private void showPopup(MouseEvent evt) {
         CodeEditor ce = (CodeEditor) CodeEditor.instance();
