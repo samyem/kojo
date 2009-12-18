@@ -214,18 +214,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
                 loadCodeFromHistoryNext
                 evt.consume
               }
-            case KeyEvent.VK_F => maybeShowFindDialog(evt)
-            case KeyEvent.VK_R => maybeShowReplaceDialog(evt)
-            case KeyEvent.VK_Z =>
-              if(evt.isControlDown) {
-                if (undoRedoManager.canUndo) undoRedoManager.undo
-                evt.consume
-              }
-            case KeyEvent.VK_Y =>
-              if(evt.isControlDown) {
-                if (undoRedoManager.canRedo) undoRedoManager.redo
-                evt.consume
-              }
             case _ => // do nothing special
           }
         }

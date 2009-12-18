@@ -15,17 +15,12 @@
 package net.kogics.kojo;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.AbstractAction;
 
-public final class FindReplaceAction implements ActionListener {
+public final class FindAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent e) {
         CodeEditor ce = (CodeEditor) CodeEditor.instance();
-        String cmd = e.getActionCommand();
-        if (cmd.equals("Find in Script")) {
-            ce.showFindDialog();
-        } else if (cmd.equals("Replace in Script")) {
-            ce.showReplaceDialog();
-        }
+        ce.showFindDialog();
     }
 }

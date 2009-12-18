@@ -15,6 +15,7 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 //import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
+import org.openide.util.actions.SystemAction;
 import org.openide.windows.IOContainer;
 import org.openide.windows.IOContainer.CallBacks;
 
@@ -34,19 +35,6 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
 
     public OutputTopComponent() {
         initComponents();
-
-        ActionMap actionMap = getActionMap();
-        final Action copyAction = new DefaultEditorKit.CopyAction();
-        final Action cutAction = new DefaultEditorKit.CutAction();
-        final Action pasteAction = new DefaultEditorKit.PasteAction();
-
-        cutAction.setEnabled(false);
-        copyAction.setEnabled(true);
-        pasteAction.setEnabled(false);
-
-        actionMap.put(DefaultEditorKit.copyAction, copyAction);
-        actionMap.put(DefaultEditorKit.cutAction, cutAction);
-        actionMap.put(DefaultEditorKit.pasteAction, pasteAction);
 
         setName(NbBundle.getMessage(OutputTopComponent.class, "CTL_OutputTopComponent"));
         setToolTipText(NbBundle.getMessage(OutputTopComponent.class, "HINT_OutputTopComponent"));
@@ -117,6 +105,20 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
         ioComp = comp;
         ioCb = cb;
         add(comp);
+
+        Object findKey = SystemAction.get(org.openide.actions.FindAction.class).getActionMapKey();
+        Action findAction = comp.getActionMap().get("Find...");
+        getActionMap().put(findKey, findAction);
+
+        Object copyKey = SystemAction.get(org.openide.actions.CopyAction.class).getActionMapKey();
+        Action copyAction = comp.getActionMap().get("Copy");
+        getActionMap().put(copyKey, copyAction);
+
+        Object cutKey = SystemAction.get(org.openide.actions.CutAction.class).getActionMapKey();
+        final Action cutAction = new DefaultEditorKit.CutAction();
+        cutAction.setEnabled(false);
+        getActionMap().put(cutKey, cutAction);
+
         validate();
     }
 

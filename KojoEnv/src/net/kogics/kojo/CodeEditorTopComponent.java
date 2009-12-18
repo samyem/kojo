@@ -26,6 +26,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.KeyStroke;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.DefaultEditorKit;
@@ -43,8 +44,11 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
+import org.openide.util.Utilities;
 import org.openide.util.actions.BooleanStateAction;
+import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.actions.Presenter;
+import org.openide.util.actions.SystemAction;
 
 /**
  * Top component which displays something.
@@ -76,6 +80,30 @@ public final class CodeEditorTopComponent extends TopComponent {
         actionMap.put(DefaultEditorKit.copyAction, copyAction);
         actionMap.put(DefaultEditorKit.cutAction, cutAction);
         actionMap.put(DefaultEditorKit.pasteAction, pasteAction);
+
+        Object findKey = SystemAction.get(org.openide.actions.FindAction.class).getActionMapKey();
+        Action findAction = new FindAction();
+        actionMap.put(findKey, findAction);
+        KeyStroke ctrlF = Utilities.stringToKey("D-F"); // tight coupling with layer shortcut entry here. Bad!
+        ce.codePane().getInputMap().put(ctrlF, findKey);
+        ce.codePane().getActionMap().put(findKey, findAction);
+
+        Object replaceKey = SystemAction.get(org.openide.actions.ReplaceAction.class).getActionMapKey();
+        Action replaceAction = new ReplaceAction();
+        actionMap.put(replaceKey, replaceAction);
+        KeyStroke ctrlR = Utilities.stringToKey("D-R"); // tight coupling with layer shortcut entry here. Bad!
+        ce.codePane().getInputMap().put(ctrlR, replaceKey);
+        ce.codePane().getActionMap().put(replaceKey, replaceAction);
+
+        org.openide.actions.UndoAction undoAction = SystemAction.get(org.openide.actions.UndoAction.class);
+        KeyStroke ctrlZ = Utilities.stringToKey("D-Z"); // tight coupling with layer shortcut entry here. Bad!
+        ce.codePane().getInputMap().put(ctrlZ, "Undo");
+        ce.codePane().getActionMap().put("Undo", undoAction);
+
+        org.openide.actions.RedoAction redoAction = SystemAction.get(org.openide.actions.RedoAction.class);
+        KeyStroke ctrlY = Utilities.stringToKey("D-Y"); // tight coupling with layer shortcut entry here. Bad!
+        ce.codePane().getInputMap().put(ctrlY, "Redo");
+        ce.codePane().getActionMap().put("Redo", redoAction);
 
         // For code pane window, enable only copy and cut buttons
         // when text is selected
@@ -230,10 +258,6 @@ public final class CodeEditorTopComponent extends TopComponent {
         return PREFERRED_ID;
     }
 
-//    @Override
-//    public Action[] getActions() {
-//        return new Action[]{copyAction};
-//    }
     class CodeEditorPopupMenu extends JPopupMenu {
 
         public CodeEditorPopupMenu() {
