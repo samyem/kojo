@@ -15,9 +15,11 @@
 package net.kogics.kojo;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.logging.Logger;
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.JCheckBoxMenuItem;
@@ -30,6 +32,7 @@ import javax.swing.KeyStroke;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.DefaultEditorKit;
+import org.netbeans.api.options.OptionsDisplayer;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -266,6 +269,7 @@ public final class CodeEditorTopComponent extends TopComponent {
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-SaveTo.instance");
             addMenu(configRoot, "Menu/Edit", "Edit");
             addMenu(configRoot, "Menu/Source", "Source");
+            addFontMenuItem();
         }
 
         private void addActionMenuItem(FileObject configRoot, String action) {
@@ -339,6 +343,17 @@ public final class CodeEditorTopComponent extends TopComponent {
                     }
                 }
             }
+        }
+
+        private void addFontMenuItem() {
+            Action action = new AbstractAction("Options...") {
+
+                public void actionPerformed(ActionEvent e) {
+                    OptionsDisplayer.getDefault().open("FontsAndColors");
+                }
+            };
+            JMenuItem item = new JMenuItem(action);
+            add(item);
         }
     }
 }
