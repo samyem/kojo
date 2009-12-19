@@ -267,8 +267,11 @@ public final class CodeEditorTopComponent extends TopComponent {
             FileObject configRoot = FileUtil.getConfigRoot();
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-LoadFrom.instance");
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-SaveTo.instance");
+            add(new JSeparator());
             addMenu(configRoot, "Menu/Edit", "Edit");
+            add(new JSeparator());
             addMenu(configRoot, "Menu/Source", "Source");
+            add(new JSeparator());
             addFontMenuItem();
         }
 

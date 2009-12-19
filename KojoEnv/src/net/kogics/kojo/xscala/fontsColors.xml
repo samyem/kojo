@@ -12,9 +12,7 @@
 
     <fontcolor name="xml" foreColor="2E92C7"/>
 
-    <fontcolor bgColor="white" foreColor="black" name="default">
-        <font size="16" />
-    </fontcolor>
+    <fontcolor bgColor="white" foreColor="black" name="default"/>
     
     <!-- ScalaTokenId categories -->
     <fontcolor name="character" default="char" foreColor="9999FF"/>
