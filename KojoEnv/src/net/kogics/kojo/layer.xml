@@ -2,6 +2,22 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
     <folder name="Actions">
+        <folder name="Edit">
+            <file name="net-kogics-kojo-LoadFrom.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.LoadFrom"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_LoadFrom"/>
+                <attr name="iconBase" stringvalue="images/load-from.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+            <file name="net-kogics-kojo-SaveTo.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.SaveTo"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_SaveTo"/>
+                <attr name="iconBase" stringvalue="images/save-to.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+        </folder>
         <folder name="Window">
             <file name="net-kogics-kojo-CodeEditorAction.instance">
                 <attr name="component" methodvalue="net.kogics.kojo.CodeEditorTopComponent.findInstance"/>
@@ -133,6 +149,20 @@
         </folder>
     </folder>
     <folder name="Menu">
+        <folder name="File">
+            <file name="net-kogics-kojo-LoadFrom-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="2550"/>
+            </file>
+            <file name="net-kogics-kojo-LoadFrom.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-LoadFrom.instance"/>
+                <attr name="position" intvalue="2500"/>
+            </file>
+            <file name="net-kogics-kojo-SaveTo.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-SaveTo.instance"/>
+                <attr name="position" intvalue="2525"/>
+            </file>
+        </folder>
         <folder name="Samples">
             <attr name="position" intvalue="1250"/>
             <folder name="Basic ">

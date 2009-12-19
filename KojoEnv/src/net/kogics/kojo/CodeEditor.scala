@@ -424,6 +424,18 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   def varCompletions(caretOffset: Int) = codeRunner.varCompletions(codeFragment(caretOffset))
   def keywordCompletions(caretOffset: Int) = codeRunner.keywordCompletions(codeFragment(caretOffset))
 
+  def loadFrom(file: java.io.File) {
+    import util.RichFile._
+    val script = file.readAsString
+    codePane.setText(script)
+  }
+
+  def saveTo(file: java.io.File) {
+    import util.RichFile._
+    val script = codePane.getText()
+    file.write(script)
+  }
+
   class HistoryManager {
     var _selRange = (0, 0)
 

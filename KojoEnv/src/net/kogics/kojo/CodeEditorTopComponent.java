@@ -30,6 +30,7 @@ import javax.swing.KeyStroke;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.DefaultEditorKit;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -261,11 +262,27 @@ public final class CodeEditorTopComponent extends TopComponent {
 
         public CodeEditorPopupMenu() {
             FileObject configRoot = FileUtil.getConfigRoot();
-            buildPopupMenu(configRoot, "Menu/Edit", "Edit");
-            buildPopupMenu(configRoot, "Menu/Source", "Source");
+            addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-LoadFrom.instance");
+            addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-SaveTo.instance");
+            addMenu(configRoot, "Menu/Edit", "Edit");
+            addMenu(configRoot, "Menu/Source", "Source");
         }
 
-        private void buildPopupMenu(FileObject configRoot, String folderName, String menuName) {
+        private void addActionMenuItem(FileObject configRoot, String action) {
+            try {
+                FileObject fo = configRoot.getFileObject(action);
+                DataObject dob = DataObject.find(fo);
+                InstanceCookie ck = dob.getCookie(InstanceCookie.class);
+                Object instanceObj = ck.instanceCreate();
+                JMenuItem menuItem = new JMenuItem();
+                Actions.connect(menuItem, (Action) instanceObj, true);
+                add(menuItem);
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+        private void addMenu(FileObject configRoot, String folderName, String menuName) {
             FileObject fo = configRoot.getFileObject(folderName);
             if (fo == null) {
                 return;
