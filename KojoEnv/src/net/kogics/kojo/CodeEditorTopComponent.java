@@ -46,7 +46,6 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.util.Utilities;
 import org.openide.util.actions.BooleanStateAction;
-import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.actions.Presenter;
 import org.openide.util.actions.SystemAction;
 
@@ -112,6 +111,11 @@ public final class CodeEditorTopComponent extends TopComponent {
         cutAction.setEnabled(false);
         copyAction.setEnabled(false);
         pasteAction.setEnabled(true);
+
+        // make sure global paste action is enabled
+        org.openide.actions.PasteAction globalPasteAction = SystemAction.get(org.openide.actions.PasteAction.class);
+        globalPasteAction.setEnabled(true);
+
 
         actionMap.put(DefaultEditorKit.copyAction, copyAction);
         actionMap.put(DefaultEditorKit.cutAction, cutAction);
@@ -223,29 +227,9 @@ public final class CodeEditorTopComponent extends TopComponent {
     }
 
     @Override
-    public void componentOpened() {
-        requestActive();
-    }
-
-    @Override
     public UndoRedo getUndoRedo() {
         CodeEditor ce = (CodeEditor) CodeEditor.instance();
         return ce.undoRedoManager();
-    }
-
-    @Override
-    protected void componentActivated() {
-        super.componentActivated();
-        CodeEditor ce = (CodeEditor) CodeEditor.instance();
-        boolean success = ce.codePane().requestFocusInWindow();
-        if (!success) {
-            ce.codePane().scheduleFocusRequest();
-        }
-    }
-
-    @Override
-    public void componentClosed() {
-        // TODO add custom code on component closing
     }
 
     void writeProperties(java.util.Properties p) {
