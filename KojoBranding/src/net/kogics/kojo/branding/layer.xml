@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-    <attr name="Menu\Edit\SeparatorAfterFindPrevious.instance\position" intvalue="1365"/>
+    <attr name="Toolbars\Clipboard\position" intvalue="600"/>
+    <attr name="Toolbars\Memory\position" intvalue="700"/>
+    <attr name="Toolbars\UndoRedo\position" intvalue="800"/>
     <folder name="Menu">
         <file name="BuildProject_hidden"/>
         <folder name="Edit">
@@ -105,10 +107,7 @@
     </folder>
     <folder name="Toolbars">
         <file name="Build_hidden"/>
-        <file name="Clipboard_hidden"/>
         <file name="File_hidden"/>
-            <file name="Memory_hidden"/>
         <file name="Standard.xml_hidden"/>
-        <file name="UndoRedo_hidden"/>
     </folder>
 </filesystem>

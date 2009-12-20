@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JButton;
+import javax.swing.ActionMap;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
@@ -38,6 +38,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.EditorKit;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.options.OptionsDisplayer;
@@ -62,8 +66,10 @@ import org.openide.loaders.DataObject;
 import org.openide.text.CloneableEditor;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.util.Exceptions;
+import org.openide.util.Utilities;
 import org.openide.util.actions.BooleanStateAction;
 import org.openide.util.actions.Presenter;
+import org.openide.util.actions.SystemAction;
 
 /**
  * Top component which displays something.
@@ -208,14 +214,74 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
-    private void initExecSupport(JEditorPane j) {
+    private void onCodePaneAvailable(JEditorPane j) {
         CodeExecutionSupport.ctrArg(j);
         codeExecSupport = (CodeExecutionSupport) CodeExecutionSupport.instance();
         HistoryTopComponent.findInstance().selectLast();
+        tweakActions(j);
     }
 
     private JToolBar getToolbar() {
         return codeExecSupport.toolbar();
+    }
+
+    private void tweakActions(JEditorPane ce) {
+
+        ActionMap actionMap = getActionMap();
+
+        // Cut/Copy/Paste
+        final Action copyAction = new DefaultEditorKit.CopyAction();
+        final Action cutAction = new DefaultEditorKit.CutAction();
+        final Action pasteAction = new DefaultEditorKit.PasteAction();
+
+        cutAction.setEnabled(false);
+        copyAction.setEnabled(false);
+        pasteAction.setEnabled(true);
+
+        // make sure global paste action is enabled
+        org.openide.actions.PasteAction globalPasteAction = SystemAction.get(org.openide.actions.PasteAction.class);
+        globalPasteAction.setEnabled(true);
+
+
+        actionMap.put(DefaultEditorKit.copyAction, copyAction);
+        actionMap.put(DefaultEditorKit.cutAction, cutAction);
+        actionMap.put(DefaultEditorKit.pasteAction, pasteAction);
+
+        ce.addCaretListener(new CaretListener() {
+
+            public void caretUpdate(CaretEvent e) {
+                int dot = e.getDot();
+                int mark = e.getMark();
+                if (dot == mark) {
+                    // no selection
+                    cutAction.setEnabled(false);
+                    copyAction.setEnabled(false);
+                } else {
+                    cutAction.setEnabled(true);
+                    copyAction.setEnabled(true);
+                }
+            }
+        });
+
+
+        // Find/Replace
+        // Don't need to mess with Find action. Already have a good one available
+//        Object findKey = SystemAction.get(org.openide.actions.FindAction.class).getActionMapKey();
+//        Action findAction = new FindAction();
+//        // link Find Menu item to Find action
+//        actionMap.put(findKey, findAction);
+//        // Enable shortcut
+//        KeyStroke ctrlF = Utilities.stringToKey("D-F"); // tight coupling with layer shortcut entry here. Bad!
+//        ce.getInputMap().put(ctrlF, findKey);
+//        ce.getActionMap().put(findKey, findAction);
+
+        Object replaceKey = SystemAction.get(org.openide.actions.ReplaceAction.class).getActionMapKey();
+        Action replaceAction = new ReplaceAction();
+        // link Replace Menu item to Replace action
+        actionMap.put(replaceKey, replaceAction);
+        KeyStroke ctrlR = Utilities.stringToKey("D-R"); // tight coupling with layer shortcut entry here. Bad!
+        ce.getInputMap().put(ctrlR, replaceKey);
+        ce.getActionMap().put(replaceKey, replaceAction);
     }
 
     static class KojoEditorSupport extends CloneableEditorSupport {
@@ -340,7 +406,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
                 }
             }
             tc.installPopup(j);
-            tc.initExecSupport(j);
+            tc.onCodePaneAvailable(j);
             return super.createEditor(j);
         }
 
