@@ -24,7 +24,7 @@ import java.util.logging._
 import net.kogics.kojo.util._
 import net.kogics.kojo.core._
 
-class ScalaCodeRunner(ctx: net.kogics.kojo.RunContext, tCanvas: SCanvas) {
+class ScalaCodeRunner(ctx: net.kogics.kojo.RunContext, tCanvas: SCanvas) extends CodeRunner {
   val Log = Logger.getLogger(getClass.getName);
 
   val OutputDelimiter = "---\n"
@@ -75,13 +75,6 @@ class ScalaCodeRunner(ctx: net.kogics.kojo.RunContext, tCanvas: SCanvas) {
     }
 
     def version = println("Scala " + scala.tools.nsc.Properties.versionString)
-
-    def welcome = {
-      println("""Welcome to Kojo.
-
-Run the help command, i.e. type help and press Ctrl+Enter in the script window, if you need assistance.
-""")
-    }
 
     def help() = {
       println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.

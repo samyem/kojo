@@ -20,7 +20,7 @@ import javax.swing.AbstractAction;
 public final class ReplaceAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent e) {
-        CodeEditor ce = (CodeEditor) CodeEditor.instance();
-        ce.showReplaceDialog();
+        CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
+        ces.showReplaceDialog();
     }
 }

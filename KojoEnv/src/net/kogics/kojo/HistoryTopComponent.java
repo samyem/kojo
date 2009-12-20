@@ -88,7 +88,8 @@ public final class HistoryTopComponent extends TopComponent {
 
     private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
         if (!evt.getValueIsAdjusting() && jList1.getSelectedIndex() != -1) {
-            ((CodeEditor) CodeEditor.instance()).loadCodeFromHistory(jList1.getSelectedIndex());
+            CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
+            ces.loadCodeFromHistory(jList1.getSelectedIndex());
             SwingUtilities.invokeLater(new Runnable() {
 
                 public void run() {
@@ -155,8 +156,7 @@ public final class HistoryTopComponent extends TopComponent {
         return TopComponent.PERSISTENCE_ALWAYS;
     }
 
-    @Override
-    public void componentOpened() {
+    public void selectLast() {
         int n = jList1.getModel().getSize() - 1;
         jList1.setSelectedIndex(n);
         jList1.ensureIndexIsVisible(n);

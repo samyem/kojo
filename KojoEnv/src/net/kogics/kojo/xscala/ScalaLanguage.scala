@@ -41,6 +41,6 @@ class ScalaLanguage extends DefaultLanguageConfig {
 //  override def getStructureScanner = new ScalaStructureScanner
 
   // bad package dependency below - need to fix this
-  override def getCompletionHandler = new ScalaCodeCompletionHandler(net.kogics.kojo.CodeEditor.instance)
+  override def getCompletionHandler = new ScalaCodeCompletionHandler(net.kogics.kojo.CodeExecutionSupport.instance)
 }
 

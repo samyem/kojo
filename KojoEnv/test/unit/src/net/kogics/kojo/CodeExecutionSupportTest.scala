@@ -13,7 +13,7 @@ import org.junit.Assert._
 import java.io.File
 import net.kogics.kojo.util._
 
-class CodeEditorTest {
+class CodeExecutionSupportTest {
 
   val netbeansDir = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
   val userDir = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/testuserdir"
@@ -25,7 +25,8 @@ class CodeEditorTest {
 
   System.setProperty("netbeans.dirs", netbeansDir)
   System.setProperty("netbeans.user", userDir)
-  val ce = CodeEditor.instance
+  CodeExecutionSupport.ctrArg(new javax.swing.JEditorPane())
+  val ce = CodeExecutionSupport.instance
   val pane = ce.codePane
 
   val commandHistory = CommandHistory.instance

@@ -20,8 +20,8 @@ import java.awt.event.ActionListener;
 public final class Samples implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
-        CodeEditor ce = (CodeEditor) CodeEditor.instance();
-        ce.codePane().setText(SampleCode.get(e).trim());
+        CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
+        ces.codePane().setText(SampleCode.get(e).trim());
         CodeEditorTopComponent.findInstance().requestActive();
     }
 }

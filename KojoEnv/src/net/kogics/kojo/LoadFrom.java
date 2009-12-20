@@ -19,8 +19,8 @@ public final class LoadFrom implements ActionListener {
         int returnVal = chooser.showOpenDialog(null);
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            CodeEditor ce = (CodeEditor) CodeEditor.instance();
-            ce.loadFrom(chooser.getSelectedFile());
+            CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
+            ces.loadFrom(chooser.getSelectedFile());
         }
     }
 }

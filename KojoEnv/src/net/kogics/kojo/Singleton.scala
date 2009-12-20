@@ -15,7 +15,6 @@
 package net.kogics.kojo
 
 trait Singleton[T] {
-
   var _instance: T = _
   protected def newInstance: T
   
@@ -25,5 +24,26 @@ trait Singleton[T] {
     }
     _instance
   }
-
 }
+
+trait Singleton2[T, CtrArg] {
+  var _instance: T = _
+  private var _ctrArg: CtrArg = _
+
+  def ctrArg(arg: CtrArg) = synchronized {
+    _ctrArg = arg;
+  }
+
+  protected def newInstance(arg: CtrArg): T
+
+  def instance: T = synchronized {
+
+    if (_ctrArg == null) throw new IllegalStateException("Singleton factory not initialized")
+
+    if (_instance == null) {
+      _instance = newInstance(_ctrArg)
+    }
+    _instance
+  }
+}
+

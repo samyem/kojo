@@ -64,8 +64,8 @@ class CodePaneTest {
   }
 
   val codeRunner = new xscala.ScalaCodeRunner(runCtx, sprite.SpriteCanvas.instance)
-  val pane = new CodePane(codeRunner)
-  val Delimiter = pane.OutputDelimiter
+  val pane = new javax.swing.JEditorPane()
+  val Delimiter = codeRunner.OutputDelimiter
   var latch: CountDownLatch = _
 
   def runCode() {

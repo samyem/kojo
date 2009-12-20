@@ -29,23 +29,21 @@ import util._
 import org.openide.windows._
 import org.openide.awt.UndoRedo
 
-object CodeEditor extends Singleton[CodeEditor] {
-  protected def newInstance = new CodeEditor
+object CodeExecutionSupport extends Singleton2[CodeExecutionSupport, JEditorPane] {
+  protected def newInstance(cp: JEditorPane) = new CodeExecutionSupport(cp)
 }
 
-class CodeEditor private extends JPanel with core.CodeCompletionSupport {
+class CodeExecutionSupport(val codePane: JEditorPane) extends core.CodeCompletionSupport {
   val Log = Logger.getLogger(getClass.getName);
 
   val tCanvas = sprite.SpriteCanvas.instance
   tCanvas.outputFn = showOutput _
-  
+
   val commandHistory = CommandHistory.instance
   val historyManager = new HistoryManager()
   @volatile var pendingCommands = false
   val findAction = new org.netbeans.editor.ext.ExtKit.FindAction()
   val replaceAction = new org.netbeans.editor.ext.ExtKit.ReplaceAction()
-
-  setLayout(new BorderLayout)
 
   val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton) = makeToolbar()
 
@@ -53,19 +51,28 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
   var undoRedoManager: UndoRedo.Manager = new UndoRedo.Manager()
 
   val codeRunner = makeCodeRunner()
-  val codePane = makeCodePane()
-
-//  val splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
-//                                 new JScrollPane(codePane), new JScrollPane(output))
-
+  addKeyboardSupport()
+  
   lazy val IO = makeOutput2()
 
-  add(new JScrollPane(codePane), BorderLayout.CENTER)
   setSpriteListener()
-  codeRunner.runCode("welcome")
+  doWelcome()
 
   Utils.schedule(3) {
     loadCodeFromHistory(commandHistory.size)
+  }
+
+  def doWelcome() = {
+    val msg = """Welcome to Kojo!
+    |
+    |Here are some tips to get you started:
+    |* You can right-click on (most) windows to access context-sensitive actions.
+    |* You can run the help command, i.e. type help and press Ctrl+Enter in the script window, if you need assistance.
+    |
+    |---
+    |""".stripMargin
+    
+    showOutput(msg)
   }
 
   def makeOutput2(): org.openide.windows.InputOutput = {
@@ -141,11 +148,14 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
     undoButton.setEnabled(false)
     toolbar.add(undoButton)
 
-    add(toolbar, BorderLayout.NORTH)
     (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton)
   }
 
-  def makeCodeRunner() = {
+  def makeCodeRunner(): core.CodeRunner = {
+    new core.ProxyCodeRunner(makeRealCodeRunner _)
+  }
+
+  def makeRealCodeRunner: core.CodeRunner = {
     val codeRunner = new xscala.ScalaCodeRunner(new RunContext {
 
         def onRunError() {
@@ -175,7 +185,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
           runMonitor.onRunStart()
           undoRedoManager.discardAllEdits()
         }
-      
+
         private def interpreterDone() {
           runButton.setEnabled(true)
           if (!pendingCommands) {
@@ -191,11 +201,7 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
 
   def isRunningEnabled = runButton.isEnabled
 
-  
-  def makeCodePane(): CodePane = {
-    val codePane = new CodePane(codeRunner)
-    codePane.getDocument().addUndoableEditListener(undoRedoManager)
-
+  def addKeyboardSupport() {
     codePane.addKeyListener(new KeyAdapter {
         override def keyPressed(evt: KeyEvent) {
           evt.getKeyCode match {
@@ -219,7 +225,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
         }
 
       })
-    codePane
   }
 
   def setSpriteListener() {
@@ -253,20 +258,6 @@ class CodeEditor private extends JPanel with core.CodeCompletionSupport {
       // something from history (or an error occurred - not relevant here)
       // call coderunner directly so that the buffer is retained
       codeRunner.runCode("undo")
-    }
-  }
-
-  def maybeShowFindDialog(evt: KeyEvent) {
-    if(evt.isControlDown && !evt.isShiftDown) {
-      showFindDialog()
-      evt.consume
-    }
-  }
-
-  def maybeShowReplaceDialog(evt: KeyEvent) {
-    if(evt.isControlDown && !evt.isShiftDown) {
-      showReplaceDialog()
-      evt.consume
     }
   }
 
@@ -560,28 +551,3 @@ trait RunContext {
 
   def clearOutput()
 }
-
-class CodePane(codeRunner: xscala.ScalaCodeRunner) extends JEditorPane {
-
-  val Log = Logger.getLogger(getClass.getName);
-  val OutputDelimiter = codeRunner.OutputDelimiter
-
-  def scheduleFocusRequest = Utils.schedule(3) {
-    requestFocusInWindow
-  }
-
-  if (EventQueue.isDispatchThread) setKit
-  else Utils.runInSwingThread(setKit _)
-
-  def setKit {
-    // trying to fix the null DataObject exception that sometimes shows up on startup
-    setText("// write your turtle commands here")
-    setEditorKit(org.openide.text.CloneableEditorSupport.getEditorKit("text/x-scala"))
-  }
-
-  setBackground(Color.white)
-//  setFont(new Font(Font.MONOSPACED, Font.BOLD, 16))
-  setPreferredSize(new Dimension(500, 200))
-  setMinimumSize(new Dimension(100, 200))
-}
-

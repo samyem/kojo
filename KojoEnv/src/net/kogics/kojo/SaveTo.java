@@ -19,8 +19,8 @@ public final class SaveTo implements ActionListener {
         int returnVal = chooser.showSaveDialog(null);
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            CodeEditor ce = (CodeEditor) CodeEditor.instance();
-            ce.saveTo(chooser.getSelectedFile());
+            CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
+            ces.saveTo(chooser.getSelectedFile());
         }
     }
 }

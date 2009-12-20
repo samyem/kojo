@@ -14,172 +14,79 @@
  */
 package net.kogics.kojo;
 
-import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeListener;
+import java.beans.VetoableChangeListener;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ActionMap;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
-import javax.swing.KeyStroke;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
-import javax.swing.text.DefaultEditorKit;
+import javax.swing.JToolBar;
+import javax.swing.text.EditorKit;
+import javax.swing.text.StyledDocument;
 import org.netbeans.api.options.OptionsDisplayer;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import org.openide.windows.CloneableOpenSupport;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
+import org.netbeans.editor.EditorUI;
+import org.netbeans.modules.csl.core.GsfDocument;
+import org.netbeans.modules.csl.core.Language;
+import org.netbeans.modules.csl.core.LanguageRegistry;
 import org.openide.ErrorManager;
 import org.openide.awt.Actions;
 import org.openide.awt.Mnemonics;
-import org.openide.awt.UndoRedo;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
-import org.openide.util.Utilities;
+import org.openide.text.CloneableEditor;
+import org.openide.text.CloneableEditorSupport;
+import org.openide.util.Exceptions;
 import org.openide.util.actions.BooleanStateAction;
 import org.openide.util.actions.Presenter;
-import org.openide.util.actions.SystemAction;
 
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(dtd = "-//net.kogics.kojo//CodeEditor//EN",
+@ConvertAsProperties(dtd = "-//net.kogics.kojo//CodeEditor2//EN",
 autostore = false)
-public final class CodeEditorTopComponent extends TopComponent {
+public final class CodeEditorTopComponent extends CloneableEditor {
 
     private static CodeEditorTopComponent instance;
     /** path to the icon used by the component and its open action */
-    static final String ICON_PATH = "net/kogics/kojo/code-editor.png";
+    static final String ICON_PATH = "images/code-editor.png";
     private static final String PREFERRED_ID = "CodeEditorTopComponent";
-    JPopupMenu popupMenu;
+    private JPopupMenu popupMenu;
+    private CodeExecutionSupport codeExecSupport;
 
     public CodeEditorTopComponent() {
+        super(new KojoEditorSupport(new KojoEnv()));
+        ((KojoEditorSupport) cloneableEditorSupport()).setTc(this);
+
         initComponents();
-
-        CodeEditor ce = (CodeEditor) CodeEditor.instance();
-        ce.setPreferredSize(this.getPreferredSize());
-
-        tweakActions(ce);
-        installPopup(ce);
-
-        add(ce, BorderLayout.CENTER);
-        setName(NbBundle.getMessage(CodeEditorTopComponent.class,
-                "CTL_CodeEditorTopComponent"));
+        setName(NbBundle.getMessage(CodeEditorTopComponent.class, "CTL_CodeEditorTopComponent"));
         setToolTipText(NbBundle.getMessage(CodeEditorTopComponent.class, "HINT_CodeEditorTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
-        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
-        putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
-    }
-
-    private void installPopup(CodeEditor ce) {
-        ce.codePane().addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mousePressed(MouseEvent evt) {
-                if (evt.isPopupTrigger()) {
-                    showPopup(evt);
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent evt) {
-                if (evt.isPopupTrigger()) {
-                    showPopup(evt);
-                }
-            }
-        });
-    }
-
-    private void tweakActions(CodeEditor ce) {
-
-        ActionMap actionMap = getActionMap();
-
-        // Cut/Copy/Paste
-        final Action copyAction = new DefaultEditorKit.CopyAction();
-        final Action cutAction = new DefaultEditorKit.CutAction();
-        final Action pasteAction = new DefaultEditorKit.PasteAction();
-
-        cutAction.setEnabled(false);
-        copyAction.setEnabled(false);
-        pasteAction.setEnabled(true);
-
-        // make sure global paste action is enabled
-        org.openide.actions.PasteAction globalPasteAction = SystemAction.get(org.openide.actions.PasteAction.class);
-        globalPasteAction.setEnabled(true);
-
-
-        actionMap.put(DefaultEditorKit.copyAction, copyAction);
-        actionMap.put(DefaultEditorKit.cutAction, cutAction);
-        actionMap.put(DefaultEditorKit.pasteAction, pasteAction);
-
-        ce.codePane().addCaretListener(new CaretListener() {
-
-            public void caretUpdate(CaretEvent e) {
-                int dot = e.getDot();
-                int mark = e.getMark();
-                if (dot == mark) {
-                    // no selection
-                    cutAction.setEnabled(false);
-                    copyAction.setEnabled(false);
-                } else {
-                    cutAction.setEnabled(true);
-                    copyAction.setEnabled(true);
-                }
-            }
-        });
-
-
-        // Find/Replace
-        Object findKey = SystemAction.get(org.openide.actions.FindAction.class).getActionMapKey();
-        Action findAction = new FindAction();
-        // link Find Menu item to Find action
-        actionMap.put(findKey, findAction);
-        // Enable shortcut
-        KeyStroke ctrlF = Utilities.stringToKey("D-F"); // tight coupling with layer shortcut entry here. Bad!
-        ce.codePane().getInputMap().put(ctrlF, findKey);
-        ce.codePane().getActionMap().put(findKey, findAction);
-
-        Object replaceKey = SystemAction.get(org.openide.actions.ReplaceAction.class).getActionMapKey();
-        Action replaceAction = new ReplaceAction();
-        actionMap.put(replaceKey, replaceAction);
-        KeyStroke ctrlR = Utilities.stringToKey("D-R"); // tight coupling with layer shortcut entry here. Bad!
-        ce.codePane().getInputMap().put(ctrlR, replaceKey);
-        ce.codePane().getActionMap().put(replaceKey, replaceAction);
-
-        // Make Keyboard and Menu Undo/Redo actions the same
-        // so that things stay in sync irrespective of whether the user uses
-        // shortcuts or menu items
-        org.openide.actions.UndoAction undoAction = SystemAction.get(org.openide.actions.UndoAction.class);
-        KeyStroke ctrlZ = Utilities.stringToKey("D-Z"); // tight coupling with layer shortcut entry here. Bad!
-        ce.codePane().getInputMap().put(ctrlZ, "Undo");
-        ce.codePane().getActionMap().put("Undo", undoAction);
-
-        org.openide.actions.RedoAction redoAction = SystemAction.get(org.openide.actions.RedoAction.class);
-        KeyStroke ctrlY = Utilities.stringToKey("D-Y"); // tight coupling with layer shortcut entry here. Bad!
-        ce.codePane().getInputMap().put(ctrlY, "Redo");
-        ce.codePane().getActionMap().put("Redo", redoAction);
-    }
-
-    private void showPopup(MouseEvent evt) {
-        CodeEditor ce = (CodeEditor) CodeEditor.instance();
-        if (popupMenu == null) {
-            popupMenu = new CodeEditorPopupMenu();
-        }
-
-        popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
     /** This method is called from within the constructor to
@@ -190,7 +97,16 @@ public final class CodeEditorTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setLayout(new java.awt.BorderLayout());
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 400, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 300, Short.MAX_VALUE)
+        );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -221,7 +137,8 @@ public final class CodeEditorTopComponent extends TopComponent {
             return (CodeEditorTopComponent) win;
         }
         Logger.getLogger(CodeEditorTopComponent.class.getName()).warning(
-                "There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");
+                "There seem to be multiple components with the '" + PREFERRED_ID
+                + "' ID. That is a potential source of errors and unexpected behavior.");
         return getDefault();
     }
 
@@ -231,9 +148,8 @@ public final class CodeEditorTopComponent extends TopComponent {
     }
 
     @Override
-    public UndoRedo getUndoRedo() {
-        CodeEditor ce = (CodeEditor) CodeEditor.instance();
-        return ce.undoRedoManager();
+    protected void componentActivated() {
+        super.componentActivated();
     }
 
     void writeProperties(java.util.Properties p) {
@@ -261,7 +177,179 @@ public final class CodeEditorTopComponent extends TopComponent {
         return PREFERRED_ID;
     }
 
-    class CodeEditorPopupMenu extends JPopupMenu {
+//    @Override
+//    public Action[] getActions() {
+//        return new Action[] {};
+//    }
+    void installPopup(JEditorPane ce) {
+        ce.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mousePressed(MouseEvent evt) {
+                if (evt.isPopupTrigger()) {
+                    showPopup(evt);
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent evt) {
+                if (evt.isPopupTrigger()) {
+                    showPopup(evt);
+                }
+            }
+        });
+    }
+
+    void showPopup(MouseEvent evt) {
+        if (popupMenu == null) {
+            popupMenu = new CodeEditorPopupMenu();
+        }
+
+        popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+    }
+
+    private void initExecSupport(JEditorPane j) {
+        CodeExecutionSupport.ctrArg(j);
+        codeExecSupport = (CodeExecutionSupport) CodeExecutionSupport.instance();
+        HistoryTopComponent.findInstance().selectLast();
+    }
+
+    private JToolBar getToolbar() {
+        return codeExecSupport.toolbar();
+    }
+
+    static class KojoEditorSupport extends CloneableEditorSupport {
+
+        CodeEditorTopComponent tc;
+
+        public KojoEditorSupport(CloneableEditorSupport.Env env) {
+            super(env);
+        }
+
+        public void setTc(CodeEditorTopComponent tc) {
+            this.tc = tc;
+        }
+
+        @Override
+        protected String messageSave() {
+            return "Saving...";
+        }
+
+        @Override
+        protected String messageName() {
+            return "Script Editor";
+        }
+
+        @Override
+        protected String messageToolTip() {
+            return "ToolTip!";
+        }
+
+        @Override
+        protected String messageOpening() {
+            return "Opening...";
+        }
+
+        @Override
+        protected String messageOpened() {
+            return "Opened!";
+        }
+
+        private String getMimeType() {
+            return "text/x-scala";
+        }
+
+        @Override
+        protected StyledDocument createStyledDocument(EditorKit kit) {
+            final Language language = LanguageRegistry.getInstance().getLanguageByMimeType(getMimeType());
+            return new KojoDoc(language, tc);
+        }
+
+        @Override
+        protected boolean asynchronousOpen() {
+            return true;
+        }
+    }
+
+    static class KojoEnv implements CloneableEditorSupport.Env {
+
+        public InputStream inputStream() throws IOException {
+            return new ByteArrayInputStream(new byte[0]);
+        }
+
+        public OutputStream outputStream() throws IOException {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public Date getTime() {
+            return new java.util.Date();
+        }
+
+        public String getMimeType() {
+            return "text/x-scala";
+        }
+
+        public void addPropertyChangeListener(PropertyChangeListener pl) {
+        }
+
+        public void removePropertyChangeListener(PropertyChangeListener pl) {
+        }
+
+        public void addVetoableChangeListener(VetoableChangeListener vl) {
+        }
+
+        public void removeVetoableChangeListener(VetoableChangeListener vl) {
+        }
+
+        public boolean isValid() {
+            return true;
+        }
+
+        public boolean isModified() {
+            return false;
+        }
+
+        public void markModified() throws IOException {
+        }
+
+        public void unmarkModified() {
+        }
+
+        public CloneableOpenSupport findCloneableOpenSupport() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+    }
+
+    static class KojoDoc extends GsfDocument {
+
+        CodeEditorTopComponent tc;
+
+        public KojoDoc(Language language, CodeEditorTopComponent tc) {
+            // logic similar to GsfEditorKit.createDefaultDocument
+            super(language);
+            putProperty("mimeType", language.getMimeType()); //NOI18N
+            this.tc = tc;
+        }
+
+        public Component createEditor(JEditorPane j) {
+            MouseListener[] ml = j.getMouseListeners();
+            for (int i = 0; i < ml.length; i++) {
+                MouseListener mouseListener = ml[i];
+                if (mouseListener instanceof EditorUI) {
+                    j.removeMouseListener(mouseListener);
+                }
+            }
+            tc.installPopup(j);
+            tc.initExecSupport(j);
+            return super.createEditor(j);
+        }
+
+        public JToolBar createToolbar(JEditorPane jep) {
+            return tc.getToolbar();
+        }
+    }
+
+    static class CodeEditorPopupMenu extends JPopupMenu {
 
         public CodeEditorPopupMenu() {
             FileObject configRoot = FileUtil.getConfigRoot();
@@ -360,3 +448,4 @@ public final class CodeEditorTopComponent extends TopComponent {
         }
     }
 }
+
