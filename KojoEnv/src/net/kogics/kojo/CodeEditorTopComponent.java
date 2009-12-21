@@ -36,6 +36,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -45,6 +46,7 @@ import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.EditorKit;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.options.OptionsDisplayer;
+import org.openide.awt.UndoRedo.Manager;
 import org.openide.util.NbBundle;
 import org.openide.windows.CloneableOpenSupport;
 import org.openide.windows.TopComponent;
@@ -215,8 +217,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
     }
 
     private void onCodePaneAvailable(JEditorPane j) {
-        CodeExecutionSupport.ctrArg(j);
-        codeExecSupport = (CodeExecutionSupport) CodeExecutionSupport.instance();
+        codeExecSupport = CodeExecutionSupport.initedInstance(j, (Manager) getUndoRedo());
         HistoryTopComponent.findInstance().selectLast();
         tweakActions(j);
     }
@@ -402,12 +403,16 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             for (int i = 0; i < ml.length; i++) {
                 MouseListener mouseListener = ml[i];
                 if (mouseListener instanceof EditorUI) {
+                    // remove default popop handler
                     j.removeMouseListener(mouseListener);
                 }
             }
             tc.installPopup(j);
             tc.onCodePaneAvailable(j);
-            return super.createEditor(j);
+            Component ret = super.createEditor(j);
+            // remove error annotations on the right
+            ((java.awt.Container) ret).remove(1);
+            return ret;
         }
 
         public JToolBar createToolbar(JEditorPane jep) {
@@ -426,6 +431,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             add(new JSeparator());
             addMenu(configRoot, "Menu/Source", "Source");
             add(new JSeparator());
+            addActionMenuItem(configRoot, "Editors/Actions/toggle-line-numbers.instance");
             addFontMenuItem();
         }
 
@@ -435,11 +441,13 @@ public final class CodeEditorTopComponent extends CloneableEditor {
                 DataObject dob = DataObject.find(fo);
                 InstanceCookie ck = dob.getCookie(InstanceCookie.class);
                 Object instanceObj = ck.instanceCreate();
-                JMenuItem menuItem = new JMenuItem();
-                Actions.connect(menuItem, (Action) instanceObj, true);
-                add(menuItem);
+
+                JMenuItem menuItem = getPopupMenuItem(instanceObj);
+                if (menuItem != null) {
+                    add(menuItem);
+                }
             } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
+                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
             }
         }
 
@@ -482,35 +490,63 @@ public final class CodeEditorTopComponent extends CloneableEditor {
                     }
                     if (instanceObj instanceof JSeparator) {
                         comp.add((JSeparator) instanceObj);
-                    } else if (instanceObj instanceof BooleanStateAction) {
-                        JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem();
-                        Actions.connect(menuItem, (BooleanStateAction) instanceObj, true);
-                        comp.add(menuItem);
-                    } else if (instanceObj instanceof Action) {
-                        JMenuItem menuItem = new JMenuItem();
-                        Actions.connect(menuItem, (Action) instanceObj, true);
-                        comp.add(menuItem);
-                    } else if (instanceObj instanceof Presenter.Menu) {
-                        Action action = ((Presenter.Menu) instanceObj).getMenuPresenter().getAction();
-                        if (action != null) {
-                            JMenuItem menuItem = new JMenuItem();
-                            Actions.connect(menuItem, action, true);
+                    } else {
+                        JMenuItem menuItem = getPopupMenuItem(instanceObj);
+                        if (menuItem != null) {
                             comp.add(menuItem);
                         }
                     }
+
                 }
             }
         }
 
+        private JMenuItem getPopupMenuItem(Object instanceObj) {
+
+            if (instanceObj instanceof Presenter.Popup) {
+                // caution: if popupPresenter is added to multiple menus, it will
+                // be visible only in the latest menu. Container.add() removes
+                // child form previous parent
+                return ((Presenter.Popup) instanceObj).getPopupPresenter();
+            }
+
+            if (instanceObj instanceof Presenter.Menu) {
+                Action action = ((Presenter.Menu) instanceObj).getMenuPresenter().getAction();
+                if (action != null) {
+                    JMenuItem menuItem = new JMenuItem();
+                    Actions.connect(menuItem, action, true);
+                    return menuItem;
+                }
+            }
+
+            if (instanceObj instanceof BooleanStateAction) {
+                JMenuItem menuItem = new JCheckBoxMenuItem();
+                Actions.connect(menuItem, (Action) instanceObj, true);
+                return menuItem;
+            }
+
+            if (instanceObj instanceof Action) {
+                JMenuItem menuItem = new JMenuItem();
+                Actions.connect(menuItem, (Action) instanceObj, true);
+                return menuItem;
+            }
+
+            return null;
+        }
+
         private void addFontMenuItem() {
-            Action action = new AbstractAction("Options...") {
+            Action action = new AbstractAction("Advanced Options...") {
 
                 public void actionPerformed(ActionEvent e) {
                     OptionsDisplayer.getDefault().open("FontsAndColors");
                 }
             };
             JMenuItem item = new JMenuItem(action);
-            add(item);
+
+            JMenu experimental = new JMenu("Experimental Features! ");
+            experimental.add(item);
+
+            add(experimental);
         }
     }
 }

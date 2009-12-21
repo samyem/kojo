@@ -25,8 +25,7 @@ class CodeExecutionSupportTest {
 
   System.setProperty("netbeans.dirs", netbeansDir)
   System.setProperty("netbeans.user", userDir)
-  CodeExecutionSupport.ctrArg(new javax.swing.JEditorPane())
-  val ce = CodeExecutionSupport.instance
+  val ce = CodeExecutionSupport.initedInstance(new javax.swing.JEditorPane(), new org.openide.awt.UndoRedo.Manager)
   val pane = ce.codePane
 
   val commandHistory = CommandHistory.instance

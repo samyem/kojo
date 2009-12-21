@@ -29,11 +29,25 @@ import util._
 import org.openide.windows._
 import org.openide.awt.UndoRedo
 
-object CodeExecutionSupport extends Singleton2[CodeExecutionSupport, JEditorPane] {
-  protected def newInstance(cp: JEditorPane) = new CodeExecutionSupport(cp)
+object CodeExecutionSupport extends Singleton[CodeExecutionSupport] {
+  private var instanceInited = false
+
+  protected override def instanceCheck() {
+    if (!instanceInited) throw new IllegalStateException("Instance not initialized")
+  }
+
+  def initedInstance(codePane: JEditorPane, manager: UndoRedo.Manager) = synchronized {
+    instanceInited = true
+    val ret = instance()
+    instance.setCodePane(codePane)
+    instance.undoRedoManager = manager
+    ret
+  }
+
+  protected def newInstance = new CodeExecutionSupport()
 }
 
-class CodeExecutionSupport(val codePane: JEditorPane) extends core.CodeCompletionSupport {
+class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val Log = Logger.getLogger(getClass.getName);
 
   val tCanvas = sprite.SpriteCanvas.instance
@@ -48,10 +62,10 @@ class CodeExecutionSupport(val codePane: JEditorPane) extends core.CodeCompletio
   val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton) = makeToolbar()
 
   @volatile var runMonitor: RunMonitor = new NoOpRunMonitor()
-  var undoRedoManager: UndoRedo.Manager = new UndoRedo.Manager()
+  var undoRedoManager: UndoRedo.Manager = _ 
+  var codePane: JEditorPane = _
 
   val codeRunner = makeCodeRunner()
-  addKeyboardSupport()
   
   lazy val IO = makeOutput2()
 
@@ -60,6 +74,11 @@ class CodeExecutionSupport(val codePane: JEditorPane) extends core.CodeCompletio
 
   Utils.schedule(3) {
     loadCodeFromHistory(commandHistory.size)
+  }
+
+  def setCodePane(cp: JEditorPane) {
+    codePane = cp;
+    addCodePaneShortcuts()
   }
 
   def doWelcome() = {
@@ -170,10 +189,12 @@ class CodeExecutionSupport(val codePane: JEditorPane) extends core.CodeCompletio
           showOutput(outText)
           runMonitor.reportOutput(outText)
         }
+
         def reportErrorMsg(errMsg: String) {
           showErrorMsg(errMsg)
           runMonitor.reportOutput(errMsg)
         }
+
         def reportErrorText(errText: String) {
           showErrorText(errText)
           runMonitor.reportOutput(errText)
@@ -183,7 +204,6 @@ class CodeExecutionSupport(val codePane: JEditorPane) extends core.CodeCompletio
           runButton.setEnabled(false)
           stopButton.setEnabled(true)
           runMonitor.onRunStart()
-          undoRedoManager.discardAllEdits()
         }
 
         private def interpreterDone() {
@@ -192,6 +212,9 @@ class CodeExecutionSupport(val codePane: JEditorPane) extends core.CodeCompletio
             stopButton.setEnabled(false)
           }
           runMonitor.onRunEnd()
+          Utils.runInSwingThread {
+            undoRedoManager.discardAllEdits()
+          }
         }
 
         def clearOutput() = clrOutput()
@@ -201,7 +224,7 @@ class CodeExecutionSupport(val codePane: JEditorPane) extends core.CodeCompletio
 
   def isRunningEnabled = runButton.isEnabled
 
-  def addKeyboardSupport() {
+  def addCodePaneShortcuts() {
     codePane.addKeyListener(new KeyAdapter {
         override def keyPressed(evt: KeyEvent) {
           evt.getKeyCode match {
