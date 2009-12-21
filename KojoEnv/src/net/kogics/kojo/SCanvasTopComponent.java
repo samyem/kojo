@@ -83,7 +83,7 @@ public final class SCanvasTopComponent extends TopComponent {
         setToolTipText(NbBundle.getMessage(SCanvasTopComponent.class, "HINT_SCanvasTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
 	putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
-	putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
+//	putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
 
     }
 

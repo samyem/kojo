@@ -96,6 +96,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         setName(NbBundle.getMessage(CodeEditorTopComponent.class, "CTL_CodeEditorTopComponent"));
         setToolTipText(NbBundle.getMessage(CodeEditorTopComponent.class, "HINT_CodeEditorTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
+        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
     }
 
     /** This method is called from within the constructor to

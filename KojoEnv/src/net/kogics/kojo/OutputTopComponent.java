@@ -6,14 +6,12 @@ package net.kogics.kojo;
 
 import java.util.logging.Logger;
 import javax.swing.Action;
-import javax.swing.ActionMap;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.text.DefaultEditorKit;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-//import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.IOContainer;
@@ -43,7 +41,7 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
 //        putClientProperty(TopComponent.PROP_DRAGGING_DISABLED, Boolean.TRUE);
 //        putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
 //        putClientProperty(TopComponent.PROP_SLIDING_DISABLED, Boolean.TRUE);
-        putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
+//        putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
     }
 
     /** This method is called from within the constructor to
