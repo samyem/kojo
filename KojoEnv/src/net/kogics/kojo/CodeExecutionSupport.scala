@@ -17,6 +17,7 @@ package net.kogics.kojo
 import javax.swing._
 import java.awt.{List => AwtList, _}
 import java.awt.event._
+import javax.swing.event._
 
 import java.util.concurrent.CountDownLatch
 import java.util.logging._
@@ -69,16 +70,15 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   
   lazy val IO = makeOutput2()
 
+  val statusStrip = new StatusStrip()
+
   setSpriteListener()
   doWelcome()
-
-  Utils.schedule(3) {
-    loadCodeFromHistory(commandHistory.size)
-  }
 
   def setCodePane(cp: JEditorPane) {
     codePane = cp;
     addCodePaneShortcuts()
+    statusStrip.linkToPane()
   }
 
   def doWelcome() = {
@@ -180,9 +180,18 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         def onRunError() {
           historyManager.codeRunError()
           interpreterDone()
+          Utils.runInSwingThread {
+            statusStrip.onError()
+          }
         }
 
-        def onRunSuccess() = interpreterDone()
+        def onRunSuccess() = {
+          interpreterDone()
+          Utils.runInSwingThread {
+            statusStrip.onSuccess()
+          }
+        }
+
         def onRunInterpError() = interpreterDone()
 
         def reportOutput(outText: String) {
@@ -444,9 +453,13 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     codePane.setText(script)
   }
 
-  def saveTo(file: java.io.File) {
+  def saveTo(file0: java.io.File) {
     import util.RichFile._
     val script = codePane.getText()
+
+    val file = if (file0.getName.endsWith(".kojo")) file0
+    else new java.io.File(file0.getAbsolutePath + ".kojo")
+
     file.write(script)
   }
 
@@ -548,6 +561,37 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       outputx.append(output)
     }
   }
+
+  class StatusStrip extends JPanel {
+    val ErrorColor = new Color(0xff1a1a) // reddish
+    val SuccessColor = new Color(0x33ff33) // greenish
+    val NeutralColor = new Color(0xf0f0f0) // very light gray
+    val StripWidth = 3
+
+    setBackground(NeutralColor)
+    setPreferredSize(new Dimension(StripWidth, 10))
+
+    def linkToPane() {
+      codePane.getDocument.addDocumentListener(new DocumentListener {
+          def insertUpdate(e: DocumentEvent) = onDocChange()
+          def removeUpdate(e: DocumentEvent) = onDocChange()
+          def changedUpdate(e: DocumentEvent) {}
+        })
+    }
+
+    def onSuccess() {
+      setBackground(SuccessColor)
+    }
+
+    def onError() {
+      setBackground(ErrorColor)
+    }
+
+    def onDocChange() {
+      if (getBackground != NeutralColor) setBackground(NeutralColor)
+    }
+  }
+
 }
 
 trait RunMonitor {

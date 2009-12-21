@@ -25,6 +25,14 @@ class CodeExecutionSupportTest {
 
   System.setProperty("netbeans.dirs", netbeansDir)
   System.setProperty("netbeans.user", userDir)
+
+  try {
+    val ce0 = CodeExecutionSupport.instance()
+  }
+  catch {
+    case e: IllegalStateException => assertTrue(true)
+  }
+
   val ce = CodeExecutionSupport.initedInstance(new javax.swing.JEditorPane(), new org.openide.awt.UndoRedo.Manager)
   val pane = ce.codePane
 

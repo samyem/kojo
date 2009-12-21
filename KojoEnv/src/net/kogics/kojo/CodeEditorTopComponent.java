@@ -14,7 +14,9 @@
  */
 package net.kogics.kojo;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -35,8 +37,8 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -67,7 +69,6 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.text.CloneableEditor;
 import org.openide.text.CloneableEditorSupport;
-import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 import org.openide.util.actions.BooleanStateAction;
 import org.openide.util.actions.Presenter;
@@ -216,10 +217,19 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
-    private void onCodePaneAvailable(JEditorPane j) {
+    private void onCodePaneAvailable(JEditorPane j, JPanel parentPanel) {
         codeExecSupport = CodeExecutionSupport.initedInstance(j, (Manager) getUndoRedo());
         HistoryTopComponent.findInstance().selectLast();
         tweakActions(j);
+        installPopup(j);
+
+        // remove error annotations on the right
+        LayoutManager layout = parentPanel.getLayout();
+        if (layout instanceof BorderLayout) {
+//            Component eastComponent = ((BorderLayout)layout).getLayoutComponent(BorderLayout.EAST);
+//            parentPanel.remove(eastComponent);
+            parentPanel.add(codeExecSupport.statusStrip(), BorderLayout.EAST);
+        }
     }
 
     private JToolBar getToolbar() {
@@ -407,12 +417,9 @@ public final class CodeEditorTopComponent extends CloneableEditor {
                     j.removeMouseListener(mouseListener);
                 }
             }
-            tc.installPopup(j);
-            tc.onCodePaneAvailable(j);
-            Component ret = super.createEditor(j);
-            // remove error annotations on the right
-            ((java.awt.Container) ret).remove(1);
-            return ret;
+            JPanel panel = (JPanel) super.createEditor(j);
+            tc.onCodePaneAvailable(j, panel);
+            return panel;
         }
 
         public JToolBar createToolbar(JEditorPane jep) {
