@@ -247,17 +247,21 @@
             </folder>
         </folder>
         <folder name="Window">
+            <file name="SCanvasAction.shadow">
+                <attr name="position" intvalue="1"/>
+                <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-SCanvasAction.instance"/>
+            </file>
             <file name="CodeEditorAction.shadow">
+                <attr name="position" intvalue="2"/>
                 <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-CodeEditorAction.instance"/>
             </file>
             <file name="HistoryAction.shadow">
+                <attr name="position" intvalue="3"/>
                 <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-HistoryAction.instance"/>
             </file>
             <file name="OutputAction.shadow">
+                <attr name="position" intvalue="4"/>
                 <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-OutputAction.instance"/>
-            </file>
-            <file name="SCanvasAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-SCanvasAction.instance"/>
             </file>
         </folder>
     </folder>
