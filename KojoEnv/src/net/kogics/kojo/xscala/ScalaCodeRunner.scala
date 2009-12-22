@@ -16,7 +16,7 @@ package net.kogics.kojo.xscala
 
 import java.io._
 import java.awt.Color
-import scala.actors.Actor._
+import scala.actors.Actor
 import scala.tools.nsc.{Interpreter, InterpreterResults => IR, Settings}
 
 import java.util.logging._
@@ -30,75 +30,16 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
   val outputHandler = new InterpOutputHandler(ctx)
   val OutputDelimiter = outputHandler.OutputDelimiter
 
-  System.setProperty("java.class.path", createCp(
-      List("modules/ext/scala-library.jar",
-           "modules/ext/scala-compiler.jar",
-           "modules/net-kogics-kojo.jar",
-           "modules/ext/piccolo2d-core-1.3-SNAPSHOT.jar",
-           "modules/ext/piccolo2d-extras-1.3-SNAPSHOT.jar"
-      )
-    ))
-
-  // Scala Interpreter cannot be loaded by Kojo as of Revision 19285 because of changes in Settings
-  // and MainGenericRunner
-  // I need to follow up with the Scala folks about this when I have some time
-  // Fix for now reverts the behavior of Settings to Revision 19284 by subclassing it and overriding the
-  // classpathDefault method
-  val iSettings = new Settings {
-    private def syspropopt(name: String): Option[String] = onull(System.getProperty(name))
-
-    override protected def classpathDefault =
-      syspropopt("env.classpath") orElse syspropopt("java.class.path") getOrElse ""
-  }
-
-  val interp = new Interpreter(iSettings, new NewLinePrintWriter()) {
-    override protected def parentClassLoader = Thread.currentThread.getContextClassLoader
-  }
-  interp.setContextClassLoader
-  
-  outputHandler.interpOutputSuppressed = true
-  interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", this)
-  interp.interpret("val builtins = predef.Builtins")
-  interp.interpret("import predef.Builtins._")
-  interp.bind("turtle0", "net.kogics.kojo.core.Sprite", tCanvas.turtle0)
-  outputHandler.interpOutputSuppressed = false
-  outputHandler.showOutput("---\n")
-
   val codeRunner = startCodeRunner()
-
-  def createCp(xs: List[String]): String = {
-    val ourCp = new StringBuilder
-
-//    val oldCp = System.getProperty("java.class.path")
-//    ourCp.append(prefix)
-
-    val kojoCp = System.getenv("KOJO_CLASSPATH")
-    if (kojoCp != null) {
-      ourCp.append(kojoCp)
-      ourCp.append(File.pathSeparatorChar)
-    }
-
-    val prefix = Utils.installDir
-    
-    xs.foreach {x =>
-      ourCp.append(prefix)
-      ourCp.append(File.separatorChar)
-      ourCp.append(x)
-      ourCp.append(File.pathSeparatorChar)
-    }
-    ourCp.toString
-  }
 
   def showInterpOutput(lineFragment: String) = outputHandler.showInterpOutput(lineFragment)
   def showOutput(s: String) = outputHandler.showOutput(s)
   def maybeOutputDelimiter() = outputHandler.maybeOutputDelimiter()
 
-  def runCode(code: String) = synchronized {
+  def runCode(code: String) = {
     // Runs on swing thread
-//    Log.info("Running Code:\n---\n%s\n---\n" format(code))
     codeRunner ! RunCode(code)
   }
-  
 
   object InterpreterManager {
     @volatile var interpreterThread: Option[Thread] = None
@@ -159,11 +100,159 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
 
   def interruptInterpreter() = InterpreterManager.interruptInterpreter()
 
+  case object Init
   case class RunCode(code: String)
+  case class MethodCompletionRequest(str: String)
+  case class VarCompletionRequest(str: String)
+  case class KeywordCompletionRequest(str: String)
+  case class CompletionResponse(data: (List[String], Int))
 
-  def startCodeRunner() = actor {
+  def methodCompletions(str: String): (List[String], Int) = {
+    val resp = (codeRunner !? MethodCompletionRequest(str)).asInstanceOf[CompletionResponse]
+    resp.data
+  }
 
+  def varCompletions(str: String): (List[String], Int) = {
+    val resp = (codeRunner !? VarCompletionRequest(str)).asInstanceOf[CompletionResponse]
+    resp.data
+  }
+
+  def keywordCompletions(str: String): (List[String], Int) = {
+    val resp = (codeRunner !? KeywordCompletionRequest(str)).asInstanceOf[CompletionResponse]
+    resp.data
+  }
+
+
+
+  def startCodeRunner(): Actor = {
+    val actor = new InterpActor
+    Log.info("Starting actor...")
+    actor.start()
+    Log.info("Initing actor...")
+    actor ! Init
+    actor
+  }
+
+  class InterpActor extends Actor {
+    
+    var interp: Interpreter = _
     val varPattern = java.util.regex.Pattern.compile("\\bvar\\b")
+
+    def safeProcess(fn: => Unit) {
+      try {
+        fn
+      }
+      catch {
+        case t: Throwable => Log.severe(Utils.stackTraceAsString(t))
+      }
+
+    }
+
+    def act() {
+      while(true) {
+        receive {
+          // Runs on Actor pool thread
+          case Init =>
+            safeProcess {
+              initInterp()
+            }
+
+          case RunCode(code) =>
+            try {
+              Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
+//            val ct = Thread.currentThread
+//            Log.info("CodeRunner actor running on thread: %s, Id: %d" format(ct.getName, System.identityHashCode(ct)))
+              InterpreterManager.interpreterStarted
+              val ret = interpret(code)
+              Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
+              if (ret == IR.Incomplete) showIncompleteCodeMsg(code)
+              if (ret == IR.Success) ctx.onRunSuccess else ctx.onRunError
+            }
+            catch {
+              case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
+                ctx.onRunInterpError
+            }
+            finally {
+              Log.info("CodeRunner actor doing final handling for code.")
+              InterpreterManager.interpreterDone
+            }
+
+          case MethodCompletionRequest(str) =>
+            safeProcess {
+              reply(CompletionResponse(methodCompletions(str)))
+            }
+
+          case VarCompletionRequest(str) =>
+            safeProcess {
+              reply(CompletionResponse(varCompletions(str)))
+            }
+
+          case KeywordCompletionRequest(str) =>
+            safeProcess {
+              reply(CompletionResponse(keywordCompletions(str)))
+            }
+        }
+      }
+    }
+
+    def initInterp() {
+      System.setProperty("java.class.path", createCp(
+          List("modules/ext/scala-library.jar",
+               "modules/ext/scala-compiler.jar",
+               "modules/net-kogics-kojo.jar",
+               "modules/ext/piccolo2d-core-1.3-SNAPSHOT.jar",
+               "modules/ext/piccolo2d-extras-1.3-SNAPSHOT.jar"
+          )
+        ))
+
+      // Scala Interpreter cannot be loaded by Kojo as of Revision 19285 because of changes in Settings
+      // and MainGenericRunner
+      // I need to follow up with the Scala folks about this when I have some time
+      // Fix for now reverts the behavior of Settings to Revision 19284 by subclassing it and overriding the
+      // classpathDefault method
+      val iSettings = new Settings {
+        private def syspropopt(name: String): Option[String] = onull(System.getProperty(name))
+
+        override protected def classpathDefault =
+          syspropopt("env.classpath") orElse syspropopt("java.class.path") getOrElse ""
+      }
+
+      interp = new Interpreter(iSettings, new NewLinePrintWriter()) {
+        override protected def parentClassLoader = Thread.currentThread.getContextClassLoader
+      }
+      interp.setContextClassLoader
+
+      outputHandler.interpOutputSuppressed = true
+      interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", ScalaCodeRunner.this)
+      interp.interpret("val builtins = predef.Builtins")
+      interp.interpret("import predef.Builtins._")
+      interp.bind("turtle0", "net.kogics.kojo.core.Sprite", tCanvas.turtle0)
+      outputHandler.interpOutputSuppressed = false
+      outputHandler.showOutput("---\n")
+    }
+
+    def createCp(xs: List[String]): String = {
+      val ourCp = new StringBuilder
+
+//    val oldCp = System.getProperty("java.class.path")
+//    ourCp.append(prefix)
+
+      val kojoCp = System.getenv("KOJO_CLASSPATH")
+      if (kojoCp != null) {
+        ourCp.append(kojoCp)
+        ourCp.append(File.pathSeparatorChar)
+      }
+
+      val prefix = Utils.installDir
+
+      xs.foreach {x =>
+        ourCp.append(prefix)
+        ourCp.append(File.separatorChar)
+        ourCp.append(x)
+        ourCp.append(File.pathSeparatorChar)
+      }
+      ourCp.toString
+    }
 
     def interpretLine(lines: List[String]): IR.Result = lines match {
       case Nil => IR.Success
@@ -205,80 +294,55 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
       showOutput(msg)
     }
 
-    while(true) {
-      receive {
-        // Runs on Actor pool thread
-        case RunCode(code) =>
-          try {
-            Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
-//            val ct = Thread.currentThread
-//            Log.info("CodeRunner actor running on thread: %s, Id: %d" format(ct.getName, System.identityHashCode(ct)))
-            InterpreterManager.interpreterStarted
-            val ret = interpret(code)
-            Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
-            if (ret == IR.Incomplete) showIncompleteCodeMsg(code)
-            if (ret == IR.Success) ctx.onRunSuccess else ctx.onRunError
-          }
-          catch {
-            case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
-              ctx.onRunInterpError
-          }
-          finally {
-            Log.info("CodeRunner actor doing final handling for code.")
-            InterpreterManager.interpreterDone
-          }
+    import CodeCompletionUtils._
+
+    def completions(identifier: String) = {
+      Log.fine("Finding Identifier completions for: " + identifier)
+      // warning! calling into interp while a computation is running within the actor
+      // might lead to problems
+      val completions = interp.membersOfIdentifier(identifier).filter {s => !MethodDropFilter.contains(s)}
+      Log.fine("Completions: " + completions)
+      completions
+    }
+
+    def methodCompletions(str: String): (List[String], Int) = {
+      val (oIdentifier, oPrefix) = findIdentifier(str)
+      val prefix = if(oPrefix.isDefined) oPrefix.get else ""
+      if (oIdentifier.isDefined) {
+        (completions(oIdentifier.get).filter {s => s.startsWith(prefix)}, prefix.length)
+      }
+      else {
+        val c1s = completions("builtins").filter {s => s.startsWith(prefix)}
+        Log.fine("Filtered builtins completions for prefix '%s' - %s " format(prefix, c1s))
+        (c1s, prefix.length)
       }
     }
-  }
 
-  import CodeCompletionUtils._
+    def varCompletions(str: String): (List[String], Int) = {
 
-  def completions(identifier: String) = {
-    Log.fine("Finding Identifier completions for: " + identifier)
-    // warning! calling into interp while a computation is running within the actor
-    // might lead to problems
-    val completions = interp.membersOfIdentifier(identifier).filter {s => !MethodDropFilter.contains(s)}
-    Log.fine("Completions: " + completions)
-    completions
-  }
+      def varFilter(s: String) = !VarDropFilter.contains(s) && !InternalVarsRe.matcher(s).matches
 
-  def methodCompletions(str: String): (List[String], Int) = synchronized {
-    val (oIdentifier, oPrefix) = findIdentifier(str)
-    val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-    if (oIdentifier.isDefined) {
-      (completions(oIdentifier.get).filter {s => s.startsWith(prefix)}, prefix.length)
+      val (oIdentifier, oPrefix) = findIdentifier(str)
+      val prefix = if(oPrefix.isDefined) oPrefix.get else ""
+      if (oIdentifier.isDefined) {
+        (Nil, 0)
+      }
+      else {
+        val c2s = interp.unqualifiedIds.filter {s => s.startsWith(prefix) && varFilter(s)}
+        (c2s, prefix.length)
+      }
     }
-    else {
-      val c1s = completions("builtins").filter {s => s.startsWith(prefix)}
-      Log.fine("Filtered builtins completions for prefix '%s' - %s " format(prefix, c1s))
-      (c1s, prefix.length)
-    }
-  }
 
-  def varCompletions(str: String): (List[String], Int) = synchronized {
-
-    def varFilter(s: String) = !VarDropFilter.contains(s) && !InternalVarsRe.matcher(s).matches
-
-    val (oIdentifier, oPrefix) = findIdentifier(str)
-    val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-    if (oIdentifier.isDefined) {
-      (Nil, 0)
-    }
-    else {
-      val c2s = interp.unqualifiedIds.filter {s => s.startsWith(prefix) && varFilter(s)}
-      (c2s, prefix.length)
-    }
-  }
-
-  def keywordCompletions(str: String): (List[String], Int) = {
-    val (oIdentifier, oPrefix) = findIdentifier(str)
-    val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-    if (oIdentifier.isDefined) {
-      (Nil, 0)
-    }
-    else {
-      val c2s = Keywords.filter {s => s.startsWith(prefix)}
-      (c2s, prefix.length)
+    def keywordCompletions(str: String): (List[String], Int) = {
+      val (oIdentifier, oPrefix) = findIdentifier(str)
+      val prefix = if(oPrefix.isDefined) oPrefix.get else ""
+      if (oIdentifier.isDefined) {
+        (Nil, 0)
+      }
+      else {
+        val c2s = Keywords.filter {s => s.startsWith(prefix)}
+        (c2s, prefix.length)
+      }
     }
   }
 

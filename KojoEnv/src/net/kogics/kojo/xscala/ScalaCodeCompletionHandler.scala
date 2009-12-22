@@ -102,7 +102,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
       proposals.add(new ScalaCompletionProposal(caretOffset, "               ", ElementKind.OTHER))
 
     val completionResult = new DefaultCompletionResult(proposals, false)
-    Log.info("Completion Result: " + proposals)
+//    Log.info("Completion Result: " + proposals)
     return completionResult
   }
 
