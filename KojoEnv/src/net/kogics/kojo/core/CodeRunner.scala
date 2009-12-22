@@ -43,9 +43,7 @@ class ProxyCodeRunner(codeRunnerMaker: () => CodeRunner) extends CodeRunner {
 
   new Thread(new Runnable {
       def run {
-        println("Creating code runner...")
         codeRunner = codeRunnerMaker()
-        println("Creating code runner - Done.")
         latch.countDown()
       }
     }).start()

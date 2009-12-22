@@ -163,7 +163,7 @@
                 <attr name="position" intvalue="2525"/>
             </file>
         </folder>
-        <folder name="Samples">
+        <folder name="Sa&amp;mples">
             <attr name="position" intvalue="1250"/>
             <folder name="Basic ">
                 <attr name="position" intvalue="1"/>

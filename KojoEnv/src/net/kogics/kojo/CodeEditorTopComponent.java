@@ -250,11 +250,6 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         copyAction.setEnabled(false);
         pasteAction.setEnabled(true);
 
-        // make sure global paste action is enabled
-        org.openide.actions.PasteAction globalPasteAction = SystemAction.get(org.openide.actions.PasteAction.class);
-        globalPasteAction.setEnabled(true);
-
-
         actionMap.put(DefaultEditorKit.copyAction, copyAction);
         actionMap.put(DefaultEditorKit.cutAction, cutAction);
         actionMap.put(DefaultEditorKit.pasteAction, pasteAction);

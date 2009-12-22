@@ -67,9 +67,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
 
   def startCodeRunner(): Actor = {
     val actor = new InterpActor
-    Log.info("Starting actor...")
     actor.start()
-    Log.info("Initing actor...")
     actor ! Init
     actor
   }
