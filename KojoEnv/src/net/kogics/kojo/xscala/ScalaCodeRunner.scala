@@ -41,63 +41,6 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
     codeRunner ! RunCode(code)
   }
 
-  object InterpreterManager {
-    @volatile var interpreterThread: Option[Thread] = None
-    @volatile var interruptTimer: Option[javax.swing.Timer] = None
-
-    def interruptionInProgress = interruptTimer.isDefined
-
-    def interruptInterpreter() {
-      Log.info("Interruption of Interpreter Requested")
-      // Runs on swing thread
-      if (interruptionInProgress) {
-        Log.info("Interruption in progress. Bailing out")
-        return
-      }
-      
-      showOutput("Attempting to stop Script...\n")
-
-      if (interpreterThread.isDefined) {
-        Log.info("Interrupting Interpreter thread...")
-        interruptTimer = Some(Utils.schedule(4) {
-            // don't need to clean out interrupt state because Kojo needs to be shut down anyway
-            // and in fact, cleaning out the interrupt state will mess with a delayed interruption
-            Log.info("Interrupt timer fired")
-            showOutput("Unable to stop script.\nPlease restart the Kojo Environment unless you see a 'Script Stopped' message soon.\n")
-          })
-        outputHandler.interpOutputSuppressed = true
-        interpreterThread.get.interrupt
-      }
-      else {
-        showOutput("Animation Stopped.\n")
-      }
-    }
-
-    def interpreterStarted {
-      // Runs on Actor pool thread
-      interpreterThread = Some(Thread.currentThread)
-      // do this here instead of the done method to allow filtering of
-      // interruption stack trace from interpreter
-      interruptTimer = None
-      maybeOutputDelimiter()
-      ctx.interpreterStarted
-    }
-
-    def interpreterDone {
-      Log.info("Interpreter Done notification received")
-      // Runs on Actor pool thread
-      // might not be called for runaway computations
-      // in which case Kojo has to be restarted
-      if (interruptTimer.isDefined) {
-        Log.info("Cancelling interrupt timer")
-        interruptTimer.get.stop
-        outputHandler.interpOutputSuppressed = false
-        showOutput("Script Stopped.\n")
-      }
-      interpreterThread = None
-    }
-  }
-
   def interruptInterpreter() = InterpreterManager.interruptInterpreter()
 
   case object Init
@@ -122,8 +65,6 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
     resp.data
   }
 
-
-
   def startCodeRunner(): Actor = {
     val actor = new InterpActor
     Log.info("Starting actor...")
@@ -131,6 +72,63 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
     Log.info("Initing actor...")
     actor ! Init
     actor
+  }
+
+  object InterpreterManager {
+    @volatile var interpreterThread: Option[Thread] = None
+    @volatile var interruptTimer: Option[javax.swing.Timer] = None
+
+    def interruptionInProgress = interruptTimer.isDefined
+
+    def interruptInterpreter() {
+      Log.info("Interruption of Interpreter Requested")
+      // Runs on swing thread
+      if (interruptionInProgress) {
+        Log.info("Interruption in progress. Bailing out")
+        return
+      }
+
+      showOutput("Attempting to stop Script...\n")
+
+      if (interpreterThread.isDefined) {
+        Log.info("Interrupting Interpreter thread...")
+        interruptTimer = Some(Utils.schedule(4) {
+            // don't need to clean out interrupt state because Kojo needs to be shut down anyway
+            // and in fact, cleaning out the interrupt state will mess with a delayed interruption
+            Log.info("Interrupt timer fired")
+            showOutput("Unable to stop script.\nPlease restart the Kojo Environment unless you see a 'Script Stopped' message soon.\n")
+          })
+        outputHandler.interpOutputSuppressed = true
+        interpreterThread.get.interrupt
+      }
+      else {
+        showOutput("Animation Stopped.\n")
+      }
+    }
+
+    def onInterpreterStart() {
+      // Runs on Actor pool thread
+      // we store the thread every time the interp runs
+      // allows interp to switch between react and receive without impacting
+      // interruption logic
+      interpreterThread = Some(Thread.currentThread)
+      maybeOutputDelimiter()
+    }
+
+    def onInterpreterFinish() {
+      Log.info("Interpreter Done notification received")
+      // Runs on Actor pool thread
+      // might not be called for runaway computations
+      // in which case Kojo has to be restarted
+      if (interruptTimer.isDefined) {
+        Log.info("Cancelling interrupt timer")
+        interruptTimer.get.stop
+        interruptTimer = None
+        outputHandler.interpOutputSuppressed = false
+        showOutput("Script Stopped.\n")
+      }
+      interpreterThread = None
+    }
   }
 
   class InterpActor extends Actor {
@@ -152,6 +150,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
       while(true) {
         receive {
           // Runs on Actor pool thread
+
           case Init =>
             safeProcess {
               initInterp()
@@ -160,13 +159,21 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
           case RunCode(code) =>
             try {
               Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
-//            val ct = Thread.currentThread
-//            Log.info("CodeRunner actor running on thread: %s, Id: %d" format(ct.getName, System.identityHashCode(ct)))
-              InterpreterManager.interpreterStarted
+              InterpreterManager.onInterpreterStart()
+              ctx.onInterpreterStart()
+
               val ret = interpret(code)
               Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
+
               if (ret == IR.Incomplete) showIncompleteCodeMsg(code)
-              if (ret == IR.Success) ctx.onRunSuccess else ctx.onRunError
+
+              if (ret == IR.Success) {
+                ctx.onRunSuccess()
+              }
+              else {
+                if (InterpreterManager.interruptionInProgress) ctx.onRunSuccess() // user cancelled running code; no errors
+                else ctx.onRunError()
+              }
             }
             catch {
               case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
@@ -174,7 +181,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
             }
             finally {
               Log.info("CodeRunner actor doing final handling for code.")
-              InterpreterManager.interpreterDone
+              InterpreterManager.onInterpreterFinish()
             }
 
           case MethodCompletionRequest(str) =>

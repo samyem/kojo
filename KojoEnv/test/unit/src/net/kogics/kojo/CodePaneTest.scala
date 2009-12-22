@@ -42,7 +42,7 @@ class CodePaneTest {
       currOutput.append(lineFragment)
     }
 
-    def interpreterStarted {}
+    def onInterpreterStart() {}
     def clearOutput {currOutput.clear}
     def getCurrentOutput: String  = currOutput.toString
 

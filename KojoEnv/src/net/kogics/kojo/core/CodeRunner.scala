@@ -25,7 +25,7 @@ trait CodeRunner {
 }
 
 trait RunContext {
-  def interpreterStarted()
+  def onInterpreterStart()
   def onRunError()
   def onRunSuccess()
   def onRunInterpError()

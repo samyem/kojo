@@ -177,6 +177,13 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def makeRealCodeRunner: core.CodeRunner = {
     val codeRunner = new xscala.ScalaCodeRunner(new RunContext {
 
+        def onInterpreterStart {
+          codePane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          runButton.setEnabled(false)
+          stopButton.setEnabled(true)
+          runMonitor.onRunStart()
+        }
+
         def onRunError() {
           historyManager.codeRunError()
           interpreterDone()
@@ -207,12 +214,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         def reportErrorText(errText: String) {
           showErrorText(errText)
           runMonitor.reportOutput(errText)
-        }
-
-        def interpreterStarted {
-          runButton.setEnabled(false)
-          stopButton.setEnabled(true)
-          runMonitor.onRunStart()
         }
 
         private def interpreterDone() {
@@ -411,6 +412,13 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def runCode() {
     // Runs on swing thread
+    
+    // now that we use the proxy code runner, disable the run button right away and change
+    // the cursor so that the user gets some feedback the first time he runs something
+    // - relevant if the proxy is still loading the real runner
+    runButton.setEnabled(false)
+    codePane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
     val code = codePane.getText()
     if (code == null || code.trim.length == 0) return
     if (code.contains(CommandHistory.Separator)) {
