@@ -88,11 +88,26 @@ public final class CodeEditorTopComponent extends CloneableEditor {
     private JPopupMenu popupMenu;
     private CodeExecutionSupport codeExecSupport;
 
+    // Cut/Copy/Paste
+    final Action copyAction = new DefaultEditorKit.CopyAction();
+    final Action cutAction = new DefaultEditorKit.CutAction();
+    final Action pasteAction = new DefaultEditorKit.PasteAction();
+
     public CodeEditorTopComponent() {
         super(new KojoEditorSupport(new KojoEnv()));
         ((KojoEditorSupport) cloneableEditorSupport()).setTc(this);
 
         initComponents();
+
+        cutAction.setEnabled(false);
+        copyAction.setEnabled(false);
+        pasteAction.setEnabled(true);
+
+        ActionMap actionMap = getActionMap();
+        actionMap.put(DefaultEditorKit.copyAction, copyAction);
+        actionMap.put(DefaultEditorKit.cutAction, cutAction);
+        actionMap.put(DefaultEditorKit.pasteAction, pasteAction);
+
         setName(NbBundle.getMessage(CodeEditorTopComponent.class, "CTL_CodeEditorTopComponent"));
         setToolTipText(NbBundle.getMessage(CodeEditorTopComponent.class, "HINT_CodeEditorTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
@@ -240,19 +255,6 @@ public final class CodeEditorTopComponent extends CloneableEditor {
     private void tweakActions(JEditorPane ce) {
 
         ActionMap actionMap = getActionMap();
-
-        // Cut/Copy/Paste
-        final Action copyAction = new DefaultEditorKit.CopyAction();
-        final Action cutAction = new DefaultEditorKit.CutAction();
-        final Action pasteAction = new DefaultEditorKit.PasteAction();
-
-        cutAction.setEnabled(false);
-        copyAction.setEnabled(false);
-        pasteAction.setEnabled(true);
-
-        actionMap.put(DefaultEditorKit.copyAction, copyAction);
-        actionMap.put(DefaultEditorKit.cutAction, cutAction);
-        actionMap.put(DefaultEditorKit.pasteAction, pasteAction);
 
         ce.addCaretListener(new CaretListener() {
 
@@ -434,8 +436,30 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             add(new JSeparator());
             addMenu(configRoot, "Menu/Source", "Source");
             add(new JSeparator());
-            addActionMenuItem(configRoot, "Editors/Actions/toggle-line-numbers.instance");
+            addPopupPresenterActionMenuItem(configRoot, "Editors/Actions/toggle-line-numbers.instance");
             addFontMenuItem();
+        }
+
+        private void addPopupPresenterActionMenuItem(FileObject configRoot, String action) {
+            // special handling for 'toggle line numbers' action
+            // general purpose version below works for either
+            // cut/copy/paste or (if modified) with 'toggle line numbers'
+            // but not both!
+            try {
+                FileObject fo = configRoot.getFileObject(action);
+                DataObject dob = DataObject.find(fo);
+                InstanceCookie ck = dob.getCookie(InstanceCookie.class);
+                Object instanceObj = ck.instanceCreate();
+
+                if (instanceObj instanceof Presenter.Popup) {
+                    JMenuItem menuItem = ((Presenter.Popup) instanceObj).getPopupPresenter();
+                    if (menuItem != null) {
+                        add(menuItem);
+                    }
+                }
+            } catch (Exception ex) {
+                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+            }
         }
 
         private void addActionMenuItem(FileObject configRoot, String action) {
@@ -506,22 +530,6 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 
         private JMenuItem getPopupMenuItem(Object instanceObj) {
 
-            if (instanceObj instanceof Presenter.Popup) {
-                // caution: if popupPresenter is added to multiple menus, it will
-                // be visible only in the latest menu. Container.add() removes
-                // child form previous parent
-                return ((Presenter.Popup) instanceObj).getPopupPresenter();
-            }
-
-            if (instanceObj instanceof Presenter.Menu) {
-                Action action = ((Presenter.Menu) instanceObj).getMenuPresenter().getAction();
-                if (action != null) {
-                    JMenuItem menuItem = new JMenuItem();
-                    Actions.connect(menuItem, action, true);
-                    return menuItem;
-                }
-            }
-
             if (instanceObj instanceof BooleanStateAction) {
                 JMenuItem menuItem = new JCheckBoxMenuItem();
                 Actions.connect(menuItem, (Action) instanceObj, true);
@@ -533,6 +541,23 @@ public final class CodeEditorTopComponent extends CloneableEditor {
                 Actions.connect(menuItem, (Action) instanceObj, true);
                 return menuItem;
             }
+
+            if (instanceObj instanceof Presenter.Menu) {
+                Action action = ((Presenter.Menu) instanceObj).getMenuPresenter().getAction();
+                if (action != null) {
+                    JMenuItem menuItem = new JMenuItem();
+                    Actions.connect(menuItem, action, true);
+                    return menuItem;
+                }
+            }
+
+//            Does not work for Edit -> cut/copy/paste  
+//            if (instanceObj instanceof Presenter.Popup) {
+//                // caution: if popupPresenter is added to multiple menus, it will
+//                // be visible only in the latest menu. Container.add() removes
+//                // child form previous parent
+//                return ((Presenter.Popup) instanceObj).getPopupPresenter();
+//            }
 
             return null;
         }

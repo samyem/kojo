@@ -34,6 +34,12 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
     public OutputTopComponent() {
         initComponents();
 
+        // Disable cut key
+        Object cutKey = SystemAction.get(org.openide.actions.CutAction.class).getActionMapKey();
+        final Action cutAction = new DefaultEditorKit.CutAction();
+        cutAction.setEnabled(false);
+        getActionMap().put(cutKey, cutAction);
+
         setName(NbBundle.getMessage(OutputTopComponent.class, "CTL_OutputTopComponent"));
         setToolTipText(NbBundle.getMessage(OutputTopComponent.class, "HINT_OutputTopComponent"));
 //        setIcon(ImageUtilities.loadImage(ICON_PATH, true));
@@ -104,6 +110,7 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
         ioCb = cb;
         add(comp);
 
+        // Link local actions to Menu
         Object findKey = SystemAction.get(org.openide.actions.FindAction.class).getActionMapKey();
         Action findAction = comp.getActionMap().get("Find...");
         getActionMap().put(findKey, findAction);
@@ -111,11 +118,6 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
         Object copyKey = SystemAction.get(org.openide.actions.CopyAction.class).getActionMapKey();
         Action copyAction = comp.getActionMap().get("Copy");
         getActionMap().put(copyKey, copyAction);
-
-        Object cutKey = SystemAction.get(org.openide.actions.CutAction.class).getActionMapKey();
-        final Action cutAction = new DefaultEditorKit.CutAction();
-        cutAction.setEnabled(false);
-        getActionMap().put(cutKey, cutAction);
 
         validate();
     }
