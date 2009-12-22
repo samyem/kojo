@@ -24,13 +24,11 @@ import java.util.logging._
 import net.kogics.kojo.util._
 import net.kogics.kojo.core._
 
-class ScalaCodeRunner(ctx: net.kogics.kojo.RunContext, tCanvas: SCanvas) extends CodeRunner {
+class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
   val Log = Logger.getLogger(getClass.getName);
 
-  val OutputDelimiter = "---\n"
-  val Marker = "\u0000"
-
-  @volatile var initDone = false
+  val outputHandler = new InterpOutputHandler(ctx)
+  val OutputDelimiter = outputHandler.OutputDelimiter
 
   System.setProperty("java.class.path", createCp(
       List("modules/ext/scala-library.jar",
@@ -58,6 +56,253 @@ class ScalaCodeRunner(ctx: net.kogics.kojo.RunContext, tCanvas: SCanvas) extends
   }
   interp.setContextClassLoader
   
+  outputHandler.interpOutputSuppressed = true
+  interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", this)
+  interp.interpret("val builtins = predef.Builtins")
+  interp.interpret("import predef.Builtins._")
+  interp.bind("turtle0", "net.kogics.kojo.core.Sprite", tCanvas.turtle0)
+  outputHandler.interpOutputSuppressed = false
+  outputHandler.showOutput("---\n")
+
+  val codeRunner = startCodeRunner()
+
+  def createCp(xs: List[String]): String = {
+    val ourCp = new StringBuilder
+
+//    val oldCp = System.getProperty("java.class.path")
+//    ourCp.append(prefix)
+
+    val kojoCp = System.getenv("KOJO_CLASSPATH")
+    if (kojoCp != null) {
+      ourCp.append(kojoCp)
+      ourCp.append(File.pathSeparatorChar)
+    }
+
+    val prefix = Utils.installDir
+    
+    xs.foreach {x =>
+      ourCp.append(prefix)
+      ourCp.append(File.separatorChar)
+      ourCp.append(x)
+      ourCp.append(File.pathSeparatorChar)
+    }
+    ourCp.toString
+  }
+
+  def showInterpOutput(lineFragment: String) = outputHandler.showInterpOutput(lineFragment)
+  def showOutput(s: String) = outputHandler.showOutput(s)
+  def maybeOutputDelimiter() = outputHandler.maybeOutputDelimiter()
+
+  def runCode(code: String) = synchronized {
+    // Runs on swing thread
+//    Log.info("Running Code:\n---\n%s\n---\n" format(code))
+    codeRunner ! RunCode(code)
+  }
+  
+
+  object InterpreterManager {
+    @volatile var interpreterThread: Option[Thread] = None
+    @volatile var interruptTimer: Option[javax.swing.Timer] = None
+
+    def interruptionInProgress = interruptTimer.isDefined
+
+    def interruptInterpreter() {
+      Log.info("Interruption of Interpreter Requested")
+      // Runs on swing thread
+      if (interruptionInProgress) {
+        Log.info("Interruption in progress. Bailing out")
+        return
+      }
+      
+      showOutput("Attempting to stop Script...\n")
+
+      if (interpreterThread.isDefined) {
+        Log.info("Interrupting Interpreter thread...")
+        interruptTimer = Some(Utils.schedule(4) {
+            // don't need to clean out interrupt state because Kojo needs to be shut down anyway
+            // and in fact, cleaning out the interrupt state will mess with a delayed interruption
+            Log.info("Interrupt timer fired")
+            showOutput("Unable to stop script.\nPlease restart the Kojo Environment unless you see a 'Script Stopped' message soon.\n")
+          })
+        outputHandler.interpOutputSuppressed = true
+        interpreterThread.get.interrupt
+      }
+      else {
+        showOutput("Animation Stopped.\n")
+      }
+    }
+
+    def interpreterStarted {
+      // Runs on Actor pool thread
+      interpreterThread = Some(Thread.currentThread)
+      // do this here instead of the done method to allow filtering of
+      // interruption stack trace from interpreter
+      interruptTimer = None
+      maybeOutputDelimiter()
+      ctx.interpreterStarted
+    }
+
+    def interpreterDone {
+      Log.info("Interpreter Done notification received")
+      // Runs on Actor pool thread
+      // might not be called for runaway computations
+      // in which case Kojo has to be restarted
+      if (interruptTimer.isDefined) {
+        Log.info("Cancelling interrupt timer")
+        interruptTimer.get.stop
+        outputHandler.interpOutputSuppressed = false
+        showOutput("Script Stopped.\n")
+      }
+      interpreterThread = None
+    }
+  }
+
+  def interruptInterpreter() = InterpreterManager.interruptInterpreter()
+
+  case class RunCode(code: String)
+
+  def startCodeRunner() = actor {
+
+    val varPattern = java.util.regex.Pattern.compile("\\bvar\\b")
+
+    def interpretLine(lines: List[String]): IR.Result = lines match {
+      case Nil => IR.Success
+      case code :: tail =>
+//        Log.info("Interpreting code: %s\n" format(code))
+        interp.interpret(code) match {
+          case IR.Error       => IR.Error
+          case IR.Success     => interpretLine(lines.tail)
+          case IR.Incomplete  =>
+            tail match {
+              case Nil => IR.Incomplete
+              case code2 :: tail2 => interpretLine(code + "\n" + code2 :: tail2)
+            }
+        }
+    }
+
+    def interpretLineByLine(code: String): IR.Result = {
+      val lines = code.split("\r?\n").toList.filter(line => line.trim() != "" && !line.trim().startsWith("//"))
+//            Log.info("Code Lines: " + lines)
+      interpretLine(lines)
+    }
+
+    def interpretAllLines(code: String): IR.Result = interp.interpret(code)
+
+    def interpret(code: String): IR.Result = {
+      if (needsLineByLineInterpretation(code)) interpretLineByLine(code)
+      else interpretAllLines(code)
+    }
+
+    def needsLineByLineInterpretation(code: String): Boolean = {
+      varPattern.matcher(code).find()
+    }
+
+    def showIncompleteCodeMsg(code: String) {
+      val msg = """
+      |<console>:9: error: Incomplete code fragment
+      |You probably have a missing brace/bracket somewhere in your script
+      """.stripMargin
+      showOutput(msg)
+    }
+
+    while(true) {
+      receive {
+        // Runs on Actor pool thread
+        case RunCode(code) =>
+          try {
+            Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
+//            val ct = Thread.currentThread
+//            Log.info("CodeRunner actor running on thread: %s, Id: %d" format(ct.getName, System.identityHashCode(ct)))
+            InterpreterManager.interpreterStarted
+            val ret = interpret(code)
+            Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
+            if (ret == IR.Incomplete) showIncompleteCodeMsg(code)
+            if (ret == IR.Success) ctx.onRunSuccess else ctx.onRunError
+          }
+          catch {
+            case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
+              ctx.onRunInterpError
+          }
+          finally {
+            Log.info("CodeRunner actor doing final handling for code.")
+            InterpreterManager.interpreterDone
+          }
+      }
+    }
+  }
+
+  import CodeCompletionUtils._
+
+  def completions(identifier: String) = {
+    Log.fine("Finding Identifier completions for: " + identifier)
+    // warning! calling into interp while a computation is running within the actor
+    // might lead to problems
+    val completions = interp.membersOfIdentifier(identifier).filter {s => !MethodDropFilter.contains(s)}
+    Log.fine("Completions: " + completions)
+    completions
+  }
+
+  def methodCompletions(str: String): (List[String], Int) = synchronized {
+    val (oIdentifier, oPrefix) = findIdentifier(str)
+    val prefix = if(oPrefix.isDefined) oPrefix.get else ""
+    if (oIdentifier.isDefined) {
+      (completions(oIdentifier.get).filter {s => s.startsWith(prefix)}, prefix.length)
+    }
+    else {
+      val c1s = completions("builtins").filter {s => s.startsWith(prefix)}
+      Log.fine("Filtered builtins completions for prefix '%s' - %s " format(prefix, c1s))
+      (c1s, prefix.length)
+    }
+  }
+
+  def varCompletions(str: String): (List[String], Int) = synchronized {
+
+    def varFilter(s: String) = !VarDropFilter.contains(s) && !InternalVarsRe.matcher(s).matches
+
+    val (oIdentifier, oPrefix) = findIdentifier(str)
+    val prefix = if(oPrefix.isDefined) oPrefix.get else ""
+    if (oIdentifier.isDefined) {
+      (Nil, 0)
+    }
+    else {
+      val c2s = interp.unqualifiedIds.filter {s => s.startsWith(prefix) && varFilter(s)}
+      (c2s, prefix.length)
+    }
+  }
+
+  def keywordCompletions(str: String): (List[String], Int) = {
+    val (oIdentifier, oPrefix) = findIdentifier(str)
+    val prefix = if(oPrefix.isDefined) oPrefix.get else ""
+    if (oIdentifier.isDefined) {
+      (Nil, 0)
+    }
+    else {
+      val c2s = Keywords.filter {s => s.startsWith(prefix)}
+      (c2s, prefix.length)
+    }
+  }
+
+  class GuiWriter extends Writer {
+    override def write(s: String) {
+      showInterpOutput(s)
+    }
+
+    def write(cbuf: Array[Char], off: Int, len: Int) {
+      showInterpOutput(new String(cbuf, off, len))
+    }
+
+    def close() {}
+    def flush() {}
+  }
+
+  class NewLinePrintWriter() extends PrintWriter(new GuiWriter(), false) {
+
+    override def write(s: String) {
+      // intercept string writes and forward to the GuiWriter's string write() method
+      out.write(s)
+    }
+  }
+
   object Builtins extends SCanvas {
     type Sprite = net.kogics.kojo.core.Sprite
     type Color = java.awt.Color
@@ -147,7 +392,7 @@ Here's a partial list of available commands:
     val brown = new Color(0x583a0b)
     val black = Color.black
     val white = Color.white
-    
+
 
     // I tried implicits to support automatic delegation. That works as expected,
     // but is not too friendly for the user - they need to say something like
@@ -218,289 +463,71 @@ Here's a partial list of available commands:
       }
     }
   }
+}
 
-  interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", this)
-  interp.interpret("val builtins = predef.Builtins")
-  interp.interpret("import predef.Builtins._")
-  interp.bind("turtle0", "net.kogics.kojo.core.Sprite", tCanvas.turtle0)
-  interp.interpret("\"" + Marker + "\"")
-
-  val codeRunner = startCodeRunner()
-
-  def createCp(xs: List[String]): String = {
-    val ourCp = new StringBuilder
-
-//    val oldCp = System.getProperty("java.class.path")
-//    ourCp.append(prefix)
-
-    val kojoCp = System.getenv("KOJO_CLASSPATH")
-    if (kojoCp != null) {
-      ourCp.append(kojoCp)
-      ourCp.append(File.pathSeparatorChar)
-    }
-
-    val prefix = Utils.installDir
-    
-    xs.foreach {x =>
-      ourCp.append(prefix)
-      ourCp.append(File.separatorChar)
-      ourCp.append(x)
-      ourCp.append(File.pathSeparatorChar)
-    }
-    ourCp.toString
-  }
-
-  def showOutput(lineFragment: String) {
-    if (!initDone) {
-      if (lineFragment.contains(Marker)) initDone = true
-    }
-    else {
-      if (!InterpreterManager.interruptionInProgress) reallyShowOutput(lineFragment)
-    }
-  }
-
-  @volatile var lastOutputLine = ""
+class InterpOutputHandler(ctx: RunContext) {
+  @volatile var lastOutput = ""
   @volatile var errorSeen = false
+
+  val OutputDelimiter = "---\n"
+  val OutputMode = 1
+  val ErrorMsgMode = 2
+  val ErrorTextMode = 3
+  @volatile var currMode = OutputMode
+
   val errorPattern = java.util.regex.Pattern.compile("""^<console>:\d+: error:""")
+  @volatile var interpOutputSuppressed = false
 
-  def reallyShowOutput(output: String) {
-    if (output == "") return
-    
-    val lines = output.split('\n')
-    lines.foreach {line =>
-      val eSeen = errorPattern.matcher(line).find
-      val outLine = line + "\n"
-
-      if (errorSeen) {
-        errorSeen = false
-        ctx.reportErrorText(outLine)
-      }
-      else if (eSeen) {
-        ctx.reportErrorMsg(outLine)
-      }
-      else {
-        ctx.reportOutput(outLine)
-      }
-
-      errorSeen = eSeen
-      lastOutputLine = outLine
-    }
+  def showInterpOutput(lineFragment: String) {
+    if (!interpOutputSuppressed) reportInterpOutput(lineFragment)
   }
 
-  def unconditionallyShowOutput(s: String) = {
+  def showOutput(s: String) = {
     ctx.reportOutput(s)
-    lastOutputLine = s
+    lastOutput = s
   }
 
   def maybeOutputDelimiter() {
-    if (lastOutputLine.length > 0 && !lastOutputLine.endsWith(OutputDelimiter))
+    if (lastOutput.length > 0 && !lastOutput.endsWith(OutputDelimiter))
       showOutput(OutputDelimiter)
   }
 
-  def runCode(code: String) = synchronized {
-    // Runs on swing thread
-//    Log.info("Running Code:\n---\n%s\n---\n" format(code))
-    codeRunner ! RunCode(code)
-  }
-  
+  def reportInterpOutput(output: String) {
+    if (output == "") return
 
-  object InterpreterManager {
-    @volatile var interpreterThread: Option[Thread] = None
-    @volatile var interruptTimer: Option[javax.swing.Timer] = None
+    // Interp sends in one line at a time for error output
+    // Scala compiler code reference:
+    // ConsoleReporter.printMessage() calls:
+    // - ConsoleReporter.printMessage() [overloaded] to print error message
+    // - printSourceLines(pos), which calls:
+    // -- ConsoleReporter.printMessage() [overloaded] to print error text
+    // -- printColumnMarker(pos) - to print hat
 
-    def interruptionInProgress = interruptTimer.isDefined
+    currMode match {
+      case OutputMode =>
+        if (errorPattern.matcher(output).find) currMode = ErrorMsgMode
 
-    def interruptInterpreter() {
-      Log.info("Interruption of Interpreter Requested")
-      // Runs on swing thread
-      if (interruptionInProgress) {
-        Log.info("Interruption in progress. Bailing out")
-        return
-      }
-      
-      unconditionallyShowOutput("Attempting to stop Script...\n")
-
-      if (interpreterThread.isDefined) {
-        Log.info("Interrupting Interpreter thread...")
-        interruptTimer = Some(Utils.schedule(4) {
-            // don't need to clean out interrupt state because Kojo needs to be shut down anyway
-            // and in fact, cleaning out the interrupt state will mess with a delayed interruption
-            Log.info("Interrupt timer fired")
-            unconditionallyShowOutput("Unable to stop script.\nPlease restart the Kojo Environment unless you see a 'Script Stopped' message soon.\n")
-          })
-        interpreterThread.get.interrupt
-      }
-      else {
-        unconditionallyShowOutput("Animation Stopped.\n")
-      }
+      case ErrorMsgMode =>
+        // Doing a flaky test based on the fact that error text has leading
+        // whitespace
+        // After looking at the scala compiler source, this seems to originate
+        // from Interpreter.indentCode()
+//        if (output.startsWith("    ")) currMode = ErrorTextMode
+        
+        // No need to make the above check because, after looking at the Scala compiler
+        // source, we know that we get three calls for an error:
+        // (1) err msg (2) err text (3) hat
+        currMode = ErrorTextMode
+      case ErrorTextMode =>
+        currMode = OutputMode
     }
 
-    def interpreterStarted {
-      // Runs on Actor pool thread
-      interpreterThread = Some(Thread.currentThread)
-      // do this here instead of the done method to allow filtering of
-      // interruption stack trace from interpreter
-      interruptTimer = None
-      maybeOutputDelimiter()
-      ctx.interpreterStarted
+    currMode match {
+      case OutputMode => ctx.reportOutput(output)
+      case ErrorMsgMode => ctx.reportErrorMsg(output)
+      case ErrorTextMode => ctx.reportErrorText(output)
     }
 
-    def interpreterDone {
-      Log.info("Interpreter Done notification received")
-      // Runs on Actor pool thread
-      // might not be called for runaway computations
-      // in which case Kojo has to be restarted
-      if (interruptTimer.isDefined) {
-        Log.info("Cancelling interrupt timer")
-        interruptTimer.get.stop
-        Log.info("Requesting Script Stopped Output")
-        unconditionallyShowOutput("Script Stopped.\n")
-      }
-      interpreterThread = None
-    }
-  }
-
-  def interruptInterpreter() = InterpreterManager.interruptInterpreter()
-
-  case class RunCode(code: String)
-
-  def startCodeRunner() = actor {
-
-    val varPattern = java.util.regex.Pattern.compile("\\bvar\\b")
-
-    def interpretLine(lines: List[String]): IR.Result = lines match {
-      case Nil => IR.Success
-      case code :: tail =>
-//        Log.info("Interpreting code: %s\n" format(code))
-        interp.interpret(code) match {
-          case IR.Error       => IR.Error
-          case IR.Success     => interpretLine(lines.tail)
-          case IR.Incomplete  =>
-            tail match {
-              case Nil => IR.Incomplete
-              case code2 :: tail2 => interpretLine(code + "\n" + code2 :: tail2)
-            }
-        }
-    }
-
-    def interpretLineByLine(code: String): IR.Result = {
-      val lines = code.split("\r?\n").toList.filter(line => line.trim() != "" && !line.trim().startsWith("//"))
-//            Log.info("Code Lines: " + lines)
-      interpretLine(lines)
-    }
-
-    def interpretAllLines(code: String): IR.Result = interp.interpret(code)
-
-    def interpret(code: String): IR.Result = {
-      if (needsLineByLineInterpretation(code)) interpretLineByLine(code)
-      else interpretAllLines(code)
-    }
-
-    def needsLineByLineInterpretation(code: String): Boolean = {
-      varPattern.matcher(code).find()
-    }
-
-    def showIncompleteCodeMsg(code: String) {
-      val msg = """
-      |<console>:9: error: Incomplete code fragment
-      |You probably have a missing brace/bracket somewhere in your script
-      """.stripMargin
-      showOutput(msg)
-    }
-
-    while(true) {
-      receive {
-        // Runs on Actor pool thread
-        case RunCode(code) =>
-          try {
-            Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
-//            val ct = Thread.currentThread
-//            Log.info("CodeRunner actor running on thread: %s, Id: %d" format(ct.getName, System.identityHashCode(ct)))
-            InterpreterManager.interpreterStarted
-            val ret = interpret(code)
-            Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
-            if (ret == IR.Incomplete) showIncompleteCodeMsg(code)
-            if (ret == IR.Success) ctx.onRunSuccess else ctx.onRunError
-          }
-          catch {
-            case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
-              ctx.onRunInterpError
-          }
-          finally {
-            Log.info("CodeRunner actor doing final handling for code.")
-            InterpreterManager.interpreterDone
-          }
-      }
-    }
-  }
-
-  import CodeCompletionUtils._
-
-  def completions(identifier: String) = {
-    Log.fine("Finding Identifier completions for: " + identifier)
-    val completions = interp.membersOfIdentifier(identifier).filter {s => !MethodDropFilter.contains(s)}
-    Log.fine("Completions: " + completions)
-    completions
-  }
-
-  def methodCompletions(str: String): (List[String], Int) = synchronized {
-    val (oIdentifier, oPrefix) = findIdentifier(str)
-    val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-    if (oIdentifier.isDefined) {
-      (completions(oIdentifier.get).filter {s => s.startsWith(prefix)}, prefix.length)
-    }
-    else {
-      val c1s = completions("builtins").filter {s => s.startsWith(prefix)}
-      Log.fine("Filtered builtins completions for prefix '%s' - %s " format(prefix, c1s))
-      (c1s, prefix.length)
-    }
-  }
-
-  def varCompletions(str: String): (List[String], Int) = synchronized {
-
-    def varFilter(s: String) = !VarDropFilter.contains(s) && !InternalVarsRe.matcher(s).matches
-
-    val (oIdentifier, oPrefix) = findIdentifier(str)
-    val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-    if (oIdentifier.isDefined) {
-      (Nil, 0)
-    }
-    else {
-      val c2s = interp.unqualifiedIds.filter {s => s.startsWith(prefix) && varFilter(s)}
-      (c2s, prefix.length)
-    }
-  }
-
-  def keywordCompletions(str: String): (List[String], Int) = {
-    val (oIdentifier, oPrefix) = findIdentifier(str)
-    val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-    if (oIdentifier.isDefined) {
-      (Nil, 0)
-    }
-    else {
-      val c2s = Keywords.filter {s => s.startsWith(prefix)}
-      (c2s, prefix.length)
-    }
-  }
-
-  class GuiWriter extends Writer {
-    override def write(s: String) {
-      showOutput(s)
-    }
-
-    def write(cbuf: Array[Char], off: Int, len: Int) {
-      showOutput(new String(cbuf, off, len))
-    }
-
-    def close() {}
-    def flush() {}
-  }
-
-  class NewLinePrintWriter() extends PrintWriter(new GuiWriter(), false) {
-
-    override def write(s: String) {
-      // intercept string writes and forward to the GuiWriter's string write() method
-      out.write(s)
-    }
+    lastOutput = output
   }
 }

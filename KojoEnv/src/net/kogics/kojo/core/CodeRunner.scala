@@ -24,6 +24,19 @@ trait CodeRunner {
   def keywordCompletions(str: String): (List[String], Int)
 }
 
+trait RunContext {
+  def interpreterStarted()
+  def onRunError()
+  def onRunSuccess()
+  def onRunInterpError()
+
+  def reportOutput(outText: String)
+  def reportErrorMsg(errMsg: String)
+  def reportErrorText(errText: String)
+
+  def clearOutput()
+}
+
 class ProxyCodeRunner(codeRunnerMaker: () => CodeRunner) extends CodeRunner {
   val latch = new CountDownLatch(1)
   @volatile var codeRunner: CodeRunner = _

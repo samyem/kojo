@@ -22,6 +22,7 @@ import org.junit.Assert._
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
+import net.kogics.kojo.core.RunContext
 
 class CodePaneTest {
 
@@ -92,31 +93,36 @@ class CodePaneTest {
     runCtx.success.set(false)
     runCode()
     assertTrue(runCtx.success.get)
-    assertEquals("res1: Int = 12", stripCrLfs(runCtx.getCurrentOutput))
+    assertEquals(stripCrLfs(Delimiter) +
+                 "res0: Int = 12",
+                 stripCrLfs(runCtx.getCurrentOutput))
 
     pane.setText("13")
     runCode()
-    assertEquals("res1: Int = 12" +
+    assertEquals(stripCrLfs(Delimiter) +
+                 "res0: Int = 12" +
                  stripCrLfs(Delimiter) +
-                 "res2: Int = 13",
+                 "res1: Int = 13",
                  stripCrLfs(runCtx.getCurrentOutput))
 
 
     pane.setText("forward(100)")
     runCode()
-    assertEquals("res1: Int = 12" +
+    assertEquals(stripCrLfs(Delimiter) +
+                 "res0: Int = 12" +
                  stripCrLfs(Delimiter) +
-                 "res2: Int = 13" +
+                 "res1: Int = 13" +
                  stripCrLfs(Delimiter),
                  stripCrLfs(runCtx.getCurrentOutput))
 
     pane.setText("14")
     runCode()
-    assertEquals("res1: Int = 12" +
+    assertEquals(stripCrLfs(Delimiter) +
+                 "res0: Int = 12" +
                  stripCrLfs(Delimiter) +
-                 "res2: Int = 13" +
+                 "res1: Int = 13" +
                  stripCrLfs(Delimiter) +
-                 "res4: Int = 14",
+                 "res3: Int = 14",
                  stripCrLfs(runCtx.getCurrentOutput))
 
     runCtx.clearOutput

@@ -26,6 +26,7 @@ import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 
 import util._
+import net.kogics.kojo.core.RunContext
 
 import org.openide.windows._
 import org.openide.awt.UndoRedo
@@ -88,7 +89,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     |* You can right-click on (most) windows to access context-sensitive actions.
     |* You can run the help command, i.e. type help and press Ctrl+Enter in the script window, if you need assistance.
     |
-    |---
     |""".stripMargin
     
     showOutput(msg)
@@ -604,17 +604,4 @@ class NoOpRunMonitor extends RunMonitor {
   def reportOutput(outText: String) {}
   def onRunStart() {}
   def onRunEnd() {}
-}
-
-trait RunContext {
-  def interpreterStarted()
-  def onRunError()
-  def onRunSuccess()
-  def onRunInterpError()
-
-  def reportOutput(outText: String)
-  def reportErrorMsg(errMsg: String)
-  def reportErrorText(errText: String)
-
-  def clearOutput()
 }
