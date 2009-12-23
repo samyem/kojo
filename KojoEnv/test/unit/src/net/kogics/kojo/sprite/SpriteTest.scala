@@ -266,6 +266,24 @@ class SpriteTest {
   }
 
   @Test
+  def testTurn2 {
+    val latch = listenToSprite
+    val theta0 = sprite.heading
+    // failing test from earlier scalacheck run. but works here??
+    val turnSize = 2147483647
+    sprite.turn(turnSize)
+    latch.await
+    val theta1 = sprite.heading
+    val e0 = theta0 + turnSize
+    val expected = {
+      if (e0 < 0) 360 + e0 % 360
+      else if (e0 > 360)  e0 % 360
+      else e0
+    }
+    doublesEqual(expected, theta1, 0.001)
+  }
+
+  @Test
   def testManyForwards {
     val propForward = forAll { stepSize: Int =>
       val pos0 = sprite.position

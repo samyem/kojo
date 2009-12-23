@@ -540,6 +540,8 @@ Here's a partial list of available commands:
 }
 
 class InterpOutputHandler(ctx: RunContext) {
+  val Log = Logger.getLogger(getClass.getName);
+
   @volatile var lastOutput = ""
   @volatile var errorSeen = false
 
@@ -550,6 +552,7 @@ class InterpOutputHandler(ctx: RunContext) {
   @volatile var currMode = OutputMode
 
   val errorPattern = java.util.regex.Pattern.compile("""^<console>:\d+: error:""")
+  val exceptionPattern = java.util.regex.Pattern.compile("""^\w+(\.\w+)+Exception""")
   @volatile var interpOutputSuppressed = false
 
   def showInterpOutput(lineFragment: String) {
@@ -566,8 +569,24 @@ class InterpOutputHandler(ctx: RunContext) {
       showOutput(OutputDelimiter)
   }
 
-  def reportInterpOutput(output: String) {
-    if (output == "") return
+  def reportInterpOutput(output0: String) {
+    if (output0 == "") return
+
+    val output =
+      if (exceptionPattern.matcher(output0).find) {
+        Log.info("Exception in interpreter output: " + output0)
+//      output0.lines.take(5).mkString("\n") + "......"
+        val lines = output0.split("\n")
+        if (lines.size > 5) {
+          lines.take(5).mkString("\n") + "......"
+        }
+        else {
+          output0
+        }
+      }
+    else {
+      output0
+    }
 
     // Interp sends in one line at a time for error output
     // Scala compiler code reference:
