@@ -578,7 +578,7 @@ class InterpOutputHandler(ctx: RunContext) {
 //      output0.lines.take(5).mkString("\n") + "......"
         val lines = output0.split("\n")
         if (lines.size > 5) {
-          lines.take(5).mkString("\n") + "......"
+          lines.take(5).mkString("\n") + "......\n"
         }
         else {
           output0

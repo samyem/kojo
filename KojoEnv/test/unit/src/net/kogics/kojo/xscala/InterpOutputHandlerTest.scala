@@ -114,7 +114,7 @@ class InterpOutputHandlerTest {
         at .<init>(<console>:9)
         at .<clinit>(<console>)
         at RequestResult$.<init>(<console>:4)
-        at RequestResult$.<clinit>(<console>)......"""
+        at RequestResult$.<clinit>(<console>)......""" + "\n"
 
     val runCtx = (context.mock(classOf[RunContext])).asInstanceOf[RunContext]
     context.checking (new Expectations {
@@ -148,7 +148,7 @@ class InterpOutputHandlerTest {
         at .<init>(<console>:9)
         at .<clinit>(<console>)
         at RequestResult$.<init>(<console>:4)
-        at RequestResult$.<clinit>(<console>)......"""
+        at RequestResult$.<clinit>(<console>)......""" + "\n"
 
     val runCtx = (context.mock(classOf[RunContext])).asInstanceOf[RunContext]
     context.checking (new Expectations {
