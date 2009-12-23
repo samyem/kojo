@@ -43,16 +43,18 @@ object Utils {
     }
   }
 
-  def runInSwingThreadAndWait(fn: => Unit) {
+  def runInSwingThreadAndWait[T](fn: => T): T = {
     if(EventQueue.isDispatchThread) {
       fn
     }
     else {
+      var t: T = null.asInstanceOf[T]
       javax.swing.SwingUtilities.invokeAndWait(new Runnable {
           override def run {
-            fn
+            t = fn
           }
         })
+      t
     }
   }
 

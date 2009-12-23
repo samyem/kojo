@@ -36,6 +36,9 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
   def showOutput(s: String) = outputHandler.showOutput(s)
   def maybeOutputDelimiter() = outputHandler.maybeOutputDelimiter()
 
+  def readInput(prompt: String): String = ctx.readInput(prompt)
+
+
   def runCode(code: String) = {
     // Runs on swing thread
     codeRunner ! RunCode(code)
@@ -387,6 +390,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
       showOutput(s + "\n")
       throttler.throttle
     }
+
+    def readln(prompt: String): String = readInput(prompt)
 
     def version = println("Scala " + scala.tools.nsc.Properties.versionString)
 

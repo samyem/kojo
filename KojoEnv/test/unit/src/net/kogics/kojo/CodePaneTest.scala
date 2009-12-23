@@ -37,6 +37,7 @@ class CodePaneTest {
     val error = new AtomicBoolean()
 
     def reportRunError() {}
+    def readInput(prompt: String) = ""
 
     def reportOutput(lineFragment: String) {
       currOutput.append(lineFragment)

@@ -135,16 +135,6 @@ public final class SCanvasTopComponent extends TopComponent {
         return TopComponent.PERSISTENCE_NEVER;
     }
 
-    @Override
-    public void componentOpened() {
-        // TODO add custom code on component opening
-    }
-
-    @Override
-    public void componentClosed() {
-        // TODO add custom code on component closing
-    }
-
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles

@@ -69,9 +69,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   val codeRunner = makeCodeRunner()
   
-  lazy val IO = makeOutput2()
+  val IO = makeOutput2()
 
   val statusStrip = new StatusStrip()
+  val promptMarkColor = new Color(0x2fa600)
+  val promptColor = new Color(0x883300)
 
   setSpriteListener()
   doWelcome()
@@ -96,7 +98,10 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def makeOutput2(): org.openide.windows.InputOutput = {
     val ioc = IOContainer.create(OutputTopComponent.findInstance)
-    IOProvider.getDefault().getIO("Script Output", Array[Action](), ioc)
+    val ret = IOProvider.getDefault().getIO("Script Output", Array[Action](), ioc)
+    ret.setFocusTaken(false)
+    ret.setInputVisible(false)
+    ret
   }
 
   def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton, JButton) = {
@@ -226,6 +231,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
             undoRedoManager.discardAllEdits()
           }
         }
+
+        def readInput(prompt: String): String = CodeExecutionSupport.this.readInput(prompt)
 
         def clearOutput() = clrOutput()
       }, tCanvas)
@@ -388,6 +395,24 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   }
 
   def enableClearButton() = if (!clearButton.isEnabled) clearButton.setEnabled(true)
+
+  def readInput(prompt: String): String = {
+    IO.setInputVisible(true)
+//    IO.setFocusTaken(true)
+    val outText = prompt + " : "
+    val promptSpaces = if (outText.length - 12 > 0) outText.length - 12 else 0
+
+    IOColorPrint.print(IO, " " * promptSpaces + "Click below to enter text\n", promptMarkColor);
+    IOColorPrint.print(IO, " " * outText.length + "V\n", promptMarkColor);
+    IOColorPrint.print(IO, outText, promptColor);
+
+    val line = new java.io.BufferedReader(IO.getIn()).readLine()
+
+//    IO.setFocusTaken(false)
+    IO.setInputVisible(false)
+    codePane.requestFocusInWindow()
+    line
+  }
 
   def showOutput(outText: String) {
     Utils.runInSwingThread {

@@ -34,6 +34,8 @@ trait RunContext {
   def reportErrorMsg(errMsg: String)
   def reportErrorText(errText: String)
 
+  def readInput(prompt: String): String
+
   def clearOutput()
 }
 

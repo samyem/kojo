@@ -162,11 +162,6 @@ public final class HistoryTopComponent extends TopComponent {
         jList1.ensureIndexIsVisible(n);
     }
 
-    @Override
-    public void componentClosed() {
-        // TODO add custom code on component closing
-    }
-
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
