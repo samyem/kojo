@@ -150,7 +150,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
     def act() {
       while(true) {
         receive {
-          // Runs on Actor pool thread
+          // Runs on Actor pool thread.
+          // while(true) receive - ensures we stay on the same thread
 
           case Init =>
             safeProcess {
@@ -204,31 +205,21 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
     }
 
     def initInterp() {
-      System.setProperty("java.class.path", createCp(
+      val iSettings = new Settings {
+        override protected def classpathDefault = createCp(
           List("modules/ext/scala-library.jar",
                "modules/ext/scala-compiler.jar",
                "modules/net-kogics-kojo.jar",
                "modules/ext/piccolo2d-core-1.3-SNAPSHOT.jar",
                "modules/ext/piccolo2d-extras-1.3-SNAPSHOT.jar"
           )
-        ))
-
-      // Scala Interpreter cannot be loaded by Kojo as of Revision 19285 because of changes in Settings
-      // and MainGenericRunner
-      // I need to follow up with the Scala folks about this when I have some time
-      // Fix for now reverts the behavior of Settings to Revision 19284 by subclassing it and overriding the
-      // classpathDefault method
-      val iSettings = new Settings {
-        private def syspropopt(name: String): Option[String] = onull(System.getProperty(name))
-
-        override protected def classpathDefault =
-          syspropopt("env.classpath") orElse syspropopt("java.class.path") getOrElse ""
+        )
       }
 
       interp = new Interpreter(iSettings, new NewLinePrintWriter()) {
-        override protected def parentClassLoader = Thread.currentThread.getContextClassLoader
+        override protected def parentClassLoader = classOf[ScalaCodeRunner].getClassLoader
       }
-      interp.setContextClassLoader
+      interp.setContextClassLoader()
 
       outputHandler.interpOutputSuppressed = true
       interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", ScalaCodeRunner.this)
@@ -242,9 +233,15 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
     def createCp(xs: List[String]): String = {
       val ourCp = new StringBuilder
 
-//    val oldCp = System.getProperty("java.class.path")
-//    ourCp.append(prefix)
+//      val oldCp = System.getProperty("java.class.path")
+//      The above is the system classpath with a lot of Netbeans jars at the end
+      val oldCp = System.getenv("CLASSPATH")
+      if (oldCp != null) {
+        ourCp.append(oldCp)
+        ourCp.append(File.pathSeparatorChar)
+      }
 
+      // allow another way to customize classpath
       val kojoCp = System.getenv("KOJO_CLASSPATH")
       if (kojoCp != null) {
         ourCp.append(kojoCp)
