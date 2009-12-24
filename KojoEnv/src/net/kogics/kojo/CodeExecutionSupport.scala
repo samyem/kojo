@@ -85,11 +85,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   }
 
   def doWelcome() = {
-    val msg = """Welcome to Kojo!
-    |
-    |Here are some tips to get you started:
-    |* You can right-click on (most) windows to access context-sensitive actions.
-    |* You can run the help command, i.e. type help and press Ctrl+Enter in the script window, if you need assistance.
+    val msg = """Welcome to Kojo! 
+    |* To access context-sensitive actions  ->  Right-click on (most) windows
+    |* To Pan/Zoom within the Turtle window ->  Click the left/right mouse button and drag
+    |  * To Reset Pan and Zoom levels       ->  Resize the Turtle window
+    |* To see a list of available commands  ->  Type help and press Ctrl+Enter in the script window
     |
     |""".stripMargin
     

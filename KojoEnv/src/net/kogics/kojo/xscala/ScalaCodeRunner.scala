@@ -428,9 +428,11 @@ Here's a partial list of available commands:
   visible() - Make the hidden turtle visible again
 
   repeat(n) {} - Repeat commands within braces n number of times
+  println(string) - Print the given string on the output window
+  readln(promptString) - Display the given prompt on the output window and read a line that the user enters
 
   newTurtle(x, y) - Make a new turtle located at the point (x, y)
-  turtle0 - gives you a handle to the origianl turtle.
+  turtle0 - gives you a handle to the original turtle.
 """)
     }
 
