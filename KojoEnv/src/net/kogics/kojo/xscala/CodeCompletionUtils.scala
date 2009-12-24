@@ -16,7 +16,15 @@ package net.kogics.kojo.xscala
 
 object CodeCompletionUtils {
   val NotIdChars = """ .(){}!%&+\-<=>?@\\^`|~#:/*""" + "\n\r\t"
-  val Keywords = List("for", "if", "else", "while", "return", "true", "false")
+
+  import org.netbeans.modules.scala.core.lexer.ScalaTokenId
+  val Keywords = 
+    ScalaTokenId.values.filter { v =>
+      v.asInstanceOf[ScalaTokenId.V].primaryCategory == "keyword"
+    }.map { v =>
+      v.asInstanceOf[ScalaTokenId.V].fixedText
+    }.toList
+
   val KeywordTemplates = Map(
     "for" -> "for(i <- 1 to 10){\n}",
     "while" -> "while(){\n}",

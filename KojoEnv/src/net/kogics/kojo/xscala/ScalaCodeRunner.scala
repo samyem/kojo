@@ -216,7 +216,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
         )
       }
 
-      interp = new Interpreter(iSettings, new NewLinePrintWriter()) {
+      interp = new Interpreter(iSettings, new GuiPrintWriter()) {
         override protected def parentClassLoader = classOf[ScalaCodeRunner].getClassLoader
       }
       interp.setContextClassLoader()
@@ -364,7 +364,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
     def flush() {}
   }
 
-  class NewLinePrintWriter() extends PrintWriter(new GuiWriter(), false) {
+  class GuiPrintWriter() extends PrintWriter(new GuiWriter(), false) {
 
     override def write(s: String) {
       // intercept string writes and forward to the GuiWriter's string write() method
