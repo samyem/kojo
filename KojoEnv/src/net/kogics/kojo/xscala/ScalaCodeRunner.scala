@@ -294,6 +294,14 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
     }
 
     import CodeCompletionUtils._
+    var _builtinsCompletions: List[String] = Nil
+
+    def builtinsCompletions = {
+      if (_builtinsCompletions == Nil) {
+        _builtinsCompletions = completions("builtins")
+      }
+      _builtinsCompletions
+    }
 
     def completions(identifier: String) = {
       Log.fine("Finding Identifier completions for: " + identifier)
@@ -311,7 +319,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
         (completions(oIdentifier.get).filter {s => s.startsWith(prefix)}, prefix.length)
       }
       else {
-        val c1s = completions("builtins").filter {s => s.startsWith(prefix)}
+        val c1s = builtinsCompletions.filter {s => s.startsWith(prefix)}
         Log.fine("Filtered builtins completions for prefix '%s' - %s " format(prefix, c1s))
         (c1s, prefix.length)
       }
