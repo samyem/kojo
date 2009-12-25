@@ -36,6 +36,9 @@ class CodePaneTest {
     val success = new AtomicBoolean()
     val error = new AtomicBoolean()
 
+    def onInterpreterInit() {}
+    def showScriptInOutput() {}
+    def hideScriptInOutput() {}
     def reportRunError() {}
     def readInput(prompt: String) = ""
 
@@ -67,7 +70,7 @@ class CodePaneTest {
 
   val codeRunner = new xscala.ScalaCodeRunner(runCtx, sprite.SpriteCanvas.instance)
   val pane = new javax.swing.JEditorPane()
-  val Delimiter = codeRunner.OutputDelimiter
+  val Delimiter = ""
   var latch: CountDownLatch = _
 
   def runCode() {

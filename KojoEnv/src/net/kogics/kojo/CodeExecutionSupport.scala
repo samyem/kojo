@@ -72,8 +72,16 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val IO = makeOutput2()
 
   val statusStrip = new StatusStrip()
+  
   val promptMarkColor = new Color(0x2fa600)
   val promptColor = new Color(0x883300)
+  val codeColor = new Color(0x009b00)
+  val outputColor = new Color(32, 32, 32)
+
+  @volatile var showCode = false
+  val OutputDelimiter = "---\n"
+  @volatile var lastOutput = ""
+
 
   setSpriteListener()
   doWelcome()
@@ -90,7 +98,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     |* To Pan/Zoom within the Turtle window ->  Click the left/right mouse button and drag
     |  * To Reset Pan and Zoom levels       ->  Resize the Turtle window
     |* To see a list of available commands  ->  Type help and press Ctrl+Enter in the script window
-    |
     |""".stripMargin
     
     showOutput(msg)
@@ -182,6 +189,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def makeRealCodeRunner: core.CodeRunner = {
     val codeRunner = new xscala.ScalaCodeRunner(new RunContext {
 
+        def onInterpreterInit() = {
+          showOutput(" " * 38 + "_____\n\n")
+          lastOutput = ""
+        }
+
         def onInterpreterStart {
           codePane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           runButton.setEnabled(false)
@@ -232,6 +244,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           }
         }
 
+        def showScriptInOutput() {showCode = true}
+        def hideScriptInOutput() {showCode = false}
         def readInput(prompt: String): String = CodeExecutionSupport.this.readInput(prompt)
 
         def clearOutput() = clrOutput()
@@ -378,6 +392,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       IO.getOut().reset()
       clearButton.setEnabled(false)
     }
+    lastOutput = ""
   }
 
   val listener = new OutputListener() {
@@ -414,11 +429,14 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     line
   }
 
-  def showOutput(outText: String) {
+  def showOutput(outText: String): Unit = showOutput(outText, outputColor)
+
+  def showOutput(outText: String, color: Color): Unit = {
     Utils.runInSwingThread {
-      IOColorPrint.print(IO, outText, Color.black);
+      IOColorPrint.print(IO, outText, color);
       enableClearButton()
     }
+    lastOutput = outText
   }
 
   def showErrorMsg(errMsg: String) {
@@ -426,6 +444,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       IOColorPrint.print(IO, errMsg, Color.red);
       enableClearButton()
     }
+    lastOutput = errMsg
   }
 
   def showErrorText(errText: String) {
@@ -433,6 +452,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       IOColorPrint.print(IO, errText, listener, true, Color.red);
       enableClearButton()
     }
+    lastOutput = errText
   }
 
   def runCode() {
@@ -467,7 +487,22 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     catch {
       case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))
     }
+
+    if (showCode) {
+      showOutput("\n>>>\n", promptColor)
+      showOutput(codeToRun, codeColor)
+      showOutput("\n<<<\n", promptColor)
+    }
+    else {
+      maybeOutputDelimiter()
+    }
+
     codeRunner.runCode(codeToRun)
+  }
+
+  def maybeOutputDelimiter() {
+    if (lastOutput.length > 0 && !lastOutput.endsWith(OutputDelimiter))
+      showOutput(OutputDelimiter, promptColor)
   }
 
   def stripCR(str: String) = str.replaceAll("\r\n", "\n")

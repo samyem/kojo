@@ -25,10 +25,11 @@ trait CodeRunner {
 }
 
 trait RunContext {
-  def onInterpreterStart()
-  def onRunError()
-  def onRunSuccess()
-  def onRunInterpError()
+  def onInterpreterInit(): Unit
+  def onInterpreterStart(): Unit
+  def onRunError(): Unit
+  def onRunSuccess(): Unit
+  def onRunInterpError(): Unit
 
   def reportOutput(outText: String)
   def reportErrorMsg(errMsg: String)
@@ -36,7 +37,9 @@ trait RunContext {
 
   def readInput(prompt: String): String
 
-  def clearOutput()
+  def showScriptInOutput(): Unit
+  def hideScriptInOutput(): Unit
+  def clearOutput(): Unit
 }
 
 class ProxyCodeRunner(codeRunnerMaker: () => CodeRunner) extends CodeRunner {

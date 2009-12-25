@@ -28,23 +28,18 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
   val Log = Logger.getLogger(getClass.getName);
 
   val outputHandler = new InterpOutputHandler(ctx)
-  val OutputDelimiter = outputHandler.OutputDelimiter
 
   val codeRunner = startCodeRunner()
 
   def showInterpOutput(lineFragment: String) = outputHandler.showInterpOutput(lineFragment)
   def showOutput(s: String) = outputHandler.showOutput(s)
-  def maybeOutputDelimiter() = outputHandler.maybeOutputDelimiter()
-
-  def readInput(prompt: String): String = ctx.readInput(prompt)
-
 
   def runCode(code: String) = {
     // Runs on swing thread
     codeRunner ! RunCode(code)
   }
 
-  def interruptInterpreter() = InterpreterManager.interruptInterpreter()
+  def interruptInterpreter() = InterruptionManager.interruptInterpreter()
 
   case object Init
   case class RunCode(code: String)
@@ -75,7 +70,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
     actor
   }
 
-  object InterpreterManager {
+  object InterruptionManager {
     @volatile var interpreterThread: Option[Thread] = None
     @volatile var interruptTimer: Option[javax.swing.Timer] = None
 
@@ -113,7 +108,6 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
       // allows interp to switch between react and receive without impacting
       // interruption logic
       interpreterThread = Some(Thread.currentThread)
-      maybeOutputDelimiter()
     }
 
     def onInterpreterFinish() {
@@ -161,7 +155,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
           case RunCode(code) =>
             try {
               Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
-              InterpreterManager.onInterpreterStart()
+              InterruptionManager.onInterpreterStart()
               ctx.onInterpreterStart()
 
               val ret = interpret(code)
@@ -173,7 +167,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
                 ctx.onRunSuccess()
               }
               else {
-                if (InterpreterManager.interruptionInProgress) ctx.onRunSuccess() // user cancelled running code; no errors
+                if (InterruptionManager.interruptionInProgress) ctx.onRunSuccess() // user cancelled running code; no errors
                 else ctx.onRunError()
               }
             }
@@ -183,7 +177,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
             }
             finally {
               Log.info("CodeRunner actor doing final handling for code.")
-              InterpreterManager.onInterpreterFinish()
+              InterruptionManager.onInterpreterFinish()
             }
 
           case MethodCompletionRequest(str) =>
@@ -227,7 +221,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
       interp.interpret("import predef.Builtins._")
       interp.bind("turtle0", "net.kogics.kojo.core.Sprite", tCanvas.turtle0)
       outputHandler.interpOutputSuppressed = false
-      outputHandler.showOutput("---\n")
+      ctx.onInterpreterInit()
     }
 
     def createCp(xs: List[String]): String = {
@@ -388,7 +382,9 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
       throttler.throttle
     }
 
-    def readln(prompt: String): String = readInput(prompt)
+    def readln(prompt: String): String = ctx.readInput(prompt)
+    def showScriptInOutput() = ctx.showScriptInOutput()
+    def hideScriptInOutput() = ctx.hideScriptInOutput()
 
     def version = println("Scala " + scala.tools.nsc.Properties.versionString)
 
@@ -416,7 +412,7 @@ Here's a partial list of available commands:
   setPenThickness(thickness) - Specify the thickness (as an number) of the pen that the turtle draws with
   setFillColor(color) - Specify the fill color of the areas drawn by the turtle
 
-  listPuzzles - show the names of the puzzles available in the system
+  listPuzzles() - show the names of the puzzles available in the system
   loadPuzzle(name) - load the named puzzle
   clearPuzzlers() - clear out the puzzler turtles and the puzzles from the screen
 
@@ -427,12 +423,14 @@ Here's a partial list of available commands:
   invisible() - Hide the turtle
   visible() - Make the hidden turtle visible again
 
-  repeat(n) {} - Repeat commands within braces n number of times
-  println(string) - Print the given string on the output window
-  readln(promptString) - Display the given prompt on the output window and read a line that the user enters
-
   newTurtle(x, y) - Make a new turtle located at the point (x, y)
   turtle0 - gives you a handle to the original turtle.
+
+  repeat(n) {} - Repeat commands within braces n number of times
+  println(string) - Display the given string in the output window
+  readln(promptString) - Display the given prompt in the output window and read a line that the user enters
+  showScriptInOutput() - Display scripts in the output window when they are run.
+  hideScriptInOutput() - Do not display scripts in the output window.
 """)
     }
 
@@ -541,10 +539,8 @@ Here's a partial list of available commands:
 class InterpOutputHandler(ctx: RunContext) {
   val Log = Logger.getLogger(getClass.getName);
 
-  @volatile var lastOutput = ""
   @volatile var errorSeen = false
 
-  val OutputDelimiter = "---\n"
   val OutputMode = 1
   val ErrorMsgMode = 2
   val ErrorTextMode = 3
@@ -560,12 +556,6 @@ class InterpOutputHandler(ctx: RunContext) {
 
   def showOutput(s: String) = {
     ctx.reportOutput(s)
-    lastOutput = s
-  }
-
-  def maybeOutputDelimiter() {
-    if (lastOutput.length > 0 && !lastOutput.endsWith(OutputDelimiter))
-      showOutput(OutputDelimiter)
   }
 
   def reportInterpOutput(output0: String) {
@@ -619,7 +609,5 @@ class InterpOutputHandler(ctx: RunContext) {
       case ErrorMsgMode => ctx.reportErrorMsg(output)
       case ErrorTextMode => ctx.reportErrorText(output)
     }
-
-    lastOutput = output
   }
 }
