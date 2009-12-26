@@ -195,7 +195,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         }
 
         def onInterpreterStart {
-          codePane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          showNormalCursor()
           runButton.setEnabled(false)
           stopButton.setEnabled(true)
           runMonitor.onRunStart()
@@ -455,15 +455,21 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     lastOutput = errText
   }
 
+  def showWaitCursor() {
+    val wc = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)
+    codePane.setCursor(wc)
+    tCanvas.setCursor(wc)
+  }
+
+  def showNormalCursor() {
+    val nc = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+    codePane.setCursor(nc);
+    tCanvas.setCursor(nc)
+  }
+
   def runCode() {
     // Runs on swing thread
     
-    // now that we use the proxy code runner, disable the run button right away and change
-    // the cursor so that the user gets some feedback the first time he runs something
-    // - relevant if the proxy is still loading the real runner
-    runButton.setEnabled(false)
-    codePane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
     val code = codePane.getText()
     if (code == null || code.trim.length == 0) return
     if (code.contains(CommandHistory.Separator)) {
@@ -473,6 +479,12 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
            |Please change %s to something else and rerun your script.""".stripMargin.format(CommandHistory.Separator, CommandHistory.Separator))
       return
     }
+
+    // now that we use the proxy code runner, disable the run button right away and change
+    // the cursor so that the user gets some feedback the first time he runs something
+    // - relevant if the proxy is still loading the real runner
+    runButton.setEnabled(false)
+    showWaitCursor()
 
     val selStart = codePane.getSelectionStart
     val selEnd = codePane.getSelectionEnd
