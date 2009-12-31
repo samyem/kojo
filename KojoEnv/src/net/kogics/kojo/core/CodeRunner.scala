@@ -40,6 +40,8 @@ trait RunContext {
   def showScriptInOutput(): Unit
   def hideScriptInOutput(): Unit
   def clearOutput(): Unit
+
+  def inspect(obj: AnyRef): Unit
 }
 
 class ProxyCodeRunner(codeRunnerMaker: () => CodeRunner) extends CodeRunner {

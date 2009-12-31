@@ -249,6 +249,16 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         def readInput(prompt: String): String = CodeExecutionSupport.this.readInput(prompt)
 
         def clearOutput() = clrOutput()
+
+        def inspect(obj: AnyRef) {
+          Utils.runInSwingThread {
+            val itc = new net.kogics.kojo.inspect.InspectorTopComponent()
+            itc.inspectObject(obj)
+            itc.open()
+            itc.requestActive()
+          }
+        }
+
       }, tCanvas)
     codeRunner
   }

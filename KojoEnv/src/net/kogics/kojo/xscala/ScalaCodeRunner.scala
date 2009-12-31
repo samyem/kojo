@@ -514,6 +514,7 @@ Here's a partial list of available commands:
     def pathToParallelogram() = tCanvas.pathToParallelogram()
     def undo() = tCanvas.undo()
 
+    def inspect(obj: AnyRef) = ctx.inspect(obj)
 
     def listPuzzles = PuzzleLoader.listPuzzles
     def clearOutput() = ctx.clearOutput()
