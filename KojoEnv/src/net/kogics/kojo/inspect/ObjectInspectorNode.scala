@@ -29,12 +29,12 @@ import org.openide.nodes.Node;
 
 class ObjectInspectorNode(name: String, obj: AnyRef) extends BeanNode(new ObjectWrapper(obj), InspectorChildren(obj)) {
   setDisplayName(name)
-  setIconBaseWithExtension("/images/field.gif")
+  setIconBaseWithExtension("images/field.gif")
 }
 
 class FieldInspectorNode(field: Field, obj: AnyRef) extends BeanNode(new FieldWrapper(field, obj), InspectorChildren(field, obj)) {
   setDisplayName(field.getName)
-  setIconBaseWithExtension("/images/field.gif")
+  setIconBaseWithExtension("images/field.gif")
 }
 
 // Provides children nodes for supplied object
@@ -168,19 +168,19 @@ class ObjectWithFieldsChildren(obj: AnyRef) extends Children.Keys[String] {
     case Inherited =>
       Array(new AbstractNode(new ListChildren(inheritedKeys, inheritedNodes)) {
           setDisplayName(Inherited)
-          setIconBaseWithExtension("/images/container.gif")
+          setIconBaseWithExtension("images/container.gif")
         })
 
     case Statics =>
       Array(new AbstractNode(new ListChildren(staticKeys, staticNodes)) {
           setDisplayName(Statics)
-          setIconBaseWithExtension("/images/container.gif")
+          setIconBaseWithExtension("images/container.gif")
         })
 
     case IStatics =>
       Array(new AbstractNode(new ListChildren(istaticKeys, istaticNodes)) {
           setDisplayName(IStatics)
-          setIconBaseWithExtension("/images/container.gif")
+          setIconBaseWithExtension("images/container.gif")
         })
 
     case fieldName =>

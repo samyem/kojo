@@ -250,10 +250,22 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
         def clearOutput() = clrOutput()
 
+        val inspecteePattern = java.util.regex.Pattern.compile("""inspect\s*\(\s*(.*)\s*\)""")
+
         def inspect(obj: AnyRef) {
+          val inspectCmd = commandHistory.history.last
+          val m = inspecteePattern.matcher(inspectCmd)
+
+          val inspectee = if (m.find) {
+            m.group(1)
+          }
+          else {
+            obj.getClass().getName()
+          }
+
           Utils.runInSwingThread {
             val itc = new net.kogics.kojo.inspect.InspectorTopComponent()
-            itc.inspectObject(obj)
+            itc.inspectObject(inspectee, obj)
             itc.open()
             itc.requestActive()
           }

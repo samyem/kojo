@@ -12,7 +12,6 @@
  * rights and limitations under the License.
  *
  */
-
 package net.kogics.kojo.inspect;
 
 import java.awt.BorderLayout;
@@ -48,10 +47,18 @@ public class InspectorTopComponent extends TopComponent
         add(view, BorderLayout.CENTER);
     }
 
-    public void inspectObject(Object obj) {
-        setDisplayName("Object Inspector - " + obj.getClass().getName());
-        manager.setRootContext(new ObjectInspectorNode("Inspected Object", obj));
-//        manager.setRootContext(new AbstractNode(new InspectorChildren(obj)));
+    public void inspectObject(String name, Object obj) {
+        setDisplayName("Object Inspector - " + name);
+        manager.setRootContext(new ObjectInspectorNode(name, obj));
+
+//        ObjectInspectorNode realRoot = new ObjectInspectorNode(name, obj);
+//        Node[] arr = new Node[]{realRoot};
+//        Children.Array carr = new Children.Array();
+//        carr.add(arr);
+//        AbstractNode rc = new AbstractNode(carr);
+//        manager.setRootContext(rc);
+//        manager.setExploredContext(realRoot);
+
     }
 
     public ExplorerManager getExplorerManager() {
@@ -62,7 +69,6 @@ public class InspectorTopComponent extends TopComponent
     public int getPersistenceType() {
         return PERSISTENCE_NEVER;
     }
-
 //    @Override
 //    protected void componentActivated() {
 //        ExplorerUtils.activateActions(manager, true);
