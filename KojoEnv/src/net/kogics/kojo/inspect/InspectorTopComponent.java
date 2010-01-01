@@ -39,17 +39,18 @@ public class InspectorTopComponent extends TopComponent
 
         // specify properties that we want to see in Table
         Property p1 = new TableColumnProperty("type");
-        Property p2 = new TableColumnProperty("value");
+        Property p2 = new TableColumnProperty("id");
+        Property p3 = new TableColumnProperty("value");
 
-        view.setProperties(new Property[]{p1, p2});
+        view.setProperties(new Property[]{p1, p2, p3});
 
 //        view.setRootVisible(false);
         add(view, BorderLayout.CENTER);
     }
 
     public void inspectObject(Object obj) {
-        setDisplayName("Object Inspector for: " + obj.getClass().getName());
-        manager.setRootContext(new ObjectInspectorNode("Inspected Object:", obj));
+        setDisplayName("Object Inspector - " + obj.getClass().getName());
+        manager.setRootContext(new ObjectInspectorNode("Inspected Object", obj));
 //        manager.setRootContext(new AbstractNode(new InspectorChildren(obj)));
     }
 

@@ -28,11 +28,13 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 
 class ObjectInspectorNode(name: String, obj: AnyRef) extends BeanNode(new ObjectWrapper(obj), InspectorChildren(obj)) {
-  setName(name)
+  setDisplayName(name)
+  setIconBaseWithExtension("/images/field.gif")
 }
 
 class FieldInspectorNode(field: Field, obj: AnyRef) extends BeanNode(new FieldWrapper(field, obj), InspectorChildren(field, obj)) {
-  setName(field.getName)
+  setDisplayName(field.getName)
+  setIconBaseWithExtension("/images/field.gif")
 }
 
 // Provides children nodes for supplied object
@@ -92,16 +94,16 @@ class ObjectWithFieldsChildren(obj: AnyRef) extends Children.Keys[String] {
   val fieldNodes = new HashMap[String, Node]()
 
   val Statics = "Static Fields"
-  val staticKeys = new ArrayList[Field]()
-  val staticNodes = new HashMap[Field, Node]()
+  val staticKeys = new ArrayList[String]()
+  val staticNodes = new HashMap[String, Node]()
 
   val Inherited = "Inherited Fields"
-  val inheritedKeys = new ArrayList[Field]()
-  val inheritedNodes = new HashMap[Field, Node]()
+  val inheritedKeys = new ArrayList[String]()
+  val inheritedNodes = new HashMap[String, Node]()
 
   val IStatics = "Inherited Static Fields"
-  val istaticKeys = new ArrayList[Field]()
-  val istaticNodes = new HashMap[Field, Node]()
+  val istaticKeys = new ArrayList[String]()
+  val istaticNodes = new HashMap[String, Node]()
 
 
   override def addNotify() {
@@ -113,8 +115,8 @@ class ObjectWithFieldsChildren(obj: AnyRef) extends Children.Keys[String] {
         fields.foreach { field =>
           field.setAccessible(true);
           if (Modifier.isStatic(field.getModifiers)) {
-            staticKeys.add(field)
-            staticNodes.put(field, new FieldInspectorNode(field, obj))
+            staticKeys.add(field.getName)
+            staticNodes.put(field.getName, new FieldInspectorNode(field, obj))
           }
           else {
             keys.add(field.getName)
@@ -127,12 +129,12 @@ class ObjectWithFieldsChildren(obj: AnyRef) extends Children.Keys[String] {
           fields.foreach { field =>
             field.setAccessible(true);
             if (Modifier.isStatic(field.getModifiers)) {
-              istaticKeys.add(field)
-              istaticNodes.put(field, new FieldInspectorNode(field, obj))
+              istaticKeys.add(field.getName)
+              istaticNodes.put(field.getName, new FieldInspectorNode(field, obj))
             }
             else {
-              inheritedKeys.add(field)
-              inheritedNodes.put(field, new FieldInspectorNode(field, obj))
+              inheritedKeys.add(field.getName)
+              inheritedNodes.put(field.getName, new FieldInspectorNode(field, obj))
             }
           }
           superClass = superClass.getSuperclass
@@ -140,14 +142,22 @@ class ObjectWithFieldsChildren(obj: AnyRef) extends Children.Keys[String] {
 
     }
 
-    if (inheritedKeys.size > 0)
+    Collections.sort(keys)
+
+    if (inheritedKeys.size > 0) {
+      Collections.sort(inheritedKeys)
       keys.add(Inherited)
+    }
 
-    if (staticKeys.size > 0)
+    if (staticKeys.size > 0) {
+      Collections.sort(staticKeys)
       keys.add(Statics)
+    }
 
-    if (istaticKeys.size > 0)
+    if (istaticKeys.size > 0) {
+      Collections.sort(istaticKeys)
       keys.add(IStatics)
+    }
 
     if (keys.size > 0) setKeys(keys)
     else setKeys(Collections.emptySet)
@@ -158,16 +168,19 @@ class ObjectWithFieldsChildren(obj: AnyRef) extends Children.Keys[String] {
     case Inherited =>
       Array(new AbstractNode(new ListChildren(inheritedKeys, inheritedNodes)) {
           setDisplayName(Inherited)
+          setIconBaseWithExtension("/images/container.gif")
         })
 
     case Statics =>
       Array(new AbstractNode(new ListChildren(staticKeys, staticNodes)) {
           setDisplayName(Statics)
+          setIconBaseWithExtension("/images/container.gif")
         })
 
     case IStatics =>
       Array(new AbstractNode(new ListChildren(istaticKeys, istaticNodes)) {
           setDisplayName(IStatics)
+          setIconBaseWithExtension("/images/container.gif")
         })
 
     case fieldName =>
@@ -186,6 +199,8 @@ class ListChildren[T](list: List[T], map: Map[T, Node]) extends Children.Keys[T]
 }
 
 class ObjectWrapper(obj: AnyRef) {
+  def getId = System.identityHashCode(obj).toString
+
   def getValue = VarFormatter.getValue(obj)
 
   def getType: String = obj match {
@@ -197,6 +212,9 @@ class ObjectWrapper(obj: AnyRef) {
 
 class FieldWrapper(field: Field, obj: AnyRef) {
   val fVal = field.get(obj)
+
+  def getId = System.identityHashCode(fVal).toString
+
   def getValue = VarFormatter.getValue(fVal)
 
   def getType: String = field.getType.getName
