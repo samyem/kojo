@@ -30,11 +30,15 @@ import org.openide.nodes.Node;
 class ObjectInspectorNode(name: String, obj: AnyRef) extends BeanNode(new ObjectWrapper(obj), InspectorChildren(obj)) {
   setDisplayName(name)
   setIconBaseWithExtension("images/field.gif")
+
+  override def getPreferredAction = null
 }
 
 class FieldInspectorNode(field: Field, obj: AnyRef) extends BeanNode(new FieldWrapper(field, obj), InspectorChildren(field, obj)) {
   setDisplayName(field.getName)
   setIconBaseWithExtension("images/field.gif")
+
+  override def getPreferredAction = null
 }
 
 // Provides children nodes for supplied object

@@ -17,6 +17,9 @@ package net.kogics.kojo.inspect;
 import java.awt.BorderLayout;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.TreeTableView;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.nodes.Node.Property;
 import org.openide.windows.TopComponent;
 
@@ -26,12 +29,6 @@ public class InspectorTopComponent extends TopComponent
     private final ExplorerManager manager = new ExplorerManager();
 
     public InspectorTopComponent() {
-//        ActionMap map = this.getActionMap();
-//        map.put(DefaultEditorKit.copyAction,
-//                ExplorerUtils.actionCopy(manager));
-//
-//        associateLookup(ExplorerUtils.createLookup(manager, map));
-
         setDisplayName("Object Inspector");
         setLayout(new BorderLayout());
         TreeTableView view = new TreeTableView();
@@ -43,22 +40,19 @@ public class InspectorTopComponent extends TopComponent
 
         view.setProperties(new Property[]{p1, p2, p3});
 
-//        view.setRootVisible(false);
+        view.setRootVisible(false);
         add(view, BorderLayout.CENTER);
     }
 
     public void inspectObject(String name, Object obj) {
         setDisplayName("Object Inspector - " + name);
-        manager.setRootContext(new ObjectInspectorNode(name, obj));
+//        manager.setRootContext(new ObjectInspectorNode(name, obj));
 
-//        ObjectInspectorNode realRoot = new ObjectInspectorNode(name, obj);
-//        Node[] arr = new Node[]{realRoot};
-//        Children.Array carr = new Children.Array();
-//        carr.add(arr);
-//        AbstractNode rc = new AbstractNode(carr);
-//        manager.setRootContext(rc);
-//        manager.setExploredContext(realRoot);
-
+        ObjectInspectorNode realRoot = new ObjectInspectorNode(name, obj);
+        Node[] arr = new Node[]{realRoot};
+        Children.Array carr = new Children.Array();
+        carr.add(arr);
+        manager.setRootContext(new AbstractNode(carr));
     }
 
     public ExplorerManager getExplorerManager() {
@@ -69,14 +63,5 @@ public class InspectorTopComponent extends TopComponent
     public int getPersistenceType() {
         return PERSISTENCE_NEVER;
     }
-//    @Override
-//    protected void componentActivated() {
-//        ExplorerUtils.activateActions(manager, true);
-//    }
-//
-//    @Override
-//    protected void componentDeactivated() {
-//        ExplorerUtils.activateActions(manager, false);
-//    }
 }
 
