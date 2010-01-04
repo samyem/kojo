@@ -26,12 +26,27 @@ object CodeCompletionUtils {
     }.toList
 
   val KeywordTemplates = Map(
-    "for" -> "for(i <- 1 to 10){\n}",
-    "while" -> "while(){\n}",
-    "if" -> "if(){\n}"
+    "for" -> "for (i <- 1 to ${n}) {\n    ${cursor}\n}",
+    "while" -> "while (${condition}) {\n    ${cursor}\n}",
+    "if" -> "if (${condition}) {\n    ${cursor}\n}"
   )
   val MethodTemplates = Map(
-    "repeat" -> "repeat(3){\n}"
+    "repeat" -> "repeat (${n}) {\n    ${cursor}\n}",
+    "forward" -> "forward(${n})",
+    "back" -> "back(${n})",
+    "right" -> "right(${n})",
+    "left" -> "left(${n})",
+    "turn" -> "turn(${n})",
+    "towards" -> "towards(${x}, ${y})",
+    "moveTo" -> "moveTo(${x}, ${y})",
+    "jumpTo" -> "jumpTo(${x}, ${y})",
+    "point" -> "point(${x}, ${y})",
+    "setPenColor" -> "setPenColor(${color})",
+    "setPenThickness" -> "setPenThickness(${n})",
+    "setFillColor" -> "setFillColor(${color})",
+    "setAnimationDelay" -> "setAnimationDelay(${milliseconds})",
+    "println" -> "println(${cursor})",
+    "inspect" -> "inspect(${cursor})"
   )
   
   val MethodDropFilter = List("turtle0")

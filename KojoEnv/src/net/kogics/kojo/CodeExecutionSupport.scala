@@ -402,11 +402,19 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         showHelpMessage()
       }
       else {
+        switchFocusToCodeEditor()
         codePane.select(idx, idx + errorText.length)
+//        codePane.setCaretPosition(idx)
         val idx2 = code.lastIndexOf(errorText)
         if (idx != idx2) showFindDialog()
       }
     }
+  }
+
+  def switchFocusToCodeEditor() {
+    // Need to do this in roundabout way because calling directly
+    // into CodeEditorTopComponent makes scalac barf
+    OutputTopComponent.findInstance.switchFocusToCodeEditor()
   }
 
   def clrOutput() {
@@ -423,11 +431,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     }
 
     def outputLineSelected(ev: OutputEvent) {
-      // Let's not do anything special.
     }
 
     def outputLineCleared(ev: OutputEvent) {
-      // Leave it blank, no state to remove.
     }
   }
 

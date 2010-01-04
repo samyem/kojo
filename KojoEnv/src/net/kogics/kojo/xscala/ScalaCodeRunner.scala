@@ -437,8 +437,9 @@ Here's a partial list of available commands:
   repeat(n) {} - Repeat commands within braces n number of times
   println(string) - Display the given string in the output window
   readln(promptString) - Display the given prompt in the output window and read a line that the user enters
-  showScriptInOutput() - Display scripts in the output window when they are run.
-  hideScriptInOutput() - Do not display scripts in the output window.
+  showScriptInOutput() - Display scripts in the output window when they run
+  hideScriptInOutput() - Do not display scripts in the output window
+  inspect(obj) - explore the internal fields of the given object
 """)
     }
 

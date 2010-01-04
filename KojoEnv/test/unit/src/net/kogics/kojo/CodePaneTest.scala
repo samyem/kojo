@@ -36,6 +36,7 @@ class CodePaneTest {
     val success = new AtomicBoolean()
     val error = new AtomicBoolean()
 
+    def inspect(obj: AnyRef) {}
     def onInterpreterInit() {}
     def showScriptInOutput() {}
     def hideScriptInOutput() {}
