@@ -434,6 +434,7 @@ Here's a partial list of available commands:
   newTurtle(x, y) - Make a new turtle located at the point (x, y)
   turtle0 - gives you a handle to the original turtle.
 
+  version - Display the version of Scala being used
   repeat(n) {} - Repeat commands within braces n number of times
   println(string) - Display the given string in the output window
   readln(promptString) - Display the given prompt in the output window and read a line that the user enters
@@ -568,25 +569,20 @@ class InterpOutputHandler(ctx: RunContext) {
     ctx.reportOutput(s)
   }
 
-  def reportInterpOutput(output0: String) {
-    if (output0 == "") return
+  private def reportExceptionOutput(output0: String) {
+    Log.info("Exception in interpreter output: " + output0)
+    val lines = output0.split("\n")
 
-    val output =
-      if (exceptionPattern.matcher(output0).find) {
-        Log.info("Exception in interpreter output: " + output0)
-//      output0.lines.take(5).mkString("\n") + "......"
-        val lines = output0.split("\n")
-        if (lines.size > 5) {
-          lines.take(5).mkString("\n") + "......\n"
-        }
-        else {
-          output0
-        }
-      }
+    val output = if (lines.size > 5) {
+      lines.take(5).mkString("\n") + "......\n"
+    }
     else {
       output0
     }
+    ctx.reportOutput(output)
+  }
 
+  private def reportNonExceptionOutput(output: String) {
     // Interp sends in one line at a time for error output
     // Scala compiler code reference:
     // ConsoleReporter.printMessage() calls:
@@ -605,7 +601,7 @@ class InterpOutputHandler(ctx: RunContext) {
         // After looking at the scala compiler source, this seems to originate
         // from Interpreter.indentCode()
 //        if (output.startsWith("    ")) currMode = ErrorTextMode
-        
+
         // No need to make the above check because, after looking at the Scala compiler
         // source, we know that we get three calls for an error:
         // (1) err msg (2) err text (3) hat
@@ -618,6 +614,17 @@ class InterpOutputHandler(ctx: RunContext) {
       case OutputMode => ctx.reportOutput(output)
       case ErrorMsgMode => ctx.reportErrorMsg(output)
       case ErrorTextMode => ctx.reportErrorText(output)
+    }
+  }
+
+  def reportInterpOutput(output: String) {
+    if (output == "") return
+
+    if (exceptionPattern.matcher(output).find) {
+      reportExceptionOutput(output)
+    }
+    else {
+      reportNonExceptionOutput(output)
     }
   }
 }
