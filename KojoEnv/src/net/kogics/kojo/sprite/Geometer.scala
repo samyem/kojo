@@ -162,7 +162,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     animationDelay
   }
 
-  def undo() = enqueueCommand(Undo())
+  def undo() = enqueueCommand(Undo)
   def forward(n: Double) = enqueueCommand(Forward(n, cmdBool))
   def turn(angle: Double) = enqueueCommand(Turn(angle, cmdBool))
   def clear() = enqueueCommand(Clear(cmdBool))
@@ -786,7 +786,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
           processGetCommand(cmd, l) {
             realPathToPGram()
           }
-        case cmd @ Undo() =>
+        case cmd @ Undo =>
           processCommand(cmd) {
             realUndo()
           }

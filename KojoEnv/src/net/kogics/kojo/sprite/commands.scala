@@ -50,8 +50,7 @@ case class Point(x: Double, y: Double, v: AtomicBoolean) extends Command(v)
 case class PathToPolygon(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
 case class PathToPGram(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
 case object CommandDone
-case object Stop
-case class Undo extends Command(Command.AlwaysValid)
+case object Undo extends Command(Command.AlwaysValid)
 
 abstract sealed class UndoCommand
 case class UndoChangeInPos(oldPos: (Double, Double)) extends UndoCommand
