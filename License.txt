@@ -1,3 +1,4 @@
+
 Copyright (C) 2009 Lalit Pant <pant.lalit@gmail.com>
 Kojo is licensed under The GNU General Public License, Version 3. The full text
 of the license is available at: http://www.gnu.org/licenses/gpl.html, and is
@@ -6,19 +7,20 @@ also reproduced below for quick reference.
 Kojo makes use of the following third-party software:
 - The Scala Programming Language (http://www.scala-lang.org)
 - The Netbeans Platform (http://platform.netbeans.org)
-- Piccolo2D (http://www.piccolo2d.org) for 2D Graphics
 - Components of the Scala Netbeans plugin (http://wiki.netbeans.org/Scala) and
   the Rats parser generator (http://cs.nyu.edu/rgrimm/xtc/rats.html) for the
   Script Editor
+- Piccolo2D (http://www.piccolo2d.org) for 2D Graphics
+- GeoGebra (http://www.geogebra.org) for Interactive Geometry and Algebra
 - Vecmath (http://github.com/Villane/vecmath)
- 
+
 Kojo also makes use of the following third-party software for unit testing:
 - JMock (this includes the CGLib, Hamcrest, and Objenesis libraries)
   (http://www.jmock.org/)
 - Scalacheck (http://code.google.com/p/scalacheck)
 
 The license files for all the third-party software used by Kojo are located in
-the kojo/licenses folder. The source code for this
+the licenses folder within the Kojo distribution. The source code for this
 third-party software may be obtained at the corresponding project urls
 specified above.
 

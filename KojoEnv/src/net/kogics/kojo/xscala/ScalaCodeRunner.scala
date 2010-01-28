@@ -24,8 +24,11 @@ import java.util.logging._
 import net.kogics.kojo.util._
 import net.kogics.kojo.core._
 
+import org.openide.ErrorManager;
+
 class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
   val Log = Logger.getLogger(getClass.getName);
+  lazy val geoCanvas = net.kogics.kojo.geogebra.GeoCanvas.instance
 
   val outputHandler = new InterpOutputHandler(ctx)
 
@@ -136,7 +139,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
         fn
       }
       catch {
-        case t: Throwable => Log.severe(Utils.stackTraceAsString(t))
+        case t: Throwable => 
+          ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
       }
 
     }
@@ -205,7 +209,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
                "modules/ext/scala-compiler.jar",
                "modules/net-kogics-kojo.jar",
                "modules/ext/piccolo2d-core-1.3-SNAPSHOT.jar",
-               "modules/ext/piccolo2d-extras-1.3-SNAPSHOT.jar"
+               "modules/ext/piccolo2d-extras-1.3-SNAPSHOT.jar",
+               "modules/geogebra.jar"
           )
         )
       }
@@ -219,7 +224,10 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
       interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", ScalaCodeRunner.this)
       interp.interpret("val builtins = predef.Builtins")
       interp.interpret("import predef.Builtins._")
-      interp.bind("turtle0", "net.kogics.kojo.core.Sprite", tCanvas.turtle0)
+      interp.bind("turtle0", "net.kogics.kojo.core.Turtle", tCanvas.turtle0)
+      interp.bind("Shape", "net.kogics.kojo.sprite.Figure", tCanvas.figure0)
+      interp.bind("Geom", "net.kogics.kojo.geogebra.Geom", geoCanvas.geom)
+
       outputHandler.interpOutputSuppressed = false
       ctx.onInterpreterInit()
     }
@@ -375,7 +383,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
   }
 
   object Builtins extends SCanvas {
-    type Sprite = net.kogics.kojo.core.Sprite
+    type Turtle = net.kogics.kojo.core.Turtle
     type Color = java.awt.Color
 
     PuzzleLoader.init()
@@ -391,6 +399,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
     }
 
     def readln(prompt: String): String = ctx.readInput(prompt)
+    def readInt(prompt: String): Int = readln(prompt).toInt
     def showScriptInOutput() = ctx.showScriptInOutput()
     def hideScriptInOutput() = ctx.hideScriptInOutput()
 
@@ -510,6 +519,7 @@ Here's a partial list of available commands:
     def newTurtle() = tCanvas.newTurtle(0, 0)
     def newTurtle(x: Int, y: Int) = tCanvas.newTurtle(x, y)
     val turtle0 = tCanvas.turtle0
+    val figure0 = tCanvas.figure0
 
     def newPuzzler(x: Int, y: Int) = tCanvas.newPuzzler(x, y)
     def pathToPolygon() = tCanvas.pathToPolygon()
@@ -520,6 +530,8 @@ Here's a partial list of available commands:
 
     def listPuzzles = PuzzleLoader.listPuzzles
     def clearOutput() = ctx.clearOutput()
+
+    def newFigure(x: Int, y: Int) = tCanvas.newFigure(x, y)
 
     def loadPuzzle(name: String) {
       val oPuzzleFn = PuzzleLoader.readPuzzle(name)

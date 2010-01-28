@@ -38,12 +38,12 @@ import net.kogics.kojo.core.geom._
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
-object Geometer {
+object Turtle {
   val handleLayer = new PLayer
   val writeFont = new Font(new PText().getFont.getName, Font.PLAIN, 15)
 }
 
-class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Double = 0, bottomLayer: Boolean = false) extends core.Sprite {
+class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Double = 0, bottomLayer: Boolean = false) extends core.Turtle {
   private val Log = Logger.getLogger(getClass.getName)
   Log.info("Sprite being created in thread: " + Thread.currentThread.getName)
 
@@ -472,7 +472,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
     realWorker2 {
       ptext.getTransformReference(true).setToScale(1, -1)
       ptext.setOffset(_position.x, _position.y)
-      ptext.setFont(Geometer.writeFont)
+      ptext.setFont(Turtle.writeFont)
       layer.addChild(layer.getChildrenCount-1, ptext)
       ptext.repaint()
       turtle.repaint()
@@ -521,7 +521,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       geomObj = null
       clearHistory()
       try {
-        val pgon = new PolygonConstraint(penPaths.last, Geometer.handleLayer, canvas.outputFn)
+        val pgon = new PolygonConstraint(penPaths.last, Turtle.handleLayer, canvas.outputFn)
         pgon.addHandles()
         pgon.repaint()
         geomObj = new DynamicShapeImpl(pgon)
@@ -538,7 +538,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
       geomObj = null
       clearHistory()
       try {
-        val pgon = new PGramConstraint(penPaths.last, Geometer.handleLayer, canvas.outputFn)
+        val pgon = new PGramConstraint(penPaths.last, Turtle.handleLayer, canvas.outputFn)
         pgon.addHandles()
         pgon.repaint()
         geomObj = new DynamicShapeImpl(pgon)
@@ -797,7 +797,7 @@ class Geometer(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: D
   abstract class AbstractPen extends Pen {
     val Log = Logger.getLogger(getClass.getName);
 
-    val sprite = Geometer.this
+    val sprite = Turtle.this
     val DefaultColor = Color.red
     val DefaultFillColor = null
     val DefaultStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)

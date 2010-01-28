@@ -67,7 +67,7 @@ def runPattern() {
     import collection.mutable.ArrayBuffer
     import java.util.Random
 
-    def pattern(turtle: Sprite, n: Int): Unit = {
+    def pattern(turtle: Turtle, n: Int): Unit = {
         if (n < 2) return
         turtle.forward(n)
         turtle.right
@@ -80,7 +80,7 @@ def runPattern() {
     setAnimationDelay(2000)
     forward(400)
 
-    val turtles = new ArrayBuffer[Sprite]
+    val turtles = new ArrayBuffer[Turtle]
 
     val rand = new Random
 
@@ -207,7 +207,7 @@ repeat(4){
 
   val FerrisWheel = """
 clear()
-def flag(t: Sprite, c: Color, a: Double){
+def flag(t: Turtle, c: Color, a: Double){
     t.setPenColor(c)
     t.setFillColor(c)
     t.turn(a)
@@ -393,7 +393,7 @@ turn(-110)
 forward(25)
 
 // Fence
-def post(t: Sprite){
+def post(t: Turtle){
     t.setPenColor(black)
     t.setFillColor(white)
     t.setPenThickness(4)
@@ -436,7 +436,7 @@ post(t9)
 post(t10)
 post(t11)
 
-def rail(tt: Sprite)
+def rail(tt: Turtle)
 {
     tt.setPenColor(black)
     tt.setFillColor(white)
@@ -461,7 +461,7 @@ clear()
 val t1=newTurtle(-600,-150)
 val t2=newTurtle(-600, 150)
 
-def border(t: Sprite, a: Double) {
+def border(t: Turtle, a: Double) {
     t.setAnimationDelay(100)
     t.setPenColor(black)
     t.right
@@ -509,7 +509,7 @@ val t8=newTurtle(300,0)
 val t9=newTurtle(400,100)
 val t10=newTurtle(500,0)
 
-def flower(tt:Sprite, c:Color) {
+def flower(tt:Turtle, c:Color) {
     tt.setAnimationDelay(20)
     tt.setPenColor(black)
     tt.setFillColor(c)
@@ -637,4 +637,41 @@ p.showLengths()
 jumpTo(-200, 130)
 write("Drag the vertices\naround to play\nwith the Shape.")
   """
+
+val sinThetaAnimation = """
+def d2r(a: Double) = a * Math.Pi/180
+
+def sineFn(offset: Int, scale: Double) {
+    for (i <- 0 to 359) {
+        Shape.point(offset+i, scale * Math.sin(d2r(i)))
+    }
+}
+
+val radius = 50
+var theta = 0
+clear()
+Shape.setPenColor(green)
+Shape.setPenThickness(2)
+Shape.circle(0,0,radius)
+sineFn(2*radius, radius)
+
+Shape.setPenColor(new Color(64,64,64))
+Shape.setPenThickness(1)
+Shape.line(0,0,radius, 0)
+
+Shape.animationStep {
+    Shape.aclear()
+    Shape.setPenColor(new Color(64,64,64))
+    Shape.setPenThickness(1)
+    Shape.line(0,0,radius * Math.cos(d2r(theta)), radius * Math.sin(d2r(theta)))
+
+    Shape.setPenColor(red)
+    Shape.setPenThickness(5)
+    Shape.point(radius * Math.cos(d2r(theta)), radius * Math.sin(d2r(theta)))
+    Shape.point(2*radius + (theta%360), radius * Math.sin(d2r(theta)))
+
+    theta += 1
+}
+
+"""
 }

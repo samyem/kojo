@@ -52,15 +52,16 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING)
   setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING)
 
-  @volatile var turtles: List[Geometer] = Nil
-  var puzzlers: List[Geometer] = Nil
+  var turtles: List[Turtle] = Nil
+  var puzzlers: List[Turtle] = Nil
+  var figures: List[Figure] = Nil
 
-  getCamera.addLayer(Geometer.handleLayer)
+  getCamera.addLayer(Turtle.handleLayer)
 
   var grid = new PNode()
   initCamera()
 
-  val history = new mutable.Stack[Geometer]()
+  val history = new mutable.Stack[Turtle]()
 
   addComponentListener(new ComponentAdapter {
       override def componentResized(e: ComponentEvent) = initCamera()
@@ -68,6 +69,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   val megaListener = new CompositeListener()
   val turtle = newTurtle()
+  val figure = newFigure()
 
   addInputEventListener(new PBasicInputEventHandler {
       override def mouseMoved(e: PInputEvent) {
@@ -180,7 +182,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     // initCamera()
   }
 
-  def pushHistory(sprite: Geometer) = synchronized {
+  def pushHistory(sprite: Turtle) = synchronized {
     history.push(sprite)
   }
 
@@ -193,7 +195,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def undo() {
-    var undoTurtle: Option[Geometer] = None
+    var undoTurtle: Option[Turtle] = None
     synchronized {
       if (history.size > 0) {
         undoTurtle = Some(history.top)
@@ -216,6 +218,10 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     Utils.runInSwingThread {
       turtles.foreach {t => if (t == turtle) t.clear() else t.remove()}
       turtles = List(turtles.last)
+
+      figures.foreach {f => if (f == figure) f.clear() else f.remove()}
+      figures = List(figures.last)
+
       latch.countDown
     }
     latch.await
@@ -271,18 +277,34 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     Utils.runInSwingThread {
       puzzlers.foreach {t => t.stop}
       turtles.foreach {t => t.stop}
+      figures.foreach {f => f.stop}
       latch.countDown
     }
     latch.await
   }
 
   val turtle0 = turtle
+  val figure0 = figure
+
+  def newFigure(x: Int = 0, y: Int = 0) = {
+    var fig: Figure = null
+    val latch = new CountDownLatch(1)
+    Utils.runInSwingThreadAndWait {
+      fig = new Figure(this, x, y)
+      fig.setSpriteListener(megaListener)
+      figures = fig :: figures
+      latch.countDown()
+    }
+    latch.await
+    this.repaint()
+    fig
+  }
 
   def newTurtle(x: Int = 0, y: Int = 0) = {
-    var t: Geometer = null
+    var t: Turtle = null
     val latch = new CountDownLatch(1)
     Utils.runInSwingThread {
-      t = new Geometer(this, "/images/turtle32.png", x, y)
+      t = new Turtle(this, "/images/turtle32.png", x, y)
       t.setSpriteListener(megaListener)
       turtles = t :: turtles
       latch.countDown()
@@ -293,10 +315,10 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def newPuzzler(x: Int = 0, y: Int = 0) = {
-    var t: Geometer = null
+    var t: Turtle = null
     val latch = new CountDownLatch(1)
     Utils.runInSwingThread {
-      t = new Geometer(this, "/images/puzzler32.png", x, y, true)
+      t = new Turtle(this, "/images/puzzler32.png", x, y, true)
       t.setSpriteListener(megaListener)
       t.setPenThickness(1)
       t.setPenColor(Color.blue)

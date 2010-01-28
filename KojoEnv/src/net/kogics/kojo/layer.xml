@@ -25,6 +25,12 @@
                 <attr name="iconBase" stringvalue="net/kogics/kojo/code-editor.png"/>
                 <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
             </file>
+            <file name="net-kogics-kojo-GeoGebraAction.instance">
+                <attr name="component" methodvalue="net.kogics.kojo.GeoGebraTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_GeoGebraAction"/>
+                <attr name="iconBase" stringvalue="net/kogics/kojo/geogebra16.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+            </file>
             <file name="net-kogics-kojo-HistoryAction.instance">
                 <attr name="component" methodvalue="net.kogics.kojo.HistoryTopComponent.findInstance"/>
                 <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_HistoryAction"/>
@@ -259,8 +265,12 @@
                 <attr name="position" intvalue="3"/>
                 <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-HistoryAction.instance"/>
             </file>
-            <file name="OutputAction.shadow">
+            <file name="GeoGebraAction.shadow">
                 <attr name="position" intvalue="4"/>
+                <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-GeoGebraAction.instance"/>
+            </file>
+            <file name="OutputAction.shadow">
+                <attr name="position" intvalue="5"/>
                 <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-OutputAction.instance"/>
             </file>
         </folder>
@@ -291,6 +301,7 @@
     <folder name="Windows2">
         <folder name="Components">
             <file name="CodeEditorTopComponent.settings" url="CodeEditorTopComponentSettings.xml"/>
+            <file name="GeoGebraTopComponent.settings" url="GeoGebraTopComponentSettings.xml"/>
             <file name="HistoryTopComponent.settings" url="HistoryTopComponentSettings.xml"/>
             <file name="OutputTopComponent.settings" url="OutputTopComponentSettings.xml"/>
             <file name="SCanvasTopComponent.settings" url="SCanvasTopComponentSettings.xml"/>
@@ -304,6 +315,7 @@
                 <file name="HistoryTopComponent.wstcref" url="HistoryTopComponentWstcref.xml"/>
             </folder>
             <folder name="editor">
+                <file name="GeoGebraTopComponent.wstcref" url="GeoGebraTopComponentWstcref.xml"/>
                 <file name="SCanvasTopComponent.wstcref" url="SCanvasTopComponentWstcref.xml"/>
             </folder>
             <folder name="output">

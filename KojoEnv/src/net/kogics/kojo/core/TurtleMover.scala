@@ -14,7 +14,7 @@
  */
 package net.kogics.kojo.core
 
-trait SpriteMover {
+trait TurtleMover {
   def forward(n: Double): Unit
   def back(n: Double) = forward(-n)
   def turn(angle: Double): Unit

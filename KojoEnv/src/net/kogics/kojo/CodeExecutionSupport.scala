@@ -445,7 +445,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val outText = prompt + " : "
     val promptSpaces = if (outText.length - 12 > 0) outText.length - 12 else 0
 
-    IOColorPrint.print(IO, " " * promptSpaces + "Click below to enter text\n", promptMarkColor);
+    IOColorPrint.print(IO, " " * promptSpaces + "Provide Input Below\n", promptMarkColor);
     IOColorPrint.print(IO, " " * outText.length + "V\n", promptMarkColor);
     IOColorPrint.print(IO, outText, promptColor);
 
@@ -453,7 +453,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
 //    IO.setFocusTaken(false)
     IO.setInputVisible(false)
-    codePane.requestFocusInWindow()
+//    codePane.requestFocusInWindow()
     line
   }
 

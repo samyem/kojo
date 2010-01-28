@@ -13,6 +13,7 @@
  *
  */
 package net.kogics.kojo
+// TODO move to util package
 
 trait Singleton[T] {
   var _instance: T = _

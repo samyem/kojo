@@ -14,6 +14,6 @@
  */
 package net.kogics.kojo.core
 
-trait Sprite extends SpriteMover {
+trait Turtle extends TurtleMover {
   def remove(): Unit
 }

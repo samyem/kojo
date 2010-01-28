@@ -7,10 +7,11 @@ also reproduced below for quick reference.
 Kojo makes use of the following third-party software:
 - The Scala Programming Language (http://www.scala-lang.org)
 - The Netbeans Platform (http://platform.netbeans.org)
-- Piccolo2D (http://www.piccolo2d.org) for 2D Graphics
 - Components of the Scala Netbeans plugin (http://wiki.netbeans.org/Scala) and
   the Rats parser generator (http://cs.nyu.edu/rgrimm/xtc/rats.html) for the
   Script Editor
+- Piccolo2D (http://www.piccolo2d.org) for 2D Graphics
+- GeoGebra (http://www.geogebra.org) for Interactive Geometry and Algebra
 - Vecmath (http://github.com/Villane/vecmath)
 
 Kojo also makes use of the following third-party software for unit testing:
