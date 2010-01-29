@@ -26,12 +26,9 @@ import net.kogics.kojo.core._
 
 import org.openide.ErrorManager;
 
-class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas) extends CodeRunner {
+class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geoCanvas: net.kogics.kojo.geogebra.GeoCanvas) extends CodeRunner {
   val Log = Logger.getLogger(getClass.getName);
-  lazy val geoCanvas = net.kogics.kojo.geogebra.GeoCanvas.instance
-
   val outputHandler = new InterpOutputHandler(ctx)
-
   val codeRunner = startCodeRunner()
 
   def showInterpOutput(lineFragment: String) = outputHandler.showInterpOutput(lineFragment)

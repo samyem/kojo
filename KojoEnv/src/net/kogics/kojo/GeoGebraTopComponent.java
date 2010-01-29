@@ -6,7 +6,10 @@ package net.kogics.kojo;
 
 import java.awt.BorderLayout;
 import java.util.logging.Logger;
-import javax.swing.JPanel;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import net.kogics.kojo.geogebra.GeoCanvas;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -14,6 +17,7 @@ import org.openide.windows.WindowManager;
 //import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.util.ImageUtilities;
+import org.openide.util.Utilities;
 
 /**
  * Top component which displays something.
@@ -27,8 +31,8 @@ public final class GeoGebraTopComponent extends TopComponent {
     static final String ICON_PATH = "images/geogebra16.png";
     private static final String PREFERRED_ID = "GeoGebraTopComponent";
 
-    private JPanel geoGebraPanel() {
-        return (JPanel)GeoCanvas.instance();
+    private GeoCanvas geoGebraPanel() {
+        return (GeoCanvas)GeoCanvas.instance();
     }
 
     public GeoGebraTopComponent() {
@@ -97,6 +101,16 @@ public final class GeoGebraTopComponent extends TopComponent {
     @Override
     public void componentClosed() {
         // TODO add custom code on component closing
+    }
+
+    @Override
+    public void componentActivated() {
+        GeoCanvas gc = geoGebraPanel();
+        InputMap im = gc.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = gc.getActionMap();
+        KeyStroke ctrlR = Utilities.stringToKey("D-A"); // tight coupling with layer shortcut entry here. Bad!
+        im.put(ctrlR, "sel-all");
+        am.put("sel-all", gc.selectAllAction());
     }
 
     void writeProperties(java.util.Properties p) {

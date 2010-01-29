@@ -28,7 +28,7 @@ import net.kogics.kojo.util.Utils._
 
 class SpriteTest {
 
-  val sprite = new Geometer(SpriteCanvas.instance, "/images/turtle32.png")
+  val sprite = new Turtle(SpriteCanvas.instance, "/images/turtle32.png")
 
   @Before
   def setUp: Unit = {

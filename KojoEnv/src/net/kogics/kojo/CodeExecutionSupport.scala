@@ -55,6 +55,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val tCanvas = sprite.SpriteCanvas.instance
   tCanvas.outputFn = showOutput _
 
+  val geoCanvas = net.kogics.kojo.geogebra.GeoCanvas.instance
   val commandHistory = CommandHistory.instance
   val historyManager = new HistoryManager()
   @volatile var pendingCommands = false
@@ -271,7 +272,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           }
         }
 
-      }, tCanvas)
+      }, tCanvas, geoCanvas)
     codeRunner
   }
 
