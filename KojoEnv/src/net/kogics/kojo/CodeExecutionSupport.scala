@@ -52,10 +52,10 @@ object CodeExecutionSupport extends Singleton[CodeExecutionSupport] {
 class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val Log = Logger.getLogger(getClass.getName);
 
-  val tCanvas = sprite.SpriteCanvas.instance
+  val tCanvas = SpriteCanvas.instance
   tCanvas.outputFn = showOutput _
 
-  val geoCanvas = net.kogics.kojo.geogebra.GeoCanvas.instance
+  val geomCanvas = geogebra.GeoGebraCanvas.instance.geomCanvas
   val commandHistory = CommandHistory.instance
   val historyManager = new HistoryManager()
   @volatile var pendingCommands = false
@@ -272,7 +272,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           }
         }
 
-      }, tCanvas, geoCanvas)
+      }, tCanvas, geomCanvas)
     codeRunner
   }
 
@@ -305,7 +305,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   }
 
   def setSpriteListener() {
-    tCanvas.setSpriteListener(new sprite.AbstractSpriteListener {
+    tCanvas.setTurtleListener(new turtle.AbstractTurtleListener {
         def interpreterDone = runButton.isEnabled
         override def hasPendingCommands {
           pendingCommands = true

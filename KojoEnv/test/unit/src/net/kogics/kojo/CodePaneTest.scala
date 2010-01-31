@@ -69,7 +69,7 @@ class CodePaneTest {
     }
   }
 
-  val codeRunner = new xscala.ScalaCodeRunner(runCtx, sprite.SpriteCanvas.instance, geogebra.GeoCanvas.instance)
+  val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance, geogebra.GeoGebraCanvas.instance.geomCanvas)
   val pane = new javax.swing.JEditorPane()
   val Delimiter = ""
   var latch: CountDownLatch = _

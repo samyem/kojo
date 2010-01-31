@@ -12,17 +12,10 @@
  * rights and limitations under the License.
  *
  */
+package net.kogics.kojo.kgeom
 
-package net.kogics.kojo.core
+import net.kogics.kojo.core._
 
-trait SCanvas extends TurtleMover {
-  def clear(): Unit
-  def clearPuzzlers(): Unit
-  def newTurtle(x: Int, y: Int): Turtle
-  def newPuzzler(x: Int, y: Int): Turtle
-  val turtle0: Turtle
-  val figure0: Figure
-  def gridOn(): Unit
-  def gridOff(): Unit
-  def newFigure(x: Int, y: Int): Figure
+trait GeometricConstraint extends DynamicShape {
+  def clearVisualElements()
 }

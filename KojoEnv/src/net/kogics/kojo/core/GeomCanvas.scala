@@ -15,22 +15,9 @@
 
 package net.kogics.kojo.core
 
-import edu.umd.cs.piccolo.nodes._
-
-
-trait Figure {
-  def clear(): Unit
-  def aclear(): Unit
-  def setPenColor(color: java.awt.Color): Unit
-  def setPenThickness(t: Double): Unit
-  def setFillColor(color: java.awt.Color): Unit
-
+trait GeomCanvas {
   type P <: Point
 
   def point(x: Double, y: Double): P
   def line(p1: P, p2: P): Line
-  def line(x0: Double, y0: Double, x1: Double, y1: Double): Line
-  def ellipse(left: Double, top: Double, w: Double, h: Double): PPath
-  def circle(x: Double, y: Double, radius: Double) = ellipse(x-radius, y-radius, 2*radius, 2*radius)
-  def animationStep(fn: => Unit)
 }

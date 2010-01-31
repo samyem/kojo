@@ -12,7 +12,8 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.sprite
+package net.kogics.kojo
+package turtle
 
 import javax.swing._
 import java.awt._
@@ -32,8 +33,8 @@ import scala.actors.Actor._
 
 import net.kogics.kojo._
 import net.kogics.kojo.util._
-import net.kogics.kojo.geom._
-import net.kogics.kojo.core.geom._
+import net.kogics.kojo.kgeom._
+import net.kogics.kojo.core._
 
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{CountDownLatch, TimeUnit}
@@ -43,9 +44,10 @@ object Turtle {
   val writeFont = new Font(new PText().getFont.getName, Font.PLAIN, 15)
 }
 
-class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Double = 0, bottomLayer: Boolean = false) extends core.Turtle {
+class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
+             initY: Double = 0, bottomLayer: Boolean = false) extends core.Turtle {
   private val Log = Logger.getLogger(getClass.getName)
-  Log.info("Sprite being created in thread: " + Thread.currentThread.getName)
+  Log.info("Turtle being created in thread: " + Thread.currentThread.getName)
 
   private val layer = new PLayer
   private val camera = canvas.getCamera
@@ -126,7 +128,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
     history.pop()
   }
 
-  private [sprite] def init() {
+  private [turtle] def init() {
     _animationDelay = 1000l
     clearHistory()
     changePos(initX, initY)
@@ -143,12 +145,12 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   init
 
   @volatile private var cmdBool = new AtomicBoolean(true)
-  @volatile private var listener: SpriteListener = NoOpListener
+  @volatile private var listener: TurtleListener = NoopTurtleListener
 
-  private [sprite] def deg2radians(angle: Double) = angle * Math.Pi / 180
-  private [sprite] def rad2degrees(angle: Double) = angle * 180 / Math.Pi
-  private [sprite] def thetaDegrees = rad2degrees(theta)
-  private [sprite] def thetaRadians = theta
+  private [turtle] def deg2radians(angle: Double) = angle * Math.Pi / 180
+  private [turtle] def rad2degrees(angle: Double) = angle * 180 / Math.Pi
+  private [turtle] def thetaDegrees = rad2degrees(theta)
+  private [turtle] def thetaRadians = theta
 
   private def enqueueCommand(cmd: Command) {
     if (removed) return
@@ -591,17 +593,17 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
     else beamsOffWorker()
   }
 
-  private [sprite] def resetRotation() {
+  private [turtle] def resetRotation() {
     changeHeading(deg2radians(90))
   }
 
-  private [sprite] def stop() {
+  private [kojo] def stop() {
     cmdBool.set(false)
     cmdBool = new AtomicBoolean(true)
   }
 
-  private [sprite] def setSpriteListener(l: SpriteListener) {
-//    if (listener != NoOpListener) throw new RuntimeException("Cannot re-set Sprite listener")
+  private [kojo] def setTurtleListener(l: TurtleListener) {
+//    if (listener != NoOpListener) throw new RuntimeException("Cannot re-set Turtle listener")
     listener = l
   }
 
@@ -797,7 +799,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
   abstract class AbstractPen extends Pen {
     val Log = Logger.getLogger(getClass.getName);
 
-    val sprite = Turtle.this
+    val turtle = Turtle.this
     val DefaultColor = Color.red
     val DefaultFillColor = null
     val DefaultStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
@@ -811,7 +813,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d, initY: Dou
 
     def newPath(): PolyLine = {
       val penPath = new PolyLine()
-      penPath.addPoint(sprite._position.x.toFloat, sprite._position.y.toFloat)
+      penPath.addPoint(turtle._position.x.toFloat, turtle._position.y.toFloat)
       penPath.setStroke(lineStroke)
       penPath.setStrokePaint(lineColor)
       penPath.setPaint(fillColor)

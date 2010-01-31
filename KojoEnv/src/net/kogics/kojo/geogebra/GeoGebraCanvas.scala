@@ -8,14 +8,13 @@ package net.kogics.kojo.geogebra
 import net.kogics.kojo.Singleton
 
 import geogebra.GeoGebraPanel;
-import geogebra.plugin.GgbAPI
 import geogebra.gui.menubar.GeoGebraMenuBar
 
-object GeoCanvas extends Singleton[GeoCanvas] {
-  protected def newInstance = new GeoCanvas
+object GeoGebraCanvas extends Singleton[GeoGebraCanvas] {
+  protected def newInstance = new GeoGebraCanvas
 }
 
-class GeoCanvas extends GeoGebraPanel with net.kogics.kojo.core.GeoCanvas {
+class GeoGebraCanvas extends GeoGebraPanel {
   setMaxIconSize(24)
 
   setShowAlgebraInput(true)
@@ -26,8 +25,8 @@ class GeoCanvas extends GeoGebraPanel with net.kogics.kojo.core.GeoCanvas {
   app.getGuiManager().initMenubar()
 
 
-  def api: GgbAPI = this.getGeoGebraAPI
-  val geom = new Geom(api)
+  val ggbApi = getGeoGebraAPI
+  val geomCanvas = new GeomCanvas(ggbApi)
 
   def selectAllAction = app.getGuiManager().getMenuBar().asInstanceOf[GeoGebraMenuBar].getSelectAllAction
 }

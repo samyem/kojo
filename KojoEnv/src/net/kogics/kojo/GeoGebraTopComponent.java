@@ -10,7 +10,7 @@ import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
-import net.kogics.kojo.geogebra.GeoCanvas;
+import net.kogics.kojo.geogebra.GeoGebraCanvas;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -31,13 +31,13 @@ public final class GeoGebraTopComponent extends TopComponent {
     static final String ICON_PATH = "images/geogebra16.png";
     private static final String PREFERRED_ID = "GeoGebraTopComponent";
 
-    private GeoCanvas geoGebraPanel() {
-        return (GeoCanvas)GeoCanvas.instance();
+    private GeoGebraCanvas geoGebraCanvas() {
+        return (GeoGebraCanvas)GeoGebraCanvas.instance();
     }
 
     public GeoGebraTopComponent() {
         initComponents();
-        add(geoGebraPanel(), BorderLayout.CENTER);
+        add(geoGebraCanvas(), BorderLayout.CENTER);
         setName(NbBundle.getMessage(GeoGebraTopComponent.class, "CTL_GeoGebraTopComponent"));
         setToolTipText(NbBundle.getMessage(GeoGebraTopComponent.class, "HINT_GeoGebraTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
@@ -105,7 +105,7 @@ public final class GeoGebraTopComponent extends TopComponent {
 
     @Override
     public void componentActivated() {
-        GeoCanvas gc = geoGebraPanel();
+        GeoGebraCanvas gc = geoGebraCanvas();
         InputMap im = gc.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = gc.getActionMap();
         KeyStroke ctrlR = Utilities.stringToKey("D-A"); // tight coupling with layer shortcut entry here. Bad!

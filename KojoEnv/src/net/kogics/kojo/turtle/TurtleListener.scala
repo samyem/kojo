@@ -12,21 +12,19 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.geom
+package net.kogics.kojo
+package turtle
 
-object LabelCounters {
-
-  var angleCounter = 1
-  var lengthCounter = 1
-
-  def nextAngleCounter = {
-    angleCounter += 1
-    angleCounter - 1
-  }
-
-  def nextLengthCounter = {
-    lengthCounter += 1
-    lengthCounter - 1
-  }
-
+trait TurtleListener extends core.SpriteListener {
+  def commandStarted(cmd: Command): Unit
+  def commandDiscarded(cmd: Command): Unit
+  def commandDone(cmd: Command): Unit
 }
+
+abstract class AbstractTurtleListener extends core.AbstractSpriteListener with TurtleListener {
+  def commandStarted(cmd: Command): Unit = {}
+  def commandDiscarded(cmd: Command): Unit = {}
+  def commandDone(cmd: Command): Unit = {}
+}
+
+object NoopTurtleListener extends AbstractTurtleListener {}

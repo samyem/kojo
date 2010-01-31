@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Lalit Pant <pant.lalit@gmail.com>
+ * Copyright (C) 2010 Lalit Pant <pant.lalit@gmail.com>
  *
  * The contents of this file are subject to the GNU General Public License
  * Version 3 (the "License"); you may not use this file
@@ -12,12 +12,12 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.core.geom
 
-trait DynamicShape {
-  def showAngles()
-  def showLengths()
-  def hideAngles()
-  def hideLengths()
-  def trackVars(fn: scala.collection.mutable.Map[String, Float] => Unit)
+package net.kogics.kojo
+package figure
+
+class Point(val x: Double, val y: Double) extends core.Point {
+  val pPoint = new kgeom.PolyLine()
+  pPoint.addPoint(x.toFloat, y.toFloat)
+  pPoint.addPoint(x.toFloat, y.toFloat)
 }

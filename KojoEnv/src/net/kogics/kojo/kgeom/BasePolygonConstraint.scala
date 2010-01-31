@@ -12,7 +12,7 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.geom
+package net.kogics.kojo.kgeom
 
 import java.awt._
 import java.awt.geom._
@@ -29,7 +29,7 @@ import edu.umd.cs.piccolox.handles._
 import edu.umd.cs.piccolox.util._
 
 import net.kogics.kojo.util._
-import net.kogics.kojo.core.geom._
+import net.kogics.kojo.core._
 
 trait VarsListener {
   def varsChanged(vars: mutable.Map[String, Float])

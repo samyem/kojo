@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
-import net.kogics.kojo.sprite.SpriteCanvas;
+import net.kogics.kojo.SpriteCanvas;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;

@@ -12,10 +12,12 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.geom
+package net.kogics.kojo.kgeom
 
 import java.awt._
 import java.awt.geom._
+
+import org.villane.vecmath._
 
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.util._
@@ -24,50 +26,25 @@ import edu.umd.cs.piccolo.nodes._
 import edu.umd.cs.piccolox.handles._
 import edu.umd.cs.piccolox.util._
 
-import net.kogics.kojo.core.geom._
 import net.kogics.kojo.util._
+import net.kogics.kojo.core._
 
-
-class PGramConstraint(shape: PolyLine, handleLayer: PLayer, outputFn: String=>Unit) extends BasePolygonConstraint(shape, handleLayer, outputFn) {
+class PolygonConstraint(shape: PolyLine, handleLayer: PLayer, outputFn: String=>Unit) extends BasePolygonConstraint(shape, handleLayer, outputFn) {
 
   def init(shape: PolyLine) {
     if (!pointsSame(points(0), points.last))
-      throw new IllegalArgumentException("Unable to convert Path to Parallelogram - not a closed shape\n")
-
-    if (points.size != 5)
-      throw new IllegalArgumentException("Unable to convert Path to Parallelogram - shape does not have four vertices\n")
-
-    if (!isPGram())
-      throw new IllegalArgumentException("Unable to convert Path to Parallelogram - opposite sides are not parallel and equal\n")
+      throw new IllegalArgumentException("Unable to convert Path to Polygon - not a closed shape\n")
   }
-
-  def isPGram() = {
-    val delx1 = points(0).x - points(1).x
-    val dely1 = points(0).y - points(1).y
-
-    val delx2 = points(3).x - points(2).x
-    val dely2 = points(3).y - points(2).y
-
-    Utils.doublesEqual(delx1, delx2, 0.001) && Utils.doublesEqual(dely1, dely2, 0.001)
-  }
-
+  
   def addHandles() {
-    def linkedIndex(i: Int) = {
-      if (i == 0) points.size-1
-      else i-1
-    }
-
     for (i <- 0 until points.size) {
-      addHandle(points(i), linkedIndex(i))
+      addHandle(points(i))
     }
 
     handleLayer.repaint()
   }
 
-  def addHandle(point: Point2D.Float, linkedIndex: Int) {
-
-    val linkedPoint = points(linkedIndex)
-    
+  def addHandle(point: Point2D.Float) {
     val l = new PLocator() {
       override def locateX() = point.x
       override def locateY() = point.y
@@ -79,16 +56,8 @@ class PGramConstraint(shape: PolyLine, handleLayer: PLayer, outputFn: String=>Un
         point.setLocation(point.x + aLocalDimension.getWidth(), point.y
                           + aLocalDimension.getHeight())
 
-        linkedPoint.setLocation(linkedPoint.x + aLocalDimension.getWidth(), linkedPoint.y
-                                + aLocalDimension.getHeight())
-
         relocateHandle()
         this.repaint()
-
-        val linkedHandle = handles(linkedIndex)
-        linkedHandle.relocateHandle()
-        linkedHandle.repaint()
-
         updateAngles()
         updateLengths()
         shape.updateBounds()

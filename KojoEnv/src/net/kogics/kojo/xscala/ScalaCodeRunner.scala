@@ -12,7 +12,8 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.xscala
+package net.kogics.kojo
+package xscala
 
 import java.io._
 import java.awt.Color
@@ -26,7 +27,7 @@ import net.kogics.kojo.core._
 
 import org.openide.ErrorManager;
 
-class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geoCanvas: net.kogics.kojo.geogebra.GeoCanvas) extends CodeRunner {
+class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas) extends CodeRunner {
   val Log = Logger.getLogger(getClass.getName);
   val outputHandler = new InterpOutputHandler(ctx)
   val codeRunner = startCodeRunner()
@@ -222,8 +223,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geoCanvas: net.kogics.k
       interp.interpret("val builtins = predef.Builtins")
       interp.interpret("import predef.Builtins._")
       interp.bind("turtle0", "net.kogics.kojo.core.Turtle", tCanvas.turtle0)
-      interp.bind("Shape", "net.kogics.kojo.sprite.Figure", tCanvas.figure0)
-      interp.bind("Geom", "net.kogics.kojo.geogebra.Geom", geoCanvas.geom)
+      interp.bind("Canvas", "net.kogics.kojo.core.Figure", tCanvas.figure0)
+      interp.bind("MathLand", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
 
       outputHandler.interpOutputSuppressed = false
       ctx.onInterpreterInit()
@@ -380,7 +381,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geoCanvas: net.kogics.k
   }
 
   object Builtins extends SCanvas {
-    type Turtle = net.kogics.kojo.core.Turtle
+    type Turtle = core.Turtle
     type Color = java.awt.Color
 
     PuzzleLoader.init()

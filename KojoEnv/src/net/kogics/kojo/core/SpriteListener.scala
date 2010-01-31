@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Lalit Pant <pant.lalit@gmail.com>
+ * Copyright (C) 2010 Lalit Pant <pant.lalit@gmail.com>
  *
  * The contents of this file are subject to the GNU General Public License
  * Version 3 (the "License"); you may not use this file
@@ -12,7 +12,8 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.sprite
+
+package net.kogics.kojo.core
 
 trait SpriteListener {
   /**
@@ -24,19 +25,12 @@ trait SpriteListener {
    * The Sprite has no more pending commands.
    */
   def pendingCommandsDone(): Unit
-
-  def commandStarted(cmd: Command): Unit
-  def commandDiscarded(cmd: Command): Unit
-  def commandDone(cmd: Command): Unit
-
 }
 
 abstract class AbstractSpriteListener extends SpriteListener {
   def hasPendingCommands: Unit = {}
   def pendingCommandsDone(): Unit = {}
-  def commandStarted(cmd: Command): Unit = {}
-  def commandDiscarded(cmd: Command): Unit = {}
-  def commandDone(cmd: Command): Unit = {}
 }
 
-object NoOpListener extends AbstractSpriteListener {}
+object NoopSpriteListener extends AbstractSpriteListener {}
+

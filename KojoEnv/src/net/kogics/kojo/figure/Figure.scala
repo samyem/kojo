@@ -13,7 +13,8 @@
  *
  */
 
-package net.kogics.kojo.sprite
+package net.kogics.kojo
+package figure
 
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
@@ -25,7 +26,8 @@ import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate
 import javax.swing._
 import java.awt._
 
-import net.kogics.kojo.core
+import core.SpriteListener
+import core.NoopSpriteListener
 
 class Figure(canvas: SpriteCanvas, initX: Double = 0d, initY: Double = 0) extends core.Figure {
   private val layer = new PLayer
@@ -35,7 +37,7 @@ class Figure(canvas: SpriteCanvas, initX: Double = 0d, initY: Double = 0) extend
   val DefaultColor = Color.red
   val DefaultFillColor: Color = null
   val DefaultStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
-  @volatile private var listener: SpriteListener = NoOpListener
+  @volatile private var listener: SpriteListener = NoopSpriteListener
   @volatile var stopAnim: Boolean = _
 
   var lineColor: Color = _
@@ -85,14 +87,27 @@ class Figure(canvas: SpriteCanvas, initX: Double = 0d, initY: Double = 0) extend
     fillColor = color
   }
 
-  def line(x0: Double, y0: Double, x1: Double, y1: Double): PPath = {
-    val line = PPath.createLine(x0.toFloat, y0.toFloat, x1.toFloat, y1.toFloat)
-    line.setStroke(lineStroke)
-    line.setStrokePaint(lineColor)
-    currLayer.addChild(line)
+  type P = Point
+
+  def point(x: Double, y: Double): P = {
+    val pt = new Point(x,y)
+    pt.pPoint.setStroke(lineStroke)
+    pt.pPoint.setStrokePaint(lineColor)
+    currLayer.addChild(pt.pPoint)
+    currLayer.repaint()
+    pt
+  }
+
+  def line(p1: P, p2: P): Line = {
+    val line = new Line(p1, p2)
+    line.pLine.setStroke(lineStroke)
+    line.pLine.setStrokePaint(lineColor)
+    currLayer.addChild(line.pLine)
     currLayer.repaint()
     line
   }
+
+  def line(x0: Double, y0: Double, x1: Double, y1: Double) = line(new Point(x0, y0), new Point(x1, y1))
 
   def ellipse(left: Double, top: Double, w: Double, h: Double) = {
     val ell = PPath.createEllipse(left.toFloat, top.toFloat, w.toFloat, h.toFloat)
@@ -141,7 +156,7 @@ class Figure(canvas: SpriteCanvas, initX: Double = 0d, initY: Double = 0) extend
       })
   }
 
-  private [sprite] def setSpriteListener(l: SpriteListener) {
+  private [kojo] def setSpriteListener(l: SpriteListener) {
     listener = l
   }
 

@@ -12,6 +12,7 @@
  * rights and limitations under the License.
  *
  */
+
 package net.kogics.kojo.core
 
 import java.util.concurrent.CountDownLatch

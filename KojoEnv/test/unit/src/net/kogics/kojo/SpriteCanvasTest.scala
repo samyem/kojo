@@ -12,7 +12,7 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.sprite
+package net.kogics.kojo
 
 import org.junit.After
 import org.junit.Before
@@ -20,6 +20,8 @@ import org.junit.Test
 import org.junit.Assert._
 
 import javax.swing._
+
+import turtle.Turtle
 
 class SpriteCanvasTest {
 

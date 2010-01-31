@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Lalit Pant <pant.lalit@gmail.com>
+ * Copyright (C) 2010 Lalit Pant <pant.lalit@gmail.com>
  *
  * The contents of this file are subject to the GNU General Public License
  * Version 3 (the "License"); you may not use this file
@@ -15,14 +15,35 @@
 
 package net.kogics.kojo.core
 
-trait SCanvas extends TurtleMover {
-  def clear(): Unit
-  def clearPuzzlers(): Unit
-  def newTurtle(x: Int, y: Int): Turtle
-  def newPuzzler(x: Int, y: Int): Turtle
-  val turtle0: Turtle
-  val figure0: Figure
-  def gridOn(): Unit
-  def gridOff(): Unit
-  def newFigure(x: Int, y: Int): Figure
+import scala.collection._
+
+trait Shape
+
+trait Point extends Shape {
+  val x: Double
+  val y: Double
+
+  def cx: Double = x
+  def cy: Double = y
+}
+
+trait Line extends Shape {
+  val p1: Point
+  val p2: Point
+}
+
+trait Ellipse extends Shape {
+  val left: Double
+  val top: Double
+  val w: Double
+  val h: Double
+}
+
+trait Circle extends Shape {
+  val center: Point
+  val radius: Double
+}
+
+trait Polygon extends Shape {
+  val points: mutable.ArrayBuffer[Point]
 }

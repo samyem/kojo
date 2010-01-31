@@ -12,7 +12,7 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.geom
+package net.kogics.kojo.kgeom
 
 import java.awt._
 import java.awt.geom._

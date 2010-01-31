@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Lalit Pant <pant.lalit@gmail.com>
+ * Copyright (C) 2010 Lalit Pant <pant.lalit@gmail.com>
  *
  * The contents of this file are subject to the GNU General Public License
  * Version 3 (the "License"); you may not use this file
@@ -12,10 +12,13 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.geom
 
-import net.kogics.kojo.core.geom._
+package net.kogics.kojo
+package figure
 
-trait GeometricConstraint extends DynamicShape {
-  def clearVisualElements()
+class Line(val p1: Point, val p2: Point) extends core.Line {
+  val pLine = new kgeom.PolyLine()
+  pLine.addPoint(p1.x.toFloat, p1.y.toFloat)
+  pLine.addPoint(p2.x.toFloat, p2.y.toFloat)
+  
 }

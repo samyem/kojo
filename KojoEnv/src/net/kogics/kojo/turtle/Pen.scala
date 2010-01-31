@@ -12,7 +12,7 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.sprite
+package net.kogics.kojo.turtle
 
 import java.awt.Color
 

@@ -12,7 +12,7 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.core
+package net.kogics.kojo.core 
 
 trait TurtleMover {
   def forward(n: Double): Unit
@@ -42,8 +42,8 @@ trait TurtleMover {
   def invisible(): Unit
   def point(x: Double, y: Double)
   def clear(): Unit
-  def pathToPolygon(): geom.DynamicShape
-  def pathToParallelogram(): geom.DynamicShape
+  def pathToPolygon(): DynamicShape
+  def pathToParallelogram(): DynamicShape
   def undo(): Unit
   def waitFor(): Unit = animationDelay
 }

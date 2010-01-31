@@ -12,7 +12,7 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.sprite
+package net.kogics.kojo
 
 import javax.swing._
 import java.awt.{List => _, _}
@@ -26,11 +26,15 @@ import edu.umd.cs.piccolo.util.PPaintContext
 import edu.umd.cs.piccolo.event._
 
 import net.kogics.kojo.core.SCanvas
-import net.kogics.kojo.Singleton
 import net.kogics.kojo.util.Utils
 
 import org.openide.awt.StatusDisplayer
 import scala.collection._
+import figure.Figure
+import turtle.Turtle
+import turtle.TurtleListener
+import turtle.NoopTurtleListener
+import turtle.Command
 
 object SpriteCanvas extends Singleton[SpriteCanvas] {
   protected def newInstance = new SpriteCanvas
@@ -182,8 +186,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     // initCamera()
   }
 
-  def pushHistory(sprite: Turtle) = synchronized {
-    history.push(sprite)
+  def pushHistory(turtle: Turtle) = synchronized {
+    history.push(turtle)
   }
 
   def popHistory() = synchronized {
@@ -204,7 +208,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
     if (undoTurtle.isDefined) {
       // this will also pop the turtle from the canvas history
-      // need to do it from within the sprite because users can
+      // need to do it from within the turtle because users can
       // do a direct undo on a turtle and bypass the canvas
       undoTurtle.get.syncUndo()
     }
@@ -305,7 +309,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     val latch = new CountDownLatch(1)
     Utils.runInSwingThread {
       t = new Turtle(this, "/images/turtle32.png", x, y)
-      t.setSpriteListener(megaListener)
+      t.setTurtleListener(megaListener)
       turtles = t :: turtles
       latch.countDown()
     }
@@ -319,7 +323,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     val latch = new CountDownLatch(1)
     Utils.runInSwingThread {
       t = new Turtle(this, "/images/puzzler32.png", x, y, true)
-      t.setSpriteListener(megaListener)
+      t.setTurtleListener(megaListener)
       t.setPenThickness(1)
       t.setPenColor(Color.blue)
       t.setAnimationDelay(10)
@@ -331,16 +335,16 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     t
   }
 
-  def setSpriteListener(l: SpriteListener) {
+  def setTurtleListener(l: TurtleListener) {
     megaListener.setListener(l)
   }
 
-  class CompositeListener extends SpriteListener {
+  class CompositeListener extends TurtleListener {
     var startCount = 0
-    @volatile var realListener: SpriteListener = NoOpListener
+    @volatile var realListener: TurtleListener = NoopTurtleListener
 
-    def setListener(l: SpriteListener) {
-      if (realListener != NoOpListener) throw new RuntimeException("SpriteCanvas - cannot reset listener")
+    def setListener(l: TurtleListener) {
+      if (realListener != NoopTurtleListener) throw new RuntimeException("SpriteCanvas - cannot reset listener")
       realListener = l
     }
 
