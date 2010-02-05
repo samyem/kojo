@@ -40,6 +40,8 @@ object SampleCode {
       case "Polygon" => Polygon
       case "Parallelogram" => Parallelogram
       case "Parallel-Transversal" => ParTrans
+      case "Triangle-Angles" => TriangleAngles
+
     }
   }
 
@@ -679,6 +681,7 @@ Shape.animationStep {
 """
 
   val ParTrans = util.Utils.readFile(getResource("par-trans.kojo"))
+  val TriangleAngles = util.Utils.readFile(getResource("triangle-angles.kojo"))
 
   def getResource(name: String): InputStream = {
     getClass.getResourceAsStream(name)

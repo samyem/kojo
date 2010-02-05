@@ -1,6 +1,7 @@
 // The Math World (Mw) stuff is under development
 // The Mw programming interface is likely to change
 
+Mw.clear()
 Mw.hideAxes()
 // Make first line
 val P1 = Mw.point("P1", -10,3)
