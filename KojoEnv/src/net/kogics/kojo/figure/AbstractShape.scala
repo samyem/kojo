@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Lalit Pant <pant.lalit@gmail.com>
+ * Copyright (C) 2010 Lalit Pant <pant.lalit@gmail.com>
  *
  * The contents of this file are subject to the GNU General Public License
  * Version 3 (the "License"); you may not use this file
@@ -13,17 +13,25 @@
  *
  */
 
-package net.kogics.kojo.core
+package net.kogics.kojo
+package figure
 
-trait GeomCanvas {
-  type P <: Point
-  type L <: Line
+import edu.umd.cs.piccolo.PNode
 
-  def showAxes(): Unit
-  def hideAxes(): Unit
-  def point(label: String, x: Double, y: Double): P
-  def line(label: String, p1: P, p2: P): L
-  def intersect(label: String, l1: L, l2: L): P
-  def angle(label: String, p1: P, p2: P, p3: P): Angle
-  def text(content: String, x: Double, y: Double): Text
+abstract class AbstractShape extends core.Shape {
+
+  protected def piccoloNode: PNode
+  
+  def hide() {
+    piccoloNode.setVisible(false)
+  }
+
+  def show() {
+    piccoloNode.setVisible(true)
+  }
+
+  def setColor(color: java.awt.Color) {
+    piccoloNode.setPaint(color)
+  }
+
 }

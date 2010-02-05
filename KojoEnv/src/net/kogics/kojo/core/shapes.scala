@@ -17,7 +17,14 @@ package net.kogics.kojo.core
 
 import scala.collection._
 
-trait Shape
+trait Shape {
+  def hide()
+  def show()
+  def setColor(color: java.awt.Color)
+  def showNameInLabel() {}
+  def showNameValueInLabel() {}
+  def showValueInLabel() {}
+}
 
 trait Point extends Shape {
   val x: Double
@@ -47,3 +54,6 @@ trait Circle extends Shape {
 trait Polygon extends Shape {
   val points: mutable.ArrayBuffer[Point]
 }
+
+trait Angle extends Shape 
+trait Text extends Shape 

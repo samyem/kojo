@@ -36,15 +36,32 @@ object PointLabel {
   }
 }
 
-class Point(ggbApi: GgbAPI, val x: Double, val y: Double) extends net.kogics.kojo.core.Point {
-  val gPoint = ggbApi.getKernel.Point(PointLabel.next(), x, y)
+object Point {
+
+  def apply(ggbApi: GgbAPI, label: String, x: Double, y: Double) = {
+    new Point(ggbApi, ggbApi.getKernel.Point(label, x, y))
+  }
+
+  def apply(ggbApi: GgbAPI, label: String, l1: Line, l2: Line) = {
+    val gPoint = ggbApi.getKernel.IntersectLines(label, l1.gLine, l2.gLine)
+    new Point(ggbApi, gPoint)
+  }
+}
+
+class Point(ggbApi: GgbAPI, val gPoint: GeoPoint) extends AbstractShape(ggbApi) with net.kogics.kojo.core.Point {
+
+  val x = gPoint.x
+  val y = gPoint.y
+
+  ctorDone()
   
   override def cx = gPoint.x
   override def cy = gPoint.y
 
   def moveTo(x: Double, y: Double) {
     gPoint.setCoords(x, y, 1)
-    gPoint.updateCascade()
-    ggbApi.getKernel.notifyRepaint()
+    repaint()
   }
+
+  protected def geogebraElement = gPoint
 }

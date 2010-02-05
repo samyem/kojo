@@ -16,8 +16,10 @@
 package net.kogics.kojo
 package figure
 
-class Point(val x: Double, val y: Double) extends core.Point {
+class Point(val x: Double, val y: Double) extends AbstractShape with core.Point {
   val pPoint = new kgeom.PolyLine()
   pPoint.addPoint(x.toFloat, y.toFloat)
   pPoint.addPoint(x.toFloat, y.toFloat)
+
+  protected def piccoloNode = pPoint
 }

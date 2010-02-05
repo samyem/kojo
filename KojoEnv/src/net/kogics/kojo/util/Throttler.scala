@@ -14,26 +14,47 @@
  */
 package net.kogics.kojo.util
 
-trait Throttler {
+object Throttler {
+  // Throttling is always supposed to happen on the Interp
+  // thread. So - there's no volatile or synchronized stuff in this class
+
   val MaxDelay = 1000 // ms
   val ThrottleThreshold = 10 // ms
-  @volatile var lastCallTime: Long = System.currentTimeMillis
-  @volatile var avgDelay = 1000f
+  val MaxUninterruptibleCalls = 10
+  var lastCallTime: Long = System.currentTimeMillis
+  var avgDelay = 1000f
+  var uninterruptibleCalls = 0
 
   /**
    * Slow things down if stuff is happening too quickly
    * Meant to slow down runaway computation inside the interpreter, so that the
-   * user can at least close down the app without too much of a problem
+   * user can interrupt the runaway thread
    */
-  def throttle {
+  def throttle() {
     val currTime = System.currentTimeMillis
     val delta =  currTime - lastCallTime
     lastCallTime = currTime
 
     avgDelay = (avgDelay + delta) / 2
 
-    if (avgDelay > MaxDelay) avgDelay = MaxDelay
-    else if (avgDelay < ThrottleThreshold) Thread.sleep(1) // Throws interrupted exception if the thread has been interrupted
+    if (avgDelay < ThrottleThreshold) {
+      allowInterruption()
+    }
+    else {
+      uninterruptibleCalls += 1
+      if (avgDelay > MaxDelay) {
+        avgDelay = MaxDelay
+      }
+    }
+
+    if (uninterruptibleCalls > MaxUninterruptibleCalls) {
+      allowInterruption()
+    }
+  }
+
+  def allowInterruption() {
+    uninterruptibleCalls = 0
+    Thread.sleep(1) // Throws interrupted exception if the thread has been interrupted
   }
 }
 

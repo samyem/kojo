@@ -28,7 +28,7 @@ import net.kogics.kojo.core._
 import org.openide.ErrorManager;
 
 class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas) extends CodeRunner {
-  val Log = Logger.getLogger(getClass.getName);
+  val Log = Logger.getLogger(getClass.getName)
   val outputHandler = new InterpOutputHandler(ctx)
   val codeRunner = startCodeRunner()
 
@@ -224,7 +224,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
       interp.interpret("import predef.Builtins._")
       interp.bind("turtle0", "net.kogics.kojo.core.Turtle", tCanvas.turtle0)
       interp.bind("Canvas", "net.kogics.kojo.core.Figure", tCanvas.figure0)
-      interp.bind("MathLand", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
+      interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
 
       outputHandler.interpOutputSuppressed = false
       ctx.onInterpreterInit()
@@ -386,14 +386,13 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
     PuzzleLoader.init()
 
-    private val throttler = new Throttler {}
-
     def println(obj: Any): Unit = println(obj.toString)
 
     def println(s: String): Unit = {
       // Runs on Actor pool (interpreter) thread
       showOutput(s + "\n")
-      throttler.throttle
+      Log.info("Println - About to throttle. Thread: " + Thread.currentThread.getName)
+      Throttler.throttle()
     }
 
     def readln(prompt: String): String = ctx.readInput(prompt)
@@ -454,7 +453,7 @@ Here's a partial list of available commands:
     def repeat(n: Int) (fn: => Unit) {
       for (i <- 1 to n) {
         fn
-        throttler.throttle
+        Throttler.throttle()
       }
     }
 

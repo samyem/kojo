@@ -17,6 +17,8 @@ package net.kogics.kojo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import net.kogics.kojo.sample.SampleCode;
+
 public final class Samples implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {

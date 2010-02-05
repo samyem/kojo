@@ -13,13 +13,21 @@
  *
  */
 
-package net.kogics.kojo
-package figure
+package net.kogics.kojo.geogebra
 
-class Line(val p1: Point, val p2: Point) extends AbstractShape with core.Line {
-  val pLine = new kgeom.PolyLine()
-  pLine.addPoint(p1.x.toFloat, p1.y.toFloat)
-  pLine.addPoint(p2.x.toFloat, p2.y.toFloat)
+import geogebra.kernel.GeoAngle
+import geogebra.plugin.GgbAPI
 
-  protected def piccoloNode = pLine
+object Angle {
+  def apply(ggbApi: GgbAPI, label: String, p1: Point, p2: Point, p3: Point) = {
+    new Angle(ggbApi, ggbApi.getKernel.Angle(label, p1.gPoint, p2.gPoint, p3.gPoint))
+  }
+}
+
+class Angle(ggbApi: GgbAPI, val gAngle: GeoAngle) extends AbstractShape(ggbApi) with net.kogics.kojo.core.Angle {
+
+  showNameValueInLabel()
+  ctorDone()
+
+  protected def geogebraElement = gAngle
 }

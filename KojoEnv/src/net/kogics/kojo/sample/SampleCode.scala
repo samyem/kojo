@@ -13,6 +13,9 @@
  *
  */
 package net.kogics.kojo
+package sample
+
+import java.io._
 
 object SampleCode {
 
@@ -36,6 +39,7 @@ object SampleCode {
       case "Tree" => Tree
       case "Polygon" => Polygon
       case "Parallelogram" => Parallelogram
+      case "Parallel-Transversal" => ParTrans
     }
   }
 
@@ -638,7 +642,7 @@ jumpTo(-200, 130)
 write("Drag the vertices\naround to play\nwith the Shape.")
   """
 
-val sinThetaAnimation = """
+  val sinThetaAnimation = """
 def d2r(a: Double) = a * Math.Pi/180
 
 def sineFn(offset: Int, scale: Double) {
@@ -672,6 +676,11 @@ Shape.animationStep {
 
     theta += 1
 }
-
 """
+
+  val ParTrans = util.Utils.readFile(getResource("par-trans.kojo"))
+
+  def getResource(name: String): InputStream = {
+    getClass.getResourceAsStream(name)
+  }
 }

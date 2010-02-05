@@ -54,7 +54,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   // the zeroth layer is for the grid etc
   // bottom sprite layer is at index 1
   if (bottomLayer) camera.addLayer(1, layer) else camera.addLayer(camera.getLayerCount-1, layer)
-  private val throttler = new Throttler {}
   @volatile private var _animationDelay = 0l
 
   private val turtleImage = new PImage(Utils.loadImage(fname))
@@ -155,7 +154,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   private def enqueueCommand(cmd: Command) {
     if (removed) return
     CommandActor ! cmd
-    throttler.throttle
+    Throttler.throttle()
   }
 
   def syncUndo() {
