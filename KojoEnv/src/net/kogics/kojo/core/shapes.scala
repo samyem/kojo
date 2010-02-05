@@ -24,6 +24,8 @@ trait Shape {
   def showNameInLabel() {}
   def showNameValueInLabel() {}
   def showValueInLabel() {}
+  def hideLabel() {}
+  def showLabel() {}
 }
 
 trait Point extends Shape {
@@ -37,6 +39,9 @@ trait Point extends Shape {
 trait Line extends Shape {
   val p1: Point
   val p2: Point
+}
+
+trait LineSegment extends Line {
 }
 
 trait Ellipse extends Shape {

@@ -17,11 +17,16 @@ package net.kogics.kojo.geogebra
 
 import geogebra.kernel.GeoLine
 import geogebra.plugin.GgbAPI
+import net.kogics.kojo.util.Utils
 
 object Line {
   def apply(ggbApi: GgbAPI, label: String, p1: Point, p2: Point) = {
-    val gLine = ggbApi.getKernel.Line("a", p1.gPoint, p2.gPoint)
-    new Line(ggbApi, gLine, p1, p2)
+    net.kogics.kojo.util.Throttler.throttle()
+    val line = Utils.runInSwingThreadAndWait {
+      val gLine = ggbApi.getKernel.Line(label, p1.gPoint, p2.gPoint)
+      new Line(ggbApi, gLine, p1, p2)
+    }
+    line
   }
 }
 

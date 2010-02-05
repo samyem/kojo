@@ -18,11 +18,15 @@ package net.kogics.kojo.core
 trait GeomCanvas {
   type P <: Point
   type L <: Line
+  type LS <: L
 
+  def clear(): Unit
   def showAxes(): Unit
   def hideAxes(): Unit
   def point(label: String, x: Double, y: Double): P
+  def point(label: String, on: L, x: Double, y: Double): P
   def line(label: String, p1: P, p2: P): L
+  def lineSegment(label: String, p1: P, p2: P): LS
   def intersect(label: String, l1: L, l2: L): P
   def angle(label: String, p1: P, p2: P, p3: P): Angle
   def text(content: String, x: Double, y: Double): Text

@@ -15,24 +15,25 @@
 
 package net.kogics.kojo.geogebra
 
-import geogebra.kernel.GeoAngle
+import geogebra.kernel.GeoSegment
 import geogebra.plugin.GgbAPI
 import net.kogics.kojo.util.Utils
 
-object Angle {
-  def apply(ggbApi: GgbAPI, label: String, p1: Point, p2: Point, p3: Point) = {
+object LineSegment {
+  def apply(ggbApi: GgbAPI, label: String, p1: Point, p2: Point) = {
     net.kogics.kojo.util.Throttler.throttle()
-    val angle = Utils.runInSwingThreadAndWait {
-      new Angle(ggbApi, ggbApi.getKernel.Angle(label, p1.gPoint, p2.gPoint, p3.gPoint))
+    val lineSegment = Utils.runInSwingThreadAndWait {
+      val gLineSegment = ggbApi.getKernel.Segment(label, p1.gPoint, p2.gPoint)
+      new LineSegment(ggbApi, gLineSegment, p1, p2)
     }
-    angle
+    lineSegment
   }
 }
 
-class Angle(ggbApi: GgbAPI, val gAngle: GeoAngle) extends AbstractShape(ggbApi) with net.kogics.kojo.core.Angle {
+class LineSegment(ggbApi: GgbAPI, gLineSegment: GeoSegment, _p1: Point, _p2: Point)
+extends Line(ggbApi, gLineSegment, _p1, _p2) with net.kogics.kojo.core.LineSegment {
 
-  showNameValueInLabel()
-  ctorDone()
+//  ctorDone()
 
-  protected def geogebraElement = gAngle
+  override protected def geogebraElement = gLineSegment
 }

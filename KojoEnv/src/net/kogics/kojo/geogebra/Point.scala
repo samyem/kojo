@@ -17,34 +17,31 @@ package net.kogics.kojo.geogebra
 
 import geogebra.kernel._
 import geogebra.plugin.GgbAPI
-
-object PointLabel {
-  var ctr = 0
-  var chr = 'A'
-  def next(): String = {
-    val res = if (ctr == 0)
-      chr + ""
-    else
-      chr + ctr.toString
-
-    chr = (chr + 1).toChar
-    if (chr > 'Z') {
-      chr = 'A'
-      ctr += 1
-    }
-    res
-  }
-}
+import net.kogics.kojo.util.Utils
 
 object Point {
 
   def apply(ggbApi: GgbAPI, label: String, x: Double, y: Double) = {
-    new Point(ggbApi, ggbApi.getKernel.Point(label, x, y))
+    net.kogics.kojo.util.Throttler.throttle()
+    val pt = Utils.runInSwingThreadAndWait {
+      new Point(ggbApi, ggbApi.getKernel.Point(label, x, y))
+    }
+    pt
   }
 
   def apply(ggbApi: GgbAPI, label: String, l1: Line, l2: Line) = {
-    val gPoint = ggbApi.getKernel.IntersectLines(label, l1.gLine, l2.gLine)
-    new Point(ggbApi, gPoint)
+    val pt = Utils.runInSwingThreadAndWait {
+      val gPoint = ggbApi.getKernel.IntersectLines(label, l1.gLine, l2.gLine)
+      new Point(ggbApi, gPoint)
+    }
+    pt
+  }
+
+  def apply(ggbApi: GgbAPI, label: String, on: Line, x: Double, y: Double) = {
+    val pt = Utils.runInSwingThreadAndWait {
+      new Point(ggbApi, ggbApi.getKernel.Point(label, on.gLine, x, y))
+    }
+    pt
   }
 }
 
@@ -59,8 +56,10 @@ class Point(ggbApi: GgbAPI, val gPoint: GeoPoint) extends AbstractShape(ggbApi) 
   override def cy = gPoint.y
 
   def moveTo(x: Double, y: Double) {
-    gPoint.setCoords(x, y, 1)
-    repaint()
+    Utils.runInSwingThread {
+      gPoint.setCoords(x, y, 1)
+      repaint()
+    }
   }
 
   protected def geogebraElement = gPoint

@@ -17,13 +17,12 @@ package net.kogics.kojo.geogebra
 
 import geogebra.kernel.GeoElement
 import geogebra.plugin.GgbAPI
+import net.kogics.kojo.util.Utils
 
 import java.util.logging._
-import net.kogics.kojo.util.Throttler
 
 abstract class AbstractShape(ggbApi: GgbAPI) extends net.kogics.kojo.core.Shape {
   
-  Throttler.throttle()
   protected def geogebraElement: GeoElement
 
   protected def ctorDone() {
@@ -35,36 +34,61 @@ abstract class AbstractShape(ggbApi: GgbAPI) extends net.kogics.kojo.core.Shape 
 //    geogebraElement.updateRepaint()
     geogebraElement.updateCascade()
     ggbApi.getKernel.notifyRepaint()
-//    need to think about app.storeUndoInfo();
   }
 
   def hide() {
-    geogebraElement.setEuclidianVisible(false)
-    repaint()
+    Utils.runInSwingThread {
+      geogebraElement.setEuclidianVisible(false)
+      repaint()
+    }
   }
 
   def show() {
-    geogebraElement.setEuclidianVisible(true)
-    repaint()
+    Utils.runInSwingThread {
+      geogebraElement.setEuclidianVisible(true)
+      repaint()
+    }
   }
 
   def setColor(color: java.awt.Color) {
-    geogebraElement.setObjColor(color)
-    repaint()
+    Utils.runInSwingThread {
+      geogebraElement.setObjColor(color)
+      repaint()
+    }
   }
 
   override def showNameInLabel() {
-    geogebraElement.setLabelMode(GeoElement.LABEL_NAME)
-    repaint()
+    Utils.runInSwingThread {
+      geogebraElement.setLabelMode(GeoElement.LABEL_NAME)
+      repaint()
+    }
   }
 
   override def showNameValueInLabel() {
-    geogebraElement.setLabelMode(GeoElement.LABEL_NAME_VALUE)
-    repaint()
+    Utils.runInSwingThread {
+      geogebraElement.setLabelMode(GeoElement.LABEL_NAME_VALUE)
+      repaint()
+    }
   }
 
   override def showValueInLabel() {
-    geogebraElement.setLabelMode(GeoElement.LABEL_VALUE)
-    repaint()
+    Utils.runInSwingThread {
+      geogebraElement.setLabelMode(GeoElement.LABEL_VALUE)
+      repaint()
+    }
+  }
+
+  override def hideLabel() {
+    Utils.runInSwingThread {
+      geogebraElement.setLabelVisible(false)
+      repaint()
+    }
+  }
+
+  override def showLabel() {
+    Utils.runInSwingThread {
+      geogebraElement.setLabelVisible(true)
+      repaint()
+    }
   }
 }

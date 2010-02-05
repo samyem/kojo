@@ -19,6 +19,12 @@ import geogebra.plugin.GgbAPI
 class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
   type P = Point
   type L = Line
+  type LS = LineSegment
+
+  def clear() {
+    ggbApi.getApplication.setSaved()
+    ggbApi.getApplication.fileNew()
+  }
 
   def showAxes() {
     ggbApi.setAxesVisible(true, true)
@@ -29,7 +35,11 @@ class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
   }
 
   def point(label: String, x: Double, y: Double) = Point(ggbApi, label, x, y)
+  def point(label: String, on: L, x: Double, y: Double) = Point(ggbApi, label, on, x, y)
+
   def line(label: String, p1: P, p2: P) = Line(ggbApi, label, p1, p2)
+
+  def lineSegment(label: String, p1: P, p2: P) = LineSegment(ggbApi, label, p1, p2)
 
   def intersect(label: String, l1: L, l2: L): P = {
     Point(ggbApi, label, l1, l2)

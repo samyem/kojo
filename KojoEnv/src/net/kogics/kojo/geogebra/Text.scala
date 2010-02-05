@@ -17,23 +17,28 @@ package net.kogics.kojo.geogebra
 
 import geogebra.kernel.GeoText
 import geogebra.plugin.GgbAPI
+import net.kogics.kojo.util.Utils
 
 object Text {
   def apply(ggbApi: GgbAPI, content: String, x: Double, y: Double): Text = {
-    if (content.indexOf('"') < 0) {
-      val gText = ggbApi.getKernel.Text("T", content)
-      new Text(ggbApi, gText, x, y)
-    }
-    else {
-      val ret = ggbApi.getAlgebraProcessor.processAlgebraCommand(content, false)
-      if (ret != null && ret(0).isTextValue()) {
-        val gText = ret(0).asInstanceOf[GeoText]
+    net.kogics.kojo.util.Throttler.throttle()
+    val text = Utils.runInSwingThreadAndWait {
+      if (content.indexOf('"') < 0) {
+        val gText = ggbApi.getKernel.Text("T", content)
         new Text(ggbApi, gText, x, y)
       }
       else {
-        null
+        val ret = ggbApi.getAlgebraProcessor.processAlgebraCommand(content, false)
+        if (ret != null && ret(0).isTextValue()) {
+          val gText = ret(0).asInstanceOf[GeoText]
+          new Text(ggbApi, gText, x, y)
+        }
+        else {
+          null
+        }
       }
     }
+    text
   }
 }
 
