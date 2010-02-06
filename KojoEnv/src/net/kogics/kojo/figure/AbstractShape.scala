@@ -21,7 +21,7 @@ import edu.umd.cs.piccolo.PNode
 abstract class AbstractShape extends core.Shape {
 
   protected def piccoloNode: PNode
-  
+
   def hide() {
     piccoloNode.setVisible(false)
   }
@@ -33,5 +33,4 @@ abstract class AbstractShape extends core.Shape {
   def setColor(color: java.awt.Color) {
     piccoloNode.setPaint(color)
   }
-
 }

@@ -1,5 +1,6 @@
-// The Math World (Mw) stuff is under development
-// The Mw programming interface is likely to change
+// This is an early preview of the Mathworld (Mw) module
+// This stuff is under development and is likely to change
+// Also, code completion for the Mathworld API is pretty rough right now
 
 Mw.clear()
 Mw.hideAxes()

@@ -41,6 +41,7 @@ object SampleCode {
       case "Parallelogram" => Parallelogram
       case "Parallel/Transversal" => ParTrans
       case "Angles of a Triangle" => TriangleAngles
+      case "Sine of an Angle" => SineAngle
       case "Inspect Object" => InspectObject
     }
   }
@@ -644,42 +645,6 @@ jumpTo(-200, 130)
 write("Drag the vertices\naround to play\nwith the Shape.")
   """
 
-  val sinThetaAnimation = """
-def d2r(a: Double) = a * Math.Pi/180
-
-def sineFn(offset: Int, scale: Double) {
-    for (i <- 0 to 359) {
-        Shape.point(offset+i, scale * Math.sin(d2r(i)))
-    }
-}
-
-val radius = 50
-var theta = 0
-clear()
-Shape.setPenColor(green)
-Shape.setPenThickness(2)
-Shape.circle(0,0,radius)
-sineFn(2*radius, radius)
-
-Shape.setPenColor(new Color(64,64,64))
-Shape.setPenThickness(1)
-Shape.line(0,0,radius, 0)
-
-Shape.animationStep {
-    Shape.aclear()
-    Shape.setPenColor(new Color(64,64,64))
-    Shape.setPenThickness(1)
-    Shape.line(0,0,radius * Math.cos(d2r(theta)), radius * Math.sin(d2r(theta)))
-
-    Shape.setPenColor(red)
-    Shape.setPenThickness(5)
-    Shape.point(radius * Math.cos(d2r(theta)), radius * Math.sin(d2r(theta)))
-    Shape.point(2*radius + (theta%360), radius * Math.sin(d2r(theta)))
-
-    theta += 1
-}
-"""
-
   val InspectObject = """
 class BaseData {
     val baseList = List(1,2,3)
@@ -697,6 +662,7 @@ val data = new Data()
 inspect(data)
   """
 
+  val SineAngle = util.Utils.readFile(getResource("sine-angle.kojo"))
   val ParTrans = util.Utils.readFile(getResource("par-trans.kojo"))
   val TriangleAngles = util.Utils.readFile(getResource("triangle-angles.kojo"))
 

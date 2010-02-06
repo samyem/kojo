@@ -16,10 +16,11 @@
 package net.kogics.kojo
 package figure
 
-class Point(val x: Double, val y: Double) extends AbstractShape with PointDesc with core.Point {
-  val pPoint = new kgeom.PolyLine()
-  pPoint.addPoint(x.toFloat, y.toFloat)
-  pPoint.addPoint(x.toFloat, y.toFloat)
+import edu.umd.cs.piccolo._
+import edu.umd.cs.piccolo.nodes._
 
-  protected def piccoloNode = pPoint
+class Ellipse(val center: PointDesc, val w: Double, val h: Double) extends AbstractShape with core.Ellipse {
+  val pEllipse = PPath.createEllipse((center.x-w/2).toFloat, (center.y-h/2).toFloat, w.toFloat, h.toFloat)
+
+  protected def piccoloNode = pEllipse
 }

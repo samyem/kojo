@@ -16,10 +16,9 @@
 package net.kogics.kojo
 package figure
 
-class Point(val x: Double, val y: Double) extends AbstractShape with PointDesc with core.Point {
-  val pPoint = new kgeom.PolyLine()
-  pPoint.addPoint(x.toFloat, y.toFloat)
-  pPoint.addPoint(x.toFloat, y.toFloat)
-
-  protected def piccoloNode = pPoint
+class LwPoint(val x: Double, val y: Double) extends PointDesc {
+  def hide() {}
+  def show() {}
+  def setColor(color: java.awt.Color) {}
 }
+

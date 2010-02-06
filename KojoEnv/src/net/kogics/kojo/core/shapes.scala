@@ -21,11 +21,14 @@ trait Shape {
   def hide()
   def show()
   def setColor(color: java.awt.Color)
-  def showNameInLabel() {}
-  def showNameValueInLabel() {}
-  def showValueInLabel() {}
-  def hideLabel() {}
-  def showLabel() {}
+}
+
+trait Labelled  {
+  def showNameInLabel()
+  def showNameValueInLabel()
+  def showValueInLabel()
+  def hideLabel()
+  def showLabel()
 }
 
 trait Point extends Shape {
@@ -45,14 +48,12 @@ trait LineSegment extends Line {
 }
 
 trait Ellipse extends Shape {
-  val left: Double
-  val top: Double
+  val center: Point
   val w: Double
   val h: Double
 }
 
-trait Circle extends Shape {
-  val center: Point
+trait Circle extends Ellipse {
   val radius: Double
 }
 

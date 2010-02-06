@@ -16,9 +16,10 @@
 package net.kogics.kojo.core
 
 trait GeomCanvas {
-  type P <: Point
-  type L <: Line
-  type LS <: L
+  type P <: Point with Labelled
+  type L <: Line  with Labelled
+  type LS <: L  with Labelled
+  type A <: Angle  with Labelled
 
   def clear(): Unit
   def showAxes(): Unit
@@ -28,6 +29,6 @@ trait GeomCanvas {
   def line(label: String, p1: P, p2: P): L
   def lineSegment(label: String, p1: P, p2: P): LS
   def intersect(label: String, l1: L, l2: L): P
-  def angle(label: String, p1: P, p2: P, p3: P): Angle
+  def angle(label: String, p1: P, p2: P, p3: P): A
   def text(content: String, x: Double, y: Double): Text
 }

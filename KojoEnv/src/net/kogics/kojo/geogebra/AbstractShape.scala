@@ -15,13 +15,16 @@
 
 package net.kogics.kojo.geogebra
 
+import java.util.logging._
+
 import geogebra.kernel.GeoElement
 import geogebra.plugin.GgbAPI
 import net.kogics.kojo.util.Utils
 
-import java.util.logging._
+import net.kogics.kojo.core.Shape
+import net.kogics.kojo.core.Labelled
 
-abstract class AbstractShape(ggbApi: GgbAPI) extends net.kogics.kojo.core.Shape {
+abstract class AbstractShape(ggbApi: GgbAPI) extends Shape with Labelled {
   
   protected def geogebraElement: GeoElement
 
@@ -57,35 +60,35 @@ abstract class AbstractShape(ggbApi: GgbAPI) extends net.kogics.kojo.core.Shape 
     }
   }
 
-  override def showNameInLabel() {
+  def showNameInLabel() {
     Utils.runInSwingThread {
       geogebraElement.setLabelMode(GeoElement.LABEL_NAME)
       repaint()
     }
   }
 
-  override def showNameValueInLabel() {
+  def showNameValueInLabel() {
     Utils.runInSwingThread {
       geogebraElement.setLabelMode(GeoElement.LABEL_NAME_VALUE)
       repaint()
     }
   }
 
-  override def showValueInLabel() {
+  def showValueInLabel() {
     Utils.runInSwingThread {
       geogebraElement.setLabelMode(GeoElement.LABEL_VALUE)
       repaint()
     }
   }
 
-  override def hideLabel() {
+  def hideLabel() {
     Utils.runInSwingThread {
       geogebraElement.setLabelVisible(false)
       repaint()
     }
   }
 
-  override def showLabel() {
+  def showLabel() {
     Utils.runInSwingThread {
       geogebraElement.setLabelVisible(true)
       repaint()

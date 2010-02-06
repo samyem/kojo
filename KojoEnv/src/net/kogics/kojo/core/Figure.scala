@@ -20,7 +20,7 @@ import edu.umd.cs.piccolo.nodes._
 
 trait Figure {
   def clear(): Unit
-  def aclear(): Unit
+  def fgClear(): Unit
   def setPenColor(color: java.awt.Color): Unit
   def setPenThickness(t: Double): Unit
   def setFillColor(color: java.awt.Color): Unit
@@ -30,7 +30,9 @@ trait Figure {
   def point(x: Double, y: Double): P
   def line(p1: P, p2: P): Line
   def line(x0: Double, y0: Double, x1: Double, y1: Double): Line
-  def ellipse(left: Double, top: Double, w: Double, h: Double): PPath
-  def circle(x: Double, y: Double, radius: Double) = ellipse(x-radius, y-radius, 2*radius, 2*radius)
-  def animationStep(fn: => Unit)
+  def ellipse(center: P, w: Double, h: Double): Ellipse
+  def ellipse(cx: Double, cy: Double, w: Double, h: Double): Ellipse
+  def circle(cx: Double, cy: Double, radius: Double) = ellipse(cx, cy, 2*radius, 2*radius)
+  def text(content: String, x: Double, y: Double): Text
+  def refresh(fn: => Unit)
 }

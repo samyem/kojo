@@ -16,10 +16,17 @@
 package net.kogics.kojo
 package figure
 
-class Point(val x: Double, val y: Double) extends AbstractShape with PointDesc with core.Point {
-  val pPoint = new kgeom.PolyLine()
-  pPoint.addPoint(x.toFloat, y.toFloat)
-  pPoint.addPoint(x.toFloat, y.toFloat)
+import java.awt.Font
 
-  protected def piccoloNode = pPoint
+import edu.umd.cs.piccolo._
+import edu.umd.cs.piccolo.nodes._
+
+class Text(content: String, x: Double, y: Double) extends AbstractShape with core.Text {
+  val pText = new PText(content)
+  pText.getTransformReference(true).setToScale(1, -1)
+  pText.setOffset(x,y)
+  val font = new Font(pText.getFont.getName, Font.PLAIN, 14)
+  pText.setFont(font)
+  
+  protected def piccoloNode = pText
 }

@@ -22,6 +22,7 @@ class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
   type P = Point
   type L = Line
   type LS = LineSegment
+  type A = Angle
 
   @volatile var kojoCtx: KojoCtx = _
 
@@ -54,7 +55,7 @@ class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
     Point(ggbApi, label, l1, l2)
   }
 
-  def angle(label: String, p1: P, p2: P, p3: P): Angle = {
+  def angle(label: String, p1: P, p2: P, p3: P): A = {
     Angle(ggbApi, label, p1, p2, p3)
   }
 

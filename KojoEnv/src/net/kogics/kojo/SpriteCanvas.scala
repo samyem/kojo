@@ -308,7 +308,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     var fig: Figure = null
     val latch = new CountDownLatch(1)
     Utils.runInSwingThreadAndWait {
-      fig = new Figure(this, x, y)
+      fig = Figure(this, x, y)
       fig.setSpriteListener(megaListener)
       figures = fig :: figures
       latch.countDown()

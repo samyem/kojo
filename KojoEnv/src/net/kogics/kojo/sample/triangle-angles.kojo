@@ -1,5 +1,7 @@
 // The Math World (Mw) stuff is under development
 // The Mw programming interface is likely to change
+// Also, code completion for the Mathworld API is pretty rough right now
+
 Mw.clear()
 Mw.hideAxes()
 // Make first line
