@@ -39,9 +39,9 @@ object SampleCode {
       case "Tree" => Tree
       case "Polygon" => Polygon
       case "Parallelogram" => Parallelogram
-      case "Parallel-Transversal" => ParTrans
-      case "Triangle-Angles" => TriangleAngles
-
+      case "Parallel/Transversal" => ParTrans
+      case "Angles of a Triangle" => TriangleAngles
+      case "Inspect Object" => InspectObject
     }
   }
 
@@ -679,6 +679,23 @@ Shape.animationStep {
     theta += 1
 }
 """
+
+  val InspectObject = """
+class BaseData {
+    val baseList = List(1,2,3)
+}
+
+class Data extends BaseData {
+    val someInt = 9
+    val someDouble = 2.3
+    val array = Array(1,2,3,4)
+    val arrayList = new java.util.ArrayList[String]()
+    arrayList.add("a"); arrayList.add("b"); arrayList.add("c")
+}
+
+val data = new Data()
+inspect(data)
+  """
 
   val ParTrans = util.Utils.readFile(getResource("par-trans.kojo"))
   val TriangleAngles = util.Utils.readFile(getResource("triangle-angles.kojo"))

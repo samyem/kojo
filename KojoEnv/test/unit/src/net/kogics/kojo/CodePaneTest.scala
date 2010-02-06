@@ -24,7 +24,7 @@ import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import net.kogics.kojo.core.RunContext
 
-class CodePaneTest {
+class CodePaneTest extends KojoTestBase {
 
   val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
   val file = new java.io.File(fileStr)

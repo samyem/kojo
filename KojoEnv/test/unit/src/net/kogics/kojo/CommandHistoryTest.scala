@@ -28,7 +28,7 @@ import org.jmock.lib.legacy.ClassImposteriser
 import scala.collection.mutable.ArrayBuffer
 
 @RunWith(classOf[JMock])
-class CommandHistoryTest {
+class CommandHistoryTest extends KojoTestBase {
 
   val context: Mockery = new Mockery() {
     {

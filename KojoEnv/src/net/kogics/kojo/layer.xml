@@ -164,6 +164,12 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Samples.Inspect-Object.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Inspect-Object"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
@@ -261,6 +267,13 @@
                 <file name="net-kogics-kojo-Samples.c.shadow">
                     <attr name="position" intvalue="2"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Triangle-Angles.instance"/>
+                </file>
+            </folder>
+            <folder name="Programming ">
+                <attr name="position" intvalue="5"/>
+                <file name="net-kogics-kojo-Samples.Inspect-Object.shadow">
+                    <attr name="position" intvalue="1"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Inspect-Object.instance"/>
                 </file>
             </folder>
         </folder>

@@ -13,7 +13,7 @@ import org.junit.Assert._
 import java.io.File
 import net.kogics.kojo.util._
 
-class CodeExecutionSupportTest {
+class CodeExecutionSupportTest extends KojoTestBase {
 
   val netbeansDir = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
   val userDir = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/testuserdir"

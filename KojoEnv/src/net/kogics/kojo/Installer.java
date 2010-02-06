@@ -14,6 +14,7 @@
  */
 package net.kogics.kojo;
 
+import net.kogics.kojo.geogebra.GeoGebraCanvas;
 import org.openide.modules.ModuleInstall;
 
 /**
@@ -26,5 +27,7 @@ public class Installer extends ModuleInstall {
     public void restored() {
 //        System.setProperty("actors.corePoolSize", "8");
         System.setProperty("actors.maxPoolSize", "512");
+        GeoGebraCanvas.initedInstance((KojoCtx)KojoCtx.instance());
+        SpriteCanvas.initedInstance((KojoCtx)KojoCtx.instance());
     }
 }

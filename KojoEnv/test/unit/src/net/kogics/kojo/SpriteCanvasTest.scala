@@ -23,7 +23,7 @@ import javax.swing._
 
 import turtle.Turtle
 
-class SpriteCanvasTest {
+class SpriteCanvasTest extends KojoTestBase {
 
   var jf: JFrame = _
   var tCanvas: SpriteCanvas = _

@@ -27,7 +27,7 @@ import edu.umd.cs.piccolo.PCanvas
 
 import net.kogics.kojo.util.Utils._
 
-class TurtleTest {
+class TurtleTest extends KojoTestBase {
 
   val turtle = new Turtle(SpriteCanvas.instance, "/images/turtle32.png")
 

@@ -14,14 +14,23 @@
  */
 
 package net.kogics.kojo.geogebra
+
 import geogebra.plugin.GgbAPI
+import net.kogics.kojo.core.KojoCtx
 
 class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
   type P = Point
   type L = Line
   type LS = LineSegment
 
+  @volatile var kojoCtx: KojoCtx = _
+
+  def ensureActive() {
+    kojoCtx.activateMathWorld()
+  }
+
   def clear() {
+    ensureActive()
     ggbApi.getApplication.setSaved()
     ggbApi.getApplication.fileNew()
   }

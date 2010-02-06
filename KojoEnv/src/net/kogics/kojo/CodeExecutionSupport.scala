@@ -31,18 +31,12 @@ import net.kogics.kojo.core.RunContext
 import org.openide.windows._
 import org.openide.awt.UndoRedo
 
-object CodeExecutionSupport extends Singleton[CodeExecutionSupport] {
-  private var instanceInited = false
-
-  protected override def instanceCheck() {
-    if (!instanceInited) throw new IllegalStateException("Instance not initialized")
-  }
-
+object CodeExecutionSupport extends InitedSingleton[CodeExecutionSupport] {
   def initedInstance(codePane: JEditorPane, manager: UndoRedo.Manager) = synchronized {
-    instanceInited = true
+    instanceInit()
     val ret = instance()
-    instance.setCodePane(codePane)
-    instance.undoRedoManager = manager
+    ret.setCodePane(codePane)
+    ret.undoRedoManager = manager
     ret
   }
 

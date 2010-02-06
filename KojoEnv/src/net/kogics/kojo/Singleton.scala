@@ -17,14 +17,29 @@ package net.kogics.kojo
 
 trait Singleton[T] {
   var _instance: T = _
-  protected def newInstance: T
+  protected def newInstance(): T
   protected def instanceCheck() {}
   
   def instance(): T = synchronized {
     instanceCheck()
     if (_instance == null) {
-      _instance = newInstance
+      _instance = newInstance()
     }
     _instance
   }
 }
+
+trait InitedSingleton[T] extends Singleton[T] {
+
+  private var instanceInited = false
+
+  protected def instanceInit() {
+    instanceInited = true
+  }
+
+  protected override def instanceCheck() {
+    if (!instanceInited) throw new IllegalStateException("Instance not initialized")
+  }
+}
+
+

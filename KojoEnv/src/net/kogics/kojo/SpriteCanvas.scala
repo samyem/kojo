@@ -36,12 +36,21 @@ import turtle.TurtleListener
 import turtle.NoopTurtleListener
 import turtle.Command
 
-object SpriteCanvas extends Singleton[SpriteCanvas] {
+object SpriteCanvas extends InitedSingleton[SpriteCanvas] {
+  def initedInstance(kojoCtx: KojoCtx) = synchronized {
+    instanceInit()
+    val ret = instance()
+    ret.kojoCtx = kojoCtx
+    ret
+  }
+
   protected def newInstance = new SpriteCanvas
 }
 
 class SpriteCanvas private extends PCanvas with SCanvas {
   val Log = Logger.getLogger(getClass.getName);
+  @volatile var kojoCtx: KojoCtx = _
+
   val defLayer = getLayer
   val AxesColor = new Color(100, 100, 100)
   val GridColor = new Color(200, 200, 200)
@@ -216,7 +225,12 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   def hasUndoHistory = synchronized {history.size > 0}
 
+  def ensureActive() {
+    kojoCtx.activateCanvas()
+  }
+
   def clear() {
+    ensureActive()
     stop()
     val latch = new CountDownLatch(1)
     Utils.runInSwingThread {

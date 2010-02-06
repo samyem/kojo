@@ -5,12 +5,20 @@
 
 package net.kogics.kojo.geogebra
 
-import net.kogics.kojo.Singleton
+import net.kogics.kojo.InitedSingleton
 
 import geogebra.GeoGebraPanel;
 import geogebra.gui.menubar.GeoGebraMenuBar
+import net.kogics.kojo.core.KojoCtx
 
-object GeoGebraCanvas extends Singleton[GeoGebraCanvas] {
+object GeoGebraCanvas extends InitedSingleton[GeoGebraCanvas] {
+  def initedInstance(kojoCtx: KojoCtx) = synchronized {
+    instanceInit()
+    val ret = instance()
+    ret.geomCanvas.kojoCtx = kojoCtx
+    ret
+  }
+
   protected def newInstance = new GeoGebraCanvas
 }
 
