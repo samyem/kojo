@@ -11,7 +11,7 @@ def sineFn(offset: Int, scale: Double) {
     }
     Canvas.setPenColor(darkGray)
     Canvas.setPenThickness(1)
-    Canvas.line(offset,0,offset+359, 0)
+    Canvas.line(offset, 0, offset+359, 0)
 }
 
 val radius = 100
@@ -20,13 +20,13 @@ clear()
 invisible()
 Canvas.setPenColor(green)
 Canvas.setPenThickness(3)
-Canvas.circle(0,0,radius)
+Canvas.circle(0, 0, radius)
 sineFn(2*radius, radius)
 
 
 Canvas.setPenColor(darkGray)
 Canvas.setPenThickness(2)
-Canvas.line(0,0,radius, 0)
+Canvas.line(0, 0, radius, 0)
 
 val txt = """
 This animation shows how the sine of an angle
@@ -49,9 +49,10 @@ Canvas.refresh {
 
     Canvas.setPenColor(darkGray)
     Canvas.setPenThickness(2)
-    Canvas.line(0,0,radius * Math.cos(d2r(theta)), radius * Math.sin(d2r(theta)))
+    Canvas.line(0, 0, radius * Math.cos(d2r(theta)), radius * Math.sin(d2r(theta)))
     Canvas.line(p1, p2)
 
+    Canvas.setPenThickness(1)
+    Canvas.arc(0, 0, 15, 0, theta % 360)
     theta += 1
 }
-

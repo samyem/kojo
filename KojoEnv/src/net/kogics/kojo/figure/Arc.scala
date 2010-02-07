@@ -16,17 +16,11 @@
 package net.kogics.kojo
 package figure
 
-import java.awt.Font
+import kgeom.PArc
 
-import edu.umd.cs.piccolo._
-import edu.umd.cs.piccolo.nodes._
+class Arc(val cx: Double, val cy: Double, val w: Double, val h: Double, val start: Double, val extent: Double) extends AbstractShape with core.Arc {
+  val pArc = new PArc(cx,cy,w,h,start,extent)
+  pArc.getTransformReference(true).setToScale(1, -1)
 
-class Text(content: String, x: Double, y: Double) extends AbstractShape with core.Text {
-  val pText = new PText(content)
-  pText.getTransformReference(true).setToScale(1, -1)
-  pText.setOffset(x,y)
-  val font = new Font(pText.getFont.getName, Font.PLAIN, 14)
-  pText.setFont(font)
-
-  protected def piccoloNode = pText
+  protected def piccoloNode = pArc
 }

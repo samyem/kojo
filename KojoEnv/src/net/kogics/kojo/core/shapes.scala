@@ -57,6 +57,15 @@ trait Circle extends Ellipse {
   val radius: Double
 }
 
+trait Arc extends Shape {
+  val cx: Double
+  val cy: Double
+  val w: Double
+  val h: Double
+  val start: Double
+  val extent: Double
+}
+
 trait Polygon extends Shape {
   val points: mutable.ArrayBuffer[Point]
 }

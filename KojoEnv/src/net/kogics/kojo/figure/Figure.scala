@@ -162,6 +162,22 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     ellipse(new LwPoint(cx, cy), w, h)
   }
 
+  def arc(cx: Double, cy: Double, w: Double, h: Double, start: Double, extent: Double): Arc = {
+    val arc = new Arc(cx, cy, w, h, start, extent)
+    Utils.runInSwingThread {
+      arc.pArc.setStroke(lineStroke)
+      arc.pArc.setStrokePaint(lineColor)
+      arc.pArc.setPaint(null)
+      currLayer.addChild(arc.pArc)
+      currLayer.repaint()
+    }
+    arc
+  }
+
+  def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double): Arc = {
+    arc(cx, cy, 2*r, 2*r, start, extent)
+  }
+
   def text(content: String, x: Double, y: Double): Text = {
     val txt = new Text(content, x, y)
     Utils.runInSwingThread {

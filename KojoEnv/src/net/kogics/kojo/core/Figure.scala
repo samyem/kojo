@@ -32,6 +32,8 @@ trait Figure {
   def line(x0: Double, y0: Double, x1: Double, y1: Double): Line
   def ellipse(center: P, w: Double, h: Double): Ellipse
   def ellipse(cx: Double, cy: Double, w: Double, h: Double): Ellipse
+  def arc(cx: Double, cy: Double, w: Double, h: Double, start: Double, extent: Double): Arc
+  def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double): Arc
   def circle(cx: Double, cy: Double, radius: Double) = ellipse(cx, cy, 2*radius, 2*radius)
   def text(content: String, x: Double, y: Double): Text
   def refresh(fn: => Unit)
