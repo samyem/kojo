@@ -16,11 +16,13 @@
 package net.kogics.kojo
 package figure
 
-import kgeom.PArc
+import edu.umd.cs.piccolo._
+import edu.umd.cs.piccolo.nodes._
 
-class Arc(val cx: Double, val cy: Double, val w: Double, val h: Double, val start: Double, val extent: Double) extends AbstractShape with core.Arc {
-  val pArc = new PArc(cx,cy,w,h,start,extent)
-  pArc.getTransformReference(true).setToScale(1, -1)
+import core.Point
 
-  protected def piccoloNode = pArc
+class FigEllipse(center: Point, w: Double, h: Double) extends core.Ellipse(center, w, h)  with FigureShape {
+  val pEllipse = PPath.createEllipse((center.x-w/2).toFloat, (center.y-h/2).toFloat, w.toFloat, h.toFloat)
+
+  protected def piccoloNode = pEllipse
 }

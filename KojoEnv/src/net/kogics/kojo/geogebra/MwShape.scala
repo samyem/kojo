@@ -21,11 +21,12 @@ import geogebra.kernel.GeoElement
 import geogebra.plugin.GgbAPI
 import net.kogics.kojo.util.Utils
 
-import net.kogics.kojo.core.Shape
+import net.kogics.kojo.core.Visible
 import net.kogics.kojo.core.Labelled
 
-abstract class AbstractShape(ggbApi: GgbAPI) extends Shape with Labelled {
-  
+trait MwShape extends Visible with Labelled {
+
+  val ggbApi: GgbAPI
   protected def geogebraElement: GeoElement
 
   protected def ctorDone() {

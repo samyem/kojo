@@ -25,16 +25,21 @@ trait Figure {
   def setPenThickness(t: Double): Unit
   def setFillColor(color: java.awt.Color): Unit
 
-  type P <: Point
+  type FPoint <: Point with Visible
+  type FLine <: Line with Visible
+  type FEllipse <: Ellipse with Visible
+  type FArc <: Arc with Visible
+  type FText <: Text with Visible
 
-  def point(x: Double, y: Double): P
-  def line(p1: P, p2: P): Line
-  def line(x0: Double, y0: Double, x1: Double, y1: Double): Line
-  def ellipse(center: P, w: Double, h: Double): Ellipse
-  def ellipse(cx: Double, cy: Double, w: Double, h: Double): Ellipse
-  def arc(cx: Double, cy: Double, w: Double, h: Double, start: Double, extent: Double): Arc
-  def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double): Arc
+  def point(x: Double, y: Double): FPoint
+  def line(p1: Point, p2: Point): FLine
+  def line(x0: Double, y0: Double, x1: Double, y1: Double): FLine
+  def ellipse(center: Point, w: Double, h: Double): FEllipse
+  def ellipse(cx: Double, cy: Double, w: Double, h: Double): FEllipse
+  def arc(onEll: Ellipse, start: Double, extent: Double): FArc
+  def arc(cx: Double, cy: Double, w: Double, h: Double, start: Double, extent: Double): FArc
+  def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double): FArc
   def circle(cx: Double, cy: Double, radius: Double) = ellipse(cx, cy, 2*radius, 2*radius)
-  def text(content: String, x: Double, y: Double): Text
+  def text(content: String, x: Double, y: Double): FText
   def refresh(fn: => Unit)
 }

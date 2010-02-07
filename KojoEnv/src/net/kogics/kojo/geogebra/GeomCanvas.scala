@@ -16,13 +16,16 @@
 package net.kogics.kojo.geogebra
 
 import geogebra.plugin.GgbAPI
-import net.kogics.kojo.core.KojoCtx
+import net.kogics.kojo.core._
+import net.kogics.kojo.util.Utils
+
 
 class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
-  type P = Point
-  type L = Line
-  type LS = LineSegment
-  type A = Angle
+  type GPoint = MwPoint
+  type GLine = MwLine
+  type GSegment = MwLineSegment
+  type GAngle = MwAngle
+  type GText = MwText
 
   @volatile var kojoCtx: KojoCtx = _
 
@@ -31,9 +34,11 @@ class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
   }
 
   def clear() {
-    ensureActive()
-    ggbApi.getApplication.setSaved()
-    ggbApi.getApplication.fileNew()
+    Utils.runInSwingThread {
+      ensureActive()
+      ggbApi.getApplication.setSaved()
+      ggbApi.getApplication.fileNew()
+    }
   }
 
   def showAxes() {
@@ -44,23 +49,23 @@ class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
     ggbApi.setAxesVisible(false, false)
   }
 
-  def point(label: String, x: Double, y: Double) = Point(ggbApi, label, x, y)
-  def point(label: String, on: L, x: Double, y: Double) = Point(ggbApi, label, on, x, y)
+  def point(label: String, x: Double, y: Double) = MwPoint(ggbApi, label, x, y)
+  def point(label: String, on: MwLine, x: Double, y: Double) = MwPoint(ggbApi, label, on, x, y)
 
-  def line(label: String, p1: P, p2: P) = Line(ggbApi, label, p1, p2)
+  def line(label: String, p1: MwPoint, p2: MwPoint) = MwLine(ggbApi, label, p1, p2)
 
-  def lineSegment(label: String, p1: P, p2: P) = LineSegment(ggbApi, label, p1, p2)
+  def lineSegment(label: String, p1: MwPoint, p2: MwPoint) = MwLineSegment(ggbApi, label, p1, p2)
 
-  def intersect(label: String, l1: L, l2: L): P = {
-    Point(ggbApi, label, l1, l2)
+  def intersect(label: String, l1: MwLine, l2: MwLine): MwPoint = {
+    MwPoint(ggbApi, label, l1, l2)
   }
 
-  def angle(label: String, p1: P, p2: P, p3: P): A = {
-    Angle(ggbApi, label, p1, p2, p3)
+  def angle(label: String, p1: MwPoint, p2: MwPoint, p3: MwPoint): MwAngle = {
+    MwAngle(ggbApi, label, p1, p2, p3)
   }
 
-  def text(content: String, x: Double, y: Double): Text = {
-    val txt = Text(ggbApi, content, x, y)
+  def text(content: String, x: Double, y: Double): MwText = {
+    val txt = MwText(ggbApi, content, x, y)
     txt
   }
 }

@@ -16,11 +16,23 @@
 package net.kogics.kojo
 package figure
 
-import edu.umd.cs.piccolo._
-import edu.umd.cs.piccolo.nodes._
+import edu.umd.cs.piccolo.PNode
 
-class Ellipse(val center: PointDesc, val w: Double, val h: Double) extends AbstractShape with core.Ellipse {
-  val pEllipse = PPath.createEllipse((center.x-w/2).toFloat, (center.y-h/2).toFloat, w.toFloat, h.toFloat)
+trait FigureShape extends core.Visible {
 
-  protected def piccoloNode = pEllipse
+  protected def piccoloNode: PNode
+
+  def hide() {
+    piccoloNode.setVisible(false)
+    piccoloNode.repaint()
+  }
+
+  def show() {
+    piccoloNode.setVisible(true)
+    piccoloNode.repaint()
+  }
+
+  def setColor(color: java.awt.Color) {
+    piccoloNode.setPaint(color)
+  }
 }

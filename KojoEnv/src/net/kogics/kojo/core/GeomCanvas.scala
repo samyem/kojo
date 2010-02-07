@@ -16,19 +16,21 @@
 package net.kogics.kojo.core
 
 trait GeomCanvas {
-  type P <: Point with Labelled
-  type L <: Line  with Labelled
-  type LS <: L  with Labelled
-  type A <: Angle  with Labelled
+  type GPoint <: Point with Labelled with MoveablePoint
+  type GLine <: Line with Labelled
+  type GSegment <: LineSegment with Labelled
+  type GAngle <: Angle with Labelled
+  type GText <: Text with Labelled
 
   def clear(): Unit
   def showAxes(): Unit
   def hideAxes(): Unit
-  def point(label: String, x: Double, y: Double): P
-  def point(label: String, on: L, x: Double, y: Double): P
-  def line(label: String, p1: P, p2: P): L
-  def lineSegment(label: String, p1: P, p2: P): LS
-  def intersect(label: String, l1: L, l2: L): P
-  def angle(label: String, p1: P, p2: P, p3: P): A
-  def text(content: String, x: Double, y: Double): Text
+
+  def point(label: String, x: Double, y: Double): GPoint
+  def point(label: String, on: GLine, x: Double, y: Double): GPoint
+  def line(label: String, p1: GPoint, p2: GPoint): GLine
+  def lineSegment(label: String, p1: GPoint, p2: GPoint): GSegment
+  def intersect(label: String, l1: GLine, l2: GLine): GPoint
+  def angle(label: String, p1: GPoint, p2: GPoint, p3: GPoint): GAngle
+  def text(content: String, x: Double, y: Double): GText
 }

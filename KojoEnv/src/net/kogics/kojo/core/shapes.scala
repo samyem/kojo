@@ -17,13 +17,13 @@ package net.kogics.kojo.core
 
 import scala.collection._
 
-trait Shape {
+trait Visible {
   def hide()
   def show()
   def setColor(color: java.awt.Color)
 }
 
-trait Labelled  {
+trait Labelled extends Visible {
   def showNameInLabel()
   def showNameValueInLabel()
   def showValueInLabel()
@@ -31,44 +31,22 @@ trait Labelled  {
   def showLabel()
 }
 
-trait Point extends Shape {
-  val x: Double
-  val y: Double
+class Point(val x: Double, val y: Double)
+class Line(val p1: Point, val p2: Point)
+class LineSegment(p1: Point, p2: Point) extends Line(p1, p2)
+class Ellipse(val center: Point, val w: Double, val h: Double)
+class Circle(center: Point, val radius: Double) extends Ellipse(center, 2*radius, 2*radius)
+class Arc(val onEll: Ellipse, val start: Double, val extent: Double)
 
-  def cx: Double = x
-  def cy: Double = y
+class Angle(val size: Double)
+class Text(val content: String)
+
+trait MoveablePoint {
+  def cx: Double
+  def cy: Double
 }
 
-trait Line extends Shape {
-  val p1: Point
-  val p2: Point
-}
+//trait Polygon {
+//  val points: mutable.ArrayBuffer[Point]
+//}
 
-trait LineSegment extends Line {
-}
-
-trait Ellipse extends Shape {
-  val center: Point
-  val w: Double
-  val h: Double
-}
-
-trait Circle extends Ellipse {
-  val radius: Double
-}
-
-trait Arc extends Shape {
-  val cx: Double
-  val cy: Double
-  val w: Double
-  val h: Double
-  val start: Double
-  val extent: Double
-}
-
-trait Polygon extends Shape {
-  val points: mutable.ArrayBuffer[Point]
-}
-
-trait Angle extends Shape 
-trait Text extends Shape 

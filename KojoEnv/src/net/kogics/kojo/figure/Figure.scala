@@ -24,13 +24,10 @@ import edu.umd.cs.piccolo.activities.PActivity
 import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate
 
 import javax.swing._
-import java.awt._
+import java.awt.{Point => _, _}
 
-import core.SpriteListener
-import core.NoopSpriteListener
 import net.kogics.kojo.util.Utils
-
-trait PointDesc extends core.Point
+import core._
 
 object Figure {
   def apply(canvas: SpriteCanvas, initX: Double = 0d, initY: Double = 0): Figure = {
@@ -120,10 +117,15 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     }
   }
 
-  type P = PointDesc
+  type FPoint = FigPoint
+  type FLine = FigLine
+  type FEllipse = FigEllipse
+  type FArc = FigArc
+  type FText = FigText
 
-  def point(x: Double, y: Double): P = {
-    val pt = new Point(x,y)
+
+  def point(x: Double, y: Double): FigPoint = {
+    val pt = new FigPoint(x,y)
     Utils.runInSwingThread {
       pt.pPoint.setStroke(lineStroke)
       pt.pPoint.setStrokePaint(lineColor)
@@ -133,8 +135,8 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     pt
   }
 
-  def line(p1: P, p2: P): Line = {
-    val line = new Line(p1, p2)
+  def line(p1: Point, p2: Point): FigLine = {
+    val line = new FigLine(p1, p2)
     Utils.runInSwingThread {
       line.pLine.setStroke(lineStroke)
       line.pLine.setStrokePaint(lineColor)
@@ -144,10 +146,10 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     line
   }
 
-  def line(x0: Double, y0: Double, x1: Double, y1: Double) = line(new LwPoint(x0, y0), new LwPoint(x1, y1))
+  def line(x0: Double, y0: Double, x1: Double, y1: Double) = line(new Point(x0, y0), new Point(x1, y1))
 
-  def ellipse(center: P, w: Double, h: Double): Ellipse = {
-    val ell = new Ellipse(center, w, h)
+  def ellipse(center: Point, w: Double, h: Double): FigEllipse = {
+    val ell = new FigEllipse(center, w, h)
     Utils.runInSwingThread {
       ell.pEllipse.setStroke(lineStroke)
       ell.pEllipse.setStrokePaint(lineColor)
@@ -158,12 +160,12 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     ell
   }
 
-  def ellipse(cx: Double, cy: Double, w: Double, h: Double): Ellipse = {
-    ellipse(new LwPoint(cx, cy), w, h)
+  def ellipse(cx: Double, cy: Double, w: Double, h: Double): FigEllipse = {
+    ellipse(new Point(cx, cy), w, h)
   }
 
-  def arc(cx: Double, cy: Double, w: Double, h: Double, start: Double, extent: Double): Arc = {
-    val arc = new Arc(cx, cy, w, h, start, extent)
+  def arc(onEll: Ellipse, start: Double, extent: Double): FigArc = {
+    val arc = new FigArc(onEll, start, extent)
     Utils.runInSwingThread {
       arc.pArc.setStroke(lineStroke)
       arc.pArc.setStrokePaint(lineColor)
@@ -172,14 +174,19 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
       currLayer.repaint()
     }
     arc
+
   }
 
-  def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double): Arc = {
+  def arc(cx: Double, cy: Double, w: Double, h: Double, start: Double, extent: Double): FigArc = {
+    arc(new Ellipse(new Point(cx, cy), w, h), start, extent)
+  }
+
+  def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double): FigArc = {
     arc(cx, cy, 2*r, 2*r, start, extent)
   }
 
-  def text(content: String, x: Double, y: Double): Text = {
-    val txt = new Text(content, x, y)
+  def text(content: String, x: Double, y: Double): FigText = {
+    val txt = new FigText(content, x, y)
     Utils.runInSwingThread {
       txt.pText.setTextPaint(lineColor)
       currLayer.addChild(txt.pText)
@@ -201,11 +208,14 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
             currLayer = fgLayer
             try {
               fn
-            }
-            finally {
               listener.hasPendingCommands
               repaint()
               currLayer = bgLayer
+            }
+            catch {
+              case t: Throwable =>
+                canvas.outputFn("Problem: " + t.getMessage)
+                stop()
             }
           }
         }

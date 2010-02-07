@@ -35,8 +35,8 @@ varies with the angle.
 The angle of interest is made by the two lines
 within the circle.
 
-The sine of this angle is shown to the right of
-the circle.
+The value of the sine of this angle is shown by
+the red dot on the curve to the right of the circle.
 """
 Canvas.text(txt, -450, 100)
 
@@ -54,5 +54,7 @@ Canvas.refresh {
 
     Canvas.setPenThickness(1)
     Canvas.arc(0, 0, 15, 0, theta % 360)
+    Canvas.text("Angle = %d°" format(theta % 360), 0, 0)
+    Canvas.text("Sine of angle = %.2f" format(Math.sin(d2r(theta))), 2*radius, 0)
     theta += 1
 }

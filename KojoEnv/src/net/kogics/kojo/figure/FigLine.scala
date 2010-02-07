@@ -16,17 +16,12 @@
 package net.kogics.kojo
 package figure
 
-import java.awt.Font
+import core.Point
 
-import edu.umd.cs.piccolo._
-import edu.umd.cs.piccolo.nodes._
+class FigLine(p1: Point, p2: Point) extends core.Line(p1, p2) with FigureShape {
+  val pLine = new kgeom.PolyLine()
+  pLine.addPoint(p1.x.toFloat, p1.y.toFloat)
+  pLine.addPoint(p2.x.toFloat, p2.y.toFloat)
 
-class Text(content: String, x: Double, y: Double) extends AbstractShape with core.Text {
-  val pText = new PText(content)
-  pText.getTransformReference(true).setToScale(1, -1)
-  pText.setOffset(x,y)
-  val font = new Font(pText.getFont.getName, Font.PLAIN, 14)
-  pText.setFont(font)
-
-  protected def piccoloNode = pText
+  protected def piccoloNode = pLine
 }

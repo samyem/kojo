@@ -16,9 +16,12 @@
 package net.kogics.kojo
 package figure
 
-class LwPoint(val x: Double, val y: Double) extends PointDesc {
-  def hide() {}
-  def show() {}
-  def setColor(color: java.awt.Color) {}
-}
+import kgeom.PArc
+import core.Ellipse
 
+class FigArc(onEll: Ellipse, start: Double, extent: Double) extends core.Arc(onEll, start, extent) with FigureShape {
+  val pArc = new PArc(onEll.center.x, onEll.center.y, onEll.w, onEll.h, start, extent)
+  pArc.getTransformReference(true).setToScale(1, -1)
+
+  protected def piccoloNode = pArc
+}

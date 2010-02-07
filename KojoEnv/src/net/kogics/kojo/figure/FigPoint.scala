@@ -16,7 +16,7 @@
 package net.kogics.kojo
 package figure
 
-class Point(val x: Double, val y: Double) extends AbstractShape with PointDesc with core.Point {
+class FigPoint(x: Double, y: Double) extends core.Point(x, y) with FigureShape {
   val pPoint = new kgeom.PolyLine()
   pPoint.addPoint(x.toFloat, y.toFloat)
   pPoint.addPoint(x.toFloat, y.toFloat)

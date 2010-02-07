@@ -19,19 +19,21 @@ import geogebra.kernel.GeoText
 import geogebra.plugin.GgbAPI
 import net.kogics.kojo.util.Utils
 
-object Text {
-  def apply(ggbApi: GgbAPI, content: String, x: Double, y: Double): Text = {
+import net.kogics.kojo.core.Text
+
+object MwText {
+  def apply(ggbApi: GgbAPI, content: String, x: Double, y: Double): MwText = {
     net.kogics.kojo.util.Throttler.throttle()
     val text = Utils.runInSwingThreadAndWait {
       if (content.indexOf('"') < 0) {
         val gText = ggbApi.getKernel.Text("T", content)
-        new Text(ggbApi, gText, x, y)
+        new MwText(ggbApi, gText, x, y)
       }
       else {
         val ret = ggbApi.getAlgebraProcessor.processAlgebraCommand(content, false)
         if (ret != null && ret(0).isTextValue()) {
           val gText = ret(0).asInstanceOf[GeoText]
-          new Text(ggbApi, gText, x, y)
+          new MwText(ggbApi, gText, x, y)
         }
         else {
           null
@@ -42,7 +44,7 @@ object Text {
   }
 }
 
-class Text(ggbApi: GgbAPI, val gText: GeoText, x: Double, y: Double) extends AbstractShape(ggbApi) with net.kogics.kojo.core.Text {
+class MwText(val ggbApi: GgbAPI, val gText: GeoText, x: Double, y: Double) extends Text(gText.getTextString) with MwShape {
   gText.setRealWorldLoc(x, y)
   ctorDone()
 
