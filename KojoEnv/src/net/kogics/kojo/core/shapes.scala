@@ -31,6 +31,7 @@ trait Labelled extends Visible {
   def showLabel()
 }
 
+// TODO define equality
 class Point(val x: Double, val y: Double)
 class Line(val p1: Point, val p2: Point)
 class LineSegment(p1: Point, p2: Point) extends Line(p1, p2)
