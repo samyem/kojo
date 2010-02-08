@@ -23,12 +23,16 @@ trait HistoryListener {
 }
 
 class HistorySaver {
-  var writer = new BufferedWriter(new FileWriter(CommandHistory.historyFile, true))
+  var writer = historyWriter(true)
   var starsWriter = new BufferedWriter(new FileWriter(CommandHistory.starsFile, true))
 
+  def historyWriter(append: Boolean) = {
+    new BufferedOutputStream(new FileOutputStream(CommandHistory.historyFile, append))
+  }
+
   def append(script: String) {
-    writer.append(script)
-    writer.append(CommandHistory.Separator)
+    writer.write(script.getBytes("UTF-8"))
+    writer.write(CommandHistory.Separator.getBytes("UTF-8"))
     writer.flush()
   }
 
@@ -40,13 +44,13 @@ class HistorySaver {
 
   def write(items: mutable.ArrayBuffer[String]) {
     writer.close()
-    writer = new BufferedWriter(new FileWriter(CommandHistory.historyFile, false))
+    writer = historyWriter(false)
     items.foreach { hItem =>
-      writer.append(hItem)
-      writer.append(CommandHistory.Separator)
+      writer.write(hItem.getBytes("UTF-8"))
+      writer.write(CommandHistory.Separator.getBytes("UTF-8"))
     }
     writer.close()
-    writer = new BufferedWriter(new FileWriter(CommandHistory.historyFile, true))
+    writer = historyWriter(true)
   }
 
   def writeStars(stars: mutable.ArrayBuffer[Int]) {

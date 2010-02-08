@@ -90,7 +90,7 @@ object Utils {
   }
 
   def readFile(is: InputStream): String = {
-    val reader = new BufferedReader(new InputStreamReader(is))
+    val reader = new BufferedReader(new InputStreamReader(is, "UTF-8"))
     val buf = new Array[Char](1024)
     var nbytes = reader.read(buf)
     val sb = new StringBuffer

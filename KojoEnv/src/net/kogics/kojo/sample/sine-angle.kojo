@@ -54,7 +54,7 @@ Canvas.refresh {
 
     Canvas.setPenThickness(1)
     Canvas.arc(0, 0, 15, 0, theta % 360)
-    Canvas.text("Angle = %3d%s" format(theta % 360, "\u00b0"), 0, 0)
+    Canvas.text("Angle = %3d°" format(theta % 360), 0, 0)
     Canvas.text("Sine of angle = %.2f" format(Math.sin(d2r(theta))), 2*radius, 0)
     theta += 1
 }
