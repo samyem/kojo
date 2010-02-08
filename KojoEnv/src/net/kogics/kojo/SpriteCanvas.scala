@@ -18,7 +18,6 @@ import javax.swing._
 import java.awt.{List => _, _}
 import java.awt.event._
 import java.util.logging._
-import java.util.concurrent.CountDownLatch
 
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
@@ -232,30 +231,23 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def clear() {
     ensureActive()
     stop()
-    val latch = new CountDownLatch(1)
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       turtles.foreach {t => if (t == turtle) t.clear() else t.remove()}
       turtles = List(turtles.last)
 
       figures.foreach {f => if (f == figure) f.clear() else f.remove()}
       figures = List(figures.last)
-
-      latch.countDown
     }
-    latch.await
-    turtle.waitFor
+//    turtle.waitFor
     clearHistory()
   }
 
   def clearPuzzlers() {
     stop()
-    val latch = new CountDownLatch(1)
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       puzzlers.foreach {t => t.remove()}
       puzzlers = Nil
-      latch.countDown
     }
-    latch.await
   }
 
   def forward(n: Double) = turtle.forward(n)
@@ -291,62 +283,50 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def pathToParallelogram() = turtle.pathToParallelogram()
 
   def stop() = {
-    val latch = new CountDownLatch(1)
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       puzzlers.foreach {t => t.stop}
       turtles.foreach {t => t.stop}
       figures.foreach {f => f.stop}
-      latch.countDown
     }
-    latch.await
   }
 
   val turtle0 = turtle
   val figure0 = figure
 
   def newFigure(x: Int = 0, y: Int = 0) = {
-    var fig: Figure = null
-    val latch = new CountDownLatch(1)
-    Utils.runInSwingThreadAndWait {
-      fig = Figure(this, x, y)
-      fig.setSpriteListener(megaListener)
-      figures = fig :: figures
-      latch.countDown()
+    val fig = Utils.runInSwingThreadAndWait {
+      val f = Figure(this, x, y)
+      f.setSpriteListener(megaListener)
+      figures = f :: figures
+      f
     }
-    latch.await
     this.repaint()
     fig
   }
 
   def newTurtle(x: Int = 0, y: Int = 0) = {
-    var t: Turtle = null
-    val latch = new CountDownLatch(1)
-    Utils.runInSwingThread {
-      t = new Turtle(this, "/images/turtle32.png", x, y)
+    val ttl = Utils.runInSwingThreadAndWait {
+      val t = new Turtle(this, "/images/turtle32.png", x, y)
       t.setTurtleListener(megaListener)
       turtles = t :: turtles
-      latch.countDown()
+      t
     }
-    latch.await
     this.repaint()
-    t
+    ttl
   }
 
   def newPuzzler(x: Int = 0, y: Int = 0) = {
-    var t: Turtle = null
-    val latch = new CountDownLatch(1)
-    Utils.runInSwingThread {
-      t = new Turtle(this, "/images/puzzler32.png", x, y, true)
+    val pzl = Utils.runInSwingThreadAndWait {
+      val t = new Turtle(this, "/images/puzzler32.png", x, y, true)
       t.setTurtleListener(megaListener)
       t.setPenThickness(1)
       t.setPenColor(Color.blue)
       t.setAnimationDelay(10)
       puzzlers = t :: puzzlers
-      latch.countDown()
+      t
     }
-    latch.await
     this.repaint()
-    t
+    pzl
   }
 
   def setTurtleListener(l: TurtleListener) {

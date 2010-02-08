@@ -21,15 +21,17 @@ import edu.umd.cs.piccolo.nodes._
 trait Figure {
   def clear(): Unit
   def fgClear(): Unit
+  def stopRefresh(): Unit
   def setPenColor(color: java.awt.Color): Unit
   def setPenThickness(t: Double): Unit
   def setFillColor(color: java.awt.Color): Unit
 
-  type FPoint <: Point with Visible
-  type FLine <: Line with Visible
-  type FEllipse <: Ellipse with Visible
-  type FArc <: Arc with Visible
-  type FText <: Text with Visible
+  type FPoint <: Point with VisualElement
+  type FLine <: Line with VisualElement
+  type FEllipse <: Ellipse with VisualElement
+  type FArc <: Arc with VisualElement
+  type FText <: Text with VisualElement
+  type FRectangle <: Rectangle with VisualElement
 
   def point(x: Double, y: Double): FPoint
   def line(p1: Point, p2: Point): FLine
@@ -40,6 +42,8 @@ trait Figure {
   def arc(cx: Double, cy: Double, w: Double, h: Double, start: Double, extent: Double): FArc
   def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double): FArc
   def circle(cx: Double, cy: Double, radius: Double) = ellipse(cx, cy, 2*radius, 2*radius)
+  def rectangle(bLeft: Point, tRight: Point): FRectangle
+  def rectangle(x0: Double, y0: Double, w: Double, h: Double): FRectangle
   def text(content: String, x: Double, y: Double): FText
-  def refresh(fn: => Unit)
+  def refresh(fn: => Unit): Unit
 }

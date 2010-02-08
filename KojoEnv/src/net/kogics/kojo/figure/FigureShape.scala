@@ -18,7 +18,7 @@ package figure
 
 import edu.umd.cs.piccolo.PNode
 
-trait FigureShape extends core.Visible {
+trait FigureShape extends core.VisualElement {
 
   protected def piccoloNode: PNode
 

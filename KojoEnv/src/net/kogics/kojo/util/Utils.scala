@@ -30,8 +30,10 @@ object Utils {
     new ImageIcon(loadImage(fname), desc)
   }
 
+  def inSwingThread = EventQueue.isDispatchThread
+
   def runInSwingThread(fn: => Unit) {
-    if(EventQueue.isDispatchThread) {
+    if(inSwingThread) {
       fn
     }
     else {
@@ -44,7 +46,7 @@ object Utils {
   }
 
   def runInSwingThreadAndWait[T](fn: => T): T = {
-    if(EventQueue.isDispatchThread) {
+    if(inSwingThread) {
       fn
     }
     else {

@@ -41,13 +41,20 @@ object CodeCompletionUtils {
     "towards" -> "towards(${x}, ${y})",
     "moveTo" -> "moveTo(${x}, ${y})",
     "jumpTo" -> "jumpTo(${x}, ${y})",
-    "point" -> "point(${x}, ${y})",
     "setPenColor" -> "setPenColor(${color})",
     "setPenThickness" -> "setPenThickness(${n})",
     "setFillColor" -> "setFillColor(${color})",
     "setAnimationDelay" -> "setAnimationDelay(${milliseconds})",
     "println" -> "println(${cursor})",
-    "inspect" -> "inspect(${cursor})"
+    "inspect" -> "inspect(${cursor})",
+    "point" -> "point(${x}, ${y})",
+    "line" -> "line(${x0}, ${y0}, ${x1}, ${y1})",
+    "rectangle" -> "rectangle(${x0}, ${y0}, ${width}, ${height})",
+    "text" -> "text(${content}, ${x}, ${y})",
+    "circle" -> "circle(${cx}, ${cy}, ${radius})",
+    "ellipse" -> "ellipse(${cx}, ${cy}, ${width}, ${height})",
+    "arc" -> "arc(${cx}, ${cy}, ${radius}, ${startDegree}, ${extentDegree})",
+    "refresh" -> "refresh {\n    ${cursor}\n}"
   )
   
   val MethodDropFilter = List("turtle0")

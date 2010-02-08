@@ -13,24 +13,16 @@
  *
  */
 
-package net.kogics.kojo.core
+package net.kogics.kojo
+package figure
 
-trait SpriteListener {
-  /**
-   * Tell Listener that Sprite has pending commands in its queue
-   */
-  def hasPendingCommands(): Unit
+import edu.umd.cs.piccolo._
+import edu.umd.cs.piccolo.nodes._
 
-  /**
-   * Tell Listener that Sprite has no more pending commands.
-   */
-  def pendingCommandsDone(): Unit
+import core.Point
+
+class FigRectangle(bLeft: Point, tRight: Point) extends core.Rectangle(bLeft, tRight)  with FigureShape {
+  val pRect = PPath.createRectangle(bLeft.x.toFloat, bLeft.y.toFloat, width.toFloat, height.toFloat)
+
+  protected def piccoloNode = pRect
 }
-
-abstract class AbstractSpriteListener extends SpriteListener {
-  def hasPendingCommands: Unit = {}
-  def pendingCommandsDone(): Unit = {}
-}
-
-object NoopSpriteListener extends AbstractSpriteListener {}
-

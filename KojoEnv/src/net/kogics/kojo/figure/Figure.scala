@@ -52,8 +52,8 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   val DefaultFillColor: Color = null
   val DefaultStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
   @volatile private var listener: SpriteListener = NoopSpriteListener
-  @volatile var stopAnim: Boolean = _
 
+  var figAnimation: PActivity = _
   var lineColor: Color = _
   var fillColor: Color = _
   var lineStroke: Stroke = _
@@ -68,7 +68,6 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     lineColor = DefaultColor
     fillColor = DefaultFillColor
     lineStroke = DefaultStroke
-    stopAnim = false
   }
 
   def repaint() {
@@ -122,6 +121,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   type FEllipse = FigEllipse
   type FArc = FigArc
   type FText = FigText
+  type FRectangle = FigRectangle
 
 
   def point(x: Double, y: Double): FigPoint = {
@@ -153,7 +153,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     Utils.runInSwingThread {
       ell.pEllipse.setStroke(lineStroke)
       ell.pEllipse.setStrokePaint(lineColor)
-      ell.pEllipse.setPaint(null)
+      ell.pEllipse.setPaint(fillColor)
       currLayer.addChild(ell.pEllipse)
       currLayer.repaint()
     }
@@ -169,7 +169,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     Utils.runInSwingThread {
       arc.pArc.setStroke(lineStroke)
       arc.pArc.setStrokePaint(lineColor)
-      arc.pArc.setPaint(null)
+      arc.pArc.setPaint(fillColor)
       currLayer.addChild(arc.pArc)
       currLayer.repaint()
     }
@@ -185,6 +185,20 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     arc(cx, cy, 2*r, 2*r, start, extent)
   }
 
+  def rectangle(bLeft: Point, tRight: Point): FigRectangle = {
+    val rect = new FigRectangle(bLeft, tRight)
+    Utils.runInSwingThread {
+      rect.pRect.setStroke(lineStroke)
+      rect.pRect.setStrokePaint(lineColor)
+      rect.pRect.setPaint(fillColor)
+      currLayer.addChild(rect.pRect)
+      currLayer.repaint()
+    }
+    rect
+  }
+
+  def rectangle(x0: Double, y0: Double, w: Double, h: Double) = rectangle(new Point(x0, y0), new Point(x0+w, y0+h))
+
   def text(content: String, x: Double, y: Double): FigText = {
     val txt = new FigText(content, x, y)
     Utils.runInSwingThread {
@@ -196,36 +210,56 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   }
 
   def refresh(fn: => Unit) {
+    
     Utils.runInSwingThread {
-      val sketchAnimation = new PActivity(-1) {
+      if (figAnimation != null ) {
+        return
+      }
+      
+      figAnimation = new PActivity(-1) {
+        var i = 0
         override def activityStep(elapsedTime: Long) {
-          if (stopAnim) {
-            terminate
-            stopAnim = false
-            listener.pendingCommandsDone
+          println("Refresh: " + i); i += 1
+          currLayer = fgLayer
+          try {
+            fn
+            if (isStepping) {
+              listener.hasPendingCommands()
+            }
           }
-          else {
-            currLayer = fgLayer
-            try {
-              fn
-              listener.hasPendingCommands
-              repaint()
-              currLayer = bgLayer
-            }
-            catch {
-              case t: Throwable =>
-                canvas.outputFn("Problem: " + t.getMessage)
-                stop()
-            }
+          catch {
+            case t: Throwable =>
+              canvas.outputFn("Problem: " + t.toString())
+              stop()
+          }
+          finally {
+            repaint()
+            currLayer = bgLayer
           }
         }
       }
-      canvas.getRoot.addActivity(sketchAnimation)
+
+      figAnimation.setDelegate(new PActivityDelegate {
+          override def activityStarted(activity: PActivity) {}
+          override def activityStepped(activity: PActivity) {}
+          override def activityFinished(activity: PActivity) {
+            listener.pendingCommandsDone()
+          }
+        })
+
+      canvas.getRoot.addActivity(figAnimation)
     }
   }
 
+  def stopRefresh() = stop()
+
   def stop() {
-    stopAnim = true
+    Utils.runInSwingThread {
+      if (figAnimation != null) {
+        figAnimation.terminate(PActivity.TERMINATE_AND_FINISH)
+        figAnimation = null
+      }
+    }
   }
 
   def onMouseMove(fn: (Double, Double) => Unit) {

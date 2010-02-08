@@ -17,13 +17,13 @@ package net.kogics.kojo.core
 
 import scala.collection._
 
-trait Visible {
+trait VisualElement {
   def hide()
   def show()
   def setColor(color: java.awt.Color)
 }
 
-trait Labelled extends Visible {
+trait Labelled extends VisualElement {
   def showNameInLabel()
   def showNameValueInLabel()
   def showValueInLabel()
@@ -36,11 +36,16 @@ class Point(val x: Double, val y: Double)
 class Line(val p1: Point, val p2: Point)
 class LineSegment(p1: Point, p2: Point) extends Line(p1, p2)
 class Ellipse(val center: Point, val w: Double, val h: Double)
-class Circle(center: Point, val radius: Double) extends Ellipse(center, 2*radius, 2*radius)
+// class Circle(center: Point, val radius: Double) extends Ellipse(center, 2*radius, 2*radius)
 class Arc(val onEll: Ellipse, val start: Double, val extent: Double)
-
 class Angle(val size: Double)
 class Text(val content: String)
+
+class Rectangle(val bLeft: Point, val tRight: Point) {
+  val width = tRight.x - bLeft.x
+  val height = tRight.y - bLeft.y
+}
+// class Square(bLeft: Point, tRight: Point) extends Rectangle(bLeft, tRight
 
 trait MoveablePoint {
   def cx: Double

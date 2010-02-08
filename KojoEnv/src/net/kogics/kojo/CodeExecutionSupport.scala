@@ -123,11 +123,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           runCode()
         case StopScript =>
           codeRunner.interruptInterpreter()
-          tCanvas.stop
+          tCanvas.stop()
         case HistoryNext =>
-          loadCodeFromHistoryNext
+          loadCodeFromHistoryNext()
         case HistoryPrev =>
-          loadCodeFromHistoryPrev
+          loadCodeFromHistoryPrev()
         case ClearOutput =>
           clrOutput()
         case UndoCommand =>
@@ -313,8 +313,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       })
   }
 
-  def loadCodeFromHistoryPrev = historyManager.historyMoveBack
-  def loadCodeFromHistoryNext = historyManager.historyMoveForward
+  def loadCodeFromHistoryPrev() = historyManager.historyMoveBack
+  def loadCodeFromHistoryNext() = historyManager.historyMoveForward
   def loadCodeFromHistory(historyIdx: Int) = historyManager.setCode(historyIdx)
 
   def smartUndo() {

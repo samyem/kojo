@@ -630,6 +630,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         try {
           fn
         }
+//        catch {
+//          case t: Throwable =>
+//            canvas.outputFn("Problem: " + t.toString())
+//        }
         finally {
           listener.commandDone(cmd)
         }

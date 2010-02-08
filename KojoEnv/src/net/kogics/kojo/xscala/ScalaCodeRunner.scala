@@ -223,7 +223,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
       interp.interpret("val builtins = predef.Builtins")
       interp.interpret("import predef.Builtins._")
       interp.bind("turtle0", "net.kogics.kojo.core.Turtle", tCanvas.turtle0)
-      interp.bind("Canvas", "net.kogics.kojo.core.Figure", tCanvas.figure0)
+      interp.interpret("val Canvas = predef.CanvasAPI")
       interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
 
       outputHandler.interpOutputSuppressed = false
@@ -554,6 +554,34 @@ Here's a partial list of available commands:
       }
     }
   }
+
+  object CanvasAPI  /* extends core.Figure */ {
+    import core._
+    // impl - prefixed with z to push it down in the code completion list
+    val zimpl = tCanvas.figure0
+    def clear() = zimpl.clear()
+    def fgClear() = zimpl.fgClear()
+    def stopRefresh() = zimpl.stopRefresh()
+    def setPenColor(color: java.awt.Color) = zimpl.setPenColor(color)
+    def setPenThickness(t: Double) = zimpl.setPenThickness(t)
+    def setFillColor(color: java.awt.Color) = zimpl.setFillColor(color)
+
+    def point(x: Double, y: Double) = zimpl.point(x, y)
+    def line(p1: Point, p2: Point) = zimpl.line(p1, p2)
+    def line(x0: Double, y0: Double, x1: Double, y1: Double) = zimpl.line(x0, y0, x1, y1)
+    def ellipse(center: Point, w: Double, h: Double) = zimpl.ellipse(center, w, h)
+    def ellipse(cx: Double, cy: Double, w: Double, h: Double) = zimpl.ellipse(cx, cy, w, h)
+    def arc(onEll: Ellipse, start: Double, extent: Double) = zimpl.arc(onEll, start, extent)
+    def arc(cx: Double, cy: Double, w: Double, h: Double, 
+            start: Double, extent: Double) = zimpl.arc(cx, cy, w, h, start, extent)
+    def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double) = zimpl.arc(cx, cy, r, start, extent)
+    def circle(cx: Double, cy: Double, radius: Double) = zimpl.circle(cx, cy, radius)
+    def rectangle(bLeft: Point, tRight: Point) = zimpl.rectangle(bLeft, tRight)
+    def rectangle(x0: Double, y0: Double,  w: Double, h: Double) = zimpl.rectangle(x0, y0, w, h)
+    def text(content: String, x: Double, y: Double) = zimpl.text(content, x, y)
+    def refresh(fn: => Unit) = zimpl.refresh(fn)
+  }
+
 }
 
 class InterpOutputHandler(ctx: RunContext) {

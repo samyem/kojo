@@ -21,10 +21,9 @@ import geogebra.kernel.GeoElement
 import geogebra.plugin.GgbAPI
 import net.kogics.kojo.util.Utils
 
-import net.kogics.kojo.core.Visible
 import net.kogics.kojo.core.Labelled
 
-trait MwShape extends Visible with Labelled {
+trait MwShape extends Labelled {
 
   val ggbApi: GgbAPI
   protected def geogebraElement: GeoElement
