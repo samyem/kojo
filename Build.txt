@@ -5,9 +5,9 @@ To build Kojo from source, you need to do the following:
 
 - Download and install Scala. This involves having scala on your path, and having
   SCALA_HOME pointing to your Scala install dir.
-  The currently supported version of Scala is: Scala version 2.8.0.Beta1-RC6
-  As beta, release canditate, and the final versions of Scala 2.8 are released,
-  Kojo will be updated to support them.
+  The currently supported version of Scala is: Scala version 2.8.0.Beta1
+  As additional beta and release canditate versions followed by the final version
+  of Scala 2.8 are released, Kojo will be updated to support them.
   The above Scala version can be downloaded from: http://www.scala-lang.org/node/212/distributions
 
 - Download and install Ant 1.7.1 or later
@@ -31,13 +31,14 @@ To build Kojo from source, you need to do the following:
 Using more recent versions Scala
 ----------------------------------------------
 The above build instructions should work just fine with a more recent Scala build
-(than version 2.8.0.Beta1-RC6). If you get a newer version, you will need to update
+(than version 2.8.0.Beta1). If you get a newer version, you will need to update
 the Scala library and compiler jars located at: $kojo/Scala-2.8/release/modules/ext
 
 The one thing that might break with a newer scala build is - the tests
 that depend on Scalacheck (because of potential binary incompatibility). In that
 case you will need to get a corresponsingly new version of Scalacheck and put
 it in: $kojo/ScalaCheck/release/modules/ext
+
 
 Jars in the Repo!
 -----------------
