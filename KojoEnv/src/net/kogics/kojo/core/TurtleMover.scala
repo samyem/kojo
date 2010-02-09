@@ -27,11 +27,14 @@ trait TurtleMover {
   def setPenColor(color: java.awt.Color): Unit
   def setPenThickness(t: Double): Unit
   def setFillColor(color: java.awt.Color): Unit
-  def towards(x: Double, y: Double)
-  def position: (Double, Double)
+  def towards(x: Double, y: Double): Unit
+  def towards(p: Point): Unit = towards(p.x, p.y)
+  def position: Point
   def heading: Double
-  def jumpTo(x: Double, y: Double)
-  def moveTo(x: Double, y: Double)
+  def jumpTo(x: Double, y: Double): Unit
+  def jumpTo(p: Point): Unit = jumpTo(p.x, p.y)
+  def moveTo(x: Double, y: Double): Unit
+  def moveTo(p: Point): Unit = moveTo(p.x, p.y)
   def animationDelay: Long
   def setAnimationDelay(d: Long)
   def beamsOn(): Unit
@@ -40,7 +43,6 @@ trait TurtleMover {
   def write(obj: Any): Unit = write(obj.toString)
   def visible(): Unit
   def invisible(): Unit
-  def point(x: Double, y: Double)
   def clear(): Unit
   def pathToPolygon(): DynamicShape
   def pathToParallelogram(): DynamicShape

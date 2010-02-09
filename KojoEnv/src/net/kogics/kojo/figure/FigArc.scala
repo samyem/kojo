@@ -20,8 +20,7 @@ import kgeom.PArc
 import core.Ellipse
 
 class FigArc(onEll: Ellipse, start: Double, extent: Double) extends core.Arc(onEll, start, extent) with FigureShape {
-  val pArc = new PArc(onEll.center.x, onEll.center.y, onEll.w, onEll.h, start, extent)
-  pArc.getTransformReference(true).setToScale(1, -1)
+  val pArc = new PArc(onEll.center.x, onEll.center.y, onEll.w, onEll.h, -start, -extent)
 
   protected def piccoloNode = pArc
 }

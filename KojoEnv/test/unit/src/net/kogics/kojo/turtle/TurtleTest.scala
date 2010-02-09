@@ -48,10 +48,10 @@ class TurtleTest extends KojoTestBase {
     val latch = listenToTurtle
     turtle.forward(100)
     latch.await
-    val (x,y) = turtle.position
+    val p = turtle.position
 
-    assertEquals(0, x, 0.001)
-    assertEquals(100, y, 0.001)
+    assertEquals(0, p.x, 0.001)
+    assertEquals(100, p.y, 0.001)
   }
 
   @Test
@@ -62,10 +62,10 @@ class TurtleTest extends KojoTestBase {
     latch = listenToTurtle
     turtle.forward(100)
     latch.await
-    val (x,y) = turtle.position
+    val p = turtle.position
 
-    assertEquals(100, x, 0.001)
-    assertEquals(0, y, 0.001)
+    assertEquals(100, p.x, 0.001)
+    assertEquals(0, p.y, 0.001)
   }
 
   @Test
@@ -76,12 +76,12 @@ class TurtleTest extends KojoTestBase {
     latch = listenToTurtle
     turtle.forward(100)
     latch.await
-    val (x,y) = turtle.position
+    val p = turtle.position
 
     val l = Math.sqrt(100 * 100 / 2)
 
-    assertEquals(-l, x, 0.001)
-    assertEquals(l, y, 0.001)
+    assertEquals(-l, p.x, 0.001)
+    assertEquals(l, p.y, 0.001)
   }
 
   @Test
@@ -97,10 +97,10 @@ class TurtleTest extends KojoTestBase {
     latch = listenToTurtle
     turtle.forward(150)
     latch.await
-    val (x,y) = turtle.position
+    val p = turtle.position
 
-    assertEquals(-250, x, 0.001)
-    assertEquals(-100, y, 0.001)
+    assertEquals(-250, p.x, 0.001)
+    assertEquals(-100, p.y, 0.001)
   }
 
   @Test
@@ -117,10 +117,10 @@ class TurtleTest extends KojoTestBase {
     latch = listenToTurtle
     turtle.forward(Math.sqrt(2 * 100 * 100))
     latch.await
-    val (x,y) = turtle.position
+    val p = turtle.position
 
-    assertEquals(0, x, 0.001)
-    assertEquals(0, y, 0.001)
+    assertEquals(0, p.x, 0.001)
+    assertEquals(0, p.y, 0.001)
   }
 
   @Test
@@ -292,8 +292,8 @@ class TurtleTest extends KojoTestBase {
       turtle.forward(stepSize)
       latch.await
       val pos1 = turtle.position
-      (doublesEqual(pos0._1, pos1._1, 0.001)
-       && doublesEqual(pos0._2 + stepSize, pos1._2, 0.001))
+      (doublesEqual(pos0.x, pos1.x, 0.001)
+       && doublesEqual(pos0.y + stepSize, pos1.y, 0.001))
     }
     assertTrue(SCTest.check(propForward).passed)
   }
@@ -378,8 +378,8 @@ class TurtleTest extends KojoTestBase {
       turtle.moveTo(x, y)
       latch.await
       val pos1 = turtle.position
-      (doublesEqual(x, pos1._1, 0.001)
-       && doublesEqual(y, pos1._2, 0.001))
+      (doublesEqual(x, pos1.x, 0.001)
+       && doublesEqual(y, pos1.y, 0.001))
     }
     assertTrue(SCTest.check(propMoveTo).passed)
   }

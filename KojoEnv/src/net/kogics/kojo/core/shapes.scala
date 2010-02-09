@@ -32,7 +32,9 @@ trait Labelled extends VisualElement {
 }
 
 // TODO define equality
-class Point(val x: Double, val y: Double)
+class Point(val x: Double, val y: Double) {
+  override def toString = "Point(%.2f, %.2f)" format(x, y)
+}
 class Line(val p1: Point, val p2: Point)
 class LineSegment(p1: Point, p2: Point) extends Line(p1, p2)
 class Ellipse(val center: Point, val w: Double, val h: Double)

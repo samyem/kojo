@@ -259,7 +259,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def setFillColor(color: Color) = turtle.setFillColor(color)
 
   def towards(x: Double, y: Double) = turtle.towards(x, y)
-  def position: (Double, Double) = turtle.position
+  def position: core.Point = turtle.position
   def heading: Double = turtle.heading
   
   def jumpTo(x: Double, y: Double) = turtle.jumpTo(x, y)
@@ -278,7 +278,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def visible() = turtle.visible()
   def invisible() = turtle.invisible()
 
-  def point(x: Double, y: Double) = turtle.point(x, y)
   def pathToPolygon() = turtle.pathToPolygon()
   def pathToParallelogram() = turtle.pathToParallelogram()
 

@@ -502,13 +502,11 @@ Here's a partial list of available commands:
     def invisible() = tCanvas.invisible()
 
     def towards(x: Double, y: Double) = tCanvas.towards(x, y)
-    def position: (Double, Double) = tCanvas.position
+    def position: core.Point = tCanvas.position
     def heading: Double = tCanvas.heading
 
     def jumpTo(x: Double, y: Double) = tCanvas.jumpTo(x, y)
     def moveTo(x: Double, y: Double) = tCanvas.moveTo(x, y)
-    def point(x: Double, y: Double) = tCanvas.point(x, y)
-
 
     def animationDelay = tCanvas.animationDelay
     def setAnimationDelay(d: Long) = tCanvas.setAnimationDelay(d)

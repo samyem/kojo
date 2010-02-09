@@ -16,7 +16,7 @@ package net.kogics.kojo
 package turtle
 
 import javax.swing._
-import java.awt._
+import java.awt.{Point => _, _}
 import java.awt.geom._
 import java.awt.event._
 import java.util.logging._
@@ -181,7 +181,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   def write(text: String) = enqueueCommand(Write(text, cmdBool))
   def visible() = enqueueCommand(Show(cmdBool))
   def invisible() = enqueueCommand(Hide(cmdBool))
-  def point(x: Double, y: Double) = enqueueCommand(Point(x, y, cmdBool))
 
   def remove() = {
     enqueueCommand(Remove(cmdBool))
@@ -214,9 +213,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     _animationDelay
   }
 
-  def position: (Double, Double) = {
+  def position: Point = {
     getWorker('position)
-    (_position.getX, _position.getY)
+    new Point(_position.getX, _position.getY)
   }
 
   def heading: Double = {
@@ -509,14 +508,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
   }
 
-  private def realPoint(x: Double, y: Double) {
-    realJumpTo(x, y)
-    realWorker2 {
-      pen.startMove(x.toFloat, y.toFloat)
-      pen.endMove(x.toFloat, y.toFloat)
-    }
-  }
-
   private def realPathToPolygon() {
     realWorker2 {
       geomObj = null
@@ -778,10 +769,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         case cmd @ Hide(b) =>
           processCommand(cmd, Some(UndoVisibility(isVisible, areBeamsOn))) {
             realHide()
-          }
-        case cmd @ Point(x, y, b) =>
-          processCommand(cmd) {
-            realPoint(x, y)
           }
         case cmd @ PathToPolygon(l, b) =>
           processGetCommand(cmd, l) {
