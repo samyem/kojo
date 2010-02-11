@@ -382,10 +382,12 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
   object Builtins extends SCanvas {
     type Turtle = core.Turtle
-    type Color = java.awt.Color
 
     PuzzleLoader.init()
 
+    def color(r: Int, g: Int, b: Int) = new Color(r, g, b)
+    def color(rgbHex: Int) = new Color(rgbHex)
+    
     def println(obj: Any): Unit = println(obj.toString)
 
     def println(s: String): Unit = {
@@ -555,14 +557,15 @@ Here's a partial list of available commands:
 
   object CanvasAPI  /* extends core.Figure */ {
     import core._
+
     // impl - prefixed with z to push it down in the code completion list
     val zimpl = tCanvas.figure0
     def clear() = zimpl.clear()
     def fgClear() = zimpl.fgClear()
     def stopRefresh() = zimpl.stopRefresh()
-    def setPenColor(color: java.awt.Color) = zimpl.setPenColor(color)
+    def setPenColor(color: Color) = zimpl.setPenColor(color)
     def setPenThickness(t: Double) = zimpl.setPenThickness(t)
-    def setFillColor(color: java.awt.Color) = zimpl.setFillColor(color)
+    def setFillColor(color: Color) = zimpl.setFillColor(color)
 
     def point(x: Double, y: Double) = zimpl.point(x, y)
     def line(p1: Point, p2: Point) = zimpl.line(p1, p2)
@@ -573,10 +576,13 @@ Here's a partial list of available commands:
     def arc(cx: Double, cy: Double, w: Double, h: Double, 
             start: Double, extent: Double) = zimpl.arc(cx, cy, w, h, start, extent)
     def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double) = zimpl.arc(cx, cy, r, start, extent)
+    def arc(cp: Point, r: Double, start: Double, extent: Double) = zimpl.arc(cp, r, start, extent)
+    def circle(cp: Point, radius: Double) = zimpl.circle(cp, radius)
     def circle(cx: Double, cy: Double, radius: Double) = zimpl.circle(cx, cy, radius)
     def rectangle(bLeft: Point, tRight: Point) = zimpl.rectangle(bLeft, tRight)
     def rectangle(x0: Double, y0: Double,  w: Double, h: Double) = zimpl.rectangle(x0, y0, w, h)
     def text(content: String, x: Double, y: Double) = zimpl.text(content, x, y)
+    def text(content: String, p: Point) = zimpl.text(content, p)
     def refresh(fn: => Unit) = zimpl.refresh(fn)
   }
 

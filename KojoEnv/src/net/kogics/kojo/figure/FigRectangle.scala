@@ -16,13 +16,15 @@
 package net.kogics.kojo
 package figure
 
+import edu.umd.cs.piccolo.PCanvas
+
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 
 import core.Point
 
-class FigRectangle(bLeft: Point, tRight: Point) extends core.Rectangle(bLeft, tRight)  with FigureShape {
+class FigRectangle(val canvas: PCanvas, bLeft: Point, tRight: Point) extends core.Rectangle(bLeft, tRight)  with FigShape {
   val pRect = PPath.createRectangle(bLeft.x.toFloat, bLeft.y.toFloat, width.toFloat, height.toFloat)
 
-  protected def piccoloNode = pRect
+  protected val piccoloNode = pRect
 }

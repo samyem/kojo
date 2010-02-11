@@ -43,6 +43,7 @@ object SampleCode {
       case "Angles of a Triangle" => TriangleAngles
       case "Sine of an Angle" => SineAngle
       case "Inspect Object" => InspectObject
+      case "Shapes" => Shapes
     }
   }
 
@@ -56,7 +57,7 @@ repeat(4) {
 
   val Circle = """
 clear
-setAnimationDelay(10)
+setAnimationDelay(5)
 setPenThickness(2)
 setPenColor(green)
 setFillColor(orange)
@@ -146,7 +147,7 @@ pattern(50)
 
   val InwardEyes = """
 clear
-setAnimationDelay(10)
+setAnimationDelay(5)
 
 setPenColor(black)
 
@@ -578,8 +579,8 @@ def koch(count: Int, length: Int) {
 clear()
 invisible()
 setPenThickness(1)
-setPenColor(new Color(128, 128, 128))
-setFillColor(new Color(0xC9C0BB))
+setPenColor(color(128, 128, 128))
+setFillColor(color(0xC9C0BB))
 setAnimationDelay(10)
 penUp
 back(100)
@@ -594,7 +595,7 @@ koch(5, 5)
 def tree(distance: Double) {
     if (distance > 4) {
         setPenThickness(distance/7)
-        setPenColor(new Color(distance.toInt, Math.abs(255-distance*3).toInt, 125))
+        setPenColor(color(distance.toInt, Math.abs(255-distance*3).toInt, 125))
         forward(distance)
         right(25)
         tree(distance*0.8-2)
@@ -661,6 +662,45 @@ class Data extends BaseData {
 val data = new Data()
 inspect(data)
   """
+
+  val Shapes = """
+def positionTurtle() {
+    left()
+    penUp()
+    forward(300)
+    right(170)
+    penDown()
+}
+
+clear()
+positionTurtle()
+var pos = position
+Canvas.setPenColor(blue)
+Canvas.setFillColor(green)
+Canvas.line(pos.x-10, pos.y+50, pos.x+20, pos.y-100)
+Canvas.line(pos.x, pos.y, pos.x+50, pos.y+50)
+forward(100)
+pos = position
+Canvas.ellipse(pos, 50, 100)
+forward(100)
+pos = position
+Canvas.setFillColor(yellow)
+Canvas.rectangle(pos.x, pos.y, 50, 100)
+Canvas.arc(pos, 50, -10, -135)
+forward(100)
+pos = position
+Canvas.setFillColor(green)
+Canvas.circle(pos, 25)
+forward(100)
+pos = position
+Canvas.setPenColor(blue)
+Canvas.setPenThickness(20)
+Canvas.point(pos.x, pos.y)
+forward(100)
+pos = position
+Canvas.text("Greetings!", pos)
+invisible
+"""
 
   val SineAngle = util.Utils.readFile(getResource("sine-angle.kojo"))
   val ParTrans = util.Utils.readFile(getResource("par-trans.kojo"))

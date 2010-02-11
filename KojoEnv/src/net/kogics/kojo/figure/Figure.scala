@@ -125,7 +125,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
 
 
   def point(x: Double, y: Double): FigPoint = {
-    val pt = new FigPoint(x,y)
+    val pt = new FigPoint(canvas, x,y)
     Utils.runInSwingThread {
       pt.pPoint.setStroke(lineStroke)
       pt.pPoint.setStrokePaint(lineColor)
@@ -136,7 +136,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   }
 
   def line(p1: Point, p2: Point): FigLine = {
-    val line = new FigLine(p1, p2)
+    val line = new FigLine(canvas, p1, p2)
     Utils.runInSwingThread {
       line.pLine.setStroke(lineStroke)
       line.pLine.setStrokePaint(lineColor)
@@ -149,7 +149,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def line(x0: Double, y0: Double, x1: Double, y1: Double) = line(new Point(x0, y0), new Point(x1, y1))
 
   def ellipse(center: Point, w: Double, h: Double): FigEllipse = {
-    val ell = new FigEllipse(center, w, h)
+    val ell = new FigEllipse(canvas, center, w, h)
     Utils.runInSwingThread {
       ell.pEllipse.setStroke(lineStroke)
       ell.pEllipse.setStrokePaint(lineColor)
@@ -164,8 +164,13 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     ellipse(new Point(cx, cy), w, h)
   }
 
+  def circle(cx: Double, cy: Double, radius: Double) = ellipse(cx, cy, 2*radius, 2*radius)
+  
+  def circle(cp: Point, radius: Double) = circle(cp.x, cp.y, radius)
+
+
   def arc(onEll: Ellipse, start: Double, extent: Double): FigArc = {
-    val arc = new FigArc(onEll, start, extent)
+    val arc = new FigArc(canvas, onEll, start, extent)
     Utils.runInSwingThread {
       arc.pArc.setStroke(lineStroke)
       arc.pArc.setStrokePaint(lineColor)
@@ -185,8 +190,13 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     arc(cx, cy, 2*r, 2*r, start, extent)
   }
 
+  def arc(cp: Point, r: Double, start: Double, extent: Double): FArc = {
+    arc(cp.x, cp.y, 2*r, 2*r, start, extent)
+  }
+
+
   def rectangle(bLeft: Point, tRight: Point): FigRectangle = {
-    val rect = new FigRectangle(bLeft, tRight)
+    val rect = new FigRectangle(canvas, bLeft, tRight)
     Utils.runInSwingThread {
       rect.pRect.setStroke(lineStroke)
       rect.pRect.setStrokePaint(lineColor)
@@ -200,7 +210,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def rectangle(x0: Double, y0: Double, w: Double, h: Double) = rectangle(new Point(x0, y0), new Point(x0+w, y0+h))
 
   def text(content: String, x: Double, y: Double): FigText = {
-    val txt = new FigText(content, x, y)
+    val txt = new FigText(canvas, content, x, y)
     Utils.runInSwingThread {
       txt.pText.setTextPaint(lineColor)
       currLayer.addChild(txt.pText)
@@ -208,6 +218,9 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     }
     txt
   }
+
+  def text(content: String, p: Point): FText = text(content, p.x, p.y)
+
 
   def refresh(fn: => Unit) {
     
@@ -217,9 +230,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
       }
       
       figAnimation = new PActivity(-1) {
-        var i = 0
         override def activityStep(elapsedTime: Long) {
-          println("Refresh: " + i); i += 1
           currLayer = fgLayer
           try {
             fn

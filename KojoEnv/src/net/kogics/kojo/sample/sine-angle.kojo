@@ -2,7 +2,7 @@
 // This stuff is under development and is likely to change
 // Also, code completion for the Canvas API is pretty rough right now
 
-val darkGray = new Color(64,64,64)
+val darkGray = color(64,64,64)
 def d2r(a: Double) = a * Math.Pi/180
 
 def sineFn(offset: Int, scale: Double) {

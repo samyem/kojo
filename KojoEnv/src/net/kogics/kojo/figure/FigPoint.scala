@@ -16,10 +16,12 @@
 package net.kogics.kojo
 package figure
 
-class FigPoint(x: Double, y: Double) extends core.Point(x, y) with FigureShape {
+import edu.umd.cs.piccolo.PCanvas
+
+class FigPoint(val canvas: PCanvas, x: Double, y: Double) extends core.Point(x, y) with FigShape {
   val pPoint = new kgeom.PolyLine()
   pPoint.addPoint(x.toFloat, y.toFloat)
   pPoint.addPoint(x.toFloat, y.toFloat)
 
-  protected def piccoloNode = pPoint
+  protected val piccoloNode = pPoint
 }

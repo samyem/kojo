@@ -40,10 +40,13 @@ trait Figure {
   def ellipse(cx: Double, cy: Double, w: Double, h: Double): FEllipse
   def arc(onEll: Ellipse, start: Double, extent: Double): FArc
   def arc(cx: Double, cy: Double, w: Double, h: Double, start: Double, extent: Double): FArc
+  def arc(cp: Point, r: Double, start: Double, extent: Double): FArc
   def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double): FArc
-  def circle(cx: Double, cy: Double, radius: Double) = ellipse(cx, cy, 2*radius, 2*radius)
+  def circle(cp: Point, radius: Double): Ellipse
+  def circle(cx: Double, cy: Double, radius: Double): Ellipse
   def rectangle(bLeft: Point, tRight: Point): FRectangle
   def rectangle(x0: Double, y0: Double, w: Double, h: Double): FRectangle
+  def text(content: String, p: Point): FText
   def text(content: String, x: Double, y: Double): FText
   def refresh(fn: => Unit): Unit
 }

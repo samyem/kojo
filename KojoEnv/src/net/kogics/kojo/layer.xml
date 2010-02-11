@@ -176,6 +176,12 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Samples.Shapes.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Shapes"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
@@ -289,6 +295,10 @@
                     <file name="net-kogics-kojo-Samples.Sine-Angle.shadow">
                         <attr name="position" intvalue="1"/>
                         <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Sine-Angle.instance"/>
+                    </file>
+                    <file name="net-kogics-kojo-Samples.Shapes.shadow">
+                        <attr name="position" intvalue="2"/>
+                        <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Shapes.instance"/>
                     </file>
                 </folder>
             </folder>

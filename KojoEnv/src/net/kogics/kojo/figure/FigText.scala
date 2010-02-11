@@ -17,16 +17,17 @@ package net.kogics.kojo
 package figure
 
 import java.awt.Font
+import edu.umd.cs.piccolo.PCanvas
 
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 
-class FigText(content: String, x: Double, y: Double) extends core.Text(content) with FigureShape {
+class FigText(val canvas: PCanvas, content: String, x: Double, y: Double) extends core.Text(content) with FigShape {
   val pText = new PText(content)
   pText.getTransformReference(true).setToScale(1, -1)
   pText.setOffset(x,y)
   val font = new Font(pText.getFont.getName, Font.PLAIN, 14)
   pText.setFont(font)
 
-  protected def piccoloNode = pText
+  protected val piccoloNode = pText
 }

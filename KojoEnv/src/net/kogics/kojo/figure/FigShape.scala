@@ -17,19 +17,21 @@ package net.kogics.kojo
 package figure
 
 import edu.umd.cs.piccolo.PNode
+import edu.umd.cs.piccolo.PCanvas
 
-trait FigureShape extends core.VisualElement {
+trait FigShape extends core.VisualElement {
 
-  protected def piccoloNode: PNode
+  protected val piccoloNode: PNode
+  protected val canvas: PCanvas
 
   def hide() {
     piccoloNode.setVisible(false)
-    piccoloNode.repaint()
+    canvas.repaint()
   }
 
   def show() {
     piccoloNode.setVisible(true)
-    piccoloNode.repaint()
+    canvas.repaint()
   }
 
   def setColor(color: java.awt.Color) {

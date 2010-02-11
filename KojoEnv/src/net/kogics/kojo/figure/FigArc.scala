@@ -16,11 +16,13 @@
 package net.kogics.kojo
 package figure
 
+import edu.umd.cs.piccolo.PCanvas
+
 import kgeom.PArc
 import core.Ellipse
 
-class FigArc(onEll: Ellipse, start: Double, extent: Double) extends core.Arc(onEll, start, extent) with FigureShape {
+class FigArc(val canvas: PCanvas, onEll: Ellipse, start: Double, extent: Double) extends core.Arc(onEll, start, extent) with FigShape {
   val pArc = new PArc(onEll.center.x, onEll.center.y, onEll.w, onEll.h, -start, -extent)
 
-  protected def piccoloNode = pArc
+  protected val piccoloNode = pArc
 }

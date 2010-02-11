@@ -16,13 +16,15 @@
 package net.kogics.kojo
 package figure
 
+import edu.umd.cs.piccolo.PCanvas
+
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 
 import core.Point
 
-class FigEllipse(center: Point, w: Double, h: Double) extends core.Ellipse(center, w, h)  with FigureShape {
+class FigEllipse(val canvas: PCanvas, center: Point, w: Double, h: Double) extends core.Ellipse(center, w, h)  with FigShape {
   val pEllipse = PPath.createEllipse((center.x-w/2).toFloat, (center.y-h/2).toFloat, w.toFloat, h.toFloat)
 
-  protected def piccoloNode = pEllipse
+  protected val piccoloNode = pEllipse
 }
