@@ -382,7 +382,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
   object Builtins extends SCanvas {
     type Turtle = core.Turtle
-
+    type Color = java.awt.Color
+    
     PuzzleLoader.init()
 
     def color(r: Int, g: Int, b: Int) = new Color(r, g, b)

@@ -57,7 +57,7 @@ repeat(4) {
 
   val Circle = """
 clear
-setAnimationDelay(5)
+setAnimationDelay(10)
 setPenThickness(2)
 setPenColor(green)
 setFillColor(orange)
@@ -108,9 +108,6 @@ runPattern()
 """
 
   val TurningSquares = """
-clear()
-setPenColor(blue)
-  
 def squareTurn(n:Int){
     repeat(4) {
         forward(n)
@@ -125,12 +122,13 @@ def pattern(n: Int) {
     }
 }
 
+clear()
+setAnimationDelay(50)
+setPenColor(blue)
 pattern(100)
 """
 
   val DecmoSquares = """
-clear()
-
 def pattern(n:Int) {
     if (n <= 2) return
     forward(n+100)
@@ -142,15 +140,12 @@ def pattern(n:Int) {
     pattern(n-2)
 }
 
+clear()
+setAnimationDelay(100)
 pattern(50)
 """
 
   val InwardEyes = """
-clear
-setAnimationDelay(5)
-
-setPenColor(black)
-
 def drawCircle(col:Color, step:Double, angle:Int){
     setFillColor(col)
     repeat(360) {
@@ -158,6 +153,11 @@ def drawCircle(col:Color, step:Double, angle:Int){
         turn(angle)
     }
 }
+
+clear()
+setAnimationDelay(5)
+setPenColor(black)
+
 drawCircle(orange, 3, 1)
 drawCircle(orange, 3, -1)
 drawCircle(blue, 2, 1)
@@ -173,7 +173,7 @@ drawCircle(red, .25, -1)
   val Flower1 = """
 clear()
 jumpTo(0,100)
-setAnimationDelay(100)
+setAnimationDelay(10)
 setPenColor(black)
 setFillColor(orange)
 repeat(4){
@@ -214,7 +214,6 @@ repeat(4){
 """
 
   val FerrisWheel = """
-clear()
 def flag(t: Turtle, c: Color, a: Double){
     t.setPenColor(c)
     t.setFillColor(c)
@@ -227,6 +226,9 @@ def flag(t: Turtle, c: Color, a: Double){
     t.left
     t.forward(100)
 }
+
+clear()
+
 val t1 = newTurtle(0,0)
 val t2 = newTurtle(0,0)
 val t3 = newTurtle(0,0)
@@ -464,11 +466,6 @@ rail(t13)
 """
 
   val Rangoli = """
-clear()
-
-val t1=newTurtle(-600,-150)
-val t2=newTurtle(-600, 150)
-
 def border(t: Turtle, a: Double) {
     t.setAnimationDelay(100)
     t.setPenColor(black)
@@ -490,6 +487,24 @@ def border(t: Turtle, a: Double) {
         t.turn(a)
     }
 }
+
+def flower(tt:Turtle, c:Color) {
+    tt.setAnimationDelay(20)
+    tt.setPenColor(black)
+    tt.setFillColor(c)
+    repeat(4){
+        tt.right
+        repeat(90){
+            tt.turn(-2)
+            tt.forward(2)
+        }
+    }
+}
+
+clear()
+
+val t1=newTurtle(-600,-150)
+val t2=newTurtle(-600, 150)
 
 border(t1,120)
 border(t2,-120)
@@ -516,19 +531,6 @@ val t7=newTurtle(200,100)
 val t8=newTurtle(300,0)
 val t9=newTurtle(400,100)
 val t10=newTurtle(500,0)
-
-def flower(tt:Turtle, c:Color) {
-    tt.setAnimationDelay(20)
-    tt.setPenColor(black)
-    tt.setFillColor(c)
-    repeat(4){
-        tt.right
-        repeat(90){
-            tt.turn(-2)
-            tt.forward(2)
-        }
-    }
-}
 
 flower(t3, orange)
 flower(t4, yellow)
@@ -616,7 +618,6 @@ tree(90)
   """
 
   val Polygon = """
-clear()
 def regularPoly(n: Int, size: Int) {
     repeat(n) {
         forward(size)
@@ -624,6 +625,7 @@ def regularPoly(n: Int, size: Int) {
     }
 }
 
+clear()
 regularPoly(5, 100)
 invisible
 val p = pathToPolygon()
