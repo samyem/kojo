@@ -19,9 +19,7 @@ package figure
 import edu.umd.cs.piccolo.PCanvas
 
 class FigPoint(val canvas: PCanvas, x: Double, y: Double) extends core.Point(x, y) with FigShape {
-  val pPoint = new kgeom.PolyLine()
-  pPoint.addPoint(x.toFloat, y.toFloat)
-  pPoint.addPoint(x.toFloat, y.toFloat)
+  val pPoint = new kgeom.PPoint(x, y)
 
   protected val piccoloNode = pPoint
 }

@@ -24,6 +24,8 @@ trait FigShape extends core.VisualElement {
   protected val piccoloNode: PNode
   protected val canvas: PCanvas
 
+  net.kogics.kojo.util.Throttler.throttle()
+
   def hide() {
     piccoloNode.setVisible(false)
     canvas.repaint()
