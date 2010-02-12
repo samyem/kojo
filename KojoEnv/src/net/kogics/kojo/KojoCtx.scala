@@ -16,6 +16,8 @@
 package net.kogics.kojo
 
 import net.kogics.kojo.util.Utils
+import org.openide.windows.TopComponent
+
 
 object KojoCtx extends Singleton[KojoCtx] {
   protected def newInstance = new KojoCtx
@@ -23,23 +25,34 @@ object KojoCtx extends Singleton[KojoCtx] {
 
 
 class KojoCtx extends core.KojoCtx {
-  def activateCanvas() {
-    Utils.runInSwingThread {
-      val tc = SCanvasTopComponent.findInstance()
-      if (!tc.isOpened) {
-        tc.open()
-      }
-      tc.requestActive()
+
+  def activate(tc: TopComponent) {
+    if (!tc.isOpened) {
+      tc.open()
     }
+    tc.requestActive()
   }
 
-  def activateMathWorld() {
+  def makeCanvasVisible() {
+    Utils.runInSwingThread {
+      val tc = SCanvasTopComponent.findInstance()
+      activate(tc)
+    }
+    activateCodeEditor()
+  }
+
+  def makeMathWorldVisible() {
     Utils.runInSwingThread {
       val tc = GeoGebraTopComponent.findInstance()
-      if (!tc.isOpened) {
-        tc.open()
-      }
-      tc.requestActive()
+      activate(tc)
+    }
+    activateCodeEditor()
+  }
+
+  def activateCodeEditor() {
+    Utils.runInSwingThread {
+      val tc = CodeEditorTopComponent.findInstance()
+      activate(tc)
     }
   }
 }

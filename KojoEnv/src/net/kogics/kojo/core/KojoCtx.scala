@@ -16,6 +16,6 @@
 package net.kogics.kojo.core
 
 trait KojoCtx {
-  def activateCanvas()
-  def activateMathWorld()
+  def makeCanvasVisible()
+  def makeMathWorldVisible()
 }

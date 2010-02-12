@@ -29,24 +29,30 @@ class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
 
   @volatile var kojoCtx: KojoCtx = _
 
-  def ensureActive() {
-    kojoCtx.activateMathWorld()
+  def ensureVisible() {
+    kojoCtx.makeMathWorldVisible()
   }
 
   def clear() {
     Utils.runInSwingThread {
-      ensureActive()
+      ensureVisible()
       ggbApi.getApplication.setSaved()
       ggbApi.getApplication.fileNew()
     }
   }
 
   def showAxes() {
-    ggbApi.setAxesVisible(true, true)
+    Utils.runInSwingThread {
+      ggbApi.setAxesVisible(true, true)
+      ggbApi.getKernel.notifyRepaint()
+    }
   }
 
   def hideAxes() {
-    ggbApi.setAxesVisible(false, false)
+    Utils.runInSwingThread {
+      ggbApi.setAxesVisible(false, false)
+      ggbApi.getKernel.notifyRepaint()
+    }
   }
 
   def point(label: String, x: Double, y: Double) = MwPoint(ggbApi, label, x, y)

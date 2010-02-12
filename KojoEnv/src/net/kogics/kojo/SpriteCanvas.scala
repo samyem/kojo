@@ -224,12 +224,12 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   def hasUndoHistory = synchronized {history.size > 0}
 
-  def ensureActive() {
-    kojoCtx.activateCanvas()
+  def ensureVisible() {
+    kojoCtx.makeCanvasVisible()
   }
 
   def clear() {
-    ensureActive()
+    ensureVisible()
     stop()
     Utils.runInSwingThreadAndWait {
       turtles.foreach {t => if (t == turtle) t.clear() else t.remove()}
