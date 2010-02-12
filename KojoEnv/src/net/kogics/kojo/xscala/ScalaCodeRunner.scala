@@ -218,15 +218,15 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
       }
       interp.setContextClassLoader()
 
-      outputHandler.interpOutputSuppressed = true
-      interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", ScalaCodeRunner.this)
-      interp.interpret("val builtins = predef.Builtins")
-      interp.interpret("import predef.Builtins._")
-      interp.bind("turtle0", "net.kogics.kojo.core.Turtle", tCanvas.turtle0)
-      interp.interpret("val Canvas = predef.CanvasAPI")
-      interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
+      outputHandler.withOutputSuppressed {
+        interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", ScalaCodeRunner.this)
+        interp.interpret("val builtins = predef.Builtins")
+        interp.interpret("import predef.Builtins._")
+        interp.bind("turtle0", "net.kogics.kojo.core.Turtle", tCanvas.turtle0)
+        interp.interpret("val Canvas = predef.CanvasAPI")
+        interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
+      }
 
-      outputHandler.interpOutputSuppressed = false
       ctx.onInterpreterInit()
     }
 
@@ -313,7 +313,9 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
       Log.fine("Finding Identifier completions for: " + identifier)
       // warning! calling into interp while a computation is running within the actor
       // might lead to problems
-      val completions = interp.membersOfIdentifier(identifier).filter {s => !MethodDropFilter.contains(s)}
+      val completions = outputHandler.withOutputSuppressed {
+        interp.membersOfIdentifier(identifier).filter {s => !MethodDropFilter.contains(s)}
+      }
       Log.fine("Completions: " + completions)
       completions
     }
@@ -668,5 +670,17 @@ class InterpOutputHandler(ctx: RunContext) {
     else {
       reportNonExceptionOutput(output)
     }
+  }
+
+  def withOutputSuppressed[T](fn: => T): T = {
+    interpOutputSuppressed = true
+    var ret: T = null.asInstanceOf[T]
+    try {
+      ret = fn
+    }
+    finally {
+      interpOutputSuppressed = false
+    }
+    ret
   }
 }
