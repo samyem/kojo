@@ -118,8 +118,8 @@ class CommandHistory private[kojo] (historySaver: HistorySaver, maxHistorySize: 
   val history = new mutable.ArrayBuffer[String]
   val stars = new scala.collection.mutable.HashSet[Int]
 
-  var hIndex = 0
-  var listener: Option[HistoryListener] = None
+  @volatile var hIndex = 0
+  @volatile var listener: Option[HistoryListener] = None
 
   def setListener(l: HistoryListener) {
 //    if (listener.isDefined) throw new IllegalArgumentException("Listener already defined")

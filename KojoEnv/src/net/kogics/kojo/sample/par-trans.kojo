@@ -24,8 +24,8 @@ val P7 = Mw.intersect("P7", L1, L3)
 val P8 = Mw.intersect("P8", L2, L3)
 
 // Show Angles that transversal makes with lines
-val color1 = new Color(0, 102, 0)
-val color2 = new Color(153, 0, 0)
+val color1 = color(0, 102, 0)
+val color2 = color(153, 0, 0)
 val A1 = Mw.angle("A1", P2,P7,P6)
 A1.setColor(color1)
 val A2 = Mw.angle("A2", P6,P7,P1)

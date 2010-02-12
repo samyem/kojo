@@ -208,6 +208,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           interpreterDone()
           Utils.runInSwingThread {
             statusStrip.onSuccess()
+            undoRedoManager.discardAllEdits()
           }
         }
 
@@ -234,9 +235,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
             stopButton.setEnabled(false)
           }
           runMonitor.onRunEnd()
-          Utils.runInSwingThread {
-            undoRedoManager.discardAllEdits()
-          }
         }
 
         def showScriptInOutput() {showCode = true}

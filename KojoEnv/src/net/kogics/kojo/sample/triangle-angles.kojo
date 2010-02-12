@@ -32,8 +32,8 @@ a.hideLabel()
 val b = Mw.lineSegment("b",C,A)
 b.hideLabel()
 
-val color1 = new Color(0, 0, 102)
-val color2 = new Color(153, 0, 0)
+val color1 = color(0, 0, 102)
+val color2 = color(153, 0, 0)
 
 val X = Mw.angle("X", B,A,C)
 X.showNameInLabel()
