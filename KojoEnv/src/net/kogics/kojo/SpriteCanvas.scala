@@ -83,6 +83,35 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val turtle = newTurtle()
   val figure = newFigure()
 
+  val panHandler = new PPanEventHandler() {
+//    setAutopan(false)
+    override def pan(event: PInputEvent) {
+      super.pan(event)
+      Utils.schedule(0.05) {
+        updateGrid()
+      }
+    }
+    
+    override def dragActivityStep(event: PInputEvent) {
+      super.dragActivityStep(event)
+      Utils.schedule(0.05) {
+        updateGrid()
+      }
+    }
+  }
+
+  val zoomHandler = new PZoomEventHandler {
+    override def dragActivityStep(event: PInputEvent) {
+      super.dragActivityStep(event)
+      Utils.schedule(0.05) {
+        updateGrid()
+      }
+    }
+  }
+
+  setPanEventHandler(panHandler)
+  setZoomEventHandler(zoomHandler)
+
   addInputEventListener(new PBasicInputEventHandler {
       override def mouseMoved(e: PInputEvent) {
         val pos = e.getPosition
@@ -96,24 +125,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         StatusDisplayer.getDefault().setStatusText(statusStr format(pos.getX, pos.getY));
       }
     })
-
-  addInputEventListener(new PZoomEventHandler {
-      override def dragActivityStep(event: PInputEvent) {
-        Utils.schedule(0.05) {
-          updateGrid()
-        }
-      }
-    })
-
-  addInputEventListener(new PPanEventHandler{
-      override def pan(event: PInputEvent) {
-        Utils.schedule(0.05) {
-          updateGrid()
-        }
-      }
-    })
-
-//  getPanEventHandler().setAutopan(false)
 
   private def initCamera() {
     val size = getSize(null)
