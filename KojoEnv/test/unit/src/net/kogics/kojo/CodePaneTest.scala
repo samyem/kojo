@@ -43,11 +43,12 @@ class CodePaneTest extends KojoTestBase {
     def reportRunError() {}
     def readInput(prompt: String) = ""
 
+    def println(outText: String) = reportOutput(outText)
     def reportOutput(lineFragment: String) {
       currOutput.append(lineFragment)
     }
 
-    def onInterpreterStart() {}
+    def onInterpreterStart(code: String) {}
     def clearOutput {currOutput.clear}
     def getCurrentOutput: String  = currOutput.toString
 

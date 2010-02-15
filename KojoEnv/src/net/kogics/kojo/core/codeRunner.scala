@@ -27,11 +27,12 @@ trait CodeRunner {
 
 trait RunContext {
   def onInterpreterInit(): Unit
-  def onInterpreterStart(): Unit
+  def onInterpreterStart(code: String): Unit
   def onRunError(): Unit
   def onRunSuccess(): Unit
   def onRunInterpError(): Unit
 
+  def println(outText: String)
   def reportOutput(outText: String)
   def reportErrorMsg(errMsg: String)
   def reportErrorText(errText: String)

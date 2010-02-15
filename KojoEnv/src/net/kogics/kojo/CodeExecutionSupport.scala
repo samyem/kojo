@@ -181,15 +181,53 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     new core.ProxyCodeRunner(makeRealCodeRunner _)
   }
 
+  def isSingleLine(code: String): Boolean = {
+//    val n = code.count {c => c == '\n'}
+//    if (n > 1) false else true
+
+    val len = code.length
+    var idx = 0
+    var count = 0
+    while(idx < len) {
+      if (code.charAt(idx) == '\n') {
+        count += 1
+        if (count > 1) {
+          return false
+        }
+      }
+      idx += 1
+    }
+    if (count == 0) {
+      return true
+    }
+    else {
+      if (code.charAt(len-1) == '\n') {
+        return true
+      }
+      else {
+        return false
+      }
+    }
+  }
+
   def makeRealCodeRunner: core.CodeRunner = {
     val codeRunner = new xscala.ScalaCodeRunner(new RunContext {
+
+        @volatile var suppressInterpOutput = false
 
         def onInterpreterInit() = {
           showOutput(" " * 38 + "_____\n\n")
           lastOutput = ""
         }
 
-        def onInterpreterStart {
+        def onInterpreterStart(code: String) {
+          if (isSingleLine(code)) {
+            suppressInterpOutput = false
+          }
+          else {
+            suppressInterpOutput = true
+          }
+
           showNormalCursor()
           runButton.setEnabled(false)
           stopButton.setEnabled(true)
@@ -214,9 +252,17 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
         def onRunInterpError() = interpreterDone()
 
-        def reportOutput(outText: String) {
+        def println(outText: String) {
           showOutput(outText)
           runMonitor.reportOutput(outText)
+        }
+
+        def reportOutput(outText: String) {
+          if (suppressInterpOutput) {
+            return
+          }
+
+          println(outText)
         }
 
         def reportErrorMsg(errMsg: String) {

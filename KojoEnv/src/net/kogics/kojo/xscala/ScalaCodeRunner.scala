@@ -32,8 +32,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
   val outputHandler = new InterpOutputHandler(ctx)
   val codeRunner = startCodeRunner()
 
-  def showInterpOutput(lineFragment: String) = outputHandler.showInterpOutput(lineFragment)
-  def showOutput(s: String) = outputHandler.showOutput(s)
+  def println(s: String) = ctx.println(s)
 
   def runCode(code: String) = {
     // Runs on swing thread
@@ -85,7 +84,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
         return
       }
 
-      showOutput("Attempting to stop Script...\n")
+      println("Attempting to stop Script...\n")
 
       if (interpreterThread.isDefined) {
         Log.info("Interrupting Interpreter thread...")
@@ -93,13 +92,13 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
             // don't need to clean out interrupt state because Kojo needs to be shut down anyway
             // and in fact, cleaning out the interrupt state will mess with a delayed interruption
             Log.info("Interrupt timer fired")
-            showOutput("Unable to stop script.\nPlease restart the Kojo Environment unless you see a 'Script Stopped' message soon.\n")
+            println("Unable to stop script.\nPlease restart the Kojo Environment unless you see a 'Script Stopped' message soon.\n")
           })
         outputHandler.interpOutputSuppressed = true
         interpreterThread.get.interrupt
       }
       else {
-        showOutput("Animation Stopped.\n")
+        println("Animation Stopped.\n")
       }
     }
 
@@ -121,7 +120,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
         interruptTimer.get.stop
         interruptTimer = None
         outputHandler.interpOutputSuppressed = false
-        showOutput("Script Stopped.\n")
+        println("Script Stopped.\n")
       }
       interpreterThread = None
     }
@@ -158,7 +157,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
             try {
               Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
               InterruptionManager.onInterpreterStart()
-              ctx.onInterpreterStart()
+              ctx.onInterpreterStart(code)
 
               val ret = interpret(code)
               Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
@@ -296,7 +295,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
       |<console>:9: error: Incomplete code fragment
       |You probably have a missing brace/bracket somewhere in your script
       """.stripMargin
-      showOutput(msg)
+      println(msg)
     }
 
     import CodeCompletionUtils._
@@ -363,11 +362,11 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
   class GuiWriter extends Writer {
     override def write(s: String) {
-      showInterpOutput(s)
+      outputHandler.showInterpOutput(s)
     }
 
     def write(cbuf: Array[Char], off: Int, len: Int) {
-      showInterpOutput(new String(cbuf, off, len))
+      outputHandler.showInterpOutput(new String(cbuf, off, len))
     }
 
     def close() {}
@@ -395,13 +394,13 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
     def println(s: String): Unit = {
       // Runs on Actor pool (interpreter) thread
-      showOutput(s + "\n")
-      Log.info("Println - About to throttle. Thread: " + Thread.currentThread.getName)
+      ScalaCodeRunner.this.println(s + "\n")
       Throttler.throttle()
     }
 
     def readln(prompt: String): String = ctx.readInput(prompt)
     def readInt(prompt: String): Int = readln(prompt).toInt
+    def readDouble(prompt: String): Double = readln(prompt).toDouble
     def showScriptInOutput() = ctx.showScriptInOutput()
     def hideScriptInOutput() = ctx.hideScriptInOutput()
 
@@ -607,10 +606,6 @@ class InterpOutputHandler(ctx: RunContext) {
 
   def showInterpOutput(lineFragment: String) {
     if (!interpOutputSuppressed) reportInterpOutput(lineFragment)
-  }
-
-  def showOutput(s: String) = {
-    ctx.reportOutput(s)
   }
 
   private def reportExceptionOutput(output0: String) {

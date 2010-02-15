@@ -103,4 +103,28 @@ class CodeExecutionSupportTest extends KojoTestBase {
     val str0 = str.replaceAll("\r?\n", "")
     str0.replaceAll("---", "")
   }
+
+  @Test
+  def testIsSingleLine {
+    val code = "12"
+    assertTrue(ce.isSingleLine(code))
+  }
+
+  @Test
+  def testIsSingleLine2 {
+    val code = "12\n"
+    assertTrue(ce.isSingleLine(code))
+  }
+
+  @Test
+  def testIsSingleLine3 {
+    val code = "12\n14"
+    assertFalse(ce.isSingleLine(code))
+  }
+
+  @Test
+  def testIsSingleLine4 {
+    val code = sample.SampleCode.Rangoli
+    assertFalse(ce.isSingleLine(code))
+  }
 }
