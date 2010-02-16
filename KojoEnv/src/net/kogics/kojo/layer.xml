@@ -158,6 +158,12 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Samples.Input-Output.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Input-Output"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
             <file name="net-kogics-kojo-Samples.Parallel-Transversal.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
                 <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Parallel-Transversal"/>
@@ -275,6 +281,10 @@
                 <file name="net-kogics-kojo-Samples.Inspect-Object.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Inspect-Object.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Samples.Input-Output.shadow">
+                    <attr name="position" intvalue="2"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Input-Output.instance"/>
                 </file>
             </folder>
             <folder name="Early Preview ">

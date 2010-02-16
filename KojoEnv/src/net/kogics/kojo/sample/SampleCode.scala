@@ -43,6 +43,7 @@ object SampleCode {
       case "Angles of a Triangle" => TriangleAngles
       case "Sine of an Angle" => SineAngle
       case "Inspect Object" => InspectObject
+      case "Input/Output" => InputOutput
       case "Shapes" => Shapes
     }
   }
@@ -664,6 +665,17 @@ class Data extends BaseData {
 val data = new Data()
 inspect(data)
   """
+
+  val InputOutput = """
+clearOutput
+val n = readInt("How many numbers do you want to average?")
+var sum = 0.0
+repeat (n) {
+    val num = readDouble("Number")
+    sum += num
+}
+println("The average is: " + sum/n)
+"""
 
   val Shapes = """
 def positionTurtle() {

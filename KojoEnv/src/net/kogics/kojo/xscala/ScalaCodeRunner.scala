@@ -618,7 +618,7 @@ class InterpOutputHandler(ctx: RunContext) {
     else {
       output0
     }
-    ctx.reportOutput(output)
+    ctx.println(output)
   }
 
   private def reportNonExceptionOutput(output: String) {
