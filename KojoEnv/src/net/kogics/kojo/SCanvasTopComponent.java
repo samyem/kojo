@@ -54,15 +54,15 @@ public final class SCanvasTopComponent extends TopComponent {
             public void run() {
                 Frame frame = WindowManager.getDefault().getMainWindow();
                 List<Image> images = new ArrayList<Image>();
-                URL url = getClass().getResource("/images/turtle16.png");
+                URL url = getClass().getResource("/images/kojo16.png");
                 Image image = Toolkit.getDefaultToolkit().getImage(url);
                 images.add(image);
 
-                url = getClass().getResource("/images/turtle32.png");
+                url = getClass().getResource("/images/kojo32.png");
                 image = Toolkit.getDefaultToolkit().getImage(url);
                 images.add(image);
 
-                url = getClass().getResource("/images/turtle48.png");
+                url = getClass().getResource("/images/kojo48.png");
                 image = Toolkit.getDefaultToolkit().getImage(url);
                 images.add(image);
 

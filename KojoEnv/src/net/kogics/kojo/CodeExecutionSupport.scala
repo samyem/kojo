@@ -479,20 +479,18 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def enableClearButton() = if (!clearButton.isEnabled) clearButton.setEnabled(true)
 
   def readInput(prompt: String): String = {
-    IO.setInputVisible(true)
-//    IO.setFocusTaken(true)
-    val outText = prompt + " : "
-    val promptSpaces = if (outText.length - 12 > 0) outText.length - 12 else 0
+    Utils.runInSwingThreadAndWait {
+      IO.setInputVisible(true)
+      val outText = prompt + " : "
+      val promptSpaces = if (outText.length - 12 > 0) outText.length - 12 else 0
 
-    IOColorPrint.print(IO, " " * promptSpaces + "Provide Input Below\n", promptMarkColor);
-    IOColorPrint.print(IO, " " * outText.length + "V\n", promptMarkColor);
-    IOColorPrint.print(IO, outText, promptColor);
+      IOColorPrint.print(IO, " " * promptSpaces + "Provide Input Below\n", promptMarkColor);
+      IOColorPrint.print(IO, " " * outText.length + "V\n", promptMarkColor);
+      IOColorPrint.print(IO, outText, promptColor);
+    }
 
     val line = new java.io.BufferedReader(IO.getIn()).readLine()
-
-//    IO.setFocusTaken(false)
     IO.setInputVisible(false)
-//    codePane.requestFocusInWindow()
     line
   }
 
