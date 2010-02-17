@@ -147,6 +147,7 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
         activated = true;
         if (ioCb != null) {
             ioCb.activated();
+            ioComp.requestFocusInWindow();
         }
     }
 

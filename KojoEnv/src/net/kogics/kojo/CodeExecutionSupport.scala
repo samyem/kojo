@@ -480,15 +480,16 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def readInput(prompt: String): String = {
     Utils.runInSwingThreadAndWait {
-      IO.setInputVisible(true)
       val outText = prompt + " : "
       val promptSpaces = if (outText.length - 12 > 0) outText.length - 12 else 0
 
+      OutputTopComponent.findInstance.requestActive
       IOColorPrint.print(IO, " " * promptSpaces + "Provide Input Below\n", promptMarkColor);
       IOColorPrint.print(IO, " " * outText.length + "V\n", promptMarkColor);
       IOColorPrint.print(IO, outText, promptColor);
     }
 
+    IO.setInputVisible(true)
     val line = new java.io.BufferedReader(IO.getIn()).readLine()
     IO.setInputVisible(false)
     line
