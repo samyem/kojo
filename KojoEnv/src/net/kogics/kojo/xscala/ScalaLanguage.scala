@@ -35,7 +35,7 @@ class ScalaLanguage extends DefaultLanguageConfig {
   override def hasFormatter =  true
   override def getFormatter = new org.netbeans.modules.scala.editor.ScalaFormatter
 
-  override def getKeystrokeHandler = new ScalaKeystrokeHandler
+  override def getKeystrokeHandler = new org.netbeans.modules.scala.editor.ScalaKeystrokeHandler
 
 //  override def hasStructureScanner = true
 //  override def getStructureScanner = new ScalaStructureScanner

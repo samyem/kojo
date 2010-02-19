@@ -393,6 +393,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     def random(upperBound: Int) = Random.nextInt(upperBound)
     def randomDouble(upperBound: Int) = Random.nextDouble * upperBound
     
+    def print(obj: Any): Unit = println(obj.toString)
     def println(obj: Any): Unit = println(obj.toString)
 
     def println(s: String): Unit = {
