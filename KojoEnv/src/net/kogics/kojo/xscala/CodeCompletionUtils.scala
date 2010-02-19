@@ -54,7 +54,9 @@ object CodeCompletionUtils {
     "circle" -> "circle(${cx}, ${cy}, ${radius})",
     "ellipse" -> "ellipse(${cx}, ${cy}, ${width}, ${height})",
     "arc" -> "arc(${cx}, ${cy}, ${radius}, ${startDegree}, ${extentDegree})",
-    "refresh" -> "refresh {\n    ${cursor}\n}"
+    "refresh" -> "refresh {\n    ${cursor}\n}",
+    "random" -> "random(${upperBound})",
+    "randomDouble" -> "randomDouble(${upperBound})"
   )
   
   val MethodDropFilter = List("turtle0")

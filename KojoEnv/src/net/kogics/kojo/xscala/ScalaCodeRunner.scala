@@ -386,9 +386,12 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     type Color = java.awt.Color
     
     PuzzleLoader.init()
+    val Random = new java.util.Random
 
     def color(r: Int, g: Int, b: Int) = new Color(r, g, b)
     def color(rgbHex: Int) = new Color(rgbHex)
+    def random(upperBound: Int) = Random.nextInt(upperBound)
+    def randomDouble(upperBound: Int) = Random.nextDouble * upperBound
     
     def println(obj: Any): Unit = println(obj.toString)
 
@@ -444,12 +447,17 @@ Here's a partial list of available commands:
   newTurtle(x, y) - Make a new turtle located at the point (x, y)
   turtle0 - gives you a handle to the original turtle.
 
+  showScriptInOutput() - Display scripts in the output window when they run
+  hideScriptInOutput() - Do not display scripts in the output window
+
   version - Display the version of Scala being used
   repeat(n) {} - Repeat commands within braces n number of times
   println(string) - Display the given string in the output window
   readln(promptString) - Display the given prompt in the output window and read a line that the user enters
-  showScriptInOutput() - Display scripts in the output window when they run
-  hideScriptInOutput() - Do not display scripts in the output window
+  readInt(promptString) - Display the given prompt in the output window and read an Integer value that the user enters
+  readDouble(promptString) - Display the given prompt in the output window and read a Double-precision Real value that the user enters
+  random(upperBound) - Return a random Integer between 0 (inclusive) and upperBound (exclusive)
+  randomDouble(upperBound) - Return a random Double-precision Real between 0 (inclusive) and upperBound (exclusive)
   inspect(obj) - explore the internal fields of the given object
 """)
     }
