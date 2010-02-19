@@ -41,6 +41,7 @@
 package org.netbeans.modules.scala.core.lexer
 
 import java.io.Reader
+import java.util.logging.Logger
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.spi.lexer.{Lexer, LexerInput, LexerRestartInfo, TokenFactory}
 import xtc.parser.Result
@@ -58,27 +59,30 @@ import org.netbeans.modules.scala.core.rats.LexerScala
  */
 object ScalaLexer {
   /** @Note:
-   * ErlangLexer class is not Reentrant safe, it seems when source size is large than 16 * 1024,
+   * ScalaLexer class is not Reentrant safe, it seems when source size is large than 16 * 1024,
    * there will be more than one input are used, which causes the offset states, such as readed
    * token length, offset etc in these inputs conflict?. Anyway it's safe to create a new one always.
    */
   def create(info: LexerRestartInfo[TokenId]) = new ScalaLexer(info)
+
+  val Log = Logger.getLogger(classOf[ScalaLexer].getName)
 }
 
 class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
+  import ScalaLexer._
+
   /** @Note:
    * it seems input at this time is empty, so we can not do scanning here.
    * input will be filled in chars when call nextToken
    */
-
-  var input: LexerInput = info.input
-  var tokenFactory: TokenFactory[TokenId] = info.tokenFactory
-  var lexerInputReader: LexerInputReader = new LexerInputReader(input)
+  val input: LexerInput = info.input
+  val tokenFactory: TokenFactory[TokenId] = info.tokenFactory
+  val lexerInputReader: LexerInputReader = new LexerInputReader(input)
     
   val tokenStream = new ArrayBuffer[TokenInfo]
   // * tokenStream.elements always return a new iterator, which point the first
   // * item, so we should have a global one.
-  var tokenStreamItr: Iterator[TokenInfo]  = tokenStream.iterator
+  var tokenStreamItr = tokenStream.iterator
   var lookahead: Int = 0
 
   override def release = {}
@@ -107,22 +111,21 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
     }
 
     if (tokenStreamItr.hasNext) {
-      val tokenInfo = tokenStreamItr.next
+      val TokenInfo(length, id) = tokenStreamItr.next
 
-      if (tokenInfo.length == 0) {
-        // * EOF
+      if (length == 0) { // * EOF
         return null
       }
 
       // * read token's chars according to tokenInfo.length
       var i = 0
-      while (i < tokenInfo.length) {
+      while (i < length) {
         input.read
         i += 1
       }
 
       // * see if needs to lookahead, if true, perform it
-      lookahead -= tokenInfo.length
+      lookahead -= length
       // * to cheat incremently lexer, we needs to lookahead one more char when
       // * tokenStream.size() > 1 (batched tokens that are not context free),
       // * so, when modification happens exactly behind latest token, will
@@ -138,14 +141,14 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
       }
 
       val tokenLength = input.readLength
-      createToken(tokenInfo.id, tokenLength)
+      createToken(id.asInstanceOf[ScalaTokenId], tokenLength)
     } else {
       assert(false, "unrecognized input" + input.read)
       null
     }
   }
 
-  def createToken(id: TokenId, length: Int): Token[TokenId] = id.asInstanceOf[ScalaTokenId].fixedText match {
+  def createToken(id: ScalaTokenId, length: Int): Token[TokenId] = id.fixedText match {
     case null => tokenFactory.createToken(id, length)
     case fixedText => tokenFactory.getFlyweightToken(id, fixedText)
   }
@@ -168,11 +171,7 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
         System.err.println(r.parseError.msg)
         null
       }
-    } catch {
-      case e:Exception =>
-        System.err.println(e.getMessage)
-        null
-    }
+    } catch {case ex: Exception => System.err.println(ex.getMessage); null}
   }
 
   def flattenToTokenStream(node: GNode): Unit = {
@@ -184,11 +183,14 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
        *
        * And in Rats!, EOF is !_, the input.readLength() will return 0
        */
-      assert(input.readLength == 0,
-             "This generic node: " + node.getName +
-             " is a void node, this should happen only on EOF. Check you rats file.")
+      val tokenInfo = if (input.readLength == 0) {
+        TokenInfo(0, null)
+      } else {
+        Log.severe("This GNode: '" + node.getName + "' is a void node, this should happen only on EOF. Check you rats file.")
+        // * best try:
+        TokenInfo(input.readLength, ScalaTokenId.Ws)
+      }
 
-      val tokenInfo = new TokenInfo(0, null)
       tokenStream += tokenInfo
     }
         
@@ -208,7 +210,7 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
             case Some(v) => v.asInstanceOf[TokenId]
           }
           
-          val tokenInfo = new TokenInfo(length, id)
+          val tokenInfo = TokenInfo(length, id)
           tokenStream += tokenInfo
         case child =>
           println("To be process: " + child)
@@ -222,7 +224,7 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
    * as the chars input, but uses only {@link java.io.Reader#read()} of all methods in
    * {@link xtc.parser.ParserBase#character(int)}
    */
-  class LexerInputReader(input:LexerInput) extends Reader {
+  class LexerInputReader(input: LexerInput) extends Reader {
     override def read: Int = input.read match {
       case LexerInput.EOF => -1
       case c => c
@@ -235,7 +237,5 @@ class ScalaLexer(info: LexerRestartInfo[TokenId]) extends Lexer[TokenId] {
     override def close = {}
   }
 
-  class TokenInfo(val length: Int, val id: TokenId) {
-    override def toString = "(id=" + id + ", length=" + length + ")"
-  }
+  case class TokenInfo(length: Int, id: TokenId)
 }

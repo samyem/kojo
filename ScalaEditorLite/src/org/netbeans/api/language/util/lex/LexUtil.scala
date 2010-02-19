@@ -1177,7 +1177,7 @@ trait LexUtil {
     var allowPrevLine = false
     var lineStart: Int = 0
     try {
-      lineStart = Utilities.getRowStart(doc, Math.min(lexOffset, doc.getLength))
+      lineStart = Utilities.getRowStart(doc, math.min(lexOffset, doc.getLength))
       var prevLast = lineStart - 1
       if (lineStart > 0) {
         prevLast = Utilities.getRowLastNonWhite(doc, lineStart - 1);
@@ -1195,7 +1195,7 @@ trait LexUtil {
           return lexOffset
         }
       } else {
-        // Make lineStart so small that Math.max won't cause any problems
+        // Make lineStart so small that math.max won't cause any problems
         val firstNonWhite = Utilities.getRowFirstNonWhite(doc, lineStart)
         if (prevLast >= 0 && (lexOffset <= firstNonWhite || firstNonWhite == -1)) {
           return prevLast + 1
@@ -1211,12 +1211,12 @@ trait LexUtil {
     if (ts.moveNext) {
       if (lexOffset > ts.offset()) {
         // We're in the middle of a token
-        return Math.max(if (ts.token.id == WHITE_SPACE) ts.offset else lexOffset, lineStart)
+        return math.max(if (ts.token.id == WHITE_SPACE) ts.offset else lexOffset, lineStart)
       }
       while (ts.movePrevious) {
         val token = ts.token
         if (token.id != WHITE_SPACE) {
-          return Math.max(ts.offset + token.length, lineStart)
+          return math.max(ts.offset + token.length, lineStart)
         }
       }
     }
