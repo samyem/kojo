@@ -407,6 +407,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     def readDouble(prompt: String): Double = readln(prompt).toDouble
     def showScriptInOutput() = ctx.showScriptInOutput()
     def hideScriptInOutput() = ctx.hideScriptInOutput()
+    def showVerboseOutput() = ctx.showVerboseOutput()
+    def hideVerboseOutput() = ctx.hideVerboseOutput()
 
     def version = println("Scala " + scala.tools.nsc.Properties.versionString)
 

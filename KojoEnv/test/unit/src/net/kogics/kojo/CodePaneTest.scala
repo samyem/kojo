@@ -40,6 +40,8 @@ class CodePaneTest extends KojoTestBase {
     def onInterpreterInit() {}
     def showScriptInOutput() {}
     def hideScriptInOutput() {}
+    def showVerboseOutput() {}
+    def hideVerboseOutput() {}
     def reportRunError() {}
     def readInput(prompt: String) = ""
 

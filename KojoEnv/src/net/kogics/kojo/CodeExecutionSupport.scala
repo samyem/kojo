@@ -74,6 +74,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val outputColor = new Color(32, 32, 32)
 
   @volatile var showCode = false
+  @volatile var verboseOutput = false
   val OutputDelimiter = "---\n"
   @volatile var lastOutput = ""
 
@@ -221,7 +222,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         }
 
         def onInterpreterStart(code: String) {
-          if (isSingleLine(code)) {
+          if (verboseOutput || isSingleLine(code)) {
             suppressInterpOutput = false
           }
           else {
@@ -285,6 +286,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
         def showScriptInOutput() {showCode = true}
         def hideScriptInOutput() {showCode = false}
+        def showVerboseOutput() {verboseOutput = true}
+        def hideVerboseOutput() {verboseOutput = false}
         def readInput(prompt: String): String = CodeExecutionSupport.this.readInput(prompt)
 
         def clearOutput() = clrOutput()
