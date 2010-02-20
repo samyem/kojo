@@ -292,7 +292,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
     def showIncompleteCodeMsg(code: String) {
       val msg = """
-      |<console>:9: error: Incomplete code fragment
+      |error: Incomplete code fragment
       |You probably have a missing brace/bracket somewhere in your script
       """.stripMargin
       println(msg)
@@ -607,11 +607,12 @@ class InterpOutputHandler(ctx: RunContext) {
   @volatile var errorSeen = false
 
   val OutputMode = 1
-  val ErrorMsgMode = 2
+//  val ErrorMsgMode = 2
   val ErrorTextMode = 3
+  val HatMode = 4
   @volatile var currMode = OutputMode
 
-  val errorPattern = java.util.regex.Pattern.compile("""^<console>:\d+: error:""")
+  val errorPattern = java.util.regex.Pattern.compile("""(^<console>:\d+: )error:""")
   val exceptionPattern = java.util.regex.Pattern.compile("""^\w+(\.\w+)+Exception""")
   @volatile var interpOutputSuppressed = false
 
@@ -634,6 +635,8 @@ class InterpOutputHandler(ctx: RunContext) {
 
   private def reportNonExceptionOutput(output: String) {
     // Interp sends in one line at a time for error output
+    // we get three calls for an error:
+    // (1) err msg (2) err text (3) hat
     // Scala compiler code reference:
     // ConsoleReporter.printMessage() calls:
     // - ConsoleReporter.printMessage() [overloaded] to print error message
@@ -643,27 +646,20 @@ class InterpOutputHandler(ctx: RunContext) {
 
     currMode match {
       case OutputMode =>
-        if (errorPattern.matcher(output).find) currMode = ErrorMsgMode
-
-      case ErrorMsgMode =>
-        // Doing a flaky test based on the fact that error text has leading
-        // whitespace
-        // After looking at the scala compiler source, this seems to originate
-        // from Interpreter.indentCode()
-//        if (output.startsWith("    ")) currMode = ErrorTextMode
-
-        // No need to make the above check because, after looking at the Scala compiler
-        // source, we know that we get three calls for an error:
-        // (1) err msg (2) err text (3) hat
-        currMode = ErrorTextMode
+        val m = errorPattern.matcher(output)
+        if (m.find) {
+          ctx.reportErrorMsg(output.substring(m.group(1).length, output.length))
+          currMode = ErrorTextMode
+        }
+        else {
+          ctx.reportOutput(output)
+        }
       case ErrorTextMode =>
+        ctx.reportErrorText(output)
+        currMode = HatMode
+      case HatMode =>
+        ctx.println(output)
         currMode = OutputMode
-    }
-
-    currMode match {
-      case OutputMode => ctx.reportOutput(output)
-      case ErrorMsgMode => ctx.reportErrorMsg(output)
-      case ErrorTextMode => ctx.reportErrorText(output)
     }
   }
 

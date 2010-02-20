@@ -63,7 +63,7 @@ class CodeExecutionSupportTest extends KojoTestBase {
     val code = "val x = 10; val y = 20x"
     pane.setText(code)
     val output = ce.runCodeWithOutputCapture()
-    assertTrue(output.contains(": error:"))
+    assertTrue(output.contains("error:"))
     Utils.runInSwingThreadAndWait {  /* noop */  }
     assertEquals(code, pane.getText)
     assertTrue(pane.getSelectionStart == pane.getSelectionEnd)
@@ -92,7 +92,7 @@ class CodeExecutionSupportTest extends KojoTestBase {
     pane.setSelectionEnd(23)
 
     val output = ce.runCodeWithOutputCapture()
-    assertTrue(output.contains(": error:"))
+    assertTrue(output.contains("error:"))
     Utils.runInSwingThreadAndWait {  /* noop */  }
     assertEquals(code, pane.getText)
     assertEquals(12, pane.getSelectionStart)
