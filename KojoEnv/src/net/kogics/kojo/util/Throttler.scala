@@ -15,6 +15,13 @@
 package net.kogics.kojo.util
 
 object Throttler {
+  val systemThrottler = new Throttler(1)
+  
+  def throttle() = systemThrottler.throttle()
+}
+
+class Throttler(size: Int) {
+
   // Throttling is always supposed to happen on the Interp
   // thread. So - there's no volatile or synchronized stuff in this class
 
@@ -54,7 +61,7 @@ object Throttler {
 
   def allowInterruption() {
     uninterruptibleCalls = 0
-    Thread.sleep(1) // Throws interrupted exception if the thread has been interrupted
+    Thread.sleep(size) // Throws interrupted exception if the thread has been interrupted
   }
 }
 

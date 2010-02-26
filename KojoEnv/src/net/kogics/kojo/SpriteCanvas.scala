@@ -371,6 +371,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
     def commandDone(cmd: Command): Unit = synchronized {
       startCount -= 1
+      if (startCount == 0) realListener.pendingCommandsDone
     }
   }
 }

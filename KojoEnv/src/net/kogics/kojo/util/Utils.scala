@@ -107,4 +107,8 @@ object Utils {
     t.printStackTrace(printWriter)
     result.toString()
   }
+
+  def deg2radians(angle: Double) = angle * Math.Pi / 180
+  def rad2degrees(angle: Double) = angle * 180 / Math.Pi
+
 }

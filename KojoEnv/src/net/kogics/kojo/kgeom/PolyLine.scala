@@ -27,7 +27,7 @@ class PolyLine extends PNode {
   val polyLinePath = new GeneralPath()
 
   val points = new mutable.ArrayBuffer[Point2D.Float]
-  var stroke: Stroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+  var stroke: BasicStroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
   var strokePaint = Color.blue
 
   var closed = false
@@ -35,15 +35,21 @@ class PolyLine extends PNode {
 
   def addPoint(x: Float, y: Float): Unit = addPoint(new Point2D.Float(x, y))
   def lineTo(x: Float, y: Float) = addPoint(new Point2D.Float(x, y))
-  def removeLastPoint() = points.remove(points.size-1)
+  def removeLastPoint() {
+    points.remove(points.size-1)
+    buildGeneralPath()
+  }
+
+  def size = points.size
 
   def reset() {
     points.clear()
+    polyLinePath.reset()
     if (constraint.isDefined) constraint.get.clearVisualElements()
   }
 
   def setStroke(strk: Stroke) {
-    stroke = strk
+    stroke = strk.asInstanceOf[BasicStroke]
   }
 
   def setStrokePaint(c: Color) {
@@ -52,6 +58,17 @@ class PolyLine extends PNode {
 
   def addPoint(p: Point2D.Float): Unit = {
     points += p
+    if (points.size == 1) {
+      polyLinePath.reset()
+      return
+    }
+
+    if (points.size == 2) {
+      polyLinePath.moveTo(points(0).x, points(0).y)
+    }
+
+    polyLinePath.lineTo(p.x, p.y)
+    
     updateBounds()
   }
 
@@ -61,27 +78,29 @@ class PolyLine extends PNode {
 
   override def paint(paintContext: PPaintContext) {
     val g2 = paintContext.getGraphics()
-    val path = getCurrentPolyLinePath()
+//    val path = buildGeneralPath()
     val fillPaint = getPaint()
 
     if (fillPaint != null) {
       g2.setPaint(fillPaint)
-      g2.fill(path)
+      g2.fill(polyLinePath)
     }
 
     g2.setStroke(stroke)
     g2.setPaint(strokePaint)
-    g2.draw(path)
+    g2.draw(polyLinePath)
   }
 
   def updateBounds() {
-    val p = getCurrentPolyLinePath()
-    val b = stroke.createStrokedShape(p).getBounds2D()
-    super.setBounds(b.getX(), b.getY(), b.getWidth(), b.getHeight())
+    // the line below significantly slows things down for things like 36 circles
+//    val b = stroke.createStrokedShape(polyLinePath).getBounds2D()
+    val b = polyLinePath.getBounds()
+    val w = stroke.getLineWidth
+    super.setBounds(b.getX()-w, b.getY()-w, b.getWidth()+2*w, b.getHeight()+2*w)
     repaint()
   }
 
-  def getCurrentPolyLinePath(): GeneralPath = {
+  def buildGeneralPath(): GeneralPath = {
     polyLinePath.reset()
     if (points.size == 1) return polyLinePath
 
