@@ -401,8 +401,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realTowards(x: Double, y: Double, cmd: Command) {
-    val newTheta = realTowardsHelper(x, y)
     realWorker4(cmd) {
+      val newTheta = realTowardsHelper(x, y)
       changeHeading(newTheta)
       turtle.repaint()
     }
@@ -424,8 +424,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       Math.sqrt(delX * delX + delY * delY)
     }
 
-    val newTheta = realTowardsHelper(x, y)
-    Utils.runInSwingThread {
+    realWorker2 {
+      val newTheta = realTowardsHelper(x, y)
       changeHeading(newTheta)
     }
     realForward(distanceTo(x,y), cmd)
@@ -438,6 +438,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realGetWorker() {
+    realWorker2 {
+      // noop
+    }
   }
 
   private def realSetPenColor(color: Color, cmd: Command) {
