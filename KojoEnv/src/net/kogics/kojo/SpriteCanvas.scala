@@ -289,9 +289,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def visible() = turtle.visible()
   def invisible() = turtle.invisible()
 
-  def pathToPolygon() = turtle.pathToPolygon()
-  def pathToParallelogram() = turtle.pathToParallelogram()
-
   def stop() = {
     Utils.runInSwingThreadAndWait {
       puzzlers.foreach {t => t.stop}

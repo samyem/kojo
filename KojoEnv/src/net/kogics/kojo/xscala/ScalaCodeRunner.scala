@@ -532,8 +532,6 @@ Here's a partial list of available commands:
     val figure0 = tCanvas.figure0
 
     def newPuzzler(x: Int, y: Int) = tCanvas.newPuzzler(x, y)
-    def pathToPolygon() = tCanvas.pathToPolygon()
-    def pathToParallelogram() = tCanvas.pathToParallelogram()
     def undo() = tCanvas.undo()
 
     def inspect(obj: AnyRef) = ctx.inspect(obj)

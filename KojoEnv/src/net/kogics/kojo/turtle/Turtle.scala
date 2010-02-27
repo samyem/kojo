@@ -191,8 +191,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       case 'animationDelay => GetAnimationDelay(latch, cmdBool)
       case 'position => GetPosition(latch, cmdBool)
       case 'heading => GetHeading(latch, cmdBool)
-      case 'pathToPolygon => PathToPolygon(latch, cmdBool)
-      case 'pathToPGram => PathToPGram(latch, cmdBool)
     }
 
     enqueueCommand(cmd)
@@ -219,16 +217,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   def heading: Double = {
     getWorker('heading)
     thetaDegrees
-  }
-
-  def pathToPolygon(): DynamicShape = {
-    getWorker('pathToPolygon)
-    geomObj
-  }
-
-  def pathToParallelogram(): DynamicShape = {
-    getWorker('pathToPGram)
-    geomObj
   }
 
   // invoke fn in GUI thread, supplying it doneFn to call at the end,

@@ -44,8 +44,6 @@ trait TurtleMover {
   def visible(): Unit
   def invisible(): Unit
   def clear(): Unit
-  def pathToPolygon(): DynamicShape
-  def pathToParallelogram(): DynamicShape
   def undo(): Unit
   def waitFor(): Unit = animationDelay
 }
