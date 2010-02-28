@@ -56,7 +56,8 @@ object CodeCompletionUtils {
     "arc" -> "arc(${cx}, ${cy}, ${radius}, ${startDegree}, ${extentDegree})",
     "refresh" -> "refresh {\n    ${cursor}\n}",
     "random" -> "random(${upperBound})",
-    "randomDouble" -> "randomDouble(${upperBound})"
+    "randomDouble" -> "randomDouble(${upperBound})",
+    "zoom" -> "zoom(${zoomFactor}, ${centerX}, ${centerY})"
   )
   
   val MethodDropFilter = List("turtle0")
