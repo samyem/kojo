@@ -201,6 +201,16 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
+  def zoom(factor: Double, cx: Double, cy: Double) {
+    Utils.runInSwingThread {
+      val size = getSize(null)
+      getCamera.getViewTransformReference.setToScale(factor, -factor)
+      getCamera.setViewOffset(size.getWidth/2f - cx*factor, size.getHeight/2f + cy*factor)
+      updateGrid()
+      repaint()
+    }
+  }
+
   def afterClear() = {
     // initCamera()
   }

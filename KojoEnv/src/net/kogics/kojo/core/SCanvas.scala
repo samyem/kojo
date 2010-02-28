@@ -25,4 +25,5 @@ trait SCanvas extends TurtleMover {
   def gridOn(): Unit
   def gridOff(): Unit
   def newFigure(x: Int, y: Int): Figure
+  def zoom(factor: Double, cx: Double, cy: Double)
 }

@@ -26,7 +26,7 @@ class PArc(cx: Double, cy: Double, w: Double, h: Double, start: Double, extent: 
 
   var stroke: Stroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
   var strokePaint = Color.blue
-  val arc = new Arc2D.Float((cx-w/2).toFloat, (cy-h/2).toFloat, w.toFloat, h.toFloat, start.toFloat, extent.toFloat, Arc2D.PIE)
+  val arc = new Arc2D.Double(cx-w/2, cy-h/2, w, h, start, extent, Arc2D.PIE)
   updateBounds()
   
   def setStroke(strk: Stroke) {

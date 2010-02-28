@@ -26,7 +26,7 @@ class PPoint(x: Double, y: Double) extends PNode {
 
   var stroke: Stroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
   var strokePaint = Color.blue
-  val shape = new Line2D.Float(x.toFloat, y.toFloat, x.toFloat, y.toFloat)
+  val shape = new Line2D.Double(x, y, x, y)
   updateBounds()
   
   def setStroke(strk: Stroke) {

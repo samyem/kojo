@@ -474,6 +474,7 @@ Here's a partial list of available commands:
 
     def gridOn() = tCanvas.gridOn()
     def gridOff() = tCanvas.gridOff()
+    def zoom(factor: Double, cx: Double, cy: Double) = tCanvas.zoom(factor, cx, cy)
 
     def forward() = println("Please provide the distance to move forward - e.g. forward(100)")
     def back() = println("Please provide the distance to move back - e.g. back(100)")

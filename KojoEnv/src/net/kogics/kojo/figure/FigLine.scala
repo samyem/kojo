@@ -22,8 +22,8 @@ import core.Point
 
 class FigLine(val canvas: PCanvas, p1: Point, p2: Point) extends core.Line(p1, p2) with FigShape {
   val pLine = new kgeom.PolyLine()
-  pLine.addPoint(p1.x.toFloat, p1.y.toFloat)
-  pLine.addPoint(p2.x.toFloat, p2.y.toFloat)
+  pLine.addPoint(p1.x, p1.y)
+  pLine.addPoint(p2.x, p2.y)
 
   protected val piccoloNode = pLine
 }

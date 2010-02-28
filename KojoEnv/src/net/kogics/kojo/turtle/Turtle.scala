@@ -286,7 +286,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
 
     def endMove(pf: Point2D.Double) {
-      pen.endMove(pf.x.toFloat, pf.y.toFloat)
+      pen.endMove(pf.x, pf.y)
       changePos(pf.x, pf.y)
       turtle.repaint()
     }
@@ -307,14 +307,14 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         
         val p0 = _position
         val pf = newPoint
-        pen.startMove(p0.x.toFloat, p0.y.toFloat)
+        pen.startMove(p0.x, p0.y)
 
         val lineAnimation = new PActivity(_animationDelay) {
           override def activityStep(elapsedTime: Long) {
             val frac = if (_animationDelay == 0) 1d else elapsedTime.toDouble / _animationDelay
             val currX = p0.x * (1-frac) + pf.x * frac
             val currY = p0.y * (1-frac) + pf.y * frac
-            pen.move(currX.toFloat, currY.toFloat)
+            pen.move(currX, currY)
             turtle.setOffset(currX, currY)
             turtle.repaint()
           }
@@ -795,9 +795,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     val Log = Logger.getLogger(getClass.getName);
 
     val turtle = Turtle.this
+    val Cap = BasicStroke.CAP_BUTT
+    val Join = BasicStroke.JOIN_ROUND
     val DefaultColor = Color.red
     val DefaultFillColor = null
-    val DefaultStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+    val DefaultStroke = new BasicStroke(2, Cap, Join)
 
     def init() {
       lineColor = DefaultColor
@@ -808,7 +810,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
     def newPath(): PolyLine = {
       val penPath = new PolyLine()
-      penPath.addPoint(turtle._position.x.toFloat, turtle._position.y.toFloat)
+      penPath.addPoint(turtle._position.x, turtle._position.y)
       penPath.setStroke(lineStroke)
       penPath.setStrokePaint(lineColor)
       penPath.setPaint(fillColor)
@@ -833,7 +835,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
     def rawSetAttrs(color: Color, thickness: Double, fColor: Color) {
       lineColor = color
-      lineStroke = new BasicStroke(thickness.toFloat, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+      lineStroke = new BasicStroke(thickness.toFloat, Cap, Join)
       fillColor = fColor
     }
 
@@ -843,7 +845,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
 
     def setThickness(t: Double) {
-      lineStroke = new BasicStroke(t.toFloat, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+      lineStroke = new BasicStroke(t.toFloat, Cap, Join)
       addNewPath()
     }
 
@@ -866,9 +868,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   class UpPen extends AbstractPen {
-    def startMove(x: Float, y: Float) {}
-    def move(x: Float, y: Float) {}
-    def endMove(x: Float, y: Float) {}
+    def startMove(x: Double, y: Double) {}
+    def move(x: Double, y: Double) {}
+    def endMove(x: Double, y: Double) {}
     def updatePosition() {}
     def undoMove() {}
   }
@@ -877,17 +879,17 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     var tempLine = new PPath
     val lineAnimationColor = Color.orange
 
-    def startMove(x: Float, y: Float) {
+    def startMove(x: Double, y: Double) {
       tempLine.setStroke(lineStroke)
       tempLine.setStrokePaint(lineAnimationColor)
-      tempLine.moveTo(x, y)
+      tempLine.moveTo(x.toFloat, y.toFloat)
       layer.addChild(layer.getChildrenCount-1, tempLine)
     }
-    def move(x: Float, y: Float) {
-      tempLine.lineTo(x, y)
+    def move(x: Double, y: Double) {
+      tempLine.lineTo(x.toFloat, y.toFloat)
       tempLine.repaint()
     }
-    def endMove(x: Float, y: Float) {
+    def endMove(x: Double, y: Double) {
       layer.removeChild(tempLine)
       tempLine.reset
       penPaths.last.lineTo(x, y)

@@ -24,17 +24,16 @@ import scala.collection._
 
 class PolyLine extends PNode {
 
-  val polyLinePath = new GeneralPath()
+  val polyLinePath = new Path2D.Double()
 
-  val points = new mutable.ArrayBuffer[Point2D.Float]
-  var stroke: BasicStroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
-  var strokePaint = Color.blue
+  val points = new mutable.ArrayBuffer[Point2D.Double]
+  var stroke = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND)
+  var strokePaint = Color.red
 
   var closed = false
-  var constraint: Option[GeometricConstraint] = None
 
-  def addPoint(x: Float, y: Float): Unit = addPoint(new Point2D.Float(x, y))
-  def lineTo(x: Float, y: Float) = addPoint(new Point2D.Float(x, y))
+  def addPoint(x: Double, y: Double): Unit = addPoint(new Point2D.Double(x, y))
+  def lineTo(x: Double, y: Double) = addPoint(new Point2D.Double(x, y))
   def removeLastPoint() {
     points.remove(points.size-1)
     buildGeneralPath()
@@ -45,7 +44,6 @@ class PolyLine extends PNode {
   def reset() {
     points.clear()
     polyLinePath.reset()
-    if (constraint.isDefined) constraint.get.clearVisualElements()
   }
 
   def setStroke(strk: Stroke) {
@@ -56,7 +54,7 @@ class PolyLine extends PNode {
     strokePaint = c
   }
 
-  def addPoint(p: Point2D.Float): Unit = {
+  def addPoint(p: Point2D.Double): Unit = {
     points += p
     if (points.size == 1) {
       polyLinePath.reset()
@@ -100,7 +98,7 @@ class PolyLine extends PNode {
     repaint()
   }
 
-  def buildGeneralPath(): GeneralPath = {
+  def buildGeneralPath(): Path2D = {
     polyLinePath.reset()
     if (points.size == 1) return polyLinePath
 

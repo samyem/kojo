@@ -63,7 +63,7 @@ class SpriteCanvasTest extends KojoTestBase {
 
   def simpleMovements {
     tCanvas.forward(100)
-    tCanvas.turn((Math.Pi/2).toFloat)
+    tCanvas.turn(Math.Pi/2)
     tCanvas.forward(100)
     Thread.sleep(1000 * 60)
   }

@@ -20,9 +20,9 @@ trait Pen {
   def init(): Unit
   def clear(): Unit
   def updatePosition(): Unit
-  def startMove(x: Float, y: Float): Unit
-  def move(x: Float, y: Float): Unit
-  def endMove(x: Float, y: Float): Unit
+  def startMove(x: Double, y: Double): Unit
+  def move(x: Double, y: Double): Unit
+  def endMove(x: Double, y: Double): Unit
   def setColor(color: Color): Unit
   def setThickness(t: Double): Unit
   def setFillColor(color: Color): Unit
