@@ -205,7 +205,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     Utils.runInSwingThread {
       val size = getSize(null)
       getCamera.getViewTransformReference.setToScale(factor, -factor)
-      getCamera.setViewOffset(size.getWidth/2f - cx*factor, size.getHeight/2f + cy*factor)
+      getCamera.getViewTransformReference.setOffset(size.getWidth/2d - cx*factor, size.getHeight/2d + cy*factor)
       updateGrid()
       repaint()
     }
