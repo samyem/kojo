@@ -151,6 +151,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private def enqueueCommand(cmd: Command) {
     if (removed) return
+    listener.hasPendingCommands
+    listener.commandStarted(cmd)
     CommandActor ! cmd
     Throttler.throttle()
   }
@@ -607,8 +609,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 //      Log.info("Command Being Processed: %s." format(cmd))
       if (cmd.valid.get) {
         throttler.throttle()
-        listener.hasPendingCommands
-        listener.commandStarted(cmd)
 
         if (undoCmd.isDefined) pushHistory(undoCmd.get)
 
@@ -634,8 +634,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 //      Log.info("Command Being Processed: %s." format(cmd))
       if (cmd.valid.get) {
         throttler.throttle()
-        listener.hasPendingCommands
-        listener.commandStarted(cmd)
 
         if (undoCmd.isDefined) pushHistory(undoCmd.get)
 
