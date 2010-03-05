@@ -27,7 +27,7 @@ class PolyLine extends PNode {
   val polyLinePath = new Path2D.Double()
 
   val points = new mutable.ArrayBuffer[Point2D.Double]
-  var stroke = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND)
+  var stroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
   var strokePaint = Color.red
 
   var closed = false

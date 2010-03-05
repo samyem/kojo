@@ -295,7 +295,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
       |error: Incomplete code fragment
       |You probably have a missing brace/bracket somewhere in your script
       """.stripMargin
-      println(msg)
+      ctx.reportErrorMsg(msg)
     }
 
     import CodeCompletionUtils._
@@ -425,6 +425,8 @@ Here's a partial list of available commands:
   left(angle) - Turn the turtle left through a specified angle
   towards(x, y) - Make the turtle turn towards the point (x, y)
   moveTo(x, y) - Make the turtle move to the point (x, y)
+  setHeading(angle) - Set the turtle's heading (the direction in which it is pointing)
+  setPosition(x, y) - Set the turtle's position (without making it draw any lines). The turtle's heading is not changed.
   write(text) - Make the turtle write the specified text at its current location
   undo() - Undo the last turtle command
 
@@ -609,6 +611,7 @@ class InterpOutputHandler(ctx: RunContext) {
 //  val ErrorMsgMode = 2
   val ErrorTextMode = 3
   val HatMode = 4
+  val ErrorTextWithoutLinkMode = 5
   @volatile var currMode = OutputMode
 
   val errorPattern = java.util.regex.Pattern.compile("""(^<console>:\d+: )error:""")
@@ -643,18 +646,31 @@ class InterpOutputHandler(ctx: RunContext) {
     // -- ConsoleReporter.printMessage() [overloaded] to print error text
     // -- printColumnMarker(pos) - to print hat
 
+    def isBadMsg(msg: String) = {
+      msg.contains("Unmatched closing brace")
+    }
+
+
     currMode match {
       case OutputMode =>
         val m = errorPattern.matcher(output)
         if (m.find) {
           ctx.reportErrorMsg(output.substring(m.group(1).length, output.length))
-          currMode = ErrorTextMode
+          if (isBadMsg(output)) {
+            currMode = ErrorTextWithoutLinkMode
+          }
+          else {
+            currMode = ErrorTextMode
+          }
         }
         else {
           ctx.reportOutput(output)
         }
       case ErrorTextMode =>
         ctx.reportErrorText(output)
+        currMode = HatMode
+      case ErrorTextWithoutLinkMode =>
+        ctx.reportErrorMsg(output)
         currMode = HatMode
       case HatMode =>
         ctx.println(output)

@@ -12,7 +12,7 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.core 
+package net.kogics.kojo.core
 
 trait TurtleMover {
   def forward(n: Double): Unit
@@ -33,8 +33,15 @@ trait TurtleMover {
   def heading: Double
   def jumpTo(x: Double, y: Double): Unit
   def jumpTo(p: Point): Unit = jumpTo(p.x, p.y)
+  def setPosition(x: Double, y: Double) = jumpTo(x, y)
+  def setPosition(p: Point): Unit = jumpTo(p)
   def moveTo(x: Double, y: Double): Unit
   def moveTo(p: Point): Unit = moveTo(p.x, p.y)
+  def setHeading(angle: Double) = turn(angle - heading)
+  def home() = {
+    moveTo(0, 0)
+    setHeading(90)
+  }
   def animationDelay: Long
   def setAnimationDelay(d: Long)
   def beamsOn(): Unit
