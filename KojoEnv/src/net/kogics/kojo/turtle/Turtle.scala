@@ -54,7 +54,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   // the zeroth layer is for the grid etc
   // bottom sprite layer is at index 1
   if (bottomLayer) camera.addLayer(1, layer) else camera.addLayer(camera.getLayerCount-1, layer)
-  @volatile private var _animationDelay = 0l
+  @volatile private [turtle] var _animationDelay = 0l
 
   private val turtleImage = new PImage(Utils.loadImage(fname))
   private val turtle = new PNode
@@ -86,7 +86,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   @volatile private var isVisible: Boolean = _
   @volatile private var areBeamsOn: Boolean = _
 
-  private def changePos(x: Double, y: Double) {
+  private [turtle] def changePos(x: Double, y: Double) {
     _position = new Point2D.Double(x, y)
     turtle.setOffset(x, y)
   }
@@ -94,6 +94,25 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   private def changeHeading(newTheta: Double) {
     theta = newTheta
     turtle.setRotation(theta)
+  }
+
+  def distanceTo(x: Double, y: Double): Double = {
+    val (x0,y0) = (_position.x, _position.y)
+    val delX = Math.abs(x-x0)
+    val delY = Math.abs(y-y0)
+    Math.sqrt(delX * delX + delY * delY)
+  }
+
+  def delayFor(dist: Double): Long = {
+    if (_animationDelay < 10) {
+      return _animationDelay
+    }
+    
+    // _animationDelay is delay for 100 steps;
+    // Here we calculate delay for specified distance
+    val speed = 100f / _animationDelay
+    val delay = dist / speed
+    delay.toLong
   }
 
   def dumpState() {
@@ -172,15 +191,25 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   def towards(x: Double, y: Double) = enqueueCommand(Towards(x, y, cmdBool))
   def jumpTo(x: Double, y: Double) = enqueueCommand(JumpTo(x, y, cmdBool))
   def moveTo(x: Double, y: Double) = enqueueCommand(MoveTo(x, y, cmdBool))
-  def setAnimationDelay(d: Long) = enqueueCommand(SetAnimationDelay(d, cmdBool))
   def setPenColor(color: Color) = enqueueCommand(SetPenColor(color, cmdBool))
-  def setPenThickness(t: Double) = enqueueCommand(SetPenThickness(t, cmdBool))
   def setFillColor(color: Color) = enqueueCommand(SetFillColor(color, cmdBool))
   def beamsOn() = enqueueCommand(BeamsOn(cmdBool))
   def beamsOff() = enqueueCommand(BeamsOff(cmdBool))
   def write(text: String) = enqueueCommand(Write(text, cmdBool))
   def visible() = enqueueCommand(Show(cmdBool))
   def invisible() = enqueueCommand(Hide(cmdBool))
+  def setAnimationDelay(d: Long) = {
+    if (d < 0) {
+      throw new IllegalArgumentException("Negative delay not allowed")
+    }
+    enqueueCommand(SetAnimationDelay(d, cmdBool))
+  }
+  def setPenThickness(t: Double) = {
+    if (t < 0) {
+      throw new IllegalArgumentException("Negative thickness not allowed")
+    }
+    enqueueCommand(SetPenThickness(t, cmdBool))
+  }
 
   def remove() = {
     enqueueCommand(Remove(cmdBool))
@@ -311,9 +340,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         val pf = newPoint
         pen.startMove(p0.x, p0.y)
 
-        val lineAnimation = new PActivity(_animationDelay) {
+        val aDelay = delayFor(distanceTo(pf.x, pf.y))
+
+        val lineAnimation = new PActivity(aDelay) {
           override def activityStep(elapsedTime: Long) {
-            val frac = if (_animationDelay == 0) 1d else elapsedTime.toDouble / _animationDelay
+            val frac = elapsedTime.toDouble / aDelay
             val currX = p0.x * (1-frac) + pf.x * frac
             val currY = p0.y * (1-frac) + pf.y * frac
             pen.move(currX, currY)
@@ -419,13 +450,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realMoveTo(x: Double, y: Double, cmd: Command) {
-    def distanceTo(x: Double, y: Double): Double = {
-      val (x0,y0) = (_position.x, _position.y)
-      val delX = Math.abs(x-x0)
-      val delY = Math.abs(y-y0)
-      Math.sqrt(delX * delX + delY * delY)
-    }
-
     realWorker2 {
       val newTheta = realTowardsHelper(x, y)
       changeHeading(newTheta)

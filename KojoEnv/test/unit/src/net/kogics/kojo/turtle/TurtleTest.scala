@@ -383,4 +383,66 @@ class TurtleTest extends KojoTestBase {
     }
     assertTrue(SCTest.check(propMoveTo).passed)
   }
+
+  @Test
+  def testDistanceTo1 {
+    assertEquals(100, turtle.distanceTo(100, 0), 0.001)
+  }
+
+  @Test
+  def testDistanceTo2 {
+    assertEquals(100, turtle.distanceTo(0, 100), 0.001)
+  }
+
+  @Test
+  def testDistanceTo3 {
+    turtle.changePos(10, 10)
+    assertEquals(Math.sqrt(90*90*2), turtle.distanceTo(100, 100), 0.001)
+  }
+
+  @Test
+  def testDistanceTo4 {
+    turtle.changePos(-10, -10)
+    assertEquals(Math.sqrt(90*90*2), turtle.distanceTo(-100, -100), 0.001)
+  }
+
+  @Test
+  def testDelayFor1 {
+    turtle._animationDelay = 100
+    assertEquals(100, turtle.delayFor(100))
+  }
+
+  @Test
+  def testDelayFor2 {
+    turtle._animationDelay = 100
+    assertEquals(1000, turtle.delayFor(1000))
+  }
+
+  @Test
+  def testDelayFor3 {
+    turtle._animationDelay = 80
+    assertEquals(240, turtle.delayFor(300))
+  }
+
+  @Test
+  def testDisallowNegativeAnimDelay {
+    try {
+      turtle.setAnimationDelay(-1)
+      fail("Negative Animation Delay Not Allowed")
+    }
+    catch {
+      case ex: IllegalArgumentException => assertTrue(true)
+    }
+  }
+
+  @Test
+  def testDisallowNegativePenThickness {
+    try {
+      turtle.setPenThickness(-1)
+      fail("Negative Pen Thickness Not Allowed")
+    }
+    catch {
+      case ex: IllegalArgumentException => assertTrue(true)
+    }
+  }
 }
