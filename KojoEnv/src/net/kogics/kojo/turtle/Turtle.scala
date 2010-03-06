@@ -309,6 +309,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   
   private def realForwardCustom(n: Double, cmd: Command) {
 
+    def saveUndoCmd() {
+      pushHistory(UndoChangeInPos((_position.x, _position.y)))
+    }
+
     def newPoint = {
       val p0 = _position
       val delX = Math.cos(theta) * n
@@ -335,6 +339,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       }
 
       realWorker4(cmd) {
+        saveUndoCmd()
         val pf = newPoint
         endMove(pf)
       }
@@ -346,7 +351,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
           asyncCmdDone(cmd)
           doneFn()
         }
-        
+        saveUndoCmd()
         val p0 = _position
         var pf = newPoint
         pen.startMove(p0.x, p0.y)
@@ -382,6 +387,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realTurn(angle: Double, cmd: Command) {
+    pushHistory(UndoChangeInHeading(theta))
     var newTheta = theta + Utils.deg2radians(angle)
     if (newTheta < 0) newTheta = newTheta % (2*Math.Pi) + 2*Math.Pi
     else if (newTheta > 2*Math.Pi) newTheta = newTheta % (2*Math.Pi)
@@ -404,11 +410,13 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realPenUp(cmd: Command) {
+    pushHistory(UndoPenState(pen))
     pen = UpPen
   }
 
   private def realPenDown(cmd: Command) {
     if (pen != DownPen) {
+      pushHistory(UndoPenState(pen))
       pen = DownPen
       pen.updatePosition()
     }
@@ -437,19 +445,42 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realTowards(x: Double, y: Double, cmd: Command) {
+    pushHistory(UndoChangeInHeading(theta))
     val newTheta = towardsHelper(x, y)
     changeHeading(newTheta)
     turtle.repaint()
   }
 
   private def realJumpTo(x: Double, y: Double, cmd: Command) {
+
+    val undoCmd =
+      if (pen == UpPen)
+        UndoChangeInPos((_position.x, _position.y))
+    else
+      CompositeUndoCommand(
+        scala.List(
+          UndoPenState(pens._2),
+          UndoChangeInPos((_position.x, _position.y)),
+          UndoPenState(pens._1)
+        )
+      )
+    pushHistory(undoCmd)
+
     changePos(x, y)
     pen.updatePosition()
     turtle.repaint()
   }
 
   private def realMoveToCustom(x: Double, y: Double, cmd: Command) {
+    def undoCmd = CompositeUndoCommand(
+      scala.List(
+        UndoChangeInPos((_position.x, _position.y)),
+        UndoChangeInHeading(theta)
+      )
+    )
+
     realWorker2 {
+      pushHistory(undoCmd)
       val newTheta = towardsHelper(x, y)
       changeHeading(newTheta)
     }
@@ -464,14 +495,17 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realSetPenColor(color: Color, cmd: Command) {
+    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))
     pen.setColor(color)
   }
 
   private def realSetPenThickness(t: Double, cmd: Command) {
+    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))
     pen.setThickness(t)
   }
 
   private def realSetFillColor(color: Color, cmd: Command) {
+    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))
     pen.setFillColor(color)
   }
 
@@ -501,24 +535,24 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     beamsOffWorker()
   }
 
-  private def realWriteCustom(text: String, cmd: Command) {
-    val ptext = new PText(text)
-    pushHistory(UndoWrite(ptext))
-    realWorker4(cmd) {
+  private def realWrite(text: String, cmd: Command) {
+      val ptext = new PText(text)
+      pushHistory(UndoWrite(ptext))
       ptext.getTransformReference(true).setToScale(1, -1)
       ptext.setOffset(_position.x, _position.y)
       ptext.setFont(Turtle.writeFont)
       layer.addChild(layer.getChildrenCount-1, ptext)
       ptext.repaint()
       turtle.repaint()
-    }
   }
 
   private def realHide(cmd: Command) {
+    pushHistory(UndoVisibility(isVisible, areBeamsOn))
     hideWorker()
   }
 
   private def realShow(cmd: Command) {
+    pushHistory(UndoVisibility(isVisible, areBeamsOn))
     showWorker()
   }
 
@@ -609,12 +643,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       latch.countDown()
     }
 
-    def processCommandSync(cmd: Command, undoCmd: Option[UndoCommand] = None)(fn: => Unit) {
+    def processCommandSync(cmd: Command)(fn: => Unit) {
 //      Log.info("Command Being Processed: %s." format(cmd))
       if (cmd.valid.get) {
         throttler.throttle()
-
-        if (undoCmd.isDefined) pushHistory(undoCmd.get)
 
         try {
           realWorker2 {
@@ -632,11 +664,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       if (mailboxSize == 0) listener.pendingCommandsDone
     }
 
-    def processCommand(cmd: Command, undoCmd: Option[UndoCommand] = None)(fn: => Unit) {
+    def processCommand(cmd: Command)(fn: => Unit) {
       if (cmd.valid.get) {
         throttler.throttle()
-
-        if (undoCmd.isDefined) pushHistory(undoCmd.get)
 
         realWorker4(cmd) {
           fn
@@ -647,11 +677,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       }
     }
 
-    def processCommandCustom(cmd: Command, undoCmd: Option[UndoCommand] = None)(fn: => Unit) {
+    def processCommandCustom(cmd: Command)(fn: => Unit) {
       if (cmd.valid.get) {
         throttler.throttle()
-
-        if (undoCmd.isDefined) pushHistory(undoCmd.get)
 
         fn
       }
@@ -678,14 +706,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
 
     def realUndoCustom(undoCmd: Command) {
-      if (!history.isEmpty) {
-        val cmd = popHistory()
-        realWorker4(undoCmd) {
+      realWorker4(undoCmd) {
+        if (!history.isEmpty) {
+          val cmd = popHistory()
           undoHandler(cmd)
         }
-      }
-      else {
-        asyncCmdDone(undoCmd)
       }
     }
 
@@ -696,11 +721,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     loop {
       react {
         case cmd @ Forward(n, b) =>
-          processCommandCustom(cmd, Some(UndoChangeInPos((_position.x, _position.y)))) {
+          processCommandCustom(cmd) {
             realForwardCustom(n, cmd)
           }
         case cmd @ Turn(angle, b) =>
-          processCommand(cmd, Some(UndoChangeInHeading(theta))) {
+          processCommand(cmd) {
             realTurn(angle, cmd)
           }
         case cmd @ Clear(b) =>
@@ -713,40 +738,23 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
           }
           exit()
         case cmd @ PenUp(b) =>
-          processCommand(cmd, Some(UndoPenState(pen))) {
+          processCommand(cmd) {
             realPenUp(cmd)
           }
         case cmd @ PenDown(b) =>
-          processCommand(cmd, Some(UndoPenState(pen))) {
+          processCommand(cmd) {
             realPenDown(cmd)
           }
         case cmd @ Towards(x, y, b) =>
-          processCommand(cmd, Some(UndoChangeInHeading(theta))) {
+          processCommand(cmd) {
             realTowards(x, y, cmd)
           }
         case cmd @ JumpTo(x, y, b) =>
-          val undoCmd =
-            if (pen == UpPen)
-              UndoChangeInPos((_position.x, _position.y))
-          else
-            CompositeUndoCommand(
-              scala.List(
-                UndoPenState(pens._2),
-                UndoChangeInPos((_position.x, _position.y)),
-                UndoPenState(pens._1)
-              )
-            )
-          processCommand(cmd, Some(undoCmd)) {
+          processCommand(cmd) {
             realJumpTo(x, y, cmd)
           }
         case cmd @ MoveTo(x, y, b) =>
-          val undoCmd = CompositeUndoCommand(
-            scala.List(
-              UndoChangeInPos((_position.x, _position.y)),
-              UndoChangeInHeading(theta)
-            )
-          )
-          processCommandCustom(cmd, Some(undoCmd)) {
+          processCommandCustom(cmd) {
             realMoveToCustom(x, y, cmd)
           }
         case cmd @ SetAnimationDelay(d, b) =>
@@ -769,15 +777,15 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
             realGetWorker()
           }
         case cmd @ SetPenColor(color, b) =>
-          processCommand(cmd, Some(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))) {
+          processCommand(cmd) {
             realSetPenColor(color, cmd)
           }
         case cmd @ SetPenThickness(t, b) =>
-          processCommand(cmd, Some(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))) {
+          processCommand(cmd) {
             realSetPenThickness(t, cmd)
           }
         case cmd @ SetFillColor(color, b) =>
-          processCommand(cmd, Some(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))) {
+          processCommand(cmd) {
             realSetFillColor(color, cmd)
           }
         case cmd @ BeamsOn(b) =>
@@ -789,15 +797,15 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
             realBeamsOff(cmd)
           }
         case cmd @ Write(text, b) =>
-          processCommandCustom(cmd) {
-            realWriteCustom(text, cmd)
+          processCommand(cmd) {
+            realWrite(text, cmd)
           }
         case cmd @ Show(b) =>
-          processCommand(cmd, Some(UndoVisibility(isVisible, areBeamsOn))) {
+          processCommand(cmd) {
             realShow(cmd)
           }
         case cmd @ Hide(b) =>
-          processCommand(cmd, Some(UndoVisibility(isVisible, areBeamsOn))) {
+          processCommand(cmd) {
             realHide(cmd)
           }
         case cmd @ Undo =>
