@@ -104,7 +104,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   def delayFor(dist: Double): Long = {
-    if (_animationDelay < 10) {
+    if (_animationDelay < 1) {
       return _animationDelay
     }
     
@@ -112,7 +112,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     // Here we calculate delay for specified distance
     val speed = 100f / _animationDelay
     val delay = dist / speed
-    delay.toLong
+    delay.round
   }
 
   def dumpState() {
@@ -330,6 +330,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     val aDelay = delayFor(n)
 
     if (aDelay < 10) {
+      if (aDelay > 1) {
+        Thread.sleep(aDelay)
+      }
+
       realWorker4(cmd) {
         val pf = newPoint
         endMove(pf)
@@ -673,7 +677,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         handleCompositeCommand(cmds)
     }
 
-    def realUndo(undoCmd: Command) {
+    def realUndoCustom(undoCmd: Command) {
       if (!history.isEmpty) {
         val cmd = popHistory()
         realWorker4(undoCmd) {
@@ -797,8 +801,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
             realHide(cmd)
           }
         case cmd @ Undo =>
-          processCommand(cmd) {
-            realUndo(cmd)
+          processCommandCustom(cmd) {
+            realUndoCustom(cmd)
           }
       }
     }
