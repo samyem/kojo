@@ -307,7 +307,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   // GUI and actor threads. But after a certain Scala 2.8.0 nightly build, this
   // resulted in thread starvation in the Actor thread-pool
   
-  private def realForward(n: Double, cmd: Command) {
+  private def realForwardCustom(n: Double, cmd: Command) {
 
     def newPoint = {
       val p0 = _position
@@ -327,7 +327,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       return
     }
 
-    if (_animationDelay < 10) {
+    val aDelay = delayFor(n)
+
+    if (aDelay < 10) {
       realWorker4(cmd) {
         val pf = newPoint
         endMove(pf)
@@ -335,21 +337,30 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
     else {
       realWorker { doneFn =>
+        def manualEndMove(pt: Point2D.Double) {
+          endMove(pt)
+          asyncCmdDone(cmd)
+          doneFn()
+        }
         
         val p0 = _position
-        val pf = newPoint
+        var pf = newPoint
         pen.startMove(p0.x, p0.y)
-
-        val aDelay = delayFor(distanceTo(pf.x, pf.y))
 
         val lineAnimation = new PActivity(aDelay) {
           override def activityStep(elapsedTime: Long) {
             val frac = elapsedTime.toDouble / aDelay
             val currX = p0.x * (1-frac) + pf.x * frac
             val currY = p0.y * (1-frac) + pf.y * frac
-            pen.move(currX, currY)
-            turtle.setOffset(currX, currY)
-            turtle.repaint()
+            if (cmd.valid.get) {
+              pen.move(currX, currY)
+              turtle.setOffset(currX, currY)
+              turtle.repaint()
+            }
+            else {
+              pf = new Point2D.Double(currX, currY)
+              terminate()
+            }
           }
         }
 
@@ -357,9 +368,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
             override def activityStarted(activity: PActivity) {}
             override def activityStepped(activity: PActivity) {}
             override def activityFinished(activity: PActivity) {
-              endMove(pf)
-              asyncCmdDone(cmd)
-              doneFn()
+              manualEndMove(pf)
             }
           })
 
@@ -369,49 +378,39 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realTurn(angle: Double, cmd: Command) {
-    realWorker4(cmd) {
-      var newTheta = theta + Utils.deg2radians(angle)
-      if (newTheta < 0) newTheta = newTheta % (2*Math.Pi) + 2*Math.Pi
-      else if (newTheta > 2*Math.Pi) newTheta = newTheta % (2*Math.Pi)
-      changeHeading(newTheta)
-      turtle.repaint()
-    }
+    var newTheta = theta + Utils.deg2radians(angle)
+    if (newTheta < 0) newTheta = newTheta % (2*Math.Pi) + 2*Math.Pi
+    else if (newTheta > 2*Math.Pi) newTheta = newTheta % (2*Math.Pi)
+    changeHeading(newTheta)
+    turtle.repaint()
   }
 
   private def realClear() {
-    realWorker2 {
-      pen.clear()
-      layer.removeAllChildren() // get rid of stuff not written by pen, like text nodes
-      init()
-      turtle.repaint()
-      canvas.afterClear()
-    }
+    pen.clear()
+    layer.removeAllChildren() // get rid of stuff not written by pen, like text nodes
+    init()
+    turtle.repaint()
+    canvas.afterClear()
   }
 
   private def realRemove() {
-    realWorker2 {
-      pen.clear
-      layer.removeChild(turtle)
-      camera.removeLayer(layer)
-    }
+    pen.clear
+    layer.removeChild(turtle)
+    camera.removeLayer(layer)
   }
 
   private def realPenUp(cmd: Command) {
-    realWorker4(cmd) {
-      pen = UpPen
-    }
+    pen = UpPen
   }
 
   private def realPenDown(cmd: Command) {
-    realWorker4(cmd) {
-      if (pen != DownPen) {
-        pen = DownPen
-        pen.updatePosition()
-      }
+    if (pen != DownPen) {
+      pen = DownPen
+      pen.updatePosition()
     }
   }
 
-  private def realTowardsHelper(x: Double, y: Double): Double = {
+  private def towardsHelper(x: Double, y: Double): Double = {
     val (x0, y0) = (_position.x, _position.y)
     val delX = x - x0
     val delY = y - y0
@@ -434,57 +433,42 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realTowards(x: Double, y: Double, cmd: Command) {
-    realWorker4(cmd) {
-      val newTheta = realTowardsHelper(x, y)
-      changeHeading(newTheta)
-      turtle.repaint()
-    }
+    val newTheta = towardsHelper(x, y)
+    changeHeading(newTheta)
+    turtle.repaint()
   }
 
   private def realJumpTo(x: Double, y: Double, cmd: Command) {
-    realWorker4(cmd) {
-      changePos(x, y)
-      pen.updatePosition()
-      turtle.repaint()
-    }
+    changePos(x, y)
+    pen.updatePosition()
+    turtle.repaint()
   }
 
-  private def realMoveTo(x: Double, y: Double, cmd: Command) {
+  private def realMoveToCustom(x: Double, y: Double, cmd: Command) {
     realWorker2 {
-      val newTheta = realTowardsHelper(x, y)
+      val newTheta = towardsHelper(x, y)
       changeHeading(newTheta)
     }
-    realForward(distanceTo(x,y), cmd)
+    realForwardCustom(distanceTo(x,y), cmd)
   }
 
   private def realSetAnimationDelay(d: Long, cmd: Command) {
-    realWorker4(cmd) {
-      _animationDelay = d
-    }
+    _animationDelay = d
   }
 
   private def realGetWorker() {
-    realWorker2 {
-      // noop
-    }
   }
 
   private def realSetPenColor(color: Color, cmd: Command) {
-    realWorker4(cmd) {
-      pen.setColor(color)
-    }
+    pen.setColor(color)
   }
 
   private def realSetPenThickness(t: Double, cmd: Command) {
-    realWorker4(cmd) {
-      pen.setThickness(t)
-    }
+    pen.setThickness(t)
   }
 
   private def realSetFillColor(color: Color, cmd: Command) {
-    realWorker4(cmd) {
-      pen.setFillColor(color)
-    }
+    pen.setFillColor(color)
   }
 
   private def beamsOnWorker() {
@@ -506,18 +490,14 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realBeamsOn(cmd: Command) {
-    realWorker4(cmd) {
-      beamsOnWorker()
-    }
+    beamsOnWorker()
   }
 
   private def realBeamsOff(cmd: Command) {
-    realWorker4(cmd) {
-      beamsOffWorker()
-    }
+    beamsOffWorker()
   }
 
-  private def realWrite(text: String, cmd: Command) {
+  private def realWriteCustom(text: String, cmd: Command) {
     val ptext = new PText(text)
     pushHistory(UndoWrite(ptext))
     realWorker4(cmd) {
@@ -531,15 +511,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realHide(cmd: Command) {
-    realWorker4(cmd) {
-      hideWorker()
-    }
+    hideWorker()
   }
 
   private def realShow(cmd: Command) {
-    realWorker4(cmd) {
-      showWorker()
-    }
+    showWorker()
   }
 
   private def hideWorker() {
@@ -637,12 +613,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         if (undoCmd.isDefined) pushHistory(undoCmd.get)
 
         try {
-          fn
+          realWorker2 {
+            fn
+          }
         }
-//        catch {
-//          case t: Throwable =>
-//            canvas.outputFn("Problem: " + t.toString())
-//        }
         finally {
           listener.commandDone(cmd)
         }
@@ -655,7 +629,21 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
 
     def processCommand(cmd: Command, undoCmd: Option[UndoCommand] = None)(fn: => Unit) {
-//      Log.info("Command Being Processed: %s." format(cmd))
+      if (cmd.valid.get) {
+        throttler.throttle()
+
+        if (undoCmd.isDefined) pushHistory(undoCmd.get)
+
+        realWorker4(cmd) {
+          fn
+        }
+      }
+      else {
+        listener.commandDiscarded(cmd)
+      }
+    }
+
+    def processCommandCustom(cmd: Command, undoCmd: Option[UndoCommand] = None)(fn: => Unit) {
       if (cmd.valid.get) {
         throttler.throttle()
 
@@ -704,8 +692,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     loop {
       react {
         case cmd @ Forward(n, b) =>
-          processCommand(cmd, Some(UndoChangeInPos((_position.x, _position.y)))) {
-            realForward(n, cmd)
+          processCommandCustom(cmd, Some(UndoChangeInPos((_position.x, _position.y)))) {
+            realForwardCustom(n, cmd)
           }
         case cmd @ Turn(angle, b) =>
           processCommand(cmd, Some(UndoChangeInHeading(theta))) {
@@ -754,11 +742,14 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
               UndoChangeInHeading(theta)
             )
           )
-          processCommand(cmd, Some(undoCmd)) {
-            realMoveTo(x, y, cmd)
+          processCommandCustom(cmd, Some(undoCmd)) {
+            realMoveToCustom(x, y, cmd)
           }
         case cmd @ SetAnimationDelay(d, b) =>
-          processCommand(cmd) {
+          // block till delay is set to avoid race condition
+          // in functions like realForward which look at
+          // animation delay in the actor thread before deciding what to do
+          processCommandSync(cmd) {
             realSetAnimationDelay(d, cmd)
           }
         case cmd @ GetAnimationDelay(l, b) =>
@@ -794,8 +785,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
             realBeamsOff(cmd)
           }
         case cmd @ Write(text, b) =>
-          processCommand(cmd) {
-            realWrite(text, cmd)
+          processCommandCustom(cmd) {
+            realWriteCustom(text, cmd)
           }
         case cmd @ Show(b) =>
           processCommand(cmd, Some(UndoVisibility(isVisible, areBeamsOn))) {
