@@ -165,8 +165,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   @volatile private var cmdBool = new AtomicBoolean(true)
   @volatile private var listener: TurtleListener = NoopTurtleListener
 
-  private [turtle] def thetaDegrees = Utils.rad2degrees(theta)
-  private [turtle] def thetaRadians = theta
+  private def thetaDegrees = Utils.rad2degrees(theta)
+  private def thetaRadians = theta
 
   private def enqueueCommand(cmd: Command) {
     if (removed) return
@@ -222,6 +222,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       case 'animationDelay => GetAnimationDelay(latch, cmdBool)
       case 'position => GetPosition(latch, cmdBool)
       case 'heading => GetHeading(latch, cmdBool)
+      case 'state => GetState(latch, cmdBool)
     }
 
     enqueueCommand(cmd)
@@ -248,6 +249,30 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   def heading: Double = {
     getWorker('heading)
     thetaDegrees
+  }
+
+  def state: SpriteState = {
+    def textNodes: scala.List[PText] = {
+      var nodes: scala.List[PText] = Nil
+      val iter = layer.getChildrenIterator
+      while (iter.hasNext) {
+        val child = iter.next
+        if (child.isInstanceOf[PText]) {
+          nodes = child.asInstanceOf[PText] :: nodes
+        }
+      }
+      nodes
+    }
+
+    import java.lang.{Double => JDouble}
+
+    getWorker('state)
+    SpriteState(JDouble.doubleToLongBits(_position.x), JDouble.doubleToLongBits(_position.y),
+                JDouble.doubleToLongBits(thetaDegrees),
+                pen.getColor, JDouble.doubleToLongBits(pen.getThickness), pen.getFillColor,
+                pen,
+                textNodes,
+                isVisible, areBeamsOn)
   }
 
   // invoke fn in GUI thread, supplying it doneFn to call at the end,
@@ -536,14 +561,14 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realWrite(text: String, cmd: Command) {
-      val ptext = new PText(text)
-      pushHistory(UndoWrite(ptext))
-      ptext.getTransformReference(true).setToScale(1, -1)
-      ptext.setOffset(_position.x, _position.y)
-      ptext.setFont(Turtle.writeFont)
-      layer.addChild(layer.getChildrenCount-1, ptext)
-      ptext.repaint()
-      turtle.repaint()
+    val ptext = new PText(text)
+    pushHistory(UndoWrite(ptext))
+    ptext.getTransformReference(true).setToScale(1, -1)
+    ptext.setOffset(_position.x, _position.y)
+    ptext.setFont(Turtle.writeFont)
+    layer.addChild(layer.getChildrenCount-1, ptext)
+    ptext.repaint()
+    turtle.repaint()
   }
 
   private def realHide(cmd: Command) {
@@ -811,6 +836,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         case cmd @ Undo =>
           processCommandCustom(cmd) {
             realUndoCustom(cmd)
+          }
+        case cmd @ GetState(l, b) =>
+          processGetCommand(cmd, l) {
+            realGetWorker()
           }
       }
     }

@@ -48,6 +48,7 @@ case class Show(v: AtomicBoolean) extends Command(v)
 case class Hide(v: AtomicBoolean) extends Command(v)
 case object CommandDone
 case object Undo extends Command(Command.AlwaysValid)
+case class GetState(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
 
 abstract sealed class UndoCommand
 case class UndoChangeInPos(oldPos: (Double, Double)) extends UndoCommand
@@ -58,9 +59,9 @@ case class UndoWrite(ptext: PText) extends UndoCommand
 case class UndoVisibility(visible: Boolean, beamsOn: Boolean) extends UndoCommand
 case class CompositeUndoCommand(cmds: List[UndoCommand]) extends UndoCommand
 
-case class SpriteState(oldPos: (Double, Double),
-                       oldHeading: Double,
-                       color: Color, thickness: Double, fillColor: Color,
+case class SpriteState(posx: Long, posy: Long,
+                       heading: Long,
+                       color: Color, thickness: Long, fillColor: Color,
                        currPen: Pen,
                        textNodes: List[PText],
                        visible: Boolean, beamsOn: Boolean)

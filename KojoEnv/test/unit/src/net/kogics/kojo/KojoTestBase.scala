@@ -16,6 +16,6 @@
 package net.kogics.kojo
 
 class KojoTestBase {
-  SpriteCanvas.initedInstance(KojoCtx.instance());
-  geogebra.GeoGebraCanvas.initedInstance(KojoCtx.instance());
+  SpriteCanvas.initedInstance(KojoCtx.instance())
+  geogebra.GeoGebraCanvas.initedInstance(KojoCtx.instance())
 }
