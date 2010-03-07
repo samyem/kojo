@@ -153,8 +153,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     layer.addChild(turtle)
 
     pen = DownPen
-    pen.init
-    resetRotation
+    pen.init()
+    resetRotation()
 
     showWorker()
     beamsOffWorker()
@@ -639,7 +639,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     else beamsOffWorker()
   }
 
-  private [turtle] def resetRotation() {
+  private def resetRotation() {
     changeHeading(Utils.deg2radians(90))
   }
 

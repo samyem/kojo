@@ -85,7 +85,7 @@ class TurtleTest extends KojoTestBase {
   @Test
   def testMotion3 {
     turtle.moveTo(-100, -100)
-    turtle.resetRotation()
+    turtle.setHeading(90)
     turtle.turn(-45)
     turtle.forward(Math.sqrt(2 * 100 * 100))
     val p = turtle.position
