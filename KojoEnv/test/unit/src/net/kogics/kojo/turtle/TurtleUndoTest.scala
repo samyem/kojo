@@ -66,7 +66,7 @@ class TurtleUndoTest extends KojoTestBase {
   }
 
   @Test
-  def testTurn1 {
+  def testTurnUndo1 {
     val s0 = turtle.state
     turtle.turn(40)
     turtle.undo()
