@@ -24,6 +24,7 @@ public final class Samples implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
         ces.codePane().setText(SampleCode.get(e).trim());
+        ces.codePane().setCaretPosition(0);
         CodeEditorTopComponent.findInstance().requestActive();
     }
 }

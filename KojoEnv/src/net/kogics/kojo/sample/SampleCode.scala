@@ -468,7 +468,7 @@ rail(t13)
 
   val Rangoli = """
 def border(t: Turtle, a: Double) {
-    t.setAnimationDelay(100)
+    t.setAnimationDelay(200)
     t.setPenColor(black)
     t.right
     t.forward(1200)
@@ -490,7 +490,7 @@ def border(t: Turtle, a: Double) {
 }
 
 def flower(tt:Turtle, c:Color) {
-    tt.setAnimationDelay(20)
+    tt.setAnimationDelay(400)
     tt.setPenColor(black)
     tt.setFillColor(c)
     repeat(4){
