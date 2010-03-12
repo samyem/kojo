@@ -427,7 +427,7 @@ Here's a partial list of available commands:
   moveTo(x, y) - Move the turtle to the point (x, y)
   setHeading(angle) - Set the turtle's heading (the direction in which it is pointing)
   setPosition(x, y) - Set the turtle's position (without making it draw any lines). The turtle's heading is not changed
-  home() - Move the turtle to its original loaction, and make it point north.
+  home() - Move the turtle to its original location, and make it point north
   write(text) - Make the turtle write the specified text at its current location
   undo() - Undo the last turtle command
 

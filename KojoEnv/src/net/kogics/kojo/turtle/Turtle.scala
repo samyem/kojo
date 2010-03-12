@@ -332,10 +332,12 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   // GUI and actor threads. But after a certain Scala 2.8.0 nightly build, this
   // resulted in thread starvation in the Actor thread-pool
   
-  private def realForwardCustom(n: Double, cmd: Command) {
+  private def realForwardCustom(n: Double, cmd: Command, saveUndoInfo: Boolean = true) {
 
-    def saveUndoCmd() {
-      pushHistory(UndoChangeInPos((_position.x, _position.y)))
+    def maybeSaveUndoCmd() {
+      if (saveUndoInfo) {
+        pushHistory(UndoChangeInPos((_position.x, _position.y)))
+      }
     }
 
     def newPoint = {
@@ -364,7 +366,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       }
 
       realWorker4(cmd) {
-        saveUndoCmd()
+        maybeSaveUndoCmd()
         val pf = newPoint
         endMove(pf)
       }
@@ -376,7 +378,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
           asyncCmdDone(cmd)
           doneFn()
         }
-        saveUndoCmd()
+        maybeSaveUndoCmd()
         val p0 = _position
         var pf = newPoint
         pen.startMove(p0.x, p0.y)
@@ -509,7 +511,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       val newTheta = towardsHelper(x, y)
       changeHeading(newTheta)
     }
-    realForwardCustom(distanceTo(x,y), cmd)
+    realForwardCustom(distanceTo(x,y), cmd, false)
   }
 
   private def realSetAnimationDelay(d: Long, cmd: Command) {
@@ -730,12 +732,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         handleCompositeCommand(cmds)
     }
 
-    def realUndoCustom(undoCmd: Command) {
-      realWorker4(undoCmd) {
-        if (!history.isEmpty) {
-          val cmd = popHistory()
-          undoHandler(cmd)
-        }
+    def realUndo(undoCmd: Command) {
+      if (!history.isEmpty) {
+        val cmd = popHistory()
+        undoHandler(cmd)
       }
     }
 
@@ -834,8 +834,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
             realHide(cmd)
           }
         case cmd @ Undo =>
-          processCommandCustom(cmd) {
-            realUndoCustom(cmd)
+          processCommand(cmd) {
+            realUndo(cmd)
           }
         case cmd @ GetState(l, b) =>
           processGetCommand(cmd, l) {

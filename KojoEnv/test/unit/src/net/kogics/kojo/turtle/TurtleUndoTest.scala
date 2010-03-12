@@ -116,4 +116,27 @@ class TurtleUndoTest extends KojoTestBase {
       states = states.tail
     }
   }
+
+  @Test
+  def testMoveToUndo1 {
+    val s0 = turtle.state
+    turtle.moveTo(100, 100)
+    turtle.undo()
+    val s1 = turtle.state
+
+    assertEquals(s0, s1)
+  }
+
+  @Test
+  def testManyMoveToUndo {
+    val propForwardUndo = forAll { stepSize: Int =>
+      val s0 = turtle.state
+      turtle.moveTo(100, 100)
+      turtle.undo()
+      val s1 = turtle.state
+
+      s0 == s1
+    }
+    assertTrue(SCTest.check(propForwardUndo).passed)
+  }
 }
