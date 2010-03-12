@@ -423,17 +423,19 @@ Here's a partial list of available commands:
   right(angle) - Turn the turtle right through a specified angle
   left() - Turn the turtle left
   left(angle) - Turn the turtle left through a specified angle
-  towards(x, y) - Make the turtle turn towards the point (x, y)
-  moveTo(x, y) - Make the turtle move to the point (x, y)
+  towards(x, y) - Turn the turtle towards the point (x, y)
+  moveTo(x, y) - Move the turtle to the point (x, y)
   setHeading(angle) - Set the turtle's heading (the direction in which it is pointing)
-  setPosition(x, y) - Set the turtle's position (without making it draw any lines). The turtle's heading is not changed.
+  setPosition(x, y) - Set the turtle's position (without making it draw any lines). The turtle's heading is not changed
+  home() - Move the turtle to its original loaction, and make it point north.
   write(text) - Make the turtle write the specified text at its current location
   undo() - Undo the last turtle command
 
-  clear() - Clear the screen. To bring the turtle to the center after this step, just resize the turtle window.
+  clear() - Clear the screen. To bring the turtle to the center after this step, just resize the turtle canvas
+  zoom(factor, cx, cy) - Zoom in by the given factor, and position (cx, cy) at the center of the turtle canvas
 
-  penDown() - Make the turtle put its pen down to draw a line as it moves. The pen is down by default
-  penUp() - Make the turtle not draw a line as it moves
+  penDown() - Make the turtle put its pen down - to draw lines as it moves. The pen is down by default
+  penUp() - Make the turtle not draw lines as it moves
   setPenColor(color) - Specify the color of the pen that the turtle draws with
   setPenThickness(thickness) - Specify the thickness (as an number) of the pen that the turtle draws with
   setFillColor(color) - Specify the fill color of the areas drawn by the turtle
