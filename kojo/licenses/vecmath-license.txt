@@ -1,6 +1,0 @@
-Vecmath has been obtained from:
-http://github.com/Villane/vecmath
-
-As per the author, Erkki Lindpere, this version of VecMath is licensed under the New BSD License. A copy of this license can be obtained from:
-http://www.opensource.org/licenses/bsd-license.php
-

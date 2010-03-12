@@ -12,7 +12,6 @@ Kojo makes use of the following third-party software:
   Script Editor
 - Piccolo2D (http://www.piccolo2d.org) for 2D Graphics
 - GeoGebra (http://www.geogebra.org) for Interactive Geometry and Algebra
-- Vecmath (http://github.com/Villane/vecmath)
 
 Kojo also makes use of the following third-party software for unit testing:
 - JMock (this includes the CGLib, Hamcrest, and Objenesis libraries)
