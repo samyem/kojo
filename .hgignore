@@ -15,4 +15,14 @@ proguard
 .*\~$
 .*\.pack.gz
 .*\.swp
-^installer
+^installer/bin/
+^installer/etc/
+^installer/harness/
+^installer/ide12/
+^installer/kojo/
+^installer/licenses/
+^installer/platform11/
+^installer/puzzles/
+^installer/icons/
+^installer/scratch/
+
