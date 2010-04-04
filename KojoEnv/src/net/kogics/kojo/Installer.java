@@ -25,7 +25,7 @@ public class Installer extends ModuleInstall {
 
     @Override
     public void restored() {
-//        System.setProperty("actors.corePoolSize", "8");
+        System.setProperty("actors.corePoolSize", "8");
         System.setProperty("actors.maxPoolSize", "512");
         GeoGebraCanvas.initedInstance((KojoCtx)KojoCtx.instance());
         SpriteCanvas.initedInstance((KojoCtx)KojoCtx.instance());

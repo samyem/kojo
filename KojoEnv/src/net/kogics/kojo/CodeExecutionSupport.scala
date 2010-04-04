@@ -563,7 +563,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
     try {
       // always add full code to history
-      historyManager.codeRun(code, selectedCode != null, (selStart, selEnd))
+      historyManager.codeRun(code, (selectedCode != null) || !isSingleLine(code), (selStart, selEnd))
     }
     catch {
       case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))
@@ -715,7 +715,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val ErrorColor = new Color(0xff1a1a) // reddish
     val SuccessColor = new Color(0x33ff33) // greenish
     val NeutralColor = new Color(0xf0f0f0) // very light gray
-    val StripWidth = 3
+    val StripWidth = 6
 
     setBackground(NeutralColor)
     setPreferredSize(new Dimension(StripWidth, 10))

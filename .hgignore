@@ -15,4 +15,4 @@ proguard
 .*\~$
 .*\.pack.gz
 .*\.swp
-
+^installer

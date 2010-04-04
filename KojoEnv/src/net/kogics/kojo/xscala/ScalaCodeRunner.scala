@@ -200,8 +200,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     }
 
     def initInterp() {
-      val iSettings = new Settings {
-        override protected def classpathDefault = createCp(
+      val iSettings = new Settings()
+      iSettings.classpath.append(createCp(
           List("modules/ext/scala-library.jar",
                "modules/ext/scala-compiler.jar",
                "modules/net-kogics-kojo.jar",
@@ -209,8 +209,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
                "modules/ext/piccolo2d-extras-1.3-SNAPSHOT.jar",
                "modules/geogebra.jar"
           )
-        )
-      }
+        ))
 
       interp = new Interpreter(iSettings, new GuiPrintWriter()) {
         override protected def parentClassLoader = classOf[ScalaCodeRunner].getClassLoader
@@ -313,7 +312,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
       // warning! calling into interp while a computation is running within the actor
       // might lead to problems
       val completions = outputHandler.withOutputSuppressed {
-        interp.membersOfIdentifier(identifier).filter {s => !MethodDropFilter.contains(s)}
+        interp.methodsOf(identifier).distinct.filter {s => !MethodDropFilter.contains(s)}
       }
       Log.fine("Completions: " + completions)
       completions
@@ -354,7 +353,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
         (Nil, 0)
       }
       else {
-        val c2s = Keywords.filter {s => s.startsWith(prefix)}
+        val c2s = Keywords.filter {s => s != null && s.startsWith(prefix)}
         (c2s, prefix.length)
       }
     }
@@ -638,6 +637,9 @@ class InterpOutputHandler(ctx: RunContext) {
   }
 
   private def reportNonExceptionOutput(output: String) {
+    // Note - the call sequence has changed, with \r\ns coming
+    // in separate calls. Hence the if block right at the beginning
+    // of the method below
     // Interp sends in one line at a time for error output
     // we get three calls for an error:
     // (1) err msg (2) err text (3) hat
@@ -652,6 +654,10 @@ class InterpOutputHandler(ctx: RunContext) {
       msg.contains("Unmatched closing brace")
     }
 
+    if ((currMode != OutputMode) && (output == "\r\n" || output == "\n")) {
+      ctx.println(output)
+      return
+    }
 
     currMode match {
       case OutputMode =>

@@ -28,7 +28,10 @@ import net.kogics.kojo.core.SCanvas
 import net.kogics.kojo.util.Utils
 
 import org.openide.awt.StatusDisplayer
+
 import scala.collection._
+import scala.{math => Math}
+
 import figure.Figure
 import turtle.Turtle
 import turtle.TurtleListener

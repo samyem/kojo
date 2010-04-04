@@ -30,6 +30,7 @@ import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate
 import scala.collection._
 import scala.actors._
 import scala.actors.Actor._
+import scala.{math => Math}
 
 import net.kogics.kojo._
 import net.kogics.kojo.util._
