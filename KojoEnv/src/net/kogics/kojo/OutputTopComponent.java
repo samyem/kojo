@@ -14,10 +14,13 @@
  */
 package net.kogics.kojo;
 
+import java.awt.Rectangle;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.JViewport;
 import javax.swing.text.DefaultEditorKit;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -40,8 +43,11 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
     private static final String PREFERRED_ID = "OutputTopComponent";
     JComponent ioComp;
     CallBacks ioCb;
+    JEditorPane outputPane;
 
-    public OutputTopComponent() {
+    public
+
+     OutputTopComponent() {
         initComponents();
 
         // Disable cut key
@@ -118,7 +124,10 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
         }
         ioComp = comp;
         ioCb = cb;
-        add(comp);
+        add(ioComp);
+
+        JViewport vp = (JViewport) ((JComponent) ioComp.getComponent(0)).getComponent(0);
+        outputPane = (JEditorPane) vp.getComponent(0);
 
         // Link local actions to Menu
         Object findKey = SystemAction.get(org.openide.actions.FindAction.class).getActionMapKey();
@@ -213,5 +222,10 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
 
     public void switchFocusToCodeEditor() {
         CodeEditorTopComponent.findInstance().requestActive();
+    }
+
+    public void scrollToEnd() {
+        int len = outputPane.getDocument().getLength();
+        outputPane.setCaretPosition(len - 1);
     }
 }

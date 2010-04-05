@@ -281,6 +281,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           if (!pendingCommands) {
             stopButton.setEnabled(false)
           }
+
+          Utils.runInSwingThread {
+            OutputTopComponent.findInstance().scrollToEnd()
+          }
+
           runMonitor.onRunEnd()
         }
 
