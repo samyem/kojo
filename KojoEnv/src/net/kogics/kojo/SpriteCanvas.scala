@@ -214,6 +214,13 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
+  def setBackgroundColor(color: java.awt.Color) {
+    Utils.runInSwingThread {
+      setBackground(color)
+      repaint()
+    }
+  }
+
   def afterClear() = {
     // initCamera()
   }
