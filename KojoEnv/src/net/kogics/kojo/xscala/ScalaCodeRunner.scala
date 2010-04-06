@@ -645,6 +645,10 @@ Here's a partial list of available commands:
 
     val O = PVector(0, 0)
 
+    def fill (color: java.awt.Color) { tCanvas.figure0.setFillColor(color) }
+    def noFill { tCanvas.figure0.setFillColor(null) }
+    def stroke (color: java.awt.Color) { tCanvas.figure0.setPenColor(color) }
+    def noStroke { tCanvas.figure0.setPenColor(null) }
   }
 
   object CanvasAPI  /* extends core.Figure */ {
