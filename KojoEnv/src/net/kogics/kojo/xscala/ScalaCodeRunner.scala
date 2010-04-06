@@ -573,6 +573,14 @@ Here's a partial list of available commands:
   }
 
   object StagingAPI {
+    /* DISCLAIMER
+     This interface is written to approximately conform
+     to the Processing API as described in the reference at
+     <URL: http://processing.org/reference/>.
+     The implementation code is the work of Peter Lewerin
+     (peter.lewerin@tele2.se) and is not in any way
+     derived from the Processing source.
+    */
     import core._
     import math._
 
@@ -692,15 +700,25 @@ Here's a partial list of available commands:
       def mkColor(value1: Double, value2: Double, value3: Double, alpha: Double): Color = {
         ColorControls.mode match {
           case 'RGB =>
-            new Color((value1 / range1).toFloat, (value2 / range2).toFloat, (value3 / range3).toFloat, (alpha / range4).toFloat)
+            val r = (value1 / range1).toFloat
+            val g = (value2 / range2).toFloat
+            val b = (value3 / range3).toFloat
+            val a = (alpha / range4).toFloat
+            new Color(r, g, b, a)
           case 'HSB =>
-            val c = java.awt.Color.HSBtoRGB((value1 / range1).toFloat, (value2 / range2).toFloat, (value3 / range3).toFloat)
-            new Color((255 * alpha / range4).toInt << 24 | c, true)
+            val h = (value1 / (range1 + 1)).toFloat
+            val s = (value2 / range2).toFloat
+            val b = (value3 / range3).toFloat
+            val a = (alpha / range4).toFloat
+            val c = java.awt.Color.HSBtoRGB(h, s, b)
+            new Color((255 * a).toInt << 24 | c, true)
         }
       }
-      def mkColor(c: Color, alpha: Double) = new Color((255 * alpha / range4).toInt << 24 | c.getRGB, true)
+      def mkColor(c: Color, alpha: Double) =
+        new Color((255 * alpha / range4).toInt << 24 | c.getRGB, true)
       def mkColor(c: Int) = new Color(c)
-      def mkColor(c: Int, alpha: Double) = new Color((255 * alpha / range4).toInt << 24 | c, true)
+      def mkColor(c: Int, alpha: Double) =
+        new Color((255 * alpha / range4).toInt << 24 | c, true)
     }
 
     def colorMode(mode: Symbol) { ColorControls.setMode(mode) }
@@ -744,6 +762,7 @@ Here's a partial list of available commands:
     def background (c: java.awt.Color, alpha: Double) { background(color(c, alpha)) }
     def background (c: Int) { background(color(c)) }
     def background (c: Int, alpha: Double) { background(color(c, alpha)) }
+
     def fill(gray: Double) { fill(color(gray)) }
     def fill(gray: Double, alpha: Double) { fill(color(gray, alpha)) }
     def fill(value1: Double, value2: Double, value3: Double) {
@@ -757,6 +776,7 @@ Here's a partial list of available commands:
     def fill (c: Int) { fill(color(c)) }
     def fill (c: Int, alpha: Double) { fill(color(c, alpha)) }
     def noFill { tCanvas.figure0.setFillColor(null) }
+
     def stroke(gray: Double) { stroke(color(gray)) }
     def stroke(gray: Double, alpha: Double) { stroke(color(gray, alpha)) }
     def stroke(value1: Double, value2: Double, value3: Double) {
@@ -770,6 +790,17 @@ Here's a partial list of available commands:
     def stroke (c: Int) { stroke(color(c)) }
     def stroke (c: Int, alpha: Double) { stroke(color(c, alpha)) }
     def noStroke { tCanvas.figure0.setPenColor(null) }
+
+    def alpha(c: java.awt.Color) = c.getAlpha
+    def red(c: java.awt.Color) = c.getRed
+    def blue(c: java.awt.Color) = c.getBlue
+    def green(c: java.awt.Color) = c.getGreen
+    def hsb(c: java.awt.Color) = java.awt.Color.RGBtoHSB(c.getRed, c.getBlue, c.getGreen, null)
+    // TODO def hue(c: java.awt.Color)
+    def saturation(c: java.awt.Color) = hsb(c)(1) * 255
+    def brightness(c: java.awt.Color) = hsb(c)(2) * 255
+    // TODO blendColor
+    // TODO lerpColor
 
     def sq(x: Double) = x * x
 
