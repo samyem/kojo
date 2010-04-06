@@ -574,12 +574,13 @@ Here's a partial list of available commands:
 
   object StagingAPI {
     import core._
+    import math._
 
     implicit def tupleDToPVector(tuple: (Double, Double)) = PVector(tuple._1, tuple._2)
     implicit def tupleIToPVector(tuple: (Int, Int)) = PVector(tuple._1, tuple._2)
 
     class PVector (val x: Double, val y: Double) {
-      def size = Math.sqrt(x * x + y * y)
+      def size = sqrt(x * x + y * y)
       def mag = size
       def dist (that: PVector): Double = (this - that) size
       def dot (that: PVector) = this.x * that.x + this.y * that.y
@@ -765,7 +766,7 @@ Here's a partial list of available commands:
     def sq(x: Double) = x * x
 
     def dist(x0: Double, y0: Double, x1: Double, y1: Double) =
-      Math.sqrt(sq(x0 - x1) + sq(y0 - y1))
+      sqrt(sq(x0 - x1) + sq(y0 - y1))
 
     def day    = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_MONTH)
     def hour   = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
