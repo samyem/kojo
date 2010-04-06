@@ -26,4 +26,5 @@ trait SCanvas extends TurtleMover {
   def gridOff(): Unit
   def newFigure(x: Int, y: Int): Figure
   def zoom(factor: Double, cx: Double, cy: Double)
+  def setBackgroundColor(color: java.awt.Color): Unit
 }
