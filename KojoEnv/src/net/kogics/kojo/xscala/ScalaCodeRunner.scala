@@ -638,6 +638,16 @@ Here's a partial list of available commands:
         this
       }
 
+      def project (pts: Seq[PVector]) = {
+        if (pts nonEmpty) {
+          var p = pts.head + this
+          for (px <- pts.tail) {
+            p = p line (px + this)
+          }
+        }
+        this
+      }
+
       override def toString = "Staging.PVector(" + x + ", " + y + ")"
     }
     object PVector {
