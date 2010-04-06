@@ -607,13 +607,21 @@ Here's a partial list of available commands:
         that
       }
 
-      def rect (that: PVector) = {
-        val bLeftX = if (this.x <= that.x) this.x else that.x
-        val bLeftY = if (this.y <= that.y) this.y else that.y
-        val uRightX = if (this.x <= that.x) that.x else this.x
-        val uRightY = if (this.y <= that.y) that.y else this.y
-        tCanvas.figure0.rectangle(bLeftX, bLeftY, uRightX, uRightY)
-        that
+      def rect (that: PVector): PVector = {
+        val x1 = this.x + that.x
+        val y1 = this.y + that.y
+        val bLeftX = if (this.x <= x1) this.x else x1
+        val bLeftY = if (this.y <= y1) this.y else y1
+        val uRightX = if (this.x <= x1) x1 else this.x
+        val uRightY = if (this.y <= y1) y1 else this.y
+        val width  = uRightX - bLeftX
+        val height = uRightY - bLeftY
+        this.rect(width, height)
+      }
+
+      def rect (width: Double, height: Double): PVector = {
+        tCanvas.figure0.rectangle(this.x, this.y, width, height)
+        (this.x + width, this.y + height)
       }
 
       def triangle (v1: PVector, v2: PVector) = {
