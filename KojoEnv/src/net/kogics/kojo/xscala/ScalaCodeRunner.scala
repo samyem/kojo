@@ -656,10 +656,110 @@ Here's a partial list of available commands:
 
     val O = PVector(0, 0)
 
-    def background (color: java.awt.Color) { tCanvas.setBackgroundColor(color) }
-    def fill (color: java.awt.Color) { tCanvas.figure0.setFillColor(color) }
+    object ColorControls {
+      import java.awt.Color
+
+      var mode   = 'RGB
+      var range1 = 255.
+      var range2 = 255.
+      var range3 = 255.
+      var range4 = 255.
+
+      def setMode (m: Symbol) = m match {
+        case 'RGB => mode = m
+        case 'HSB => mode = m
+        case _    => error("Unknown color mode " + m)
+      }
+
+      def mkColor(gray: Float): Color = new Color(gray, gray, gray)
+      def mkColor(gray: Float, alpha: Float): Color = {
+        new Color(gray, gray, gray, alpha)
+      }
+      def mkColor(gray: Double): Color = mkColor(gray.toFloat)
+      def mkColor(gray: Double, alpha: Double): Color = {
+        mkColor(gray.toFloat, alpha.toFloat)
+      }
+      def mkColor(value1: Double, value2: Double, value3: Double): Color = mkColor(value1, value2, value3, range4)
+      def mkColor(value1: Double, value2: Double, value3: Double, alpha: Double): Color = {
+        ColorControls.mode match {
+          case 'RGB =>
+            new Color((value1 / range1).toFloat, (value2 / range2).toFloat, (value3 / range3).toFloat, (alpha / range4).toFloat)
+          case 'HSB =>
+            val c = java.awt.Color.HSBtoRGB((value1 / range1).toFloat, (value2 / range2).toFloat, (value3 / range3).toFloat)
+            new Color((255 * alpha / range4).toInt << 24 | c, true)
+        }
+      }
+      def mkColor(c: Color, alpha: Double) = new Color((255 * alpha / range4).toInt << 24 | c.getRGB, true)
+      def mkColor(c: Int) = new Color(c)
+      def mkColor(c: Int, alpha: Double) = new Color((255 * alpha / range4).toInt << 24 | c, true)
+    }
+
+    def colorMode(mode: Symbol) { ColorControls.setMode(mode) }
+    def colorMode(mode: Symbol, range: Double)  {
+      colorMode(mode)
+      ColorControls.range1 = range
+      ColorControls.range2 = range
+      ColorControls.range3 = range
+    }
+    def colorMode(mode: Symbol, range1: Double, range2: Double, range3: Double) {
+      colorMode(mode)
+      ColorControls.range1 = range1
+      ColorControls.range2 = range2
+      ColorControls.range3 = range3
+    }
+    def colorMode(mode: Symbol, range1: Double, range2: Double, range3: Double, range4: Double) {
+      colorMode(mode, range1, range2, range3)
+      ColorControls.range4 = range4
+    }
+
+    def color(gray: Double) = ColorControls.mkColor(gray)
+    def color(gray: Double, alpha: Double) = ColorControls.mkColor(gray, alpha)
+    def color(value1: Double, value2: Double, value3: Double) = {
+      ColorControls.mkColor(value1, value2, value3)
+    }
+    def color(value1: Double, value2: Double, value3: Double, alpha: Double) = {
+      ColorControls.mkColor(value1, value2, value3, alpha)
+    }
+    def color(c: java.awt.Color, alpha: Double) = { ColorControls.mkColor(c, alpha) }
+    def color(c: Int) = { ColorControls.mkColor(c) }
+    def color(c: Int, alpha: Double) = { ColorControls.mkColor(c, alpha) }
+    def background(gray: Double) { background(color(gray)) }
+    def background(gray: Double, alpha: Double) { background(color(gray, alpha)) }
+    def background(value1: Double, value2: Double, value3: Double) {
+      background(color(value1, value2, value3))
+    }
+    def background(value1: Double, value2: Double, value3: Double, alpha: Double) {
+      background(color(value1, value2, value3, alpha))
+    }
+    def background (c: java.awt.Color) { tCanvas.setBackgroundColor(c) }
+    def background (c: java.awt.Color, alpha: Double) { background(color(c, alpha)) }
+    def background (c: Int) { background(color(c)) }
+    def background (c: Int, alpha: Double) { background(color(c, alpha)) }
+    def fill(gray: Double) { fill(color(gray)) }
+    def fill(gray: Double, alpha: Double) { fill(color(gray, alpha)) }
+    def fill(value1: Double, value2: Double, value3: Double) {
+      fill(color(value1, value2, value3))
+    }
+    def fill(value1: Double, value2: Double, value3: Double, alpha: Double) {
+      fill(color(value1, value2, value3, alpha))
+    }
+    def fill (c: java.awt.Color) { tCanvas.figure0.setFillColor(c) }
+    def fill (c: java.awt.Color, alpha: Double) { fill(color(c, alpha)) }
+    def fill (c: Int) { fill(color(c)) }
+    def fill (c: Int, alpha: Double) { fill(color(c, alpha)) }
     def noFill { tCanvas.figure0.setFillColor(null) }
-    def stroke (color: java.awt.Color) { tCanvas.figure0.setPenColor(color) }
+    def stroke(gray: Double) { stroke(color(gray)) }
+    def stroke(gray: Double, alpha: Double) { stroke(color(gray, alpha)) }
+    def stroke(value1: Double, value2: Double, value3: Double) {
+      stroke(color(value1, value2, value3))
+    }
+    def stroke(value1: Double, value2: Double, value3: Double, alpha: Double) {
+      stroke(color(value1, value2, value3, alpha))
+    }
+    def stroke (c: java.awt.Color) { tCanvas.figure0.setPenColor(c) }
+    def stroke (c: java.awt.Color, alpha: Double) { stroke(color(c, alpha)) }
+    def stroke (c: Int) { stroke(color(c)) }
+    def stroke (c: Int, alpha: Double) { stroke(color(c, alpha)) }
     def noStroke { tCanvas.figure0.setPenColor(null) }
 
     def sq(x: Double) = x * x
