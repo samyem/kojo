@@ -599,43 +599,44 @@ Here's a partial list of available commands:
         tCanvas.figure0.point(this.x, this.y)
         this
       }
+
       def line (that: PVector) = {
         tCanvas.figure0.line(this.x, this.y, that.x, that.y)
         that
       }
+
       def rect (that: PVector) = {
-        val bLeftX = List(this.x, that.y).min
-        val bLeftY = List(this.y, that.y).min
-        val uRightX = List(this.x, that.y).max
-        val uRightY = List(this.y, that.y).max
+        val bLeftX = if (this.x <= that.x) this.x else that.x
+        val bLeftY = if (this.y <= that.y) this.y else that.y
+        val uRightX = if (this.x <= that.x) that.x else this.x
+        val uRightY = if (this.y <= that.y) that.y else this.y
         tCanvas.figure0.rectangle(bLeftX, bLeftY, uRightX, uRightY)
         that
       }
+
       def triangle (v1: PVector, v2: PVector) = {
-        tCanvas.figure0.line(this.x, this.y, v1.x, v1.y)
-        tCanvas.figure0.line(v1.x, v1.y, v2.x, v2.y)
-        tCanvas.figure0.line(v2.x, v2.y, this.x, this.y)
-        this
+        this line v1 line v2 line this
       }
+
       def quad (v1: PVector, v2: PVector, v3: PVector) = {
-        tCanvas.figure0.line(this.x, this.y, v1.x, v1.y)
-        tCanvas.figure0.line(v1.x, v1.y, v2.x, v2.y)
-        tCanvas.figure0.line(v2.x, v2.y, v3.x, v3.y)
-        tCanvas.figure0.line(v3.x, v3.y, this.x, this.y)
-        this
+        this line v1 line v2 line v3 line this
       }
+
       def arc (w: Double, h: Double, start: Double, extent: Double) = {
         tCanvas.figure0.arc(this.x, this.y, w, h, start, extent)
         this
       }
+
       def ellipse (w: Double, h: Double) = {
         tCanvas.figure0.ellipse(this.x, this.y, w, h)
         this
       }
+
       def circle (radius: Double) = {
         tCanvas.figure0.circle(this.x, this.y, radius)
         this
       }
+
       override def toString = "Staging.PVector(" + x + ", " + y + ")"
     }
     object PVector {
