@@ -796,7 +796,10 @@ Here's a partial list of available commands:
     def blue(c: java.awt.Color) = c.getBlue
     def green(c: java.awt.Color) = c.getGreen
     def hsb(c: java.awt.Color) = java.awt.Color.RGBtoHSB(c.getRed, c.getBlue, c.getGreen, null)
-    // TODO def hue(c: java.awt.Color)
+    def hue(c: java.awt.Color) = {
+      val h = floor(255 * (1-hsb(c)(0))) + 1
+      if (h > 255) 0 else h
+    }
     def saturation(c: java.awt.Color) = hsb(c)(1) * 255
     def brightness(c: java.awt.Color) = hsb(c)(2) * 255
     // TODO blendColor
