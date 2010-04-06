@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="net.kogics.kojo" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project net.kogics.kojo.</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <import file="scala-build.xml"/>
+
+    <property name="nb-jars" value="../nbjars"/>
+
+    <!-- special jar target for csl -->
+    <target name="jar" depends="init,compile,jar-prep" unless="is.jar.uptodate">
+        <taskdef name="csljar" classname="org.netbeans.modules.csl.CslJar" classpath="${nb-jars}/cslanttask.jar:${nb-jars}/nbantext.jar"/>
+        <csljar jarfile="${cluster}/${module.jar}" compress="${build.package.compress}" index="${build.package.index}" manifest="${manifest.mf}" stamp="${cluster}/.lastModified">
+            <fileset dir="${build.classes.dir}"/>
+        </csljar>
+    </target>
+
+    <!--
+    compile cleans out the classes because they seem to get zapped anyway,
+    and that creates compilation problems when we try to compile only waht has
+    changed
+    -->
+    <target name="compile" depends="clean,init,scala-compile,projectized-common.compile"/>
+    <target name="do-test-build" depends="compile,scala-module.do-test-build"/>
+</project>

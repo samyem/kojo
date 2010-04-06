@@ -1,0 +1,19 @@
+<shortcuts>
+    <skipIfNotSupported/>
+    <programGroup defaultName="Kojo" 
+	    location="startMenu"/>
+      <shortcut
+         name="The Kojo Learning Environment"
+         target="$INSTALL_PATH\bin\kojo.exe"
+         iconFile="$INSTALL_PATH\icons\kojo48.ico"
+         programGroup="yes"
+         desktop="yes"
+         applications="no"
+         startMenu="no"
+         startup="no"
+         commandLine=""
+         description="The Kojo Learning Environment"
+         initialState="normal">
+      </shortcut>
+</shortcuts>
+
