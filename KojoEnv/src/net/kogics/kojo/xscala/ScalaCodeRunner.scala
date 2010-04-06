@@ -222,6 +222,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
         interp.interpret("import predef.Builtins._")
         interp.bind("turtle0", "net.kogics.kojo.core.Turtle", tCanvas.turtle0)
         interp.interpret("val Canvas = predef.CanvasAPI")
+        interp.interpret("val Staging = predef.StagingAPI")
         interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
       }
 
@@ -568,6 +569,81 @@ Here's a partial list of available commands:
         println("Puzzle not available: " + name)
       }
     }
+  }
+
+  object StagingAPI {
+    import core._
+
+    implicit def tupleDToPVector(tuple: (Double, Double)) = PVector(tuple._1, tuple._2)
+    implicit def tupleIToPVector(tuple: (Int, Int)) = PVector(tuple._1, tuple._2)
+
+    class PVector (val x: Double, val y: Double) {
+      def size = Math.sqrt(x * x + y * y)
+      def mag = size
+      def dist (that: PVector): Double = (this - that) size
+      def dot (that: PVector) = this.x * that.x + this.y * that.y
+      def normalize = this / (this size)
+      def +(that: PVector) = PVector(this.x + that.x, this.y + that.y)
+      def -(that: PVector) = PVector(this.x - that.x, this.y - that.y)
+      def unary_- = PVector(-x, -y)
+      def *(value: Double) = PVector(x * value, y * value)
+      def mult(a: Double, b: Double) = PVector(x * a, y * b)
+      def /(v: Double) = {
+        if (v == 0) error("Staging.PVector: can't divide by zero")
+        else {
+          PVector(x / v, y / v)
+        }
+      }
+
+      def point = {
+        tCanvas.figure0.point(this.x, this.y)
+        this
+      }
+      def line (that: PVector) = {
+        tCanvas.figure0.line(this.x, this.y, that.x, that.y)
+        that
+      }
+      def rect (that: PVector) = {
+        val bLeftX = List(this.x, that.y).min
+        val bLeftY = List(this.y, that.y).min
+        val uRightX = List(this.x, that.y).max
+        val uRightY = List(this.y, that.y).max
+        tCanvas.figure0.rectangle(bLeftX, bLeftY, uRightX, uRightY)
+        that
+      }
+      def triangle (v1: PVector, v2: PVector) = {
+        tCanvas.figure0.line(this.x, this.y, v1.x, v1.y)
+        tCanvas.figure0.line(v1.x, v1.y, v2.x, v2.y)
+        tCanvas.figure0.line(v2.x, v2.y, this.x, this.y)
+        this
+      }
+      def quad (v1: PVector, v2: PVector, v3: PVector) = {
+        tCanvas.figure0.line(this.x, this.y, v1.x, v1.y)
+        tCanvas.figure0.line(v1.x, v1.y, v2.x, v2.y)
+        tCanvas.figure0.line(v2.x, v2.y, v3.x, v3.y)
+        tCanvas.figure0.line(v3.x, v3.y, this.x, this.y)
+        this
+      }
+      def arc (w: Double, h: Double, start: Double, extent: Double) = {
+        tCanvas.figure0.arc(this.x, this.y, w, h, start, extent)
+        this
+      }
+      def ellipse (w: Double, h: Double) = {
+        tCanvas.figure0.ellipse(this.x, this.y, w, h)
+        this
+      }
+      def circle (radius: Double) = {
+        tCanvas.figure0.circle(this.x, this.y, radius)
+        this
+      }
+      override def toString = "Staging.PVector(" + x + ", " + y + ")"
+    }
+    object PVector {
+      def apply (x: Double, y: Double) = new PVector(x, y)
+    }
+
+    val O = PVector(0, 0)
+
   }
 
   object CanvasAPI  /* extends core.Figure */ {
