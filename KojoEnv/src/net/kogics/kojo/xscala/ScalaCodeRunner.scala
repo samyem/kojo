@@ -661,6 +661,11 @@ Here's a partial list of available commands:
     def noFill { tCanvas.figure0.setFillColor(null) }
     def stroke (color: java.awt.Color) { tCanvas.figure0.setPenColor(color) }
     def noStroke { tCanvas.figure0.setPenColor(null) }
+
+    def sq(x: Double) = x * x
+
+    def dist(x0: Double, y0: Double, x1: Double, y1: Double) =
+      Math.sqrt(sq(x0 - x1) + sq(y0 - y1))
   }
 
   object CanvasAPI  /* extends core.Figure */ {
