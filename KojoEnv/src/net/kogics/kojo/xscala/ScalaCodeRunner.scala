@@ -666,6 +666,14 @@ Here's a partial list of available commands:
 
     def dist(x0: Double, y0: Double, x1: Double, y1: Double) =
       Math.sqrt(sq(x0 - x1) + sq(y0 - y1))
+
+    def day    = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_MONTH)
+    def hour   = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+    def millis =  System.currentTimeMillis()
+    def minute = (System.currentTimeMillis() /   60000) % 60
+    def month  = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
+    def second = (System.currentTimeMillis() /    1000) % 60
+    def year   = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
   }
 
   object CanvasAPI  /* extends core.Figure */ {
