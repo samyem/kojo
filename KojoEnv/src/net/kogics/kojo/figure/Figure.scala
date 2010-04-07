@@ -56,7 +56,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   var figAnimation: PActivity = _
   var lineColor: Color = _
   var fillColor: Color = _
-  var lineStroke: Stroke = _
+  var lineStroke: BasicStroke = _
 
   camera.addLayer(camera.getLayerCount-1, bgLayer)
   camera.addLayer(camera.getLayerCount-1, fgLayer)

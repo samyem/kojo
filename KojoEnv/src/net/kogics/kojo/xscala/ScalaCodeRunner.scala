@@ -664,129 +664,26 @@ Here's a partial list of available commands:
 
     val O = PVector(0, 0)
 
-    object ColorControls {
-      import java.awt.Color
-
-      var mode   = 'RGB
-      var range1 = 255.
-      var range2 = 255.
-      var range3 = 255.
-      var range4 = 255.
-
-      def setMode(m: Symbol) = m match {
-        case 'RGB => mode = m
-        case 'HSB => mode = m
-        case _    => error("Unknown color mode " + m)
-      }
-
-      def mkColor(gray: Float): Color = new Color(gray, gray, gray)
-      def mkColor(gray: Float, alpha: Float): Color = {
-        new Color(gray, gray, gray, alpha)
-      }
-      def mkColor(gray: Double): Color = mkColor(gray.toFloat)
-      def mkColor(gray: Double, alpha: Double): Color = {
-        mkColor(gray.toFloat, alpha.toFloat)
-      }
-      def mkColor(value1: Double, value2: Double, value3: Double): Color = mkColor(value1, value2, value3, range4)
-      def mkColor(value1: Double, value2: Double, value3: Double, alpha: Double): Color = {
-        ColorControls.mode match {
-          case 'RGB =>
-            val r = (value1 / range1).toFloat
-            val g = (value2 / range2).toFloat
-            val b = (value3 / range3).toFloat
-            val a = (alpha / range4).toFloat
-            new Color(r, g, b, a)
-          case 'HSB =>
-            val h = (value1 / (range1 + 1)).toFloat
-            val s = (value2 / range2).toFloat
-            val b = (value3 / range3).toFloat
-            val a = (alpha / range4).toFloat
-            val c = java.awt.Color.HSBtoRGB(h, s, b)
-            new Color((255 * a).toInt << 24 | c, true)
-        }
-      }
-      def mkColor(c: Color, alpha: Double) =
-        new Color((255 * alpha / range4).toInt << 24 | c.getRGB, true)
-      def mkColor(c: Int) = new Color(c)
-      def mkColor(c: Int, alpha: Double) =
-        new Color((255 * alpha / range4).toInt << 24 | c, true)
-    }
-
-    def colorMode(mode: Symbol) { ColorControls.setMode(mode) }
-    def colorMode(mode: Symbol, range: Double)  {
-      colorMode(mode)
-      ColorControls.range1 = range
-      ColorControls.range2 = range
-      ColorControls.range3 = range
-    }
-    def colorMode(mode: Symbol, range1: Double, range2: Double, range3: Double) {
-      colorMode(mode)
-      ColorControls.range1 = range1
-      ColorControls.range2 = range2
-      ColorControls.range3 = range3
-    }
-    def colorMode(mode: Symbol, range1: Double, range2: Double, range3: Double, range4: Double) {
-      colorMode(mode, range1, range2, range3)
-      ColorControls.range4 = range4
-    }
-
-    def color(gray: Double) = ColorControls.mkColor(gray)
-    def color(gray: Double, alpha: Double) = ColorControls.mkColor(gray, alpha)
-    def color(value1: Double, value2: Double, value3: Double) = {
-      ColorControls.mkColor(value1, value2, value3)
-    }
-    def color(value1: Double, value2: Double, value3: Double, alpha: Double) = {
-      ColorControls.mkColor(value1, value2, value3, alpha)
-    }
-    def color(c: java.awt.Color, alpha: Double) = { ColorControls.mkColor(c, alpha) }
-    def color(c: Int) = { ColorControls.mkColor(c) }
-    def color(c: Int, alpha: Double) = { ColorControls.mkColor(c, alpha) }
-    def background(gray: Double) { background(color(gray)) }
-    def background(gray: Double, alpha: Double) { background(color(gray, alpha)) }
-    def background(value1: Double, value2: Double, value3: Double) {
-      background(color(value1, value2, value3))
-    }
-    def background(value1: Double, value2: Double, value3: Double, alpha: Double) {
-      background(color(value1, value2, value3, alpha))
-    }
     def background(c: java.awt.Color) { tCanvas.setBackgroundColor(c) }
-    def background(c: java.awt.Color, alpha: Double) { background(color(c, alpha)) }
-    def background(c: Int) { background(color(c)) }
-    def background(c: Int, alpha: Double) { background(color(c, alpha)) }
 
-    def fill(gray: Double) { fill(color(gray)) }
-    def fill(gray: Double, alpha: Double) { fill(color(gray, alpha)) }
-    def fill(value1: Double, value2: Double, value3: Double) {
-      fill(color(value1, value2, value3))
+    def fill(c: java.awt.Color) {
+      currentStyle.fillColor = c
+      tCanvas.figure0.setFillColor(c)
     }
-    def fill(value1: Double, value2: Double, value3: Double, alpha: Double) {
-      fill(color(value1, value2, value3, alpha))
-    }
-    def fill(c: java.awt.Color) { tCanvas.figure0.setFillColor(c) }
-    def fill(c: java.awt.Color, alpha: Double) { fill(color(c, alpha)) }
-    def fill(c: Int) { fill(color(c)) }
-    def fill(c: Int, alpha: Double) { fill(color(c, alpha)) }
-    def noFill { tCanvas.figure0.setFillColor(null) }
+    def noFill { fill(null) }
 
-    def stroke(gray: Double) { stroke(color(gray)) }
-    def stroke(gray: Double, alpha: Double) { stroke(color(gray, alpha)) }
-    def stroke(value1: Double, value2: Double, value3: Double) {
-      stroke(color(value1, value2, value3))
+    def stroke(c: java.awt.Color) {
+      currentStyle.lineColor = c
+      tCanvas.figure0.setPenColor(c)
     }
-    def stroke(value1: Double, value2: Double, value3: Double, alpha: Double) {
-      stroke(color(value1, value2, value3, alpha))
-    }
-    def stroke(c: java.awt.Color) { tCanvas.figure0.setPenColor(c) }
-    def stroke(c: java.awt.Color, alpha: Double) { stroke(color(c, alpha)) }
-    def stroke(c: Int) { stroke(color(c)) }
-    def stroke(c: Int, alpha: Double) { stroke(color(c, alpha)) }
-    def noStroke { tCanvas.figure0.setPenColor(null) }
+    def noStroke { stroke(null) }
 
     def alpha(c: java.awt.Color) = c.getAlpha
     def red(c: java.awt.Color) = c.getRed
     def blue(c: java.awt.Color) = c.getBlue
     def green(c: java.awt.Color) = c.getGreen
-    def hsb(c: java.awt.Color) = java.awt.Color.RGBtoHSB(c.getRed, c.getBlue, c.getGreen, null)
+    private def hsb(c: java.awt.Color) =
+      java.awt.Color.RGBtoHSB(c.getRed, c.getBlue, c.getGreen, null)
     def hue(c: java.awt.Color) = {
       val h = floor(255 * (1-hsb(c)(0))) + 1
       if (h > 255) 0 else h
@@ -808,6 +705,99 @@ Here's a partial list of available commands:
     def month  = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
     def second = (System.currentTimeMillis() /    1000) % 60
     def year   = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+
+    sealed class ColorModeSymbol
+    case object RGB extends ColorModeSymbol
+    case object HSB extends ColorModeSymbol
+
+    class ColorMode (
+      mode: ColorModeSymbol,
+      range1: Int,
+      range2: Int,
+      range3: Int,
+      range4: Int
+    ) {
+      def this () =
+        this(RGB, 255, 255, 255, 255)
+      def this (mode: ColorModeSymbol) =
+        this(mode, 255, 255, 255, 255)
+      def this (mode: ColorModeSymbol, range: Int) = {
+        this(mode, range, range, range, 255)
+      }
+      def this (mode: ColorModeSymbol, r1: Int, r2: Int, r3: Int) =
+        this(mode, r1, r2, r3, 255)
+
+      private val rg = 0 to 255
+      require(rg contains range1, "component value must be in 0..255 range")
+      require(rg contains range2, "component value must be in 0..255 range")
+      require(rg contains range3, "component value must be in 0..255 range")
+      require(rg contains range4, "component value must be in 0..255 range")
+      
+      def mkColor(v1: Int, v2: Int, v3: Int, v4: Int = 255) = {
+        val hueRange = range1 + 1
+        val hue = (if (v1 > range1) range1 else v1) / hueRange.toFloat
+        val c1 = if (v1 > range1) 1f else v1 / range1.toFloat
+        val c2 = if (v2 > range2) 1f else v2 / range2.toFloat
+        val c3 = if (v3 > range3) 1f else v3 / range3.toFloat
+        val c4 = if (v4 > range4) 1f else v4 / range4.toFloat
+        if (mode == RGB) {
+          new java.awt.Color(c1, c2, c3, c4)
+        } else {
+          val rgb = java.awt.Color.HSBtoRGB(hue, c2, c3)
+          if (c4 == 1f) { // opaque color
+            new java.awt.Color(rgb)
+          } else {
+            val alpha = (255 * c4).toInt
+            new java.awt.Color(alpha << 24 | rgb, true)
+          }
+        }
+      }
+    }
+    var currentColorMode = new ColorMode
+
+    def colorMode(mode: ColorModeSymbol) {
+      currentColorMode = new ColorMode(mode)
+    }
+    def colorMode(mode: ColorModeSymbol, range: Int) {
+      currentColorMode = new ColorMode(mode, range)
+    }
+    def colorMode(mode: ColorModeSymbol, r1: Int, r2: Int, r3: Int) {
+      currentColorMode = new ColorMode(mode, r1, r2, r3)
+    }
+    def colorMode(mode: ColorModeSymbol, r1: Int, r2: Int, r3: Int, r4: Int) {
+      currentColorMode = new ColorMode(mode, r1, r2, r3, r4)
+    }
+    def color(gray: Float)               = new java.awt.Color(gray, gray, gray)
+    def color(gray: Float, alpha: Float) = new java.awt.Color(gray, gray, gray, alpha)
+    def color(rgb: Int, alpha: Int)     = new java.awt.Color(alpha << 24 | rgb, true)
+
+    class Style {
+      var lineColor  = tCanvas.figure0.lineColor
+      var fillColor  = tCanvas.figure0.fillColor
+      // TODO tint
+      var lineStroke = tCanvas.figure0.lineStroke
+      // TODO imageMode
+      // TODO rectMode(), ellipseMode(), shapeMode
+      var colorMode  = currentColorMode
+      // TODO textAlign(), textFont(), textMode(), textSize(), textLeading
+      // TODO emissive(), specular(), shininess(), ambient
+    }
+
+    import scala.collection.mutable.Stack
+    val styleStack: Stack[Style] = new Stack()
+    var currentStyle = new Style
+    
+    def pushStyle {
+      styleStack push currentStyle
+      currentStyle = new Style
+    }
+    def popStyle {
+      require(styleStack.nonEmpty, "no style to pop")
+      currentStyle = styleStack.pop
+      tCanvas.figure0.setPenColor(currentStyle.lineColor)
+      tCanvas.figure0.setFillColor(currentStyle.fillColor)
+      tCanvas.figure0.lineStroke = currentStyle.lineStroke
+    }
   }
 
   object CanvasAPI  /* extends core.Figure */ {
