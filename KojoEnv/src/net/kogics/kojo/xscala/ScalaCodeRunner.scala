@@ -673,7 +673,7 @@ Here's a partial list of available commands:
       var range3 = 255.
       var range4 = 255.
 
-      def setMode (m: Symbol) = m match {
+      def setMode(m: Symbol) = m match {
         case 'RGB => mode = m
         case 'HSB => mode = m
         case _    => error("Unknown color mode " + m)
@@ -749,10 +749,10 @@ Here's a partial list of available commands:
     def background(value1: Double, value2: Double, value3: Double, alpha: Double) {
       background(color(value1, value2, value3, alpha))
     }
-    def background (c: java.awt.Color) { tCanvas.setBackgroundColor(c) }
-    def background (c: java.awt.Color, alpha: Double) { background(color(c, alpha)) }
-    def background (c: Int) { background(color(c)) }
-    def background (c: Int, alpha: Double) { background(color(c, alpha)) }
+    def background(c: java.awt.Color) { tCanvas.setBackgroundColor(c) }
+    def background(c: java.awt.Color, alpha: Double) { background(color(c, alpha)) }
+    def background(c: Int) { background(color(c)) }
+    def background(c: Int, alpha: Double) { background(color(c, alpha)) }
 
     def fill(gray: Double) { fill(color(gray)) }
     def fill(gray: Double, alpha: Double) { fill(color(gray, alpha)) }
@@ -762,10 +762,10 @@ Here's a partial list of available commands:
     def fill(value1: Double, value2: Double, value3: Double, alpha: Double) {
       fill(color(value1, value2, value3, alpha))
     }
-    def fill (c: java.awt.Color) { tCanvas.figure0.setFillColor(c) }
-    def fill (c: java.awt.Color, alpha: Double) { fill(color(c, alpha)) }
-    def fill (c: Int) { fill(color(c)) }
-    def fill (c: Int, alpha: Double) { fill(color(c, alpha)) }
+    def fill(c: java.awt.Color) { tCanvas.figure0.setFillColor(c) }
+    def fill(c: java.awt.Color, alpha: Double) { fill(color(c, alpha)) }
+    def fill(c: Int) { fill(color(c)) }
+    def fill(c: Int, alpha: Double) { fill(color(c, alpha)) }
     def noFill { tCanvas.figure0.setFillColor(null) }
 
     def stroke(gray: Double) { stroke(color(gray)) }
@@ -776,10 +776,10 @@ Here's a partial list of available commands:
     def stroke(value1: Double, value2: Double, value3: Double, alpha: Double) {
       stroke(color(value1, value2, value3, alpha))
     }
-    def stroke (c: java.awt.Color) { tCanvas.figure0.setPenColor(c) }
-    def stroke (c: java.awt.Color, alpha: Double) { stroke(color(c, alpha)) }
-    def stroke (c: Int) { stroke(color(c)) }
-    def stroke (c: Int, alpha: Double) { stroke(color(c, alpha)) }
+    def stroke(c: java.awt.Color) { tCanvas.figure0.setPenColor(c) }
+    def stroke(c: java.awt.Color, alpha: Double) { stroke(color(c, alpha)) }
+    def stroke(c: Int) { stroke(color(c)) }
+    def stroke(c: Int, alpha: Double) { stroke(color(c, alpha)) }
     def noStroke { tCanvas.figure0.setPenColor(null) }
 
     def alpha(c: java.awt.Color) = c.getAlpha
