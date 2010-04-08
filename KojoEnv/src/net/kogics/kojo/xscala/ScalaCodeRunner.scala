@@ -678,25 +678,31 @@ Here's a partial list of available commands:
     }
     def noStroke { stroke(null) }
 
-    def alpha(c: java.awt.Color) = c.getAlpha
-    def red(c: java.awt.Color) = c.getRed
-    def blue(c: java.awt.Color) = c.getBlue
-    def green(c: java.awt.Color) = c.getGreen
-    private def hsb(c: java.awt.Color) =
-      java.awt.Color.RGBtoHSB(c.getRed, c.getBlue, c.getGreen, null)
-    def hue(c: java.awt.Color) = {
-      val h = floor(255 * (1-hsb(c)(0))) + 1
-      if (h > 255) 0 else h
+    case class RichColor (c: java.awt.Color) {
+      def alpha = c.getAlpha
+      def red = c.getRed
+      def blue = c.getBlue
+      def green = c.getGreen
+      private def hsb =
+        java.awt.Color.RGBtoHSB(c.getRed, c.getBlue, c.getGreen, null)
+      def hue = {
+        val h = floor(255 * (1 - this.hsb(0))) + 1
+        if (h > 255) 0 else h.toInt
+      }
+      def saturation = (this.hsb(1) * 255).toInt
+      def brightness = (this.hsb(2) * 255).toInt
+      // TODO blendColor
+      // TODO lerpColor
     }
-    def saturation(c: java.awt.Color) = hsb(c)(1) * 255
-    def brightness(c: java.awt.Color) = hsb(c)(2) * 255
-    // TODO blendColor
-    // TODO lerpColor
+    implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
 
     def sq(x: Double) = x * x
 
     def dist(x0: Double, y0: Double, x1: Double, y1: Double) =
       sqrt(sq(x0 - x1) + sq(y0 - y1))
+
+    private val rand = new scala.util.Random
+    def random(v: Double) = rand.nextDouble * v
 
     def day    = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_MONTH)
     def hour   = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
@@ -736,10 +742,10 @@ Here's a partial list of available commands:
       def mkColor(v1: Int, v2: Int, v3: Int, v4: Int = 255) = {
         val hueRange = range1 + 1
         val hue = (if (v1 > range1) range1 else v1) / hueRange.toFloat
-        val c1 = if (v1 > range1) 1f else v1 / range1.toFloat
-        val c2 = if (v2 > range2) 1f else v2 / range2.toFloat
-        val c3 = if (v3 > range3) 1f else v3 / range3.toFloat
-        val c4 = if (v4 > range4) 1f else v4 / range4.toFloat
+        val c1 = if (v1 > range1) 1.0f else v1 / range1.toFloat
+        val c2 = if (v2 > range2) 1.0f else v2 / range2.toFloat
+        val c3 = if (v3 > range3) 1.0f else v3 / range3.toFloat
+        val c4 = if (v4 > range4) 1.0f else v4 / range4.toFloat
         if (mode == RGB) {
           new java.awt.Color(c1, c2, c3, c4)
         } else {
@@ -767,9 +773,16 @@ Here's a partial list of available commands:
     def colorMode(mode: ColorModeSymbol, r1: Int, r2: Int, r3: Int, r4: Int) {
       currentColorMode = new ColorMode(mode, r1, r2, r3, r4)
     }
-    def color(gray: Float)               = new java.awt.Color(gray, gray, gray)
-    def color(gray: Float, alpha: Float) = new java.awt.Color(gray, gray, gray, alpha)
-    def color(rgb: Int, alpha: Int)     = new java.awt.Color(alpha << 24 | rgb, true)
+    def color(gray: Float) =
+      new java.awt.Color(gray, gray, gray)
+    def color(gray: Float, alpha: Float) =
+      new java.awt.Color(gray, gray, gray, alpha)
+    def color(c: (Int, Int, Int)) =
+      currentColorMode.mkColor(c._1, c._2, c._3)
+    def color(c: (Int, Int, Int, Int)) =
+      currentColorMode.mkColor(c._1, c._2, c._3, c._4)
+    def color(rgb: Int, alpha: Int) =
+      new java.awt.Color(alpha << 24 | rgb, true)
 
     class Style {
       var lineColor  = tCanvas.figure0.lineColor
