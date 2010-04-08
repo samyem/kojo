@@ -796,8 +796,7 @@ Here's a partial list of available commands:
       // TODO emissive(), specular(), shininess(), ambient
     }
 
-    import scala.collection.mutable.Stack
-    val styleStack: Stack[Style] = new Stack()
+    val styleStack = new collection.mutable.Stack[Style]()
     var currentStyle = new Style
     
     def pushStyle {
