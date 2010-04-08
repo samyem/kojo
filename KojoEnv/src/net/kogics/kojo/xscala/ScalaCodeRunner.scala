@@ -631,7 +631,8 @@ Here's a partial list of available commands:
         this line v1 line v2 line v3 line this
       }
 
-      def arc (w: Double, h: Double, start: Double, extent: Double) = {
+      def arc (w: Double, h: Double, start: Double, stop: Double) = {
+        val extent = stop - start
         tCanvas.figure0.arc(this.x, this.y, w, h, start, extent)
         this
       }
