@@ -55,4 +55,5 @@ trait Figure {
   def text(content: String, p: Point): FText
   def text(content: String, x: Double, y: Double): FText
   def refresh(fn: => Unit): Unit
+  def onMouseMove(fn: (Double, Double) => Unit): Unit
 }
