@@ -771,6 +771,10 @@ Here's a partial list of available commands:
       new java.awt.Color(gray, gray, gray)
     def color(gray: Float, alpha: Float) =
       new java.awt.Color(gray, gray, gray, alpha)
+    def color(r: Float, g: Float, b: Float) =
+      new java.awt.Color(r, g, b)
+    def color(r: Float, g: Float, b: Float, alpha: Float) =
+      new java.awt.Color(r, g, b, alpha)
     def color(c: (Int, Int, Int)) =
       currentColorMode.mkColor(c._1, c._2, c._3)
     def color(c: (Int, Int, Int, Int)) =
