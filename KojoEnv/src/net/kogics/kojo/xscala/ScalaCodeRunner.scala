@@ -733,12 +733,6 @@ Here's a partial list of available commands:
       def this (mode: ColorModeSymbol, r1: Int, r2: Int, r3: Int) =
         this(mode, r1, r2, r3, 255)
 
-      private val rg = 0 to 255
-      require(rg contains range1, "component value must be in 0..255 range")
-      require(rg contains range2, "component value must be in 0..255 range")
-      require(rg contains range3, "component value must be in 0..255 range")
-      require(rg contains range4, "component value must be in 0..255 range")
-      
       def mkColor(v1: Int, v2: Int, v3: Int, v4: Int = 255) = {
         val hueRange = range1 + 1
         val hue = (if (v1 > range1) range1 else v1) / hueRange.toFloat
