@@ -792,7 +792,6 @@ Here's a partial list of available commands:
 
     val styleStack = new collection.mutable.Stack[Style]()
     var currentStyle = new Style
-    
     def pushStyle {
       styleStack push currentStyle
       currentStyle = new Style
@@ -803,6 +802,18 @@ Here's a partial list of available commands:
       tCanvas.figure0.setPenColor(currentStyle.lineColor)
       tCanvas.figure0.setFillColor(currentStyle.fillColor)
       tCanvas.figure0.lineStroke = currentStyle.lineStroke
+    }
+
+    def init(fn: => Unit) = fn
+    def loop(fn: => Unit) = tCanvas.figure0.refresh(fn)
+    def stop = tCanvas.figure0.stopRefresh()
+    def onMouseMove(fn: (Double, Double) => Unit) {
+      tCanvas.figure0.onMouseMove(fn)
+    }
+    def onMouseOver(left: Int, top: Int, right: Int, bottom: Int)(fn: (Double, Double) => Unit) {
+      onMouseMove { (x: Double, y: Double) =>
+        if (x >= left && y <= top && x <= right && y >= bottom) fn(x, y)
+      }
     }
   }
 
