@@ -820,6 +820,16 @@ Here's a partial list of available commands:
         if (x >= left && y <= top && x <= right && y >= bottom) fn(x, y)
       }
     }
+
+    var width = 0
+    var height = 0
+    def size(width: Int, height: Int) {
+      this.width = width
+      this.height = height
+      // TODO make less ad-hoc
+      tCanvas.zoom(560 / height, width / 2, height / 2)
+    }
+
   }
 
   object CanvasAPI  /* extends core.Figure */ {
