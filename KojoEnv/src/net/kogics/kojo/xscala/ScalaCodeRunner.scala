@@ -139,7 +139,17 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
         case t: Throwable => 
           ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
       }
+    }
 
+    def safeProcessCompletionReq(fn: => (List[String], Int)) {
+      try {
+        reply(CompletionResponse(fn))
+      }
+      catch {
+        case t: Throwable =>
+          Log.warning("Problem finding completions: " + t.getMessage)
+          reply(CompletionResponse(List(), 0))
+      }
     }
 
     def act() {
@@ -182,18 +192,18 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
             }
 
           case MethodCompletionRequest(str) =>
-            safeProcess {
-              reply(CompletionResponse(methodCompletions(str)))
+            safeProcessCompletionReq {
+              methodCompletions(str)
             }
 
           case VarCompletionRequest(str) =>
-            safeProcess {
-              reply(CompletionResponse(varCompletions(str)))
+            safeProcessCompletionReq {
+              varCompletions(str)
             }
 
           case KeywordCompletionRequest(str) =>
-            safeProcess {
-              reply(CompletionResponse(keywordCompletions(str)))
+            safeProcessCompletionReq {
+              keywordCompletions(str)
             }
         }
       }
@@ -309,8 +319,6 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
     def completions(identifier: String) = {
       Log.fine("Finding Identifier completions for: " + identifier)
-      // warning! calling into interp while a computation is running within the actor
-      // might lead to problems
       val completions = outputHandler.withOutputSuppressed {
         interp.methodsOf(identifier).distinct.filter {s => !MethodDropFilter.contains(s)}
       }
