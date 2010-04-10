@@ -584,6 +584,8 @@ Here's a partial list of available commands:
     import core._
     import math._
 
+    tCanvas.setAnimationDelay(0)
+    
     implicit def tupleDToPVector(tuple: (Double, Double)) = PVector(tuple._1, tuple._2)
     implicit def tupleIToPVector(tuple: (Int, Int)) = PVector(tuple._1, tuple._2)
 
@@ -665,7 +667,11 @@ Here's a partial list of available commands:
 
     val O = PVector(0, 0)
 
-    def background(c: java.awt.Color) { tCanvas.setBackgroundColor(c) }
+    def background(c: java.awt.Color) {
+      tCanvas.figure0.clear
+      tCanvas.invisible
+      tCanvas.setBackgroundColor(c)
+    }
 
     def fill(c: java.awt.Color) {
       currentStyle.fillColor = c
@@ -812,6 +818,9 @@ Here's a partial list of available commands:
     def init(fn: => Unit) = fn
     def loop(fn: => Unit) = tCanvas.figure0.refresh(fn)
     def stop = tCanvas.figure0.stopRefresh()
+
+    var mouseX = 0.
+    var mouseY = 0.
     def onMouseMove(fn: (Double, Double) => Unit) {
       tCanvas.figure0.onMouseMove(fn)
     }
@@ -828,6 +837,10 @@ Here's a partial list of available commands:
       this.height = height
       // TODO make less ad-hoc
       tCanvas.zoom(560 / height, width / 2, height / 2)
+      onMouseOver(0, height, width, 0) { (x: Double, y: Double) =>
+        mouseX = x
+        mouseY = y
+      }
     }
 
   }
