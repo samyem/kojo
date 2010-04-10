@@ -732,7 +732,7 @@ Here's a partial list of available commands:
       }
       val s = currentStyle.lineStroke
       currentStyle.lineStroke =
-        new java.awt.BasicStroke(s.getLineWidth, s.getEndCap, mode.join)
+        new java.awt.BasicStroke(s.getLineWidth, s.getEndCap, join)
       tCanvas.figure0.lineStroke = currentStyle.lineStroke
     }
 
