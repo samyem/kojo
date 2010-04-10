@@ -710,11 +710,26 @@ Here's a partial list of available commands:
       tCanvas.figure0.lineStroke = currentStyle.lineStroke
     }
 
-    abstract sealed class StrokeJoin { val join: Int }
-    case object MITER extends StrokeJoin { val join = java.awt.BasicStroke.JOIN_MITER }
-    case object BEVEL extends StrokeJoin { val join = java.awt.BasicStroke.JOIN_BEVEL }
-    case object ROUND extends StrokeJoin { val join = java.awt.BasicStroke.JOIN_ROUND }
-    def strokeJoin(mode: StrokeJoin) {
+    def strokeCap(mode: Symbol) {
+      val cap = mode match {
+        case 'ROUND => java.awt.BasicStroke.CAP_ROUND
+        case 'SQUARE => java.awt.BasicStroke.CAP_BUTT
+        case 'PROJECT => java.awt.BasicStroke.CAP_SQUARE
+        case _ => error("No such cap style: " + mode)
+      }
+      val s = currentStyle.lineStroke
+      currentStyle.lineStroke =
+        new java.awt.BasicStroke(s.getLineWidth, cap, s.getLineJoin)
+      tCanvas.figure0.lineStroke = currentStyle.lineStroke
+    }
+
+    def strokeJoin(mode: Symbol) {
+      val join = mode match {
+        case 'ROUND => java.awt.BasicStroke.JOIN_ROUND
+        case 'MITER => java.awt.BasicStroke.JOIN_MITER
+        case 'BEVEL => java.awt.BasicStroke.JOIN_BEVEL
+        case _ => error("No such join style: " + mode)
+      }
       val s = currentStyle.lineStroke
       currentStyle.lineStroke =
         new java.awt.BasicStroke(s.getLineWidth, s.getEndCap, mode.join)
@@ -834,7 +849,8 @@ Here's a partial list of available commands:
     }
 
     strokeWeight(1)
-    strokeJoin(MITER)
+    strokeCap('ROUND)
+    strokeJoin('MITER)
 
     def init(fn: => Unit) = fn
     def loop(fn: => Unit) = tCanvas.figure0.refresh(fn)
