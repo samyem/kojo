@@ -703,6 +703,13 @@ Here's a partial list of available commands:
     }
     implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
 
+    def strokeWeight(sw: Float) {
+      val s = currentStyle.lineStroke
+      currentStyle.lineStroke =
+        new java.awt.BasicStroke(sw, s.getEndCap, s.getLineJoin)
+      tCanvas.figure0.lineStroke = currentStyle.lineStroke
+    }
+
     abstract sealed class StrokeJoin { val join: Int }
     case object MITER extends StrokeJoin { val join = java.awt.BasicStroke.JOIN_MITER }
     case object BEVEL extends StrokeJoin { val join = java.awt.BasicStroke.JOIN_BEVEL }
@@ -826,6 +833,7 @@ Here's a partial list of available commands:
       tCanvas.figure0.lineStroke = currentStyle.lineStroke
     }
 
+    strokeWeight(1)
     strokeJoin(MITER)
 
     def init(fn: => Unit) = fn
