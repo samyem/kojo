@@ -703,6 +703,17 @@ Here's a partial list of available commands:
     }
     implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
 
+    abstract sealed class StrokeJoin { val join: Int }
+    case object MITER extends StrokeJoin { val join = java.awt.BasicStroke.JOIN_MITER }
+    case object BEVEL extends StrokeJoin { val join = java.awt.BasicStroke.JOIN_BEVEL }
+    case object ROUND extends StrokeJoin { val join = java.awt.BasicStroke.JOIN_ROUND }
+    def strokeJoin(mode: StrokeJoin) {
+      val s = currentStyle.lineStroke
+      currentStyle.lineStroke =
+        new java.awt.BasicStroke(s.getLineWidth, s.getEndCap, mode.join)
+      tCanvas.figure0.lineStroke = currentStyle.lineStroke
+    }
+
     def sq(x: Double) = x * x
 
     def dist(x0: Double, y0: Double, x1: Double, y1: Double) =
@@ -814,6 +825,8 @@ Here's a partial list of available commands:
       tCanvas.figure0.setFillColor(currentStyle.fillColor)
       tCanvas.figure0.lineStroke = currentStyle.lineStroke
     }
+
+    strokeJoin(MITER)
 
     def init(fn: => Unit) = fn
     def loop(fn: => Unit) = tCanvas.figure0.refresh(fn)
