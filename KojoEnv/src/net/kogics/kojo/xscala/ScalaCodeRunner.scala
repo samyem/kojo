@@ -584,8 +584,6 @@ Here's a partial list of available commands:
     import core._
     import math._
 
-    tCanvas.setAnimationDelay(0)
-    
     implicit def tupleDToPVector(tuple: (Double, Double)) = PVector(tuple._1, tuple._2)
     implicit def tupleIToPVector(tuple: (Int, Int)) = PVector(tuple._1, tuple._2)
 
@@ -848,10 +846,6 @@ Here's a partial list of available commands:
       tCanvas.figure0.lineStroke = currentStyle.lineStroke
     }
 
-    strokeWeight(1)
-    strokeCap('ROUND)
-    strokeJoin('MITER)
-
     def init(fn: => Unit) = fn
     def loop(fn: => Unit) = tCanvas.figure0.refresh(fn)
     def stop = tCanvas.figure0.stopRefresh()
@@ -880,6 +874,13 @@ Here's a partial list of available commands:
       }
     }
 
+    initialize
+    def initialize {
+      tCanvas.setAnimationDelay(0)
+      strokeWeight(1)
+      strokeCap('ROUND)
+      strokeJoin('MITER)
+    }
   }
 
   object CanvasAPI  /* extends core.Figure */ {
