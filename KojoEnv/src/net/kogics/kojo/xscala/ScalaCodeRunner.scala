@@ -817,6 +817,8 @@ Here's a partial list of available commands:
       currentColorMode.mkColor(c._1, c._2, c._3)
     def color(c: (Int, Int, Int, Int)) =
       currentColorMode.mkColor(c._1, c._2, c._3, c._4)
+    def color(rgb: Int) =
+      new java.awt.Color(rgb)
     def color(rgb: Int, alpha: Int) =
       new java.awt.Color(alpha << 24 | rgb, true)
 
@@ -872,6 +874,35 @@ Here's a partial list of available commands:
         mouseX = x
         mouseY = y
       }
+    }
+
+    // "My god---it's full of kludges!"
+    import java.awt.image.BufferedImage
+    class Image (image: BufferedImage) {
+      import java.awt.image.PixelGrabber
+      import java.awt.image.ImageObserver
+
+      val width      = image.getWidth().toInt
+      val height     = image.getHeight().toInt
+      val pixelArray = new Array[Int](width * height)
+      val pg = new PixelGrabber(image, 0, 0, width, height, pixelArray, 0, width)
+      try {
+        pg.grabPixels
+      } catch {
+        case e: InterruptedException =>
+          error("interrupted waiting for pixels!")
+      }
+
+      def pixels (index: Int) = {
+        pixelArray(index)
+      }
+    }
+    def loadImage(filename: String, extension: String): Image =
+      loadImage(filename + "." + extension)
+    import edu.umd.cs.piccolo.nodes.PImage
+    def loadImage(filename: String): Image = {
+      val img = Utils.loadImage(filename)
+      new Image(PImage.toBufferedImage(img, false))
     }
 
     initialize
