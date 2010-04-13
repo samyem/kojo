@@ -615,13 +615,14 @@ Here's a partial list of available commands:
         that
       }
 
-      def rect (that: PVector): PVector = this.rect(that.x, that.y)
-      def rect (width: Double, height: Double): PVector = {
+      def rect(that: PVector): PVector = this.rect(that.x, that.y)
+      def rect(width: Double, height: Double): PVector = {
         require(width >= 0, "rectangle width must be a positive number")
         require(height >= 0, "rectangle height must be a positive number")
         tCanvas.figure0.rectangle(this.x, this.y, width, height)
         (this.x + width, this.y + height)
       }
+      def square(size: Double) = this.rect(size, size)
 
       def triangle (v1: PVector, v2: PVector) = {
         this line v1 line v2 line this
@@ -665,11 +666,8 @@ Here's a partial list of available commands:
 
     val O = PVector(0, 0)
 
-    def background(c: java.awt.Color) {
-      tCanvas.figure0.clear
-      tCanvas.invisible
-      tCanvas.setBackgroundColor(c)
-    }
+    def clear() = tCanvas.figure0.clear()
+    def background(c: java.awt.Color) { tCanvas.setBackgroundColor(c) }
 
     def fill(c: java.awt.Color) {
       currentStyle.fillColor = c
