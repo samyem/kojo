@@ -140,15 +140,9 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
-            <file name="net-kogics-kojo-Samples.Polygon.instance">
+            <file name="net-kogics-kojo-Samples.Dragon.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Polygon"/>
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="noIconInMenu" boolvalue="false"/>
-            </file>
-            <file name="net-kogics-kojo-Samples.Parallelogram.instance">
-                <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Parallelogram"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Dragon"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
@@ -235,6 +229,10 @@
                 <file name="net-kogics-kojo-Samples.Tree.shadow">
                     <attr name="position" intvalue="4"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Tree.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Samples.Dragon.shadow">
+                    <attr name="position" intvalue="5"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Dragon.instance"/>
                 </file>
             </folder>
             <folder name="Turtle Art ">
