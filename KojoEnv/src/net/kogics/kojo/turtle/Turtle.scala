@@ -850,12 +850,13 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     val Log = Logger.getLogger(getClass.getName);
 
     val turtle = Turtle.this
-    val RoundCap = BasicStroke.CAP_ROUND
-    val ButtCap = BasicStroke.CAP_BUTT
-    val Join = BasicStroke.JOIN_ROUND
+    val CapThick = BasicStroke.CAP_ROUND
+    val CapThin = BasicStroke.CAP_BUTT
+    val JoinThick = BasicStroke.JOIN_ROUND
+    val JoinThin = BasicStroke.JOIN_BEVEL
     val DefaultColor = Color.red
     val DefaultFillColor = null
-    val DefaultStroke = new BasicStroke(2, RoundCap, Join)
+    val DefaultStroke = new BasicStroke(2, CapThick, JoinThick)
 
     def init() {
       lineColor = DefaultColor
@@ -891,7 +892,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
     def rawSetAttrs(color: Color, thickness: Double, fColor: Color) {
       lineColor = color
-      val Cap = if (thickness < 1) ButtCap else RoundCap
+      val Cap = if (thickness < 1) CapThin else CapThick
+      val Join = if (thickness < 1) JoinThin else JoinThick
       lineStroke = new BasicStroke(thickness.toFloat, Cap, Join)
       fillColor = fColor
     }
@@ -902,7 +904,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
 
     def setThickness(t: Double) {
-      val Cap = if (t < 1) ButtCap else RoundCap
+      val Cap = if (t < 1) CapThin else CapThick
+      val Join = if (t < 1) JoinThin else JoinThick
       lineStroke = new BasicStroke(t.toFloat, Cap, Join)
       addNewPath()
     }

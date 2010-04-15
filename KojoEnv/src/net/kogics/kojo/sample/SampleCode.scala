@@ -35,8 +35,9 @@ object SampleCode {
       case "Plant" => Plant
       case "Sun, Fence, and Flower" => SunFenceFlower
       case "Rangoli" => Rangoli
-      case "Koch Snowflake" => Snowflake
+      case "Snowflake" => Snowflake
       case "Tree" => Tree
+      case "Dragon" => Dragon
       case "Polygon" => Polygon
       case "Parallelogram" => Parallelogram
       case "Parallel/Transversal" => ParTrans
@@ -617,6 +618,32 @@ back(200)
 penDown
 tree(90)
   """
+
+  val Dragon = """
+// Example contributed by Łukasz Lew
+
+def dragon (depth : Int, angle : Double) : Unit = {
+    if (depth == 0) {
+        forward (10)
+        return;
+    }
+
+    turn (angle)
+    dragon (depth-1, angle.abs)
+    turn (-angle)
+
+    turn (-angle)
+    dragon (depth-1, -angle.abs)
+    turn (angle)
+}
+
+clear()
+setAnimationDelay(0)
+setPenThickness (7)
+setPenColor(color(0x365348))
+
+dragon (10, 45)
+"""
 
   val Polygon = """
 def regularPoly(n: Int, size: Int) {

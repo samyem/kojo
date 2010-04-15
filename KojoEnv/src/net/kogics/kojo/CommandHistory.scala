@@ -144,13 +144,13 @@ class CommandHistory private[kojo] (historySaver: HistorySaver, maxHistorySize: 
   def hasPrevious = hIndex > 0
 
   def toPosition(idx: Int): Option[String] = {
-    if (idx < 0 || idx > size-1) None
+    if (idx < 0 || idx > history.size) None
     else {
       if (hIndex != idx) {
         hIndex = idx
         if(listener.isDefined) listener.get.selectionChanged(hIndex)
       }
-      Some(history(hIndex))
+      if (hIndex == history.size) None else Some(history(hIndex))
     }
   }
 
@@ -168,8 +168,7 @@ class CommandHistory private[kojo] (historySaver: HistorySaver, maxHistorySize: 
     else {
       hIndex += 1
       if(listener.isDefined) listener.get.selectionChanged(hIndex)
-      if (hIndex == history.size) None
-      else Some(history(hIndex))
+      if (hIndex == history.size) None else Some(history(hIndex))
     }
   }
 
