@@ -37,6 +37,7 @@ import turtle.Turtle
 import turtle.TurtleListener
 import turtle.NoopTurtleListener
 import turtle.Command
+import core.Style
 
 object SpriteCanvas extends InitedSingleton[SpriteCanvas] {
   def initedInstance(kojoCtx: KojoCtx) = synchronized {
@@ -281,6 +282,10 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def setPenColor(color: Color) = turtle.setPenColor(color)
   def setPenThickness(t: Double) = turtle.setPenThickness(t)
   def setFillColor(color: Color) = turtle.setFillColor(color)
+
+  def saveStyle() = turtle.saveStyle()
+  def restoreStyle() = turtle.restoreStyle()
+  def style: Style = turtle.style
 
   def towards(x: Double, y: Double) = turtle.towards(x, y)
   def position: core.Point = turtle.position

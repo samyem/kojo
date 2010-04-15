@@ -13,6 +13,9 @@
  *
  */
 package net.kogics.kojo.core
+import java.awt.Color
+
+case class Style(val penColor: Color, val penThickness: Double, val fillColor: Color)
 
 trait TurtleMover {
   def forward(n: Double): Unit
@@ -24,9 +27,12 @@ trait TurtleMover {
   def left(): Unit = left(90)
   def penUp(): Unit
   def penDown(): Unit
-  def setPenColor(color: java.awt.Color): Unit
+  def setPenColor(color: Color): Unit
   def setPenThickness(t: Double): Unit
-  def setFillColor(color: java.awt.Color): Unit
+  def setFillColor(color: Color): Unit
+  def saveStyle(): Unit
+  def restoreStyle(): Unit
+  def style: Style
   def towards(x: Double, y: Double): Unit
   def towards(p: Point): Unit = towards(p.x, p.y)
   def position: Point

@@ -522,6 +522,9 @@ Here's a partial list of available commands:
     def setPenColor(color: Color) = tCanvas.setPenColor(color)
     def setPenThickness(t: Double) = tCanvas.setPenThickness(t)
     def setFillColor(color: Color) = tCanvas.setFillColor(color)
+    def saveStyle() = tCanvas.saveStyle()
+    def restoreStyle() = tCanvas.restoreStyle()
+    def style: Style = tCanvas.style
     def beamsOn() = tCanvas.beamsOn()
     def beamsOff() = tCanvas.beamsOff()
     def write(text: String) = tCanvas.write(text)

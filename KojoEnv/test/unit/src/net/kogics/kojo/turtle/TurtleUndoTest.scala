@@ -27,6 +27,8 @@ import org.scalacheck.Prop.forAll
 import edu.umd.cs.piccolo.PCanvas
 
 import net.kogics.kojo.util.Utils._
+import core.Style
+import java.awt.Color
 
 class TurtleUndoTest extends KojoTestBase {
 
@@ -138,5 +140,61 @@ class TurtleUndoTest extends KojoTestBase {
       s0 == s1
     }
     assertTrue(SCTest.check(propForwardUndo).passed)
+  }
+
+  @Test
+  def testStyleRestoreUndo1 {
+    // style 1
+    turtle.setPenThickness(1)
+    turtle.setPenColor(Color.blue)
+    turtle.setFillColor(Color.green)
+    turtle.saveStyle()
+
+    // style 2
+    turtle.setPenThickness(3)
+    turtle.setPenColor(Color.green)
+    turtle.setFillColor(Color.blue)
+    assertEquals(Style(Color.green, 3, Color.blue), turtle.style)
+
+    // change to style 1
+    turtle.restoreStyle()
+    assertEquals(Style(Color.blue, 1, Color.green), turtle.style)
+
+    // undo style 1 change. Back to style 2
+    turtle.undo()
+    assertEquals(Style(Color.green, 3, Color.blue), turtle.style)
+
+    // undo 3 steps of setting style 2
+    turtle.undo()
+    turtle.undo()
+    turtle.undo()
+    // back to style 1
+    assertEquals(Style(Color.blue, 1, Color.green), turtle.style)
+  }
+
+  @Test
+  def testStyleRestoreUndo2 {
+
+    turtle.setPenThickness(5)
+    turtle.saveStyle()
+    turtle.setPenThickness(10)
+    assertEquals(10, turtle.style.penThickness, 0.001)
+    turtle.restoreStyle()
+    assertEquals(5, turtle.style.penThickness, 0.001)
+
+    // undo restore
+    turtle.undo()
+    assertEquals(10, turtle.style.penThickness, 0.001)
+
+    // make sure re-restore works
+    turtle.restoreStyle()
+    assertEquals(5, turtle.style.penThickness, 0.001)
+
+    // undo restore back to 10
+    turtle.undo()
+
+    // undo setting to 10
+    turtle.undo()
+    assertEquals(5, turtle.style.penThickness, 0.001)
   }
 }
