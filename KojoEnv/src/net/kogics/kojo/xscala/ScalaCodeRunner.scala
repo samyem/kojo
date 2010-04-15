@@ -665,6 +665,7 @@ Here's a partial list of available commands:
     }
 
     val O = PVector(0, 0)
+    def M = PVector(width / 2, height / 2)
 
     def clear() = tCanvas.figure0.clear()
     def background(c: java.awt.Color) { tCanvas.setBackgroundColor(c) }
