@@ -15,5 +15,17 @@
          description="The Kojo Learning Environment"
          initialState="normal">
       </shortcut>
+      <shortcut
+         name="Uninstall Kojo"
+         target="java"
+         programGroup="yes"
+         desktop="yes"
+         applications="no"
+         startMenu="no"
+         startup="no"
+         commandLine="-jar &quot;$INSTALL_PATH\Uninstaller\uninstaller.jar&quot;"
+         description="Uninstall The Kojo Learning Environment"
+         initialState="normal">
+      </shortcut>
 </shortcuts>
 
