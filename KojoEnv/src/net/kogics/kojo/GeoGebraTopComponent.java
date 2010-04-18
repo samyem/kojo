@@ -117,7 +117,7 @@ public final class GeoGebraTopComponent extends TopComponent {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
-        // TODO store your settings
+        p.setProperty("storeFile", geoGebraCanvas().lastLoadStoreFile());
     }
 
     Object readProperties(java.util.Properties p) {
@@ -130,7 +130,7 @@ public final class GeoGebraTopComponent extends TopComponent {
 
     private void readPropertiesImpl(java.util.Properties p) {
         String version = p.getProperty("version");
-        // TODO read your settings according to their version
+        geoGebraCanvas().setLastLoadStoreFile(p.getProperty("storeFile"));
     }
 
     @Override
