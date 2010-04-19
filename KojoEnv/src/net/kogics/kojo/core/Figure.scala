@@ -54,6 +54,7 @@ trait Figure {
   def rectangle(x0: Double, y0: Double, w: Double, h: Double): FRectangle
   def text(content: String, p: Point): FText
   def text(content: String, x: Double, y: Double): FText
+  def stagingShape(path: net.kogics.kojo.kgeom.PolyLine): net.kogics.kojo.kgeom.PolyLine
   def refresh(fn: => Unit): Unit
   def onMouseMove(fn: (Double, Double) => Unit): Unit
 }

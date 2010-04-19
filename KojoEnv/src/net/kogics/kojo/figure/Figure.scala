@@ -222,6 +222,15 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def text(content: String, p: Point): FText = text(content, p.x, p.y)
 
 
+  def stagingShape(path: kgeom.PolyLine): kgeom.PolyLine = {
+    Utils.runInSwingThread {
+      currLayer.addChild(path)
+      currLayer.repaint()
+    }
+    path
+  }
+
+
   def refresh(fn: => Unit) {
     
     Utils.runInSwingThread {
