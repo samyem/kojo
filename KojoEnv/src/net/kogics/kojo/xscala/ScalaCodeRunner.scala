@@ -920,6 +920,46 @@ Here's a partial list of available commands:
       new Image(PImage.toBufferedImage(img, false))
     }
 
+    class Shape (mode: Symbol) {
+      def this () = this('default)
+
+      var hasNoPoints = true
+      var point0: PVector = _
+
+      val shapePath = new kgeom.PolyLine()
+      shapePath.setStroke(tCanvas.figure0.lineStroke)
+      shapePath.setStrokePaint(tCanvas.figure0.lineColor)
+      shapePath.setPaint(tCanvas.figure0.fillColor)
+
+      // TODO does not set colors correctly
+
+      def vertex(x: Double, y: Double): Shape = {
+        if (hasNoPoints) {
+          hasNoPoints = false
+          point0 = (x, y)
+        }
+        shapePath.addPoint(x, y)
+        this
+      }
+      def vertex(p: PVector): Shape = vertex(p.x, p.y)
+
+      def close = {
+        shapePath.close
+        this
+      }
+
+      def addToFigure {
+        if (shapePath.closed) shapePath.addPoint(point0.x, point0.y)
+        tCanvas.figure0.stagingShape(shapePath)
+      }
+    }
+    def beginShape()(fn: Shape => Shape) {
+      fn(new Shape).addToFigure
+    }
+    def beginShape(mode: Symbol)(fn: Shape => Shape) {
+      fn(new Shape(mode)).addToFigure
+    }
+
     initialize
     def initialize {
       tCanvas.setAnimationDelay(0)
