@@ -682,13 +682,11 @@ Here's a partial list of available commands:
     def background(c: java.awt.Color) { tCanvas.setBackgroundColor(c) }
 
     def fill(c: java.awt.Color) {
-      currentStyle.fillColor = c
       tCanvas.figure0.setFillColor(c)
     }
     def noFill { fill(null) }
 
     def stroke(c: java.awt.Color) {
-      currentStyle.lineColor = c
       tCanvas.figure0.setPenColor(c)
     }
     def noStroke { stroke(null) }
@@ -712,10 +710,9 @@ Here's a partial list of available commands:
     implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
 
     def strokeWeight(sw: Float) {
-      val s = currentStyle.lineStroke
-      currentStyle.lineStroke =
+      val s = tCanvas.figure0.lineStroke
+      tCanvas.figure0.lineStroke =
         new java.awt.BasicStroke(sw, s.getEndCap, s.getLineJoin)
-      tCanvas.figure0.lineStroke = currentStyle.lineStroke
     }
 
     def strokeCap(mode: Symbol) {
@@ -725,10 +722,9 @@ Here's a partial list of available commands:
         case 'PROJECT => java.awt.BasicStroke.CAP_SQUARE
         case _ => error("No such cap style: " + mode)
       }
-      val s = currentStyle.lineStroke
-      currentStyle.lineStroke =
+      val s = tCanvas.figure0.lineStroke
+      tCanvas.figure0.lineStroke =
         new java.awt.BasicStroke(s.getLineWidth, cap, s.getLineJoin)
-      tCanvas.figure0.lineStroke = currentStyle.lineStroke
     }
 
     def strokeJoin(mode: Symbol) {
@@ -738,10 +734,9 @@ Here's a partial list of available commands:
         case 'BEVEL => java.awt.BasicStroke.JOIN_BEVEL
         case _ => error("No such join style: " + mode)
       }
-      val s = currentStyle.lineStroke
-      currentStyle.lineStroke =
+      val s = tCanvas.figure0.lineStroke
+      tCanvas.figure0.lineStroke =
         new java.awt.BasicStroke(s.getLineWidth, s.getEndCap, join)
-      tCanvas.figure0.lineStroke = currentStyle.lineStroke
     }
 
     def sq(x: Double) = x * x
@@ -832,30 +827,40 @@ Here's a partial list of available commands:
     def color(rgb: Int, alpha: Int) =
       new java.awt.Color(alpha << 24 | rgb, true)
 
-    class Style {
-      var lineColor  = tCanvas.figure0.lineColor
-      var fillColor  = tCanvas.figure0.fillColor
+    class StagingStyle {
+      var lineColor: Color = _
+      var fillColor: Color = _
       // TODO tint
-      var lineStroke = tCanvas.figure0.lineStroke
+      var lineStroke: java.awt.BasicStroke = _
       // TODO imageMode
       // TODO rectMode(), ellipseMode(), shapeMode
       var colorMode  = currentColorMode
       // TODO textAlign(), textFont(), textMode(), textSize(), textLeading
       // TODO emissive(), specular(), shininess(), ambient
+      //
+      def sync {
+        lineColor  = tCanvas.figure0.lineColor
+        fillColor  = tCanvas.figure0.fillColor
+        lineStroke = tCanvas.figure0.lineStroke
+      }
+      def restore {
+        tCanvas.figure0.setPenColor(lineColor)
+        tCanvas.figure0.setFillColor(fillColor)
+        tCanvas.figure0.lineStroke = lineStroke
+      }
     }
 
-    val styleStack = new collection.mutable.Stack[Style]()
-    var currentStyle = new Style
+    val styleStack = new collection.mutable.Stack[StagingStyle]()
+    var currentStyle = new StagingStyle
     def pushStyle {
+      currentStyle.sync
       styleStack push currentStyle
-      currentStyle = new Style
+      currentStyle = new StagingStyle
     }
     def popStyle {
       require(styleStack.nonEmpty, "no style to pop")
       currentStyle = styleStack.pop
-      tCanvas.figure0.setPenColor(currentStyle.lineColor)
-      tCanvas.figure0.setFillColor(currentStyle.fillColor)
-      tCanvas.figure0.lineStroke = currentStyle.lineStroke
+      currentStyle.restore
     }
 
     def init(fn: => Unit) = fn
