@@ -30,4 +30,9 @@ public class Installer extends ModuleInstall {
         GeoGebraCanvas.initedInstance((KojoCtx)KojoCtx.instance());
         SpriteCanvas.initedInstance((KojoCtx)KojoCtx.instance());
     }
+
+    @Override
+    public boolean closing() {
+        return ((GeoGebraCanvas)GeoGebraCanvas.instance()).ensureWorkSaved();
+    }
 }

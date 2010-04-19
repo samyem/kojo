@@ -84,6 +84,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   private val CommandActor = makeCommandProcessor()
   @volatile private var geomObj: DynamicShape = _
   private val history = new mutable.Stack[UndoCommand]
+  private val savedStyles = new mutable.Stack[Style]
   @volatile private var isVisible: Boolean = _
   @volatile private var areBeamsOn: Boolean = _
 
@@ -194,6 +195,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   def moveTo(x: Double, y: Double) = enqueueCommand(MoveTo(x, y, cmdBool))
   def setPenColor(color: Color) = enqueueCommand(SetPenColor(color, cmdBool))
   def setFillColor(color: Color) = enqueueCommand(SetFillColor(color, cmdBool))
+  def saveStyle() = enqueueCommand(SaveStyle(cmdBool))
+  def restoreStyle() = enqueueCommand(RestoreStyle(cmdBool))
   def beamsOn() = enqueueCommand(BeamsOn(cmdBool))
   def beamsOff() = enqueueCommand(BeamsOff(cmdBool))
   def write(text: String) = enqueueCommand(Write(text, cmdBool))
@@ -224,6 +227,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       case 'position => GetPosition(latch, cmdBool)
       case 'heading => GetHeading(latch, cmdBool)
       case 'state => GetState(latch, cmdBool)
+      case 'style => GetStyle(latch, cmdBool)
     }
 
     enqueueCommand(cmd)
@@ -251,6 +255,13 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     getWorker('heading)
     thetaDegrees
   }
+
+  def style: Style = {
+    getWorker('style)
+    currStyle
+  }
+
+  private def currStyle = Style(pen.getColor, pen.getThickness, pen.getFillColor)
 
   def state: SpriteState = {
     def textNodes: scala.List[PText] = {
@@ -291,8 +302,12 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   // invoke fn in GUI thread, and call doneFn after it is done
   private def realWorker2(fn:  => Unit) {
     realWorker { doneFn =>
-      fn
-      doneFn()
+      try {
+        fn
+      }
+      finally {
+        doneFn()
+      }
     }
   }
 
@@ -314,8 +329,12 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private def realWorker4(cmd: Command)(fn:  => Unit) {
     realWorker3 (cmd) { doneFn =>
-      fn
-      doneFn()
+      try {
+        fn
+      }
+      finally {
+        doneFn()
+      }
     }
   }
 
@@ -537,6 +556,22 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     pen.setFillColor(color)
   }
 
+  private def realSaveStyle(cmd: Command) {
+    pushHistory(UndoSaveStyle())
+    savedStyles.push(currStyle)
+  }
+
+  private def realRestoreStyle(cmd: Command) {
+    if (savedStyles.size == 0) {
+      throw new IllegalStateException("No saved style to restore")
+    }
+    val style = savedStyles.pop()
+    pushHistory(UndoRestoreStyle(currStyle, style))
+    pen.setColor(style.penColor)
+    pen.setThickness(style.penThickness)
+    pen.setFillColor(style.fillColor)
+  }
+
   private def beamsOnWorker() {
     if (!areBeamsOn) {
       turtle.addChild(0, xBeam)
@@ -642,6 +677,15 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     else beamsOffWorker()
   }
 
+  private def undoSaveStyle() {
+    savedStyles.pop()
+  }
+
+  private def undoRestoreStyle(currStyle: Style, savedStyle: Style) {
+    savedStyles.push(savedStyle)
+    undoPenAttrs(currStyle.penColor, currStyle.penThickness, currStyle.fillColor)
+  }
+
   private def resetRotation() {
     changeHeading(Utils.deg2radians(90))
   }
@@ -731,6 +775,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         undoVisibility(visible, areBeamsOn)
       case cmd @ CompositeUndoCommand(cmds) =>
         handleCompositeCommand(cmds)
+      case cmd @ UndoSaveStyle() =>
+        undoSaveStyle()
+      case cmd @ UndoRestoreStyle(currStyle: Style, savedStyle: Style) =>
+        undoRestoreStyle(currStyle, savedStyle)
     }
 
     def realUndo(undoCmd: Command) {
@@ -802,6 +850,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
           processGetCommand(cmd, l) {
             realGetWorker()
           }
+        case cmd @ GetStyle(l, b) =>
+          processGetCommand(cmd, l) {
+            realGetWorker()
+          }
         case cmd @ SetPenColor(color, b) =>
           processCommand(cmd) {
             realSetPenColor(color, cmd)
@@ -813,6 +865,14 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         case cmd @ SetFillColor(color, b) =>
           processCommand(cmd) {
             realSetFillColor(color, cmd)
+          }
+        case cmd @ SaveStyle(b) =>
+          processCommand(cmd) {
+            realSaveStyle(cmd)
+          }
+        case cmd @ RestoreStyle(b) =>
+          processCommand(cmd) {
+            realRestoreStyle(cmd)
           }
         case cmd @ BeamsOn(b) =>
           processCommand(cmd) {

@@ -10,6 +10,7 @@ import net.kogics.kojo.InitedSingleton
 import geogebra.GeoGebraPanel;
 import geogebra.gui.menubar.GeoGebraMenuBar
 import net.kogics.kojo.core.KojoCtx
+import java.io.File
 
 object GeoGebraCanvas extends InitedSingleton[GeoGebraCanvas] {
   def initedInstance(kojoCtx: KojoCtx) = synchronized {
@@ -37,4 +38,25 @@ class GeoGebraCanvas extends GeoGebraPanel {
   val geomCanvas = new GeomCanvas(ggbApi)
 
   def selectAllAction = app.getGuiManager().getMenuBar().asInstanceOf[GeoGebraMenuBar].getSelectAllAction
+
+  def lastLoadStoreFile = {
+    val cf = app.getCurrentFile
+    if (cf == null) "" else cf.getAbsolutePath
+  }
+
+  def setLastLoadStoreFile(fileName: String) {
+    if (fileName == null || fileName.trim() == "") {
+      return
+    }
+
+    val file = new File(fileName)
+    val parent = new File(file.getParent())
+    if (parent.exists && parent.isDirectory) {
+      app.setCurrentFile(file)
+    }
+  }
+
+  def ensureWorkSaved(): Boolean = {
+    app.isSaved || app.getGuiManager().saveCurrentFile()
+  }
 }
