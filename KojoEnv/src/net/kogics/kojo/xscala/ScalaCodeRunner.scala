@@ -887,7 +887,7 @@ Here's a partial list of available commands:
     import java.awt.image.BufferedImage
     class Image (image: BufferedImage) {
       import java.awt.image.PixelGrabber
-      import java.awt.image.ImageObserver
+      //import java.awt.image.ImageObserver
 
       val width      = image.getWidth().toInt
       val height     = image.getHeight().toInt
