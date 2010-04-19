@@ -37,6 +37,7 @@ import turtle.Turtle
 import turtle.TurtleListener
 import turtle.NoopTurtleListener
 import turtle.Command
+import core.Style
 
 object SpriteCanvas extends InitedSingleton[SpriteCanvas] {
   def initedInstance(kojoCtx: KojoCtx) = synchronized {
@@ -238,6 +239,15 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def undo() {
+    // The top level undo command is not meant to be used within a script
+    // (unless the script has only undo commands and runs after the previous 
+    // script has stopped). It should be used interactively as a single command.
+    // If it is used in a script, race conditions will ensue:
+    // - for single turtles: the command to be undone might not have run yet
+    // - for multiple turtles: for a single entry on the turtle history stack,
+    //   the corresponding turtle might get the undo command twice; due to this,
+    //   another turtle might not get the undo command at all. Result - a big undo
+    //   loop will not fully undo a painting
     var undoTurtle: Option[Turtle] = None
     synchronized {
       if (history.size > 0) {
@@ -288,6 +298,10 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def setPenColor(color: Color) = turtle.setPenColor(color)
   def setPenThickness(t: Double) = turtle.setPenThickness(t)
   def setFillColor(color: Color) = turtle.setFillColor(color)
+
+  def saveStyle() = turtle.saveStyle()
+  def restoreStyle() = turtle.restoreStyle()
+  def style: Style = turtle.style
 
   def towards(x: Double, y: Double) = turtle.towards(x, y)
   def position: core.Point = turtle.position

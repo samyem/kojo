@@ -225,7 +225,12 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
     }
 
     public void scrollToEnd() {
+        if (outputPane == null) {
+            // we get here in the unit tests. need to look more into that
+            return;
+        }
+        
         int len = outputPane.getDocument().getLength();
-        outputPane.setCaretPosition(len - 1);
+        outputPane.setCaretPosition(len);
     }
 }

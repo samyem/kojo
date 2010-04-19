@@ -26,6 +26,8 @@ import org.scalacheck.Prop.forAll
 import edu.umd.cs.piccolo.PCanvas
 
 import net.kogics.kojo.util.Utils._
+import core.Style
+import java.awt.Color
 
 class TurtleTest extends KojoTestBase {
 
@@ -345,5 +347,20 @@ class TurtleTest extends KojoTestBase {
     catch {
       case ex: IllegalArgumentException => assertTrue(true)
     }
+  }
+
+  @Test
+  def testStyleSaveRestore {
+    turtle.setPenThickness(1)
+    turtle.setPenColor(Color.blue)
+    turtle.setFillColor(Color.green)
+    assertEquals(Style(Color.blue, 1, Color.green), turtle.style)
+    turtle.saveStyle()
+    turtle.setPenThickness(3)
+    turtle.setPenColor(Color.green)
+    turtle.setFillColor(Color.blue)
+    assertEquals(Style(Color.green, 3, Color.blue), turtle.style)
+    turtle.restoreStyle()
+    assertEquals(Style(Color.blue, 1, Color.green), turtle.style)
   }
 }

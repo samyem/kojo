@@ -12,13 +12,16 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.turtle
+package net.kogics.kojo
+package turtle
 
 import java.awt.Color
 
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.CountDownLatch
 import edu.umd.cs.piccolo.nodes.PText
+
+import core.Style
 
 object Command {
   val AlwaysValid = new AtomicBoolean(true)
@@ -41,6 +44,9 @@ case class GetHeading(latch: CountDownLatch, v: AtomicBoolean) extends Command(v
 case class SetPenColor(color: Color, v: AtomicBoolean) extends Command(v)
 case class SetPenThickness(t: Double, v: AtomicBoolean) extends Command(v)
 case class SetFillColor(color: Color, v: AtomicBoolean) extends Command(v)
+case class SaveStyle(v: AtomicBoolean) extends Command(v)
+case class RestoreStyle(v: AtomicBoolean) extends Command(v)
+case class GetStyle(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
 case class BeamsOn(v: AtomicBoolean) extends Command(v)
 case class BeamsOff(v: AtomicBoolean) extends Command(v)
 case class Write(text: String, v: AtomicBoolean) extends Command(v)
@@ -57,6 +63,9 @@ case class UndoPenAttrs(color: Color, thickness: Double, fillColor: Color) exten
 case class UndoPenState(currPen: Pen) extends UndoCommand
 case class UndoWrite(ptext: PText) extends UndoCommand
 case class UndoVisibility(visible: Boolean, beamsOn: Boolean) extends UndoCommand
+case class UndoSaveStyle() extends UndoCommand
+case class UndoRestoreStyle(currStyle: Style, savedStyle: Style) extends UndoCommand
+
 case class CompositeUndoCommand(cmds: List[UndoCommand]) extends UndoCommand
 
 case class SpriteState(posx: Long, posy: Long,

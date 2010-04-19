@@ -17,9 +17,9 @@
       </shortcut>
       <shortcut
          name="Uninstall Kojo"
-         target="java"
+         target="javaw"
          programGroup="yes"
-         desktop="yes"
+         desktop="no"
          applications="no"
          startMenu="no"
          startup="no"

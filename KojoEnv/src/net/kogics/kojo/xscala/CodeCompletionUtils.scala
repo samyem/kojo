@@ -61,7 +61,9 @@ object CodeCompletionUtils {
     "refresh" -> "refresh {\n    ${cursor}\n}",
     "random" -> "random(${upperBound})",
     "randomDouble" -> "randomDouble(${upperBound})",
-    "zoom" -> "zoom(${zoomFactor}, ${centerX}, ${centerY})"
+    "zoom" -> "zoom(${zoomFactor}, ${centerX}, ${centerY})",
+    "saveStyle" -> "saveStyle()",
+    "restoreStyle" -> "restoreStyle()"
   )
   
   val MethodDropFilter = List("turtle0")
