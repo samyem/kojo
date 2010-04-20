@@ -920,44 +920,84 @@ Here's a partial list of available commands:
       new Image(PImage.toBufferedImage(img, false))
     }
 
-    class Shape (mode: Symbol) {
-      def this () = this('default)
+    trait Shape {
+      val points = new collection.mutable.ArrayBuffer[PVector]
 
-      var hasNoPoints = true
-      var point0: PVector = _
-
-      val shapePath = new kgeom.PolyLine()
-      shapePath.setStroke(tCanvas.figure0.lineStroke)
-      shapePath.setStrokePaint(tCanvas.figure0.lineColor)
-      shapePath.setPaint(tCanvas.figure0.fillColor)
-
-      // TODO does not set colors correctly
-
-      def vertex(x: Double, y: Double): Shape = {
-        if (hasNoPoints) {
-          hasNoPoints = false
-          point0 = (x, y)
-        }
-        shapePath.addPoint(x, y)
+      def vertex(x: Double, y: Double): Shape = vertex(PVector(x, y))
+      def vertex(p: PVector): Shape = {
+        points += p
         this
       }
-      def vertex(p: PVector): Shape = vertex(p.x, p.y)
+
+      def addToFigure: Unit
+    }
+    trait Closable {
+      protected var closed = false
 
       def close = {
-        shapePath.close
+        closed = true
         this
       }
+    }
 
+    class DefaultShape extends Shape with Closable {
       def addToFigure {
-        if (shapePath.closed) shapePath.addPoint(point0.x, point0.y)
-        tCanvas.figure0.stagingShape(shapePath)
+        val shapePath = new kgeom.PolyLine()
+        points foreach { p =>
+          shapePath.addPoint(p.x, p.y)
+        }
+
+        if (closed) shapePath.addPoint(points(0).x, points(0).y)
+        tCanvas.figure0.polyLine(shapePath)
+      }
+    }
+    class PointsShape extends Shape {
+      def addToFigure {
+        points foreach (_.point)
+      }
+    }
+    class LinesShape extends Shape with Closable {
+      def addToFigure {
+        if (closed) points += points(0)
+        require(points.size % 2 == 0, "LINES Shape must have even number of points")
+
+        points grouped(2) foreach { case collection.mutable.ArrayBuffer(p0, p1) =>
+          p0 line p1
+        }
+      }
+    }
+    class TrianglesShape extends Shape with Closable {
+      def addToFigure {
+        if (closed) points += points(0)
+        require(points.size % 3 == 0, "Wrong number of points for TRIANGLES Shape")
+
+        points grouped(3) foreach { case collection.mutable.ArrayBuffer(p0, p1, p2) =>
+          p0 line p1 line p2 line p0
+        }
+      }
+    }
+    class TriangleStripShape extends Shape with Closable {
+      def addToFigure {
+        if (closed) points += points(0)
+        require((points.size - 1) % 3 == 0, "Wrong number of points for TRIANGLESTRIP Shape")
+
+        points sliding(3) foreach { case collection.mutable.ArrayBuffer(p0, p1, p2) =>
+          p0 line p1 line p2 line p0
+        }
       }
     }
     def beginShape()(fn: Shape => Shape) {
-      fn(new Shape).addToFigure
+      fn(new DefaultShape).addToFigure
     }
-    def beginShape(mode: Symbol)(fn: Shape => Shape) {
-      fn(new Shape(mode)).addToFigure
+    def beginShape(mode: Symbol)(fn: Shape => Shape) = mode match {
+      case 'POINTS =>
+        fn(new PointsShape).addToFigure
+      case 'LINES =>
+        fn(new LinesShape).addToFigure
+      case 'TRIANGLES =>
+        fn(new TrianglesShape).addToFigure
+      case 'TRIANGLESTRIP =>
+        fn(new TriangleStripShape).addToFigure
     }
 
     initialize
