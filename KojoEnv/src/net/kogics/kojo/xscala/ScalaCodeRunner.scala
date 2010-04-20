@@ -920,6 +920,15 @@ Here's a partial list of available commands:
       new Image(PImage.toBufferedImage(img, false))
     }
 
+    trait Closable {
+      protected var closed = false
+
+      def close = {
+        closed = true
+        this
+      }
+    }
+
     trait Shape {
       val points = new collection.mutable.ArrayBuffer[PVector]
 
@@ -930,14 +939,6 @@ Here's a partial list of available commands:
       }
 
       def addToFigure: Unit
-    }
-    trait Closable {
-      protected var closed = false
-
-      def close = {
-        closed = true
-        this
-      }
     }
 
     class DefaultShape extends Shape with Closable {
@@ -966,38 +967,72 @@ Here's a partial list of available commands:
         }
       }
     }
-    class TrianglesShape extends Shape with Closable {
+    class TrianglesShape extends Shape {
       def addToFigure {
-        if (closed) points += points(0)
         require(points.size % 3 == 0, "Wrong number of points for TRIANGLES Shape")
 
         points grouped(3) foreach { case collection.mutable.ArrayBuffer(p0, p1, p2) =>
+          // TODO filled figure
           p0 line p1 line p2 line p0
         }
       }
     }
-    class TriangleStripShape extends Shape with Closable {
+    class TriangleStripShape extends Shape {
       def addToFigure {
-        if (closed) points += points(0)
-        require((points.size - 1) % 3 == 0, "Wrong number of points for TRIANGLESTRIP Shape")
+        require(points == 3 || (points.size - 1) % 3 == 0, "Wrong number of points for TRIANGLE_STRIP Shape")
 
         points sliding(3) foreach { case collection.mutable.ArrayBuffer(p0, p1, p2) =>
+          // TODO filled figure
           p0 line p1 line p2 line p0
+        }
+      }
+    }
+    class TriangleFanShape extends Shape {
+      def addToFigure {
+        require(points == 3 || (points.size - 1) % 2 == 0, "Wrong number of points for TRIANGLE_FAN Shape")
+
+        val midpoint = points(0)
+        points.tail sliding(2, 1) foreach { case collection.mutable.ArrayBuffer(p0, p1) =>
+          // TODO filled figure
+          midpoint line p0 line p1
+        }
+      }
+    }
+    class QuadsShape extends Shape {
+      def addToFigure {
+        require(points.size % 4 == 0, "Wrong number of points for QUADS Shape")
+
+        points grouped(4) foreach { case collection.mutable.ArrayBuffer(p0, p1, p2, p3) =>
+          // TODO filled figure
+          p0 line p1 line p2 line p3 line p0
+        }
+      }
+    }
+    class QuadStripShape extends Shape {
+      def addToFigure {
+        require(points.size % 4 == 0, "Wrong number of points for QUAD_STRIP Shape")
+
+        points sliding(4, 2) foreach { case collection.mutable.ArrayBuffer(p0, p1, p2, p3) =>
+          // TODO wrong shape
+          // TODO filled figure
+          p0 line p1 line p2 line p3 line p0
         }
       }
     }
     def beginShape()(fn: Shape => Shape) {
       fn(new DefaultShape).addToFigure
     }
-    def beginShape(mode: Symbol)(fn: Shape => Shape) = mode match {
-      case 'POINTS =>
-        fn(new PointsShape).addToFigure
-      case 'LINES =>
-        fn(new LinesShape).addToFigure
-      case 'TRIANGLES =>
-        fn(new TrianglesShape).addToFigure
-      case 'TRIANGLESTRIP =>
-        fn(new TriangleStripShape).addToFigure
+    def beginShape(mode: Symbol)(fn: Shape => Shape) = {
+      val sh = mode match {
+        case 'POINTS =>         new PointsShape
+        case 'LINES =>          new LinesShape
+        case 'TRIANGLES =>      new TrianglesShape
+        case 'TRIANGLE_STRIP => new TriangleStripShape
+        case 'TRIANGLE_FAN =>   new TriangleFanShape
+        case 'QUADS =>          new QuadsShape
+        case 'QUAD_STRIP =>     new QuadStripShape
+      }
+      fn(sh).addToFigure
     }
 
     initialize
