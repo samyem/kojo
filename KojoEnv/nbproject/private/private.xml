@@ -2,6 +2,13 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1">
         <file>
+            <url>src/net/kogics/kojo/xscala/ScalaCodeRunner.scala</url>
+            <line>981</line>
+            <line>1011</line>
+            <line>1027</line>
+            <line>1042</line>
+        </file>
+        <file>
             <url>src/net/kogics/kojo/xscala/ScalaFormatter.scala</url>
             <line>163</line>
         </file>

@@ -635,13 +635,11 @@ Here's a partial list of available commands:
       }
       def square(size: Double) = this.rect(size, size)
 
-      def triangle (v1: PVector, v2: PVector) = {
-        this line v1 line v2 line this
-      }
+      def triangle (v1: PVector, v2: PVector) =
+        beginShape('TRIANGLES, Seq(this, v1, v2))
 
-      def quad (v1: PVector, v2: PVector, v3: PVector) = {
-        this line v1 line v2 line v3 line this
-      }
+      def quad (v1: PVector, v2: PVector, v3: PVector) =
+        beginShape('CLOSED, Seq(this, v1, v2, v3))
 
       def arc (w: Double, h: Double, start: Double, stop: Double) = {
         val extent = stop - start
@@ -661,10 +659,7 @@ Here's a partial list of available commands:
 
       def project (pts: Seq[PVector]) = {
         if (pts nonEmpty) {
-          var p = pts.head + this
-          for (px <- pts.tail) {
-            p = p line (px + this)
-          }
+          beginShape('POLYGON, pts map (_ + this))
         }
         this
       }
@@ -941,22 +936,33 @@ Here's a partial list of available commands:
       def addToFigure: Unit
     }
 
-    class DefaultShape extends Shape with Closable {
+    class DefaultShape extends Shape {
       def addToFigure {
         val shapePath = new kgeom.PolyLine()
         points foreach { p =>
           shapePath.addPoint(p.x, p.y)
         }
-
-        if (closed) shapePath.addPoint(points(0).x, points(0).y)
         tCanvas.figure0.polyLine(shapePath)
       }
     }
+
+    class ClosedShape extends Shape {
+      def addToFigure {
+        val shapePath = new kgeom.PolyLine()
+        points foreach { p =>
+          shapePath.addPoint(p.x, p.y)
+        }
+        shapePath.addPoint(points(0).x, points(0).y)
+        tCanvas.figure0.polyLine(shapePath)
+      }
+    }
+
     class PointsShape extends Shape {
       def addToFigure {
         points foreach (_.point)
       }
     }
+
     class LinesShape extends Shape with Closable {
       def addToFigure {
         if (closed) points += points(0)
@@ -967,62 +973,84 @@ Here's a partial list of available commands:
         }
       }
     }
+
     class TrianglesShape extends Shape {
       def addToFigure {
         require(points.size % 3 == 0, "Wrong number of points for TRIANGLES Shape")
 
-        points grouped(3) foreach { case collection.mutable.ArrayBuffer(p0, p1, p2) =>
-          // TODO filled figure
-          p0 line p1 line p2 line p0
+        points grouped(3) foreach { tpoints =>
+          val shapePath = new kgeom.PolyLine()
+          tpoints foreach { p =>
+            shapePath.addPoint(p.x, p.y)
+          }
+          shapePath.addPoint(tpoints(0).x, tpoints(0).y)
+          tCanvas.figure0.polyLine(shapePath)
         }
       }
     }
+
     class TriangleStripShape extends Shape {
       def addToFigure {
-        require(points == 3 || (points.size - 1) % 3 == 0, "Wrong number of points for TRIANGLE_STRIP Shape")
+        require(points.size >= 3, "Wrong number of points for TRIANGLE_STRIP Shape")
 
-        points sliding(3) foreach { case collection.mutable.ArrayBuffer(p0, p1, p2) =>
-          // TODO filled figure
-          p0 line p1 line p2 line p0
+        points sliding(3) foreach { tpoints =>
+          val shapePath = new kgeom.PolyLine()
+          tpoints foreach { p =>
+            shapePath.addPoint(p.x, p.y)
+          }
+          shapePath.addPoint(tpoints(0).x, tpoints(0).y)
+          tCanvas.figure0.polyLine(shapePath)
         }
       }
     }
+
     class TriangleFanShape extends Shape {
       def addToFigure {
-        require(points == 3 || (points.size - 1) % 2 == 0, "Wrong number of points for TRIANGLE_FAN Shape")
+        require(points.size >= 3, "Wrong number of points for TRIANGLE_FAN Shape")
 
         val midpoint = points(0)
-        points.tail sliding(2, 1) foreach { case collection.mutable.ArrayBuffer(p0, p1) =>
-          // TODO filled figure
-          midpoint line p0 line p1
+        points.tail sliding(2) foreach { tpoints =>
+          val shapePath = new kgeom.PolyLine()
+          shapePath.addPoint(midpoint.x, midpoint.y)
+          tpoints foreach { p =>
+            shapePath.addPoint(p.x, p.y)
+          }
+          tCanvas.figure0.polyLine(shapePath)
         }
       }
     }
+
     class QuadsShape extends Shape {
       def addToFigure {
         require(points.size % 4 == 0, "Wrong number of points for QUADS Shape")
 
-        points grouped(4) foreach { case collection.mutable.ArrayBuffer(p0, p1, p2, p3) =>
-          // TODO filled figure
-          p0 line p1 line p2 line p3 line p0
+        points grouped(4) foreach { tpoints =>
+          val shapePath = new kgeom.PolyLine()
+          tpoints foreach { p =>
+            shapePath.addPoint(p.x, p.y)
+          }
+          shapePath.addPoint(tpoints(0).x, tpoints(0).y)
+          tCanvas.figure0.polyLine(shapePath)
         }
       }
     }
+
     class QuadStripShape extends Shape {
       def addToFigure {
         require(points.size % 4 == 0, "Wrong number of points for QUAD_STRIP Shape")
 
-        points sliding(4, 2) foreach { case collection.mutable.ArrayBuffer(p0, p1, p2, p3) =>
-          // TODO wrong shape
-          // TODO filled figure
-          p0 line p1 line p2 line p3 line p0
+        points sliding(4, 2) foreach { tpoints =>
+          val shapePath = new kgeom.PolyLine()
+          tpoints foreach { p =>
+            shapePath.addPoint(p.x, p.y)
+          }
+          shapePath.addPoint(tpoints(0).x, tpoints(0).y)
+          tCanvas.figure0.polyLine(shapePath)
         }
       }
     }
-    def beginShape()(fn: Shape => Shape) {
-      fn(new DefaultShape).addToFigure
-    }
-    def beginShape(mode: Symbol)(fn: Shape => Shape) = {
+
+    def beginShape(mode: Symbol = 'default)(fn: Shape => Shape) = {
       val sh = mode match {
         case 'POINTS =>         new PointsShape
         case 'LINES =>          new LinesShape
@@ -1031,8 +1059,25 @@ Here's a partial list of available commands:
         case 'TRIANGLE_FAN =>   new TriangleFanShape
         case 'QUADS =>          new QuadsShape
         case 'QUAD_STRIP =>     new QuadStripShape
+        case 'CLOSED =>         new ClosedShape
+        case _ =>               new DefaultShape
       }
       fn(sh).addToFigure
+    }
+    def beginShape(mode: Symbol, pts: Seq[PVector]) = {
+      val sh = mode match {
+        case 'POINTS =>         new PointsShape
+        case 'LINES =>          new LinesShape
+        case 'TRIANGLES =>      new TrianglesShape
+        case 'TRIANGLE_STRIP => new TriangleStripShape
+        case 'TRIANGLE_FAN =>   new TriangleFanShape
+        case 'QUADS =>          new QuadsShape
+        case 'QUAD_STRIP =>     new QuadStripShape
+        case 'CLOSED =>         new ClosedShape
+        case _ =>               new DefaultShape
+      }
+      pts foreach { p => sh vertex p }
+      sh.addToFigure
     }
 
     initialize
