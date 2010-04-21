@@ -672,19 +672,10 @@ Here's a partial list of available commands:
 
     val O = PVector(0, 0)
     def M = PVector(width / 2, height / 2)
+    def E = PVector(width, height)
 
     def clear() = tCanvas.figure0.clear()
     def background(c: java.awt.Color) { tCanvas.setBackgroundColor(c) }
-
-    def fill(c: java.awt.Color) {
-      tCanvas.figure0.setFillColor(c)
-    }
-    def noFill { fill(null) }
-
-    def stroke(c: java.awt.Color) {
-      tCanvas.figure0.setPenColor(c)
-    }
-    def noStroke { stroke(null) }
 
     case class RichColor (c: java.awt.Color) {
       def alpha = c.getAlpha
@@ -703,36 +694,6 @@ Here's a partial list of available commands:
       // TODO lerpColor
     }
     implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
-
-    def strokeWeight(sw: Float) {
-      val s = tCanvas.figure0.lineStroke
-      tCanvas.figure0.lineStroke =
-        new java.awt.BasicStroke(sw, s.getEndCap, s.getLineJoin)
-    }
-
-    def strokeCap(mode: Symbol) {
-      val cap = mode match {
-        case 'ROUND => java.awt.BasicStroke.CAP_ROUND
-        case 'SQUARE => java.awt.BasicStroke.CAP_BUTT
-        case 'PROJECT => java.awt.BasicStroke.CAP_SQUARE
-        case _ => error("No such cap style: " + mode)
-      }
-      val s = tCanvas.figure0.lineStroke
-      tCanvas.figure0.lineStroke =
-        new java.awt.BasicStroke(s.getLineWidth, cap, s.getLineJoin)
-    }
-
-    def strokeJoin(mode: Symbol) {
-      val join = mode match {
-        case 'ROUND => java.awt.BasicStroke.JOIN_ROUND
-        case 'MITER => java.awt.BasicStroke.JOIN_MITER
-        case 'BEVEL => java.awt.BasicStroke.JOIN_BEVEL
-        case _ => error("No such join style: " + mode)
-      }
-      val s = tCanvas.figure0.lineStroke
-      tCanvas.figure0.lineStroke =
-        new java.awt.BasicStroke(s.getLineWidth, s.getEndCap, join)
-    }
 
     def sq(x: Double) = x * x
 
@@ -822,40 +783,86 @@ Here's a partial list of available commands:
     def color(rgb: Int, alpha: Int) =
       new java.awt.Color(alpha << 24 | rgb, true)
 
-    class StagingStyle {
-      var lineColor: Color = _
-      var fillColor: Color = _
+    object Style {
+      import java.awt.BasicStroke
       // TODO tint
-      var lineStroke: java.awt.BasicStroke = _
       // TODO imageMode
       // TODO rectMode(), ellipseMode(), shapeMode
       var colorMode  = currentColorMode
       // TODO textAlign(), textFont(), textMode(), textSize(), textLeading
       // TODO emissive(), specular(), shininess(), ambient
       //
-      def sync {
-        lineColor  = tCanvas.figure0.lineColor
-        fillColor  = tCanvas.figure0.fillColor
-        lineStroke = tCanvas.figure0.lineStroke
+      val stack = new collection.mutable.Stack[(Color, Color, BasicStroke)]()
+      def push = {
+        stack push ((stroke, fill, line))
+        this
       }
-      def restore {
+      def pop = {
+        require(stack.nonEmpty, "no style to pop")
+        val (lineColor, fillColor, lineStroke) = stack.pop
         tCanvas.figure0.setPenColor(lineColor)
         tCanvas.figure0.setFillColor(fillColor)
         tCanvas.figure0.lineStroke = lineStroke
+        this
       }
-    }
 
-    val styleStack = new collection.mutable.Stack[StagingStyle]()
-    var currentStyle = new StagingStyle
-    def pushStyle {
-      currentStyle.sync
-      styleStack push currentStyle
-      currentStyle = new StagingStyle
-    }
-    def popStyle {
-      require(styleStack.nonEmpty, "no style to pop")
-      currentStyle = styleStack.pop
-      currentStyle.restore
+      def fill = tCanvas.figure0.fillColor
+      def fill(c: Color) = {
+        tCanvas.figure0.setFillColor(c)
+        this
+      }
+      def fill(oc: Option[Color]) = {
+        oc match {
+          case Some(c) => tCanvas.figure0.setFillColor(c)
+          case None =>    tCanvas.figure0.setFillColor(null)
+        }
+        this
+      }
+
+      def stroke = tCanvas.figure0.lineColor
+      def stroke(c: Color) = {
+        tCanvas.figure0.setPenColor(c)
+        this
+      }
+      def stroke(oc: Option[Color]) = {
+        oc match {
+          case Some(c) => tCanvas.figure0.setPenColor(c)
+          case None =>    tCanvas.figure0.setPenColor(null)
+        }
+        this
+      }
+
+      def line = tCanvas.figure0.lineStroke
+      def width(sw: Float) = {
+        val s = tCanvas.figure0.lineStroke
+        val t = new BasicStroke(sw, s.getEndCap, s.getLineJoin)
+        tCanvas.figure0.lineStroke = t
+        this
+      }
+
+      def cap(mode: Symbol) = {
+        val cap = mode match {
+          case 'SQUARE =>  BasicStroke.CAP_BUTT
+          case 'PROJECT => BasicStroke.CAP_SQUARE
+          case _ =>        BasicStroke.CAP_ROUND
+        }
+        val s = tCanvas.figure0.lineStroke
+        val t = new java.awt.BasicStroke(s.getLineWidth, cap, s.getLineJoin)
+        tCanvas.figure0.lineStroke = t
+        this
+      }
+
+      def join(mode: Symbol) = {
+        val join = mode match {
+          case 'MITER => java.awt.BasicStroke.JOIN_MITER
+          case 'BEVEL => java.awt.BasicStroke.JOIN_BEVEL
+          case _ =>      java.awt.BasicStroke.JOIN_ROUND
+        }
+        val s = tCanvas.figure0.lineStroke
+        val t = new java.awt.BasicStroke(s.getLineWidth, s.getEndCap, join)
+        tCanvas.figure0.lineStroke = t
+        this
+      }
     }
 
     def init(fn: => Unit) = fn
@@ -924,17 +931,23 @@ Here's a partial list of available commands:
       }
     }
 
-    trait Shape {
+    trait BaseShape {
       val points = new collection.mutable.ArrayBuffer[PVector]
 
-      def vertex(x: Double, y: Double): Shape = vertex(PVector(x, y))
-      def vertex(p: PVector): Shape = {
+      def vertex(x: Double, y: Double): BaseShape = vertex(PVector(x, y))
+      def vertex(p: PVector): BaseShape = {
+        points += p
+        this
+      }
+      def add(p: PVector): BaseShape = {
         points += p
         this
       }
 
       def addToFigure: Unit
     }
+
+    abstract class Shape extends BaseShape {}
 
     class DefaultShape extends Shape {
       def addToFigure {
@@ -1080,12 +1093,27 @@ Here's a partial list of available commands:
       sh.addToFigure
     }
 
+    object Shape {
+      def apply(mode: Symbol, pts: Seq[PVector]) = {
+        val sh = mode match {
+          case 'POINTS =>         new PointsShape
+          case 'LINES =>          new LinesShape
+          case 'TRIANGLES =>      new TrianglesShape
+          case 'TRIANGLE_STRIP => new TriangleStripShape
+          case 'TRIANGLE_FAN =>   new TriangleFanShape
+          case 'QUADS =>          new QuadsShape
+          case 'QUAD_STRIP =>     new QuadStripShape
+          case 'CLOSED =>         new ClosedShape
+          case _ =>               new DefaultShape
+        }
+        pts foreach { p => sh vertex p }
+        sh.addToFigure
+      }
+    }
+
     initialize
     def initialize {
       tCanvas.setAnimationDelay(0)
-      strokeWeight(1)
-      strokeCap('ROUND)
-      strokeJoin('MITER)
     }
   }
 
