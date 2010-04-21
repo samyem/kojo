@@ -636,10 +636,10 @@ Here's a partial list of available commands:
       def square(size: Double) = this.rect(size, size)
 
       def triangle (v1: PVector, v2: PVector) =
-        beginShape('TRIANGLES, Seq(this, v1, v2))
+        Shape('TRIANGLES, Seq(this, v1, v2))
 
       def quad (v1: PVector, v2: PVector, v3: PVector) =
-        beginShape('CLOSED, Seq(this, v1, v2, v3))
+        Shape('CLOSED, Seq(this, v1, v2, v3))
 
       def arc (w: Double, h: Double, start: Double, stop: Double) = {
         val extent = stop - start
@@ -659,7 +659,7 @@ Here's a partial list of available commands:
 
       def project (pts: Seq[PVector]) = {
         if (pts nonEmpty) {
-          beginShape('POLYGON, pts map (_ + this))
+          Shape('POLYGON, pts map (_ + this))
         }
         this
       }
@@ -671,11 +671,8 @@ Here's a partial list of available commands:
     }
 
     val O = PVector(0, 0)
-    def M = PVector(width / 2, height / 2)
-    def E = PVector(width, height)
-
-    def clear() = tCanvas.figure0.clear()
-    def background(c: java.awt.Color) { tCanvas.setBackgroundColor(c) }
+    def M = PVector(Screen.width / 2, Screen.height / 2)
+    def E = PVector(Screen.width, Screen.height)
 
     case class RichColor (c: java.awt.Color) {
       def alpha = c.getAlpha
@@ -880,18 +877,30 @@ Here's a partial list of available commands:
       }
     }
 
-    var width = 0
-    var height = 0
-    def size(width: Int, height: Int) {
-      this.width = width
-      this.height = height
-      // TODO make less ad-hoc
-      tCanvas.zoom(560 / height, width / 2, height / 2)
-      onMouseOver(0, height, width, 0) { (x: Double, y: Double) =>
-        mouseX = x
-        mouseY = y
+    object Screen {
+      var width = 0
+      var height = 0
+      def clear = {
+        tCanvas.figure0.clear()
+        this
+      }
+      def background(c: java.awt.Color) = {
+        tCanvas.setBackgroundColor(c)
+        this
+      }
+      def size(width: Int, height: Int) = {
+        this.width = width
+        this.height = height
+        // TODO make less ad-hoc
+        tCanvas.zoom(560 / height, width / 2, height / 2)
+        onMouseOver(0, height, width, 0) { (x: Double, y: Double) =>
+          mouseX = x
+          mouseY = y
+        }
+        this
       }
     }
+
 
     // "My god---it's full of kludges!"
     import java.awt.image.BufferedImage
@@ -922,32 +931,21 @@ Here's a partial list of available commands:
       new Image(PImage.toBufferedImage(img, false))
     }
 
-    trait Closable {
-      protected var closed = false
-
-      def close = {
-        closed = true
-        this
-      }
-    }
-
-    trait BaseShape {
+    abstract class Shape {
       val points = new collection.mutable.ArrayBuffer[PVector]
 
-      def vertex(x: Double, y: Double): BaseShape = vertex(PVector(x, y))
-      def vertex(p: PVector): BaseShape = {
+      def vertex(x: Double, y: Double): Shape = vertex(PVector(x, y))
+      def vertex(p: PVector): Shape = {
         points += p
         this
       }
-      def add(p: PVector): BaseShape = {
+      def add(p: PVector): Shape = {
         points += p
         this
       }
 
       def addToFigure: Unit
     }
-
-    abstract class Shape extends BaseShape {}
 
     class DefaultShape extends Shape {
       def addToFigure {
@@ -976,9 +974,8 @@ Here's a partial list of available commands:
       }
     }
 
-    class LinesShape extends Shape with Closable {
+    class LinesShape extends Shape {
       def addToFigure {
-        if (closed) points += points(0)
         require(points.size % 2 == 0, "LINES Shape must have even number of points")
 
         points grouped(2) foreach { case collection.mutable.ArrayBuffer(p0, p1) =>
@@ -1061,36 +1058,6 @@ Here's a partial list of available commands:
           tCanvas.figure0.polyLine(shapePath)
         }
       }
-    }
-
-    def beginShape(mode: Symbol = 'default)(fn: Shape => Shape) = {
-      val sh = mode match {
-        case 'POINTS =>         new PointsShape
-        case 'LINES =>          new LinesShape
-        case 'TRIANGLES =>      new TrianglesShape
-        case 'TRIANGLE_STRIP => new TriangleStripShape
-        case 'TRIANGLE_FAN =>   new TriangleFanShape
-        case 'QUADS =>          new QuadsShape
-        case 'QUAD_STRIP =>     new QuadStripShape
-        case 'CLOSED =>         new ClosedShape
-        case _ =>               new DefaultShape
-      }
-      fn(sh).addToFigure
-    }
-    def beginShape(mode: Symbol, pts: Seq[PVector]) = {
-      val sh = mode match {
-        case 'POINTS =>         new PointsShape
-        case 'LINES =>          new LinesShape
-        case 'TRIANGLES =>      new TrianglesShape
-        case 'TRIANGLE_STRIP => new TriangleStripShape
-        case 'TRIANGLE_FAN =>   new TriangleFanShape
-        case 'QUADS =>          new QuadsShape
-        case 'QUAD_STRIP =>     new QuadStripShape
-        case 'CLOSED =>         new ClosedShape
-        case _ =>               new DefaultShape
-      }
-      pts foreach { p => sh vertex p }
-      sh.addToFigure
     }
 
     object Shape {
