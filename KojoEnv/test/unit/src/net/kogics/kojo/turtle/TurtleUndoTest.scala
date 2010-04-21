@@ -197,4 +197,30 @@ class TurtleUndoTest extends KojoTestBase {
     turtle.undo()
     assertEquals(5, turtle.style.penThickness, 0.001)
   }
+
+  @Test
+  def testStyleRestoreUndo3 {
+    // style 1
+    turtle.setPenThickness(1)
+    turtle.setPenColor(Color.blue)
+    turtle.setFillColor(Color.green)
+    turtle.saveStyle()
+
+    // style 2
+    turtle.setPenThickness(3)
+    turtle.setPenColor(Color.green)
+    turtle.setFillColor(Color.blue)
+    assertEquals(Style(Color.green, 3, Color.blue), turtle.style)
+    assertEquals(3, turtle.penPaths.last.strokeThickness, 0.001)
+ 
+    // change to style 1
+    turtle.restoreStyle()
+    assertEquals(Style(Color.blue, 1, Color.green), turtle.style)
+    assertEquals(1, turtle.penPaths.last.strokeThickness, 0.001)
+
+    // undo style 1 change. Back to style 2
+    turtle.undo()
+    assertEquals(Style(Color.green, 3, Color.blue), turtle.style)
+    assertEquals(3, turtle.penPaths.last.strokeThickness, 0.001)
+  }
 }

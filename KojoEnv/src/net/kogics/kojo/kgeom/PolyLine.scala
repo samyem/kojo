@@ -54,6 +54,8 @@ class PolyLine extends PNode {
     strokePaint = c
   }
 
+  def strokeThickness = stroke.getLineWidth
+
   def addPoint(p: Point2D.Double): Unit = {
     points += p
     if (points.size == 1) {
