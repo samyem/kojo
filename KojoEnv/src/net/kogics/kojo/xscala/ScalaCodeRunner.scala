@@ -877,13 +877,11 @@ Here's a partial list of available commands:
       }
     }
 
+    def clear = tCanvas.figure0.clear()
+
     object Screen {
       var width = 0
       var height = 0
-      def clear = {
-        tCanvas.figure0.clear()
-        this
-      }
       def background(c: java.awt.Color) = {
         tCanvas.setBackgroundColor(c)
         this
