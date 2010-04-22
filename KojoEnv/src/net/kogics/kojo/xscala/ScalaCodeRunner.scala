@@ -932,11 +932,6 @@ Here's a partial list of available commands:
     abstract class Shape {
       val points = new collection.mutable.ArrayBuffer[PVector]
 
-      def vertex(x: Double, y: Double): Shape = vertex(PVector(x, y))
-      def vertex(p: PVector): Shape = {
-        points += p
-        this
-      }
       def add(p: PVector): Shape = {
         points += p
         this
@@ -1071,7 +1066,7 @@ Here's a partial list of available commands:
           case 'CLOSED =>         new ClosedShape
           case _ =>               new DefaultShape
         }
-        pts foreach { p => sh vertex p }
+        pts foreach { p => sh add p }
         sh.addToFigure
       }
     }
