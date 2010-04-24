@@ -12,25 +12,27 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.turtle
+package net.kogics.kojo
+package turtle
 
 import java.awt.Color
+import core.Style
 
 trait Pen {
   def init(): Unit
   def clear(): Unit
   def updatePosition(): Unit
+  def undoUpdatePosition(): Unit
   def startMove(x: Double, y: Double): Unit
   def move(x: Double, y: Double): Unit
   def endMove(x: Double, y: Double): Unit
   def setColor(color: Color): Unit
   def setThickness(t: Double): Unit
   def setFillColor(color: Color): Unit
+  def setStyle(style: Style): Unit
+  def undoStyle(oldStyle: Style): Unit
   def undoMove(): Unit
   def getColor: Color
   def getFillColor: Color
   def getThickness: Double
-  def rawSetAttrs(color: Color, thickness: Double, fColor: Color): Unit
-  def addNewPath(): Unit
-  def removeLastPath(): Unit
 }
