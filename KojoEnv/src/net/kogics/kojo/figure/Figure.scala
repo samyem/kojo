@@ -122,6 +122,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   type FArc = FigArc
   type FText = FigText
   type FRectangle = FigRectangle
+  type FPath = FigPath
 
 
   def point(x: Double, y: Double): FigPoint = {
@@ -229,6 +230,19 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
       path.setPaint(fillColor)
       currLayer.addChild(path)
       currLayer.repaint()
+    }
+    path
+  }
+
+
+  def path(descriptor: String): FigPath = {
+    val path = new FigPath(canvas, descriptor)
+    Utils.runInSwingThread {
+      path.pPath.setStroke(lineStroke)
+      path.pPath.setStrokePaint(lineColor)
+      path.pPath.setPaint(fillColor)
+      currLayer.addChild(path.pPath)
+      currLayer.repaint
     }
     path
   }
