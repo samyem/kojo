@@ -49,6 +49,8 @@ class Rectangle(val bLeft: Point, val tRight: Point) {
 }
 // class Square(bLeft: Point, tRight: Point) extends Rectangle(bLeft, tRight
 
+class Path(val descriptor: String)
+
 trait MoveablePoint {
   def cx: Double
   def cy: Double
