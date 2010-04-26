@@ -664,10 +664,6 @@ Here's a partial list of available commands:
         this
       }
 
-      def path (d: String) {
-        tCanvas.figure0.path("M" + this.x + "," + this.y + " " + d)
-      }
-
       override def toString = "Staging.PVector(" + x + ", " + y + ")"
     }
     object PVector {
@@ -1074,6 +1070,12 @@ Here's a partial list of available commands:
         sh.addToFigure
       }
     }
+
+
+    def path (d: String) {
+      tCanvas.figure0.path(d)
+    }
+
 
     initialize
     def initialize {

@@ -30,153 +30,305 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
 
   import scala.util.parsing.combinator._
 
-  abstract sealed class SVGCmd(arg: Any) { def apply () }
-  case class MoveToAbs(arg: Any) extends SVGCmd(arg) {
-    def apply () = arg match {
-        case pts: List[_] =>
-          pts foreach { case(x: Float, y: Float) =>
-            pos = (x, y)
-            pPath.moveTo(pos._1, pos._2)
-          }
-        case _ =>
-          error("Bad argument for SVG element")
+  trait Coords {
+    protected var curp: (Float, Float) = (0, 0)
+    protected var lcp = curp  // last control point
+    def toXY (p: (Float, Float)): (Float, Float) = p match {
+      case (x: Float, y: Float) => (x, y)
+    }
+    def toXY (p: Any): (Float, Float) = p match {
+      case (x: Float, y: Float) => (x, y)
+      case _ => error("Expected coordinate values")
+    }
+  }
+  trait AbsoluteCoords extends Coords {
+    def foreachXY(pts: List[_])(fn: (Float, Float) => Unit) {
+      pts foreach {
+        case (x: Float, y: Float) => fn(x, y)
       }
-  }
-  case class MoveToRel(arg: Any) extends SVGCmd(arg) {
-    def apply () = arg match {
-    case pts: List[_] =>
-      pts foreach { case(x: Float, y: Float) =>
-        pos = (pos._1 + x, pos._2 + y)
-        pPath.moveTo(pos._1, pos._2)
+      curp = toXY(pts.last)
+    }
+    def foreachX(xs: List[_])(fn: (Float, Float) => Unit) {
+      xs foreach {
+        case x: Float =>
+          fn(x, curp._2)
       }
-    case _ =>
-      error("Bad argument for SVG element")
-  }
-  }
-  case class LineToAbs(arg: Any) extends SVGCmd(arg) {
-    def apply () = arg match {
-    case pts: List[_] =>
-      pts foreach { case(x: Float, y: Float) =>
-        pos = (x, y)
-        pPath.lineTo(pos._1, pos._2)
+      curp = (xs.last.asInstanceOf[Float], curp._2)
+    }
+    def foreachY(ys: List[_])(fn: (Float, Float) => Unit) {
+      ys foreach {
+        case y: Float =>
+          fn(curp._1, y)
       }
-    case _ =>
-      error("Bad argument for SVG element")
-  }
-  }
-  case class LineToRel(arg: Any) extends SVGCmd(arg) {
-    def apply () = arg match {
-    case pts: List[_] =>
-      pts foreach { case(x: Float, y: Float) =>
-        pos = (pos._1 + x, pos._2 + y)
-        pPath.lineTo(pos._1, pos._2)
+      curp = (curp._1, ys.last.asInstanceOf[Float])
+    }
+    def foreachCurve(cs: List[_])(fn: (Any, Any, Any) => Unit) {
+      var tempCP: (Float, Float) = (0, 0)
+      var tempP: (Float, Float) = (0, 0)
+      cs foreach {
+        case (p1, p2, p) =>
+          val temp = toXY(p1)
+          tempCP = toXY(p2)
+          tempP = toXY(p)
+          fn(temp, tempCP, tempP)
       }
-    case _ =>
-      error("Bad argument for SVG element")
-  }
-  }
-  case class HLineToAbs(arg: Any) extends SVGCmd(arg) {
-    def apply () = arg match {
-    case pts: List[_] =>
-      pts foreach { case x: Float =>
-        pos = (x, pos._2)
-        pPath.lineTo(pos._1, pos._2)
+      lcp = tempCP
+      curp = tempP
+    }
+    def foreachSmoothCurve(cs: List[_])(fn: (Any, Any, Any) => Unit) {
+      var tempCP: (Float, Float) = (0, 0)
+      var tempP: (Float, Float) = (0, 0)
+      cs foreach {
+        case (p2, p) =>
+          val temp = (
+            curp._1 + (curp._1 - lcp._1),
+            curp._2 + (curp._2 - lcp._2)
+          )
+          tempCP = toXY(p2)
+          tempP = toXY(p)
+          fn(temp, tempCP, tempP)
       }
-    case _ =>
-      error("Bad argument for SVG element")
-  }
-  }
-  case class HLineToRel(arg: Any) extends SVGCmd(arg) {
-    def apply () = arg match {
-    case pts: List[_] =>
-      pts foreach { case x: Float =>
-        pos = (pos._1 + x, pos._2)
-        pPath.lineTo(pos._1, pos._2)
+      lcp = tempCP
+      curp = tempP
+    }
+    def foreachQuad(cs: List[_])(fn: (Any, Any) => Unit) {
+      var tempCP: (Float, Float) = (0, 0)
+      var tempP: (Float, Float) = (0, 0)
+      cs foreach {
+        case (p1, p) =>
+          tempCP = toXY(p1)
+          tempP = toXY(p)
+          fn(tempCP, tempP)
       }
-    case _ =>
-      error("Bad argument for SVG element")
-  }
-  }
-  case class VLineToAbs(arg: Any) extends SVGCmd(arg) {
-    def apply () = arg match {
-    case pts: List[_] =>
-      pts foreach { case y: Float =>
-        pos = (pos._1, y)
-        pPath.lineTo(pos._1, pos._2)
+      lcp = tempCP
+      curp = tempP
+    }
+    def foreachSmoothQuad(cs: List[_])(fn: (Any, Any) => Unit) {
+      var tempCP: (Float, Float) = (0, 0)
+      var tempP: (Float, Float) = (0, 0)
+      cs foreach {
+        case (p) =>
+          tempCP = (
+            curp._1 + (curp._1 - lcp._1),
+            curp._2 + (curp._2 - lcp._2)
+          )
+          tempP = toXY(p)
+          fn(tempCP, tempP)
       }
-    case _ =>
-      error("Bad argument for SVG element")
+      lcp = tempCP
+      curp = tempP
+    }
   }
-  }
-  case class VLineToRel(arg: Any) extends SVGCmd(arg) {
-    def apply () = arg match {
-    case pts: List[_] =>
-      pts foreach { case y: Float =>
-        pos = (pos._1, pos._2 + y)
-        pPath.lineTo(pos._1, pos._2)
+  trait RelativeCoords extends Coords {
+    def foreachXY(pts: List[_])(fn: (Float, Float) => Unit) {
+      var temp: (Float, Float) = (0, 0)
+      pts foreach {
+        case (x: Float, y: Float) =>
+          temp = (curp._1 + x, curp._2 + y)
+          fn(temp._1, temp._2)
       }
-    case _ =>
-      error("Bad argument for SVG element")
-  }
-  }
-  def foo (bar: Any): (Float, Float) = bar match {
-    case (x: Float, y: Float) => (x, y)
-    case _ => error("Bad coordinate pair")
-  }
-  case class CurveToAbs(arg: Any) extends SVGCmd(arg) {
-    def apply () = arg match {
-    case pts: List[_] =>
-      pts foreach { case(pa, pb, pc) =>
-        val (p0, p1, p2) = (foo(pa), foo(pb), foo(pc))
-        pos = p2
-        pPath.curveTo(p0._1, p0._2, p1._1, p1._2, p2._1, p2._2)
+      curp = temp
+    }
+    def foreachX(xs: List[_])(fn: (Float, Float) => Unit) {
+      var temp: Float = 0
+      xs foreach {
+        case x: Float =>
+          temp = curp._1 + x
+          fn(temp, curp._2)
       }
-    case _ =>
-      error("Bad argument for SVG element")
-  }
-  }
-  case class CurveToRel(arg: Any) extends SVGCmd(arg) {
-    def apply () = arg match {
-    case pts: List[_] =>
-      pts foreach { case(pa, pb, pc) =>
-        val (p0, p1, p2) = (foo(pa), foo(pb), foo(pc))
-        pos = (pos._1 + p2._1, pos._2 + p2._2)
-        pPath.curveTo(
-          pos._1 + p0._1, pos._2 + p0._2,
-          pos._1 + p1._1, pos._2 + p1._2,
-          pos._1 + p2._1, pos._2 + p2._2
-        )
+      curp = (temp, curp._2)
+    }
+    def foreachY(ys: List[_])(fn: (Float, Float) => Unit) {
+      var temp: Float = 0
+      ys foreach {
+        case y: Float =>
+          temp = curp._2 + y
+          fn(curp._1, temp)
       }
-    case _ =>
-      error("Bad argument for SVG element")
+      curp = (curp._1, temp)
+    }
+    def foreachCurve(cs: List[_])(fn: (Any, Any, Any) => Unit) {
+      var tempCP: (Float, Float) = (0, 0)
+      var tempP: (Float, Float) = (0, 0)
+      cs foreach {
+        case (p1, p2, p) =>
+          val (x1, y1) = toXY(p1)
+          val (x2, y2) = toXY(p2)
+          val (x, y) = toXY(p)
+          val temp = (curp._1 + x1, curp._2 + y1)
+          tempCP = (curp._1 + x2, curp._2 + y2)
+          tempP = (curp._1 + x, curp._2 + y)
+          fn(temp, tempCP, tempP)
+      }
+      lcp = tempCP
+      curp = tempP
+    }
+    def foreachSmoothCurve(cs: List[_])(fn: (Any, Any, Any) => Unit) {
+      var tempCP: (Float, Float) = (0, 0)
+      var tempP: (Float, Float) = (0, 0)
+      cs foreach {
+        case (p2, p) =>
+          val temp = (
+            curp._1 + (curp._1 - lcp._1),
+            curp._2 + (curp._2 - lcp._2)
+          )
+          val (x2, y2) = toXY(p2)
+          val (x, y) = toXY(p)
+          tempCP = (curp._1 + x2, curp._2 + y2)
+          tempP = (curp._1 + x, curp._2 + y)
+          fn(temp, tempCP, tempP)
+      }
+      lcp = tempCP
+      curp = tempP
+    }
+    def foreachQuad(cs: List[_])(fn: (Any, Any) => Unit) {
+      var tempCP: (Float, Float) = (0, 0)
+      var tempP: (Float, Float) = (0, 0)
+      cs foreach {
+        case (p1, p) =>
+          val (x1, y1) = toXY(p1)
+          val (x, y) = toXY(p)
+          tempCP = (curp._1 + x1, curp._2 + y1)
+          tempP = (curp._1 + x, curp._2 + y)
+          fn(tempCP, tempP)
+      }
+      lcp = tempCP
+      curp = tempP
+    }
+    def foreachSmoothQuad(cs: List[_])(fn: (Any, Any) => Unit) {
+      var tempCP: (Float, Float) = (0, 0)
+      var tempP: (Float, Float) = (0, 0)
+      cs foreach {
+        case (p) =>
+          val (x, y) = toXY(p)
+          tempCP = (
+            curp._1 + (curp._1 - lcp._1),
+            curp._2 + (curp._2 - lcp._2)
+          )
+          tempP = (curp._1 + x, curp._2 + y)
+          fn(tempCP, tempP)
+      }
+      lcp = tempCP
+      curp = tempP
+    }
   }
+
+  abstract sealed class SVGCmd { def apply (): Unit }
+  case class MoveToAbs(pts: List[_]) extends SVGCmd with AbsoluteCoords {
+    def apply () = foreachXY(pts) {
+      case(x: Float, y: Float) => pPath.moveTo(x, y)
+    }
   }
-  case class SmoothCurveToAbs(arg: Any) extends SVGCmd(arg) {
+  case class MoveToRel(pts: List[_]) extends SVGCmd with RelativeCoords {
+    def apply () = foreachXY(pts) {
+      case(x: Float, y: Float) => pPath.moveTo(x, y)
+    }
+  }
+  case class LineToAbs(pts: List[_]) extends SVGCmd with AbsoluteCoords {
+    def apply () = foreachXY(pts) {
+      case(x: Float, y: Float) => pPath.lineTo(x, y)
+    }
+  }
+  case class LineToRel(pts: List[_]) extends SVGCmd with RelativeCoords {
+    def apply () = foreachXY(pts) {
+      case(x: Float, y: Float) => pPath.lineTo(x, y)
+    }
+  }
+  case class HLineToAbs(xs: List[_]) extends SVGCmd with AbsoluteCoords {
+    def apply () = foreachX(xs) {
+      case(x: Float, y: Float) => pPath.lineTo(x, y)
+    }
+  }
+  case class HLineToRel(xs: List[_]) extends SVGCmd with RelativeCoords {
+    def apply () = foreachX(xs) {
+      case(x: Float, y: Float) => pPath.lineTo(x, y)
+    }
+  }
+  case class VLineToAbs(ys: List[_]) extends SVGCmd with AbsoluteCoords {
+    def apply () = foreachY(ys) {
+      case(x: Float, y: Float) => pPath.lineTo(x, y)
+    }
+  }
+  case class VLineToRel(ys: List[_]) extends SVGCmd with RelativeCoords {
+    def apply () = foreachY(ys) {
+      case(x: Float, y: Float) => pPath.lineTo(x, y)
+    }
+  }
+  case class CurveToAbs(cs: List[_]) extends SVGCmd with AbsoluteCoords {
+    def apply () = foreachCurve(cs) {
+      case(p1, p2, p) =>
+        val (x1, y1) = toXY(p1)
+        val (x2, y2) = toXY(p2)
+        val (x, y)   = toXY(p)
+        pPath.curveTo(x1, y1, x2, y2, x, y)
+    }
+  }
+  case class CurveToRel(cs: List[_]) extends SVGCmd with RelativeCoords {
+    def apply () = foreachCurve(cs) {
+      case(p1, p2, p) =>
+        val (x1, y1) = toXY(p1)
+        val (x2, y2) = toXY(p2)
+        val (x, y)   = toXY(p)
+        pPath.curveTo(x1, y1, x2, y2, x, y)
+    }
+  }
+  case class SmoothCurveToAbs(cs: List[_]) extends SVGCmd with AbsoluteCoords {
+    def apply () = foreachSmoothCurve(cs) {
+      case(p1, p2, p) =>
+        val (x1, y1) = toXY(p1)
+        val (x2, y2) = toXY(p2)
+        val (x, y)   = toXY(p)
+        pPath.curveTo(x1, y1, x2, y2, x, y)
+    }
+  }
+  case class SmoothCurveToRel(cs: List[_]) extends SVGCmd with RelativeCoords {
+    def apply () = foreachSmoothCurve(cs) {
+      case(p1, p2, p) =>
+        val (x1, y1) = toXY(p1)
+        val (x2, y2) = toXY(p2)
+        val (x, y)   = toXY(p)
+        pPath.curveTo(x1, y1, x2, y2, x, y)
+    }
+  }
+  case class QuadBezierAbs(cs: List[_]) extends SVGCmd with AbsoluteCoords {
+    def apply () = foreachQuad(cs) {
+      case(p1, p) =>
+        val (x1, y1) = toXY(p1)
+        val (x, y)   = toXY(p)
+        pPath.quadTo(x1, y1, x, y)
+    }
+  }
+  case class QuadBezierRel(cs: List[_]) extends SVGCmd with RelativeCoords {
+    def apply () = foreachQuad(cs) {
+      case(p1, p) =>
+        val (x1, y1) = toXY(p1)
+        val (x, y)   = toXY(p)
+        pPath.quadTo(x1, y1, x, y)
+    }
+  }
+  case class SmoothQuadBezierAbs(cs: List[_]) extends SVGCmd with AbsoluteCoords {
+    def apply () = foreachSmoothQuad(cs) {
+      case(p1, p) =>
+        val (x1, y1) = toXY(p1)
+        val (x, y)   = toXY(p)
+        pPath.quadTo(x1, y1, x, y)
+    }
+  }
+  case class SmoothQuadBezierRel(cs: List[_]) extends SVGCmd with RelativeCoords {
+    def apply () = foreachSmoothQuad(cs) {
+      case(p1, p) =>
+        val (x1, y1) = toXY(p1)
+        val (x, y)   = toXY(p)
+        pPath.quadTo(x1, y1, x, y)
+    }
+  }
+  case class EllipticalArcAbs(as: List[_]) extends SVGCmd {
     def apply () = {}
   }
-  case class SmoothCurveToRel(arg: Any) extends SVGCmd(arg) {
+  case class EllipticalArcRel(as: List[_]) extends SVGCmd {
     def apply () = {}
   }
-  case class QuadBezierAbs(arg: Any) extends SVGCmd(arg) {
-    def apply () = {}
-  }
-  case class QuadBezierRel(arg: Any) extends SVGCmd(arg) {
-    def apply () = {}
-  }
-  case class SmoothQuadBezierAbs(arg: Any) extends SVGCmd(arg) {
-    def apply () = {}
-  }
-  case class SmoothQuadBezierRel(arg: Any) extends SVGCmd(arg) {
-    def apply () = {}
-  }
-  case class EllipticalArcAbs(arg: Any) extends SVGCmd(arg) {
-    def apply () = {}
-  }
-  case class EllipticalArcRel(arg: Any) extends SVGCmd(arg) {
-    def apply () = {}
-  }
-  case class Close(arg: Any) extends SVGCmd(arg) {
-    def this() = this(null)
+  case class Close() extends SVGCmd {
     def apply () = pPath.closePath
   }
 
@@ -207,12 +359,9 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
   }
 
   object ParseExpr extends SVGPathParser {
-    def apply (d: String) = {
-      parseAll(svgpath, d)
-    }
+    def apply (d: String) = parseAll(svgpath, d)
   }
 
-  var pos: (Float, Float) = (0, 0)
   try {
     ParseExpr(d).get match {
       case List((move: SVGCmd, drawcmds: List[_])) =>
