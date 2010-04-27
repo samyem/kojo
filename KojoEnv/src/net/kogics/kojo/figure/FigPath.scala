@@ -30,9 +30,9 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
 
   import scala.util.parsing.combinator._
 
+  var curp: (Float, Float) = (0, 0)
+  var lcp = curp  // last control point
   trait Coords {
-    protected var curp: (Float, Float) = (0, 0)
-    protected var lcp = curp  // last control point
     def toXY (p: (Float, Float)): (Float, Float) = p match {
       case (x: Float, y: Float) => (x, y)
     }
