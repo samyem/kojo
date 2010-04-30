@@ -47,6 +47,11 @@ class Rectangle(val bLeft: Point, val tRight: Point) {
   val width = tRight.x - bLeft.x
   val height = tRight.y - bLeft.y
 }
+class RoundRectangle(
+  override val bLeft: Point,
+  override val tRight: Point,
+  rx: Double, ry: Double
+) extends Rectangle(bLeft, tRight)
 // class Square(bLeft: Point, tRight: Point) extends Rectangle(bLeft, tRight
 
 class Path(val descriptor: String)

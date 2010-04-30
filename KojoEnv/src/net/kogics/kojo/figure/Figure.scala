@@ -122,6 +122,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   type FArc = FigArc
   type FText = FigText
   type FRectangle = FigRectangle
+  type FRRectangle = FigRoundRectangle
   type FPath = FigPath
 
 
@@ -209,6 +210,18 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   }
 
   def rectangle(x0: Double, y0: Double, w: Double, h: Double) = rectangle(new Point(x0, y0), new Point(x0+w, y0+h))
+
+  def roundRectangle(x0: Double, y0: Double, w: Double, h: Double, rx: Double, ry: Double) = {
+    val rrect = new FigRoundRectangle(canvas, new Point(x0, y0), new Point(x0+w, y0+h), rx, ry)
+    Utils.runInSwingThread {
+      rrect.pRect.setStroke(lineStroke)
+      rrect.pRect.setStrokePaint(lineColor)
+      rrect.pRect.setPaint(fillColor)
+      currLayer.addChild(rrect.pRect)
+      currLayer.repaint()
+    }
+    rrect
+  }
 
   def text(content: String, x: Double, y: Double): FigText = {
     val txt = new FigText(canvas, content, x, y)
