@@ -597,6 +597,16 @@ Here's a partial list of available commands:
 
     type Color = java.awt.Color
 
+    def withTempStyle(sc: Color, fc: Color = null, sw: Double = 2.0)(fn: =>Unit) = {
+      tCanvas.figure0.saveStyle
+      tCanvas.figure0.setFillColor(fc)
+      tCanvas.figure0.setPenColor(sc)
+      tCanvas.figure0.setPenThickness(sw)
+      try { fn }
+      catch { case e => throw e }
+      finally { tCanvas.restoreStyle }
+    }
+
     case class Point(val x: Double, val y: Double) {
       def +(that: Point) = Point(this.x + that.x, this.y + that.y)
       def -(that: Point) = Point(this.x - that.x, this.y - that.y)
@@ -610,257 +620,103 @@ Here's a partial list of available commands:
     implicit def tupleIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
 
     trait BaseShape {
-      val origin: Point
       protected def mkBaseShape: BaseShape
       protected val shape = mkBaseShape
     }
-    trait EllipticalRadius {
-      val rx: Double
-      val ry: Double
+    trait SimpleShape extends BaseShape {
+      val origin: Point
     }
     trait Extent {
       val width: Double
       val height: Double
     }
-    trait ShapeStyle {
-      val fill: Color
-      val stroke: Color
-      val strokeWidth: Double
-      def withTempStyle(fn: =>Unit) = {
-        tCanvas.saveStyle
-        tCanvas.setFillColor(fill)
-        tCanvas.setPenColor(stroke)
-        tCanvas.setPenThickness(strokeWidth)
-        try { fn }
-        finally { tCanvas.restoreStyle }
-      }
+    trait Roundness {
+      val rx: Double
+      val ry: Double
+    }
+    trait PolyShape extends BaseShape {
+      val points: Seq[Point]
     }
 
-    class Dot(
-      val origin: Point,
-      val fill: Color,
-      val stroke: Color,
-      val strokeWidth: Double
-    ) extends BaseShape with ShapeStyle {
+    class Dot(val origin: Point) extends SimpleShape {
       override protected def mkBaseShape = {
-        withTempStyle {
-          tCanvas.figure0.point(origin.x, origin.y)
-        }
+        tCanvas.figure0.point(origin.x, origin.y)
         this
       }
     }
     object Dot {
-      def apply(
-        p: Point,
-        fc: Color  = tCanvas.style.fillColor,
-        sc: Color  = tCanvas.style.penColor,
-        sw: Double = tCanvas.style.penThickness
-      ) = {
-        new Dot(p, fc, sc, sw)
-      }
+      def apply(p: Point) = new Dot(p)
     }
     def dot(p: Point) = Dot(p)
-    def dot(p: Point, fc: Color, sc: Color, sw: Double = 2) = Dot(p, fc, sc, sw)
     def dot(x: Double, y: Double) = Dot(Point(x, y))
-    def dot(x: Double, y: Double, fc: Color, sc: Color, sw: Double) =
-      Dot(Point(x, y), fc, sc, sw)
 
-    class Line(
-      override val origin: Point,
-      val width: Double,
-      val height: Double,
-      override val fill: Color,
-      override val stroke: Color,
-      override val strokeWidth: Double
-    ) extends Dot(origin, fill, stroke, strokeWidth)
-         with Extent {
-//      def this(p0: Dot, p1: Point) =
-//        this(p0, (p1 - p0.origin).x, (p1 - p0.origin).y)
-
+    class Line(val origin: Point, val width: Double, val height: Double) extends SimpleShape
+                                                                            with Extent {
       override protected def mkBaseShape = {
-        withTempStyle {
-          tCanvas.figure0.line(origin.x, origin.y, origin.x + width, origin.y + height)
-        }
+        tCanvas.figure0.line(origin.x, origin.y, origin.x + width, origin.y + height)
         this
       }
     }
     object Line {
-      def apply(p: Point, w: Double, h: Double, fc: Color, sc: Color, sw: Double): Line = {
-        new Line(p, w, h, fc, sc, sw)
-      }
+      def apply(p: Point, w: Double, h: Double): Line = new Line(p, w, h)
     }
-    def line(x: Double, y: Double, w: Double, h: Double): Line = {
-      val p = Point(x, y)
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Line(p, w, h, fc, sc, sw)
-    }
-    def line(
-      x: Double, y: Double,
-      w: Double, h: Double,
-      fc: Color, sc: Color, sw: Double
-    ): Line = {
-      val p = Point(x, y)
-      Line(p, w, h, fc, sc, sw)
-    }
+    def line(x: Double, y: Double, w: Double, h: Double): Line =
+      Line(Point(x, y), w, h)
     def line(p0: Point, p1: Point): Line = {
-      val w  = (p1 - p0).x
-      val h  = (p1 - p0).y
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Line(p0, w, h, fc, sc, sw)
+      val pd = (p1 - p0)
+      Line(p0, pd.x, pd.y)
     }
-    def line(p0: Point, p1: Point, fc: Color, sc: Color, sw: Double): Line = {
-      val w  = (p1 - p0).x
-      val h  = (p1 - p0).y
-      Line(p0, w, h, fc, sc, sw)
-    }
-    def line(d: Dot, w: Double, h: Double): Line = {
-      val p  = d.origin
-      val fc = d.fill
-      val sc = d.stroke
-      val sw = d.strokeWidth
-      Line(p, w, h, fc, sc, sw)
-    }
-    def line(d: Dot, p: Point): Line = {
-      val p0 = d.origin
-      val w  = (p - d.origin).x
-      val h  = (p - d.origin).y
-      val fc = d.fill
-      val sc = d.stroke
-      val sw = d.strokeWidth
-      Line(p0, w, h, fc, sc, sw)
-    }
+    def line(d: Dot, w: Double, h: Double): Line = Line(d.origin, w, h)
 
     class Rectangle(
-      override val origin: Point,
-      override val width: Double,
-      override val height: Double,
-      override val fill: Color,
-      override val stroke: Color,
-      override val strokeWidth: Double
-    ) extends Line(origin, width, height, fill, stroke, strokeWidth) {
-      //def this(p0: Dot, p1: Point) =        this(p0, (p1 - p0.origin).x, (p1 - p0.origin).y)
-
+      val origin: Point,
+      val width: Double,
+      val height: Double
+    ) extends SimpleShape with Extent {
       override protected def mkBaseShape = {
-        withTempStyle {
-          tCanvas.figure0.rectangle(origin.x, origin.y, width, height)
-        }
+        tCanvas.figure0.rectangle(origin.x, origin.y, width, height)
         this
       }
     }
     object Rectangle {
-      def apply(
-        p: Point,
-        w: Double,
-        h: Double,
-        fc: Color,
-        sc: Color,
-        sw: Double
-      ): Rectangle = {
-        new Rectangle(p, w, h, fc, sc, sw)
-      }
+      def apply(p: Point, w: Double, h: Double): Rectangle =
+        new Rectangle(p, w, h)
     }
     def rectangle(
       x: Double, y: Double,
       w: Double, h: Double
-    ): Rectangle = {
-      val p = Point(x, y)
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Rectangle(p, w, h, fc, sc, sw)
-    }
-    def rectangle(
-      x: Double, y: Double,
-      w: Double, h: Double,
-      fc: Color, sc: Color, sw: Double
-    ): Rectangle = {
-      val p = Point(x, y)
-      Rectangle(p, w, h, fc, sc, sw)
-    }
-    def rectangle(
-      p: Point,
-      w: Double, h: Double
-    ): Rectangle = {
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Rectangle(p, w, h, fc, sc, sw)
-    }
-    def rectangle(
-      p: Point,
-      w: Double, h: Double,
-      fc: Color, sc: Color, sw: Double
-    ): Rectangle = {
-      Rectangle(p, w, h, fc, sc, sw)
-    }
-    def rectangle(
-      p0: Point,
-      p1: Point
-    ): Rectangle = {
-      val w  = (p1 - p0).x
-      val h  = (p1 - p0).y
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Rectangle(p0, w, h, fc, sc, sw)
-    }
-    def rectangle(
-      p0: Point,
-      p1: Point,
-      fc: Color, sc: Color, sw: Double
-    ): Rectangle = {
-      val w  = (p1 - p0).x
-      val h  = (p1 - p0).y
-      Rectangle(p0, w, h, fc, sc, sw)
+    ): Rectangle = Rectangle(Point(x, y), w, h, fc, sc, sw)
+    def rectangle(p: Point, w: Double, h: Double): Rectangle =
+      Rectangle(p, w, h)
+    def rectangle(p0: Point, p1: Point): Rectangle = {
+      val pd = (p1 - p0)
+      Rectangle(p0, pd.x, pd.y)
     }
     def rectangle(d: Dot, w: Double, h: Double): Rectangle = {
       val p  = d.origin
-      val fc = d.fill
-      val sc = d.stroke
-      val sw = d.strokeWidth
-      Rectangle(p, w, h, fc, sc, sw)
+      Rectangle(p, w, h)
     }
     def rectangle(d: Dot, p: Point): Rectangle = {
       val p0 = d.origin
       val w  = (p - d.origin).x
       val h  = (p - d.origin).y
-      val fc = d.fill
-      val sc = d.stroke
-      val sw = d.strokeWidth
-      Rectangle(p0, w, h, fc, sc, sw)
+      Rectangle(p0, w, h)
     }
     def rectangle(ln: Line): Rectangle = {
       val p  = ln.origin
       val w  = ln.width
       val h  = ln.height
-      val fc = ln.fill
-      val sc = ln.stroke
-      val sw = ln.strokeWidth
-      Rectangle(p, w, h, fc, sc, sw)
+      Rectangle(p, w, h)
     }
     def square(x: Double, y: Double, s: Double): Rectangle = {
-      val p = Point(x, y)
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Rectangle(p, s, s, fc, sc, sw)
+      Rectangle(Point(x, y), s, s)
     }
     def square(p: Point, s: Double): Rectangle = {
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Rectangle(p, s, s, fc, sc, sw)
+      Rectangle(p, s, s)
     }
     def square(d: Dot, s: Double): Rectangle = {
       val p  = d.origin
-      val fc = d.fill
-      val sc = d.stroke
-      val sw = d.strokeWidth
-      Rectangle(p, s, s, fc, sc, sw)
+      Rectangle(p, s, s)
     }
 
     class RoundRectangle(
@@ -869,17 +725,9 @@ Here's a partial list of available commands:
       override val height: Double,
       val rx: Double,
       val ry: Double,
-      override val fill: Color,
-      override val stroke: Color,
-      override val strokeWidth: Double
-    ) extends Rectangle(origin, width, height, fill, stroke, strokeWidth)
-         with EllipticalRadius {
-      //def this(p0: Dot, p1: Point, rx: Double, ry: Double) =        this(p0, (p1 - p0.origin).x, (p1 - p0.origin).y, rx, ry)
-
+    ) extends Rectangle(origin, width, height) with Roundness {
       override protected def mkBaseShape = {
-        withTempStyle {
-          tCanvas.figure0.roundRectangle(origin.x, origin.y, width, height, rx, ry)
-        }
+        tCanvas.figure0.roundRectangle(origin.x, origin.y, width, height, rx, ry)
         this
       }
     }
@@ -887,10 +735,9 @@ Here's a partial list of available commands:
       def apply(
         p: Point,
         w: Double, h: Double,
-        rx: Double, ry: Double,
-        fc: Color, sc: Color, sw: Double
+        rx: Double, ry: Double
       ): RoundRectangle = {
-        new RoundRectangle(p, w, h, rx, ry, fc, sc, sw)
+        new RoundRectangle(p, w, h, rx, ry)
       }
     }
     def roundRectangle(
@@ -899,37 +746,14 @@ Here's a partial list of available commands:
       rx: Double, ry: Double
     ): RoundRectangle = {
       val p = Point(x, y)
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      RoundRectangle(p, w, h, rx, ry, fc, sc, sw)
-    }
-    def roundRectangle(
-      x: Double, y: Double,
-      w: Double, h: Double,
-      rx: Double, ry: Double,
-      fc: Color, sc: Color, sw: Double
-    ): RoundRectangle = {
-      val p = Point(x, y)
-      RoundRectangle(p, w, h, rx, ry, fc, sc, sw)
+      RoundRectangle(p, w, h, rx, ry)
     }
     def roundRectangle(
       p: Point,
       w: Double, h: Double,
       rx: Double, ry: Double
     ): RoundRectangle = {
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      RoundRectangle(p, w, h, rx, ry, fc, sc, sw)
-    }
-    def roundRectangle(
-      p: Point,
-      w: Double, h: Double,
-      rx: Double, ry: Double,
-      fc: Color, sc: Color, sw: Double
-    ): RoundRectangle = {
-      RoundRectangle(p, w, h, rx, ry, fc, sc, sw)
+      RoundRectangle(p, w, h, rx, ry)
     }
     def roundRectangle(
       p0: Point, p1: Point,
@@ -937,19 +761,7 @@ Here's a partial list of available commands:
     ): RoundRectangle = {
       val w  = (p1 - p0).x
       val h  = (p1 - p0).y
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      RoundRectangle(p0, w, h, rx, ry, fc, sc, sw)
-    }
-    def roundRectangle(
-      p0: Point, p1: Point,
-      rx: Double, ry: Double,
-      fc: Color, sc: Color, sw: Double
-    ): RoundRectangle = {
-      val w  = (p1 - p0).x
-      val h  = (p1 - p0).y
-      RoundRectangle(p0, w, h, rx, ry, fc, sc, sw)
+      RoundRectangle(p0, w, h, rx, ry)
     }
     def roundRectangle(
       d: Dot,
@@ -957,183 +769,79 @@ Here's a partial list of available commands:
       rx: Double, ry: Double
     ): RoundRectangle = {
       val p  = d.origin
-      val fc = d.fill
-      val sc = d.stroke
-      val sw = d.strokeWidth
-      RoundRectangle(p, w, h, rx, ry, fc, sc, sw)
+      RoundRectangle(p, w, h, rx, ry)
     }
-    def roundRectangle(
-      d: Dot,
-      p: Point,
-      rx: Double, ry: Double
-    ): RoundRectangle = {
+    def roundRectangle(d: Dot, p: Point, rx: Double, ry: Double): RoundRectangle = {
       val p0 = d.origin
       val w  = (p - d.origin).x
       val h  = (p - d.origin).y
-      val fc = d.fill
-      val sc = d.stroke
-      val sw = d.strokeWidth
-      RoundRectangle(p, w, h, rx, ry, fc, sc, sw)
+      RoundRectangle(p, w, h, rx, ry)
     }
     def roundRectangle(ln: Line, rx: Double, ry: Double): RoundRectangle = {
       val p  = ln.origin
       val w  = ln.width
       val h  = ln.height
-      val fc = ln.fill
-      val sc = ln.stroke
-      val sw = ln.strokeWidth
-      RoundRectangle(p, w, h, rx, ry, fc, sc, sw)
+      RoundRectangle(p, w, h, rx, ry)
     }
     def roundRectangle(re: Rectangle, rx: Double, ry: Double): RoundRectangle = {
       val p  = re.origin
       val w  = re.width
       val h  = re.height
-      val fc = re.fill
-      val sc = re.stroke
-      val sw = re.strokeWidth
-      RoundRectangle(p, w, h, rx, ry, fc, sc, sw)
+      RoundRectangle(p, w, h, rx, ry)
     }
 
-    class Polyline(
-      val origin: Point,
-      val points: Seq[Point],
-      val fill: Color,
-      val stroke: Color,
-      val strokeWidth: Double
-    ) extends BaseShape with ShapeStyle {
+    class Polyline(val points: Seq[Point]) extends PolyShape {
       override protected def mkBaseShape = {
-        withTempStyle {
-          val shapePath = new kgeom.PolyLine()
-          points foreach { p =>
-            shapePath.addPoint(p.x, p.y)
-          }
-//        shapePath.polyLinePath.closePath
-          tCanvas.figure0.polyLine(shapePath)
+        val shapePath = new kgeom.PolyLine()
+        points foreach { p =>
+          shapePath.addPoint(p.x, p.y)
         }
+        tCanvas.figure0.polyLine(shapePath)
         this
       }
     }
     object Polyline {
-      def apply(
-        pts: Seq[Point],
-        fc: Color,
-        sc: Color,
-        sw: Double
-      ) = {
-        val origin = pts.head
-        new Polyline(origin, pts, fc, sc, sw)
-      }
+      def apply(pts: Seq[Point]) = new Polyline(pts)
     }
     def polyline(pts: Seq[Point]): Polyline = {
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Polyline(pts, fc, sc, sw)
-    }
-    def polyline(pts: Seq[Point], fc: Color, sc: Color, sw: Double): Polyline = {
-      Polyline(pts, fc, sc, sw)
+      Polyline(pts)
     }
 
-    class Polygon(
-      val origin: Point,
-      val points: Seq[Point],
-      val fill: Color,
-      val stroke: Color,
-      val strokeWidth: Double
-    ) extends BaseShape with ShapeStyle {
+    class Polygon(val points: Seq[Point]) extends PolyShape {
       override protected def mkBaseShape = {
-        withTempStyle {
-          val shapePath = new kgeom.PolyLine()
-          points foreach { p =>
-            shapePath.addPoint(p.x, p.y)
-          }
-          shapePath.polyLinePath.closePath
-          tCanvas.figure0.polyLine(shapePath)
+        val shapePath = new kgeom.PolyLine()
+        points foreach { p =>
+          shapePath.addPoint(p.x, p.y)
         }
+        shapePath.polyLinePath.closePath
+        tCanvas.figure0.polyLine(shapePath)
         this
       }
     }
     object Polygon {
-      def apply(
-        pts: Seq[Point],
-        fc: Color,
-        sc: Color,
-        sw: Double
-      ) = {
-        val origin = pts.head
-        new Polygon(origin, pts, fc, sc, sw)
-      }
+      def apply(pts: Seq[Point]) = new Polygon(pts)
     }
-    def polygon(pts: Seq[Point]): Polygon = {
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Polygon(pts, fc, sc, sw)
-    }
-    def polygon(pts: Seq[Point], fc: Color, sc: Color, sw: Double): Polygon = {
-      Polygon(pts, fc, sc, sw)
-    }
+    def polygon(pts: Seq[Point]): Polygon = Polygon(pts)
     def triangle(p0: Point, p1: Point, p2: Point) = polygon(Seq(p0, p1, p2))
-    def triangle(
-      p0: Point, p1: Point, p2: Point,
-      fc: Color, sc: Color, sw: Double
-    ): Polygon = {
-      Polygon(Seq(p0, p1, p2), fc, sc, sw)
-    }
     def quad(p0: Point, p1: Point, p2: Point, p3: Point) =
       polygon(Seq(p0, p1, p2, p3))
-    def quad(
-      p0: Point, p1: Point, p2: Point, p3: Point,
-      fc: Color, sc: Color, sw: Double
-    ): Polygon = {
-      Polygon(Seq(p0, p1, p2, p3), fc, sc, sw)
-    }
 
     class Ellipse(
       val origin: Point,
       val width: Double,
-      val height: Double,
-      val fill: Color,
-      val stroke: Color,
-      val strokeWidth: Double
-    ) extends BaseShape with Extent with ShapeStyle {
+      val height: Double
+    ) extends SimpleShape with Extent {
       override protected def mkBaseShape = {
-        withTempStyle {
-          tCanvas.figure0.ellipse(origin.x, origin.y, width, height)
-        }
+        tCanvas.figure0.ellipse(origin.x, origin.y, width, height)
         this
       }
     }
     object Ellipse {
-      def apply(
-        p: Point,
-        w: Double, h: Double,
-        fc: Color, sc: Color, sw: Double
-      ) = {
-        new Ellipse(p, w, h, fc, sc, sw)
-      }
+      def apply(p: Point, w: Double, h: Double) = new Ellipse(p, w, h)
     }
-    def ellipse(p: Point, w: Double, h: Double): Ellipse = {
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Ellipse(p, w, h, fc, sc, sw)
-    }
-    def ellipse(
-      p: Point,
-      w: Double, h: Double,
-      fc: Color, sc: Color, sw: Double
-    ): Ellipse = {
-      Ellipse(p, w, h, fc, sc, sw)
-    }
+    def ellipse(p: Point, w: Double, h: Double): Ellipse = Ellipse(p, w, h)
     def circle(p: Point, r: Double): Ellipse = {
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Ellipse(p, 2*r, 2*r, fc, sc, sw)
-    }
-    def circle(p: Point, r: Double, fc: Color, sc: Color, sw: Double): Ellipse = {
-      Ellipse(p, 2*r, 2*r, fc, sc, sw)
+      Ellipse(p, 2*r, 2*r)
     }
 
     class Arc(
@@ -1142,40 +850,19 @@ Here's a partial list of available commands:
       override val height: Double,
       val start: Double,
       val extent: Double,
-      override val fill: Color,
-      override val stroke: Color,
-      override val strokeWidth: Double
-    ) extends Ellipse(origin, width, height, fill, stroke, strokeWidth) {
+    ) extends Ellipse(origin, width, height) {
       override protected def mkBaseShape = {
-        withTempStyle {
-          tCanvas.figure0.arc(origin.x, origin.y, width, height, start, extent)
-        }
+        tCanvas.figure0.arc(origin.x, origin.y, width, height, start, extent)
         this
       }
     }
     object Arc {
-      def apply(
-        p: Point,
-        w: Double, h: Double,
-        s: Double, e: Double,
-        fc: Color, sc: Color, sw: Double
-      ) = {
-        new Arc(p, w, h, s, e, fc, sc, sw)
+      def apply(p: Point, w: Double, h: Double, s: Double, e: Double) = {
+        new Arc(p, w, h, s, e)
       }
     }
     def arc(p: Point, w: Double, h: Double, s: Double, e: Double) = {
-      val fc: Color  = tCanvas.style.fillColor
-      val sc: Color  = tCanvas.style.penColor
-      val sw: Double = tCanvas.style.penThickness
-      Arc(p, w, h, s, e, fc, sc, sw)
-    }
-    def arc(
-      p: Point,
-      w: Double, h: Double,
-      s: Double, e: Double,
-      fc: Color, sc: Color, sw: Double
-    ) = {
-      Arc(p, w, h, s, e, fc, sc, sw)
+      Arc(p, w, h, s, e)
     }
 
     implicit def tupleDToPVector(tuple: (Double, Double)) = PVector(tuple._1, tuple._2)
