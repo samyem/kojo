@@ -596,22 +596,42 @@ Here's a partial list of available commands:
     import math._
 
     type Color = java.awt.Color
-
-    def withTempStyle(sc: Color, fc: Color = null, sw: Double = 2.0)(fn: =>Unit) = {
-      tCanvas.figure0.saveStyle
-      tCanvas.figure0.setFillColor(fc)
-      tCanvas.figure0.setPenColor(sc)
-      tCanvas.figure0.setPenThickness(sw)
-      try { fn }
-      catch { case e => throw e }
-      finally { tCanvas.restoreStyle }
+    type Point = core.Point
+    object Point {
+      def apply(x: Double, y: Double) = new Point(x, y)
     }
 
-    case class Point(val x: Double, val y: Double) {
-      def +(that: Point) = Point(this.x + that.x, this.y + that.y)
-      def -(that: Point) = Point(this.x - that.x, this.y - that.y)
-      def unary_- = Point(-x, -y)
+    var mouseX = 0.
+    var mouseY = 0.
+    def onMouseMove(fn: (Double, Double) => Unit) {
+      tCanvas.figure0.onMouseMove(fn)
     }
+    def onMouseOver(left: Int, top: Int, right: Int, bottom: Int)(fn: (Double, Double) => Unit) {
+      onMouseMove { (x: Double, y: Double) =>
+        if (x >= left && y <= top && x <= right && y >= bottom) fn(x, y)
+      }
+    }
+
+    object Screen {
+      var width = 0
+      var height = 0
+      def background(c: Color) = {
+        tCanvas.setBackgroundColor(c)
+        this
+      }
+      def size(width: Int, height: Int) = {
+        this.width = width
+        this.height = height
+        // TODO make less ad-hoc
+        tCanvas.zoom(560 / height, width / 2, height / 2)
+        onMouseOver(0, height, width, 0) { (x: Double, y: Double) =>
+          mouseX = x
+          mouseY = y
+        }
+        this
+      }
+    }
+
     val O = Point(0, 0)
     def M = Point(Screen.width / 2, Screen.height / 2)
     def E = Point(Screen.width, Screen.height)
@@ -619,251 +639,204 @@ Here's a partial list of available commands:
     implicit def tupleDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
     implicit def tupleIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
 
+    trait Shape
     trait BaseShape {
-      protected def mkBaseShape: BaseShape
-      protected val shape = mkBaseShape
-    }
-    trait SimpleShape extends BaseShape {
       val origin: Point
     }
-    trait Extent {
-      val width: Double
-      val height: Double
+    trait SimpleShape extends BaseShape {
+      val endpoint: Point
+      val width = endpoint.y - origin.y
+      val height = endpoint.x - origin.x
     }
-    trait Roundness {
-      val rx: Double
-      val ry: Double
-    }
-    trait PolyShape extends BaseShape {
+    trait PolyShape extends Shape {
       val points: Seq[Point]
     }
+    trait Rounded {
+      val curvature: Point
+      def radiusX = curvature.x
+      def radiusY = curvature.y
+    }
+    trait Elliptical extends SimpleShape with Rounded {
+      val curvature = endpoint - origin
+    }
 
-    class Dot(val origin: Point) extends SimpleShape {
-      override protected def mkBaseShape = {
-        tCanvas.figure0.point(origin.x, origin.y)
-        this
-      }
+    class Dot(val origin: Point) extends BaseShape {
+      def toLine(p: Point): Line = Line(origin, p)
     }
     object Dot {
-      def apply(p: Point) = new Dot(p)
-    }
-    def dot(p: Point) = Dot(p)
-    def dot(x: Double, y: Double) = Dot(Point(x, y))
-
-    class Line(val origin: Point, val width: Double, val height: Double) extends SimpleShape
-                                                                            with Extent {
-      override protected def mkBaseShape = {
-        tCanvas.figure0.line(origin.x, origin.y, origin.x + width, origin.y + height)
-        this
+      def apply(p: Point) = {
+        val sh = new Dot(p)
+        tCanvas.figure0.point(p.x, p.y)
+        sh
       }
+    }
+    def dot(x: Double, y: Double) = Dot(Point(x, y))
+    def dot(p: Point) = Dot(p)
+
+    class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
+      def toRectangle() = Rectangle(origin, endpoint)
+      def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
+      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+      override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
     }
     object Line {
-      def apply(p: Point, w: Double, h: Double): Line = new Line(p, w, h)
+      def apply(p1: Point, p2: Point) = {
+        val sh = new Line(p1, p2)
+        tCanvas.figure0.line(p1, p2)
+        sh
+      }
     }
     def line(x: Double, y: Double, w: Double, h: Double): Line =
-      Line(Point(x, y), w, h)
-    def line(p0: Point, p1: Point): Line = {
-      val pd = (p1 - p0)
-      Line(p0, pd.x, pd.y)
+      Line(Point(x, y), Point(x + w, y + h))
+    def line(p1: Point, w: Double, h: Double): Line = {
+      Line(p1, Point(p1.x + w, p1.y + h))
     }
-    def line(d: Dot, w: Double, h: Double): Line = Line(d.origin, w, h)
+    def line(p1: Point, p2: Point): Line = {
+      Line(p1, p2)
+    }
 
-    class Rectangle(
-      val origin: Point,
-      val width: Double,
-      val height: Double
-    ) extends SimpleShape with Extent {
-      override protected def mkBaseShape = {
-        tCanvas.figure0.rectangle(origin.x, origin.y, width, height)
-        this
-      }
+    class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
+      def toLine() = Line(origin, endpoint)
+      def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
+      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
     }
     object Rectangle {
-      def apply(p: Point, w: Double, h: Double): Rectangle =
-        new Rectangle(p, w, h)
-    }
-    def rectangle(
-      x: Double, y: Double,
-      w: Double, h: Double
-    ): Rectangle = Rectangle(Point(x, y), w, h, fc, sc, sw)
-    def rectangle(p: Point, w: Double, h: Double): Rectangle =
-      Rectangle(p, w, h)
-    def rectangle(p0: Point, p1: Point): Rectangle = {
-      val pd = (p1 - p0)
-      Rectangle(p0, pd.x, pd.y)
-    }
-    def rectangle(d: Dot, w: Double, h: Double): Rectangle = {
-      val p  = d.origin
-      Rectangle(p, w, h)
-    }
-    def rectangle(d: Dot, p: Point): Rectangle = {
-      val p0 = d.origin
-      val w  = (p - d.origin).x
-      val h  = (p - d.origin).y
-      Rectangle(p0, w, h)
-    }
-    def rectangle(ln: Line): Rectangle = {
-      val p  = ln.origin
-      val w  = ln.width
-      val h  = ln.height
-      Rectangle(p, w, h)
-    }
-    def square(x: Double, y: Double, s: Double): Rectangle = {
-      Rectangle(Point(x, y), s, s)
-    }
-    def square(p: Point, s: Double): Rectangle = {
-      Rectangle(p, s, s)
-    }
-    def square(d: Dot, s: Double): Rectangle = {
-      val p  = d.origin
-      Rectangle(p, s, s)
-    }
-
-    class RoundRectangle(
-      override val origin: Point,
-      override val width: Double,
-      override val height: Double,
-      val rx: Double,
-      val ry: Double,
-    ) extends Rectangle(origin, width, height) with Roundness {
-      override protected def mkBaseShape = {
-        tCanvas.figure0.roundRectangle(origin.x, origin.y, width, height, rx, ry)
-        this
+      def apply(p1: Point, p2: Point) = {
+        val sh = new Rectangle(p1, p2)
+        tCanvas.figure0.rectangle(p1, p2)
+        sh
       }
     }
+    def rectangle(x: Double, y: Double, w: Double, h: Double): Rectangle =
+      Rectangle(Point(x, y), Point(x + w, y + h))
+    def rectangle(p: Point, w: Double, h: Double): Rectangle =
+      Rectangle(p, Point(p.x + w, p.y + h))
+    def rectangle(p1: Point, p2: Point): Rectangle =
+      Rectangle(p1, p2)
+    def square(x: Double, y: Double, s: Double): Rectangle =
+      Rectangle(Point(x, y), Point(x + s, y + s))
+    def square(p: Point, s: Double): Rectangle =
+      Rectangle(p, Point(p.x + s, p.y + s))
+
+    class RoundRectangle(
+      val origin: Point,
+      val endpoint: Point,
+      val curvature: Point
+    ) extends SimpleShape with Rounded {
+      def toLine() = Line(origin, endpoint)
+      def toRectangle() = Rectangle(origin, endpoint)
+      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+    }
     object RoundRectangle {
-      def apply(
-        p: Point,
-        w: Double, h: Double,
-        rx: Double, ry: Double
-      ): RoundRectangle = {
-        new RoundRectangle(p, w, h, rx, ry)
+      def apply(p1: Point, p2: Point, p3: Point) = {
+        val sh = new RoundRectangle(p1, p2, p3)
+        tCanvas.figure0.roundRectangle(p1, p2, sh.radiusX, sh.radiusY)
+        sh
       }
     }
     def roundRectangle(
       x: Double, y: Double,
       w: Double, h: Double,
       rx: Double, ry: Double
-    ): RoundRectangle = {
-      val p = Point(x, y)
-      RoundRectangle(p, w, h, rx, ry)
-    }
+    ) =
+      RoundRectangle(Point(x, y), Point(x + w, y + h), Point(rx, ry))
     def roundRectangle(
       p: Point,
       w: Double, h: Double,
       rx: Double, ry: Double
-    ): RoundRectangle = {
-      RoundRectangle(p, w, h, rx, ry)
-    }
-    def roundRectangle(
-      p0: Point, p1: Point,
-      rx: Double, ry: Double
-    ): RoundRectangle = {
-      val w  = (p1 - p0).x
-      val h  = (p1 - p0).y
-      RoundRectangle(p0, w, h, rx, ry)
-    }
-    def roundRectangle(
-      d: Dot,
-      w: Double, h: Double,
-      rx: Double, ry: Double
-    ): RoundRectangle = {
-      val p  = d.origin
-      RoundRectangle(p, w, h, rx, ry)
-    }
-    def roundRectangle(d: Dot, p: Point, rx: Double, ry: Double): RoundRectangle = {
-      val p0 = d.origin
-      val w  = (p - d.origin).x
-      val h  = (p - d.origin).y
-      RoundRectangle(p, w, h, rx, ry)
-    }
-    def roundRectangle(ln: Line, rx: Double, ry: Double): RoundRectangle = {
-      val p  = ln.origin
-      val w  = ln.width
-      val h  = ln.height
-      RoundRectangle(p, w, h, rx, ry)
-    }
-    def roundRectangle(re: Rectangle, rx: Double, ry: Double): RoundRectangle = {
-      val p  = re.origin
-      val w  = re.width
-      val h  = re.height
-      RoundRectangle(p, w, h, rx, ry)
-    }
+    ) =
+      RoundRectangle(p, Point(p.x + w, p.y + h), Point(rx, ry))
+    def roundRectangle(p1: Point, p2: Point, rx: Double, ry: Double) =
+      RoundRectangle(p1, p2, Point(rx, ry))
+    def roundRectangle(p1: Point, p2: Point, p3: Point) =
+      RoundRectangle(p1, p2, p3)
 
-    class Polyline(val points: Seq[Point]) extends PolyShape {
-      override protected def mkBaseShape = {
+    class Polyline(val points: Seq[Point]) extends PolyShape
+    object Polyline {
+      def apply(points: Seq[Point]) = {
+        val sh = new Polyline(points)
         val shapePath = new kgeom.PolyLine()
         points foreach { p =>
           shapePath.addPoint(p.x, p.y)
         }
         tCanvas.figure0.polyLine(shapePath)
-        this
+        sh
       }
     }
-    object Polyline {
-      def apply(pts: Seq[Point]) = new Polyline(pts)
-    }
-    def polyline(pts: Seq[Point]): Polyline = {
-      Polyline(pts)
-    }
+    def polyline(pts: Seq[Point]): Polyline = Polyline(pts)
 
-    class Polygon(val points: Seq[Point]) extends PolyShape {
-      override protected def mkBaseShape = {
+    class Polygon(val points: Seq[Point]) extends PolyShape
+    object Polygon {
+      def apply(points: Seq[Point]) = {
+        val sh = new Polygon(points)
         val shapePath = new kgeom.PolyLine()
         points foreach { p =>
           shapePath.addPoint(p.x, p.y)
         }
         shapePath.polyLinePath.closePath
         tCanvas.figure0.polyLine(shapePath)
-        this
+        sh
       }
-    }
-    object Polygon {
-      def apply(pts: Seq[Point]) = new Polygon(pts)
     }
     def polygon(pts: Seq[Point]): Polygon = Polygon(pts)
     def triangle(p0: Point, p1: Point, p2: Point) = polygon(Seq(p0, p1, p2))
     def quad(p0: Point, p1: Point, p2: Point, p3: Point) =
       polygon(Seq(p0, p1, p2, p3))
 
-    class Ellipse(
-      val origin: Point,
-      val width: Double,
-      val height: Double
-    ) extends SimpleShape with Extent {
-      override protected def mkBaseShape = {
-        tCanvas.figure0.ellipse(origin.x, origin.y, width, height)
-        this
-      }
+    class Ellipse(val origin: Point, val endpoint: Point) extends Elliptical {
+      def toLine() = Line(origin - Point(width / 2, height / 2), endpoint)
+      def toRectangle() = Rectangle(origin - Point(width / 2, height / 2), endpoint)
+      def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
     }
     object Ellipse {
-      def apply(p: Point, w: Double, h: Double) = new Ellipse(p, w, h)
+      def apply(origin: Point, endpoint: Point) = {
+        val sh = new Ellipse(origin, endpoint)
+        tCanvas.figure0.ellipse(origin, sh.radiusX, sh.radiusY)
+        sh
+      }
     }
-    def ellipse(p: Point, w: Double, h: Double): Ellipse = Ellipse(p, w, h)
-    def circle(p: Point, r: Double): Ellipse = {
-      Ellipse(p, 2*r, 2*r)
-    }
+    def ellipse(x: Double, y: Double, w: Double, h: Double) =
+      Ellipse(Point(x, y), Point(x + w, y + h))
+    def ellipse(p: Point, w: Double, h: Double) =
+      Ellipse(p, Point(p.x + w, p.y + h))
+    def ellipse(p1: Point, p2: Point) =
+      Ellipse(p1, p2)
+    def circle(x: Double, y: Double, r: Double): Ellipse =
+      Ellipse(Point(x, y), Point(x + 2 * r, y + 2 * r))
+    def circle(p: Point, r: Double): Ellipse =
+      Ellipse(p, Point(p.x + 2 * r, p.y + 2 * r))
 
     class Arc(
-      override val origin: Point,
-      override val width: Double,
-      override val height: Double,
-      val start: Double,
-      val extent: Double,
-    ) extends Ellipse(origin, width, height) {
-      override protected def mkBaseShape = {
-        tCanvas.figure0.arc(origin.x, origin.y, width, height, start, extent)
-        this
-      }
-    }
+      val origin: Point, val endpoint: Point,
+      val start: Double, val extent: Double
+    ) extends Elliptical
     object Arc {
-      def apply(p: Point, w: Double, h: Double, s: Double, e: Double) = {
-        new Arc(p, w, h, s, e)
+      def apply(p1: Point, p2: Point, s: Double, e: Double) = {
+        val sh = new Arc(p1, p2, s, e)
+        tCanvas.figure0.arc(p1.x, p1.y, sh.radiusX, sh.radiusY, s, e)
+        sh
       }
     }
-    def arc(p: Point, w: Double, h: Double, s: Double, e: Double) = {
-      Arc(p, w, h, s, e)
-    }
+    def arc(x: Double, y: Double, w: Double, h: Double, s: Double, e: Double): Arc =
+      Arc(Point(x, y), Point(x + w, y + h), s, e)
+    def arc(p: Point, w: Double, h: Double, s: Double, e: Double): Arc =
+      Arc(p, Point(p.x + w, p.y + h), s, e)
+    def arc(p1: Point, p2: Point, s: Double, e: Double): Arc =
+      Arc(p1, p2, s, e)
+  }
+  object PLSandbox {
+    /* DISCLAIMER
+     This interface is written to approximately conform
+     to the Processing API as described in the reference at
+     <URL: http://processing.org/reference/>.
+     The implementation code is the work of Peter Lewerin
+     (peter.lewerin@tele2.se) and is not in any way
+     derived from the Processing source.
+    */
+    import core._
+    import math._
+
+    type Color = java.awt.Color
 
     implicit def tupleDToPVector(tuple: (Double, Double)) = PVector(tuple._1, tuple._2)
     implicit def tupleIToPVector(tuple: (Int, Int)) = PVector(tuple._1, tuple._2)
@@ -885,55 +858,6 @@ Here's a partial list of available commands:
           PVector(x / v, y / v)
         }
       }
-
-      def point = {
-        tCanvas.figure0.point(this.x, this.y)
-        this
-      }
-
-      def line (that: PVector) = {
-        tCanvas.figure0.line(this.x, this.y, that.x, that.y)
-        that
-      }
-
-      def rect(that: PVector): PVector = this.rect(that.x, that.y)
-      def rect(width: Double, height: Double): PVector = {
-        require(width >= 0, "rectangle width must be a positive number")
-        require(height >= 0, "rectangle height must be a positive number")
-        tCanvas.figure0.rectangle(this.x, this.y, width, height)
-        (this.x + width, this.y + height)
-      }
-      def square(size: Double) = this.rect(size, size)
-
-      def triangle (v1: PVector, v2: PVector) =
-        Shape('TRIANGLES, Seq(this, v1, v2))
-
-      def quad (v1: PVector, v2: PVector, v3: PVector) =
-        Shape('CLOSED, Seq(this, v1, v2, v3))
-
-      def arc (w: Double, h: Double, start: Double, stop: Double) = {
-        val extent = stop - start
-        tCanvas.figure0.arc(this.x, this.y, w, h, start, extent)
-        this
-      }
-
-      def ellipse (w: Double, h: Double) = {
-        tCanvas.figure0.ellipse(this.x, this.y, w, h)
-        this
-      }
-
-      def circle (radius: Double) = {
-        tCanvas.figure0.circle(this.x, this.y, radius)
-        this
-      }
-
-      def project (pts: Seq[PVector]) = {
-        if (pts nonEmpty) {
-          Shape('POLYGON, pts map (_ + this))
-        }
-        this
-      }
-
       override def toString = "Staging.PVector(" + x + ", " + y + ")"
     }
     object PVector {
@@ -1136,38 +1060,7 @@ Here's a partial list of available commands:
     def loop(fn: => Unit) = tCanvas.figure0.refresh(fn)
     def stop = tCanvas.figure0.stopRefresh()
 
-    var mouseX = 0.
-    var mouseY = 0.
-    def onMouseMove(fn: (Double, Double) => Unit) {
-      tCanvas.figure0.onMouseMove(fn)
-    }
-    def onMouseOver(left: Int, top: Int, right: Int, bottom: Int)(fn: (Double, Double) => Unit) {
-      onMouseMove { (x: Double, y: Double) =>
-        if (x >= left && y <= top && x <= right && y >= bottom) fn(x, y)
-      }
-    }
-
     def clear = tCanvas.figure0.clear()
-
-    object Screen {
-      var width = 0
-      var height = 0
-      def background(c: java.awt.Color) = {
-        tCanvas.setBackgroundColor(c)
-        this
-      }
-      def size(width: Int, height: Int) = {
-        this.width = width
-        this.height = height
-        // TODO make less ad-hoc
-        tCanvas.zoom(560 / height, width / 2, height / 2)
-        onMouseOver(0, height, width, 0) { (x: Double, y: Double) =>
-          mouseX = x
-          mouseY = y
-        }
-        this
-      }
-    }
 
 
     // "My god---it's full of kludges!"
@@ -1233,7 +1126,7 @@ Here's a partial list of available commands:
 
     class PointsShape extends Shape {
       def addToFigure {
-        points foreach (_.point)
+        //points foreach (_.point)
       }
     }
 
@@ -1242,7 +1135,7 @@ Here's a partial list of available commands:
         require(points.size % 2 == 0, "LINES Shape must have even number of points")
 
         points grouped(2) foreach { case collection.mutable.ArrayBuffer(p0, p1) =>
-          p0 line p1
+          //p0 line p1
         }
       }
     }
