@@ -291,38 +291,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
-  def forward(n: Double) = turtle.forward(n)
-  def turn(angle: Double) = turtle.turn(angle)
-  def penUp() = turtle.penUp()
-  def penDown() = turtle.penDown()
-  def setPenColor(color: Color) = turtle.setPenColor(color)
-  def setPenThickness(t: Double) = turtle.setPenThickness(t)
-  def setFillColor(color: Color) = turtle.setFillColor(color)
-
-  def saveStyle() = turtle.saveStyle()
-  def restoreStyle() = turtle.restoreStyle()
-  def style: Style = turtle.style
-
-  def towards(x: Double, y: Double) = turtle.towards(x, y)
-  def position: core.Point = turtle.position
-  def heading: Double = turtle.heading
-  
-  def jumpTo(x: Double, y: Double) = turtle.jumpTo(x, y)
-  def moveTo(x: Double, y: Double) = turtle.moveTo(x, y)
-
-  def animationDelay = turtle.animationDelay
-  def setAnimationDelay(d: Long) {
-    turtle.setAnimationDelay(d)
-  }
-
-  def beamsOn() = turtle.beamsOn()
-  def beamsOff() = turtle.beamsOff()
-
-  def write(text: String) = turtle.write(text)
-
-  def visible() = turtle.visible()
-  def invisible() = turtle.invisible()
-
   def stop() = {
     Utils.runInSwingThreadAndWait {
       puzzlers.foreach {t => t.stop}
