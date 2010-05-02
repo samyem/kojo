@@ -15,15 +15,16 @@
 
 package net.kogics.kojo.core
 
-trait SCanvas extends TurtleMover {
+trait SCanvas {
+  val turtle0: Turtle
+  val figure0: Figure
   def clear(): Unit
   def clearPuzzlers(): Unit
   def newTurtle(x: Int, y: Int): Turtle
   def newPuzzler(x: Int, y: Int): Turtle
-  val turtle0: Turtle
-  val figure0: Figure
   def gridOn(): Unit
   def gridOff(): Unit
   def newFigure(x: Int, y: Int): Figure
   def zoom(factor: Double, cx: Double, cy: Double)
+  def undo(): Unit
 }

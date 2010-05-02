@@ -388,12 +388,15 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     }
   }
 
-  object Builtins extends SCanvas {
+  object Builtins extends SCanvas with TurtleMover {
     type Turtle = core.Turtle
     type Color = java.awt.Color
+    type Point = net.kogics.kojo.core.Point
     
     PuzzleLoader.init()
     val Random = new java.util.Random
+    val turtle0 = tCanvas.turtle0
+    val figure0 = tCanvas.figure0
 
     def color(r: Int, g: Int, b: Int) = new Color(r, g, b)
     def color(rgbHex: Int) = new Color(rgbHex)
@@ -513,38 +516,36 @@ Here's a partial list of available commands:
     // builtins.forward(100) as opposed to forward(100). Also - completion needs extra support
     // implicit def toSCanvas(builtins: Builtins): SCanvas = builtins.tCanvas
 
-    def forward(n: Double) = tCanvas.forward(n)
-    def turn(angle: Double) = tCanvas.turn(angle)
+    def forward(n: Double) = turtle0.forward(n)
+    def turn(angle: Double) = turtle0.turn(angle)
     def clear() = tCanvas.clear()
     def clearPuzzlers() = tCanvas.clearPuzzlers()
-    def penUp() = tCanvas.penUp()
-    def penDown() = tCanvas.penDown()
-    def setPenColor(color: Color) = tCanvas.setPenColor(color)
-    def setPenThickness(t: Double) = tCanvas.setPenThickness(t)
-    def setFillColor(color: Color) = tCanvas.setFillColor(color)
-    def saveStyle() = tCanvas.saveStyle()
-    def restoreStyle() = tCanvas.restoreStyle()
-    def style: Style = tCanvas.style
-    def beamsOn() = tCanvas.beamsOn()
-    def beamsOff() = tCanvas.beamsOff()
-    def write(text: String) = tCanvas.write(text)
-    def visible() = tCanvas.visible()
-    def invisible() = tCanvas.invisible()
+    def penUp() = turtle0.penUp()
+    def penDown() = turtle0.penDown()
+    def setPenColor(color: Color) = turtle0.setPenColor(color)
+    def setPenThickness(t: Double) = turtle0.setPenThickness(t)
+    def setFillColor(color: Color) = turtle0.setFillColor(color)
+    def saveStyle() = turtle0.saveStyle()
+    def restoreStyle() = turtle0.restoreStyle()
+    def style: Style = turtle0.style
+    def beamsOn() = turtle0.beamsOn()
+    def beamsOff() = turtle0.beamsOff()
+    def write(text: String) = turtle0.write(text)
+    def visible() = turtle0.visible()
+    def invisible() = turtle0.invisible()
 
-    def towards(x: Double, y: Double) = tCanvas.towards(x, y)
-    def position: core.Point = tCanvas.position
-    def heading: Double = tCanvas.heading
+    def towards(x: Double, y: Double) = turtle0.towards(x, y)
+    def position: Point = turtle0.position
+    def heading: Double = turtle0.heading
 
-    def jumpTo(x: Double, y: Double) = tCanvas.jumpTo(x, y)
-    def moveTo(x: Double, y: Double) = tCanvas.moveTo(x, y)
+    def jumpTo(x: Double, y: Double) = turtle0.jumpTo(x, y)
+    def moveTo(x: Double, y: Double) = turtle0.moveTo(x, y)
 
-    def animationDelay = tCanvas.animationDelay
-    def setAnimationDelay(d: Long) = tCanvas.setAnimationDelay(d)
+    def animationDelay = turtle0.animationDelay
+    def setAnimationDelay(d: Long) = turtle0.setAnimationDelay(d)
 
     def newTurtle() = tCanvas.newTurtle(0, 0)
     def newTurtle(x: Int, y: Int) = tCanvas.newTurtle(x, y)
-    val turtle0 = tCanvas.turtle0
-    val figure0 = tCanvas.figure0
 
     def newPuzzler(x: Int, y: Int) = tCanvas.newPuzzler(x, y)
     def undo() = tCanvas.undo()

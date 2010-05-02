@@ -27,6 +27,7 @@ class SpriteCanvasTest extends KojoTestBase {
 
   var jf: JFrame = _
   var tCanvas: SpriteCanvas = _
+  var turtle0: Turtle = _
 
   @Before
   def setUp: Unit = {
@@ -38,6 +39,7 @@ class SpriteCanvasTest extends KojoTestBase {
 
     jf = new JFrame
     tCanvas = SpriteCanvas.instance
+    turtle0 = tCanvas.turtle0
 
     java.awt.EventQueue.invokeLater(new Runnable() {
 
@@ -62,9 +64,9 @@ class SpriteCanvasTest extends KojoTestBase {
   }
 
   def simpleMovements {
-    tCanvas.forward(100)
-    tCanvas.turn(Math.Pi/2)
-    tCanvas.forward(100)
+    turtle0.forward(100)
+    turtle0.turn(Math.Pi/2)
+    turtle0.forward(100)
     Thread.sleep(1000 * 60)
   }
 
@@ -80,9 +82,9 @@ class SpriteCanvasTest extends KojoTestBase {
     }
 
 
-    tCanvas.turtle.turn(60)
-    tCanvas.turtle.setAnimationDelay(10000)
-    tCanvas.turtle.forward(400)
+    turtle0.turn(60)
+    turtle0.setAnimationDelay(10000)
+    turtle0.forward(400)
 
     val turtles = new collection.mutable.ArrayBuffer[Turtle]
 
