@@ -54,7 +54,7 @@ trait Figure {
   def circle(cx: Double, cy: Double, radius: Double): Ellipse
   def rectangle(bLeft: Point, tRight: Point): FRectangle
   def rectangle(x0: Double, y0: Double, w: Double, h: Double): FRectangle
-  def roundRectangle(x0: Double, y0: Double, w: Double, h: Double, rx: Double, ry: Double): FRRectangle
+  def roundRectangle(p1: Point, p2: Point, rx: Double, ry: Double): FRRectangle
   def text(content: String, p: Point): FText
   def text(content: String, x: Double, y: Double): FText
   def polyLine(path: net.kogics.kojo.kgeom.PolyLine): net.kogics.kojo.kgeom.PolyLine

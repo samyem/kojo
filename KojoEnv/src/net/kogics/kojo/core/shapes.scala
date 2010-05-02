@@ -33,6 +33,9 @@ trait Labelled extends VisualElement {
 
 // TODO define equality
 class Point(val x: Double, val y: Double) {
+  def +(that: Point) = new Point(this.x + that.x, this.y + that.y)
+  def -(that: Point) = new Point(this.x - that.x, this.y - that.y)
+  def unary_- = new Point(-x, -y)
   override def toString = "Point(%.2f, %.2f)" format(x, y)
 }
 class Line(val p1: Point, val p2: Point)

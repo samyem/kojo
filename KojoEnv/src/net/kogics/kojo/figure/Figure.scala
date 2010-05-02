@@ -211,8 +211,8 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
 
   def rectangle(x0: Double, y0: Double, w: Double, h: Double) = rectangle(new Point(x0, y0), new Point(x0+w, y0+h))
 
-  def roundRectangle(x0: Double, y0: Double, w: Double, h: Double, rx: Double, ry: Double) = {
-    val rrect = new FigRoundRectangle(canvas, new Point(x0, y0), new Point(x0+w, y0+h), rx, ry)
+  def roundRectangle(p1: Point, p2: Point, rx: Double, ry: Double) = {
+    val rrect = new FigRoundRectangle(canvas, p1, p2, rx, ry)
     Utils.runInSwingThread {
       rrect.pRect.setStroke(lineStroke)
       rrect.pRect.setStrokePaint(lineColor)
