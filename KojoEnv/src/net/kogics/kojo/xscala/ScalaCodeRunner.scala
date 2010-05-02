@@ -232,6 +232,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
         interp.interpret("import predef.Builtins._")
         interp.bind("turtle0", "net.kogics.kojo.core.Turtle", tCanvas.turtle0)
         interp.interpret("val Canvas = predef.CanvasAPI")
+        interp.interpret("val Staging = predef.StagingAPI")
         interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
       }
 
@@ -489,6 +490,7 @@ Here's a partial list of available commands:
     def gridOn() = tCanvas.gridOn()
     def gridOff() = tCanvas.gridOff()
     def zoom(factor: Double, cx: Double, cy: Double) = tCanvas.zoom(factor, cx, cy)
+    def setBackgroundColor(color: java.awt.Color) { tCanvas.setBackgroundColor(color) }
 
     def forward() = println("Please provide the distance to move forward - e.g. forward(100)")
     def back() = println("Please provide the distance to move back - e.g. back(100)")
@@ -579,6 +581,669 @@ Here's a partial list of available commands:
       else {
         println("Puzzle not available: " + name)
       }
+    }
+  }
+
+  object StagingAPI {
+    /* DISCLAIMER
+     This interface is written to approximately conform
+     to the Processing API as described in the reference at
+     <URL: http://processing.org/reference/>.
+     The implementation code is the work of Peter Lewerin
+     (peter.lewerin@tele2.se) and is not in any way
+     derived from the Processing source.
+    */
+    import core._
+    import math._
+
+    type Color = java.awt.Color
+    type Point = core.Point
+    object Point {
+      def apply(x: Double, y: Double) = new Point(x, y)
+    }
+
+    var mouseX = 0.
+    var mouseY = 0.
+    def onMouseMove(fn: (Double, Double) => Unit) {
+      tCanvas.figure0.onMouseMove(fn)
+    }
+    def onMouseOver(left: Int, top: Int, right: Int, bottom: Int)(fn: (Double, Double) => Unit) {
+      onMouseMove { (x: Double, y: Double) =>
+        if (x >= left && y <= top && x <= right && y >= bottom) fn(x, y)
+      }
+    }
+
+    object Screen {
+      var width = 0
+      var height = 0
+      def background(c: Color) = {
+        tCanvas.setBackgroundColor(c)
+        this
+      }
+      def size(width: Int, height: Int) = {
+        this.width = width
+        this.height = height
+        // TODO make less ad-hoc
+        tCanvas.zoom(560 / height, width / 2, height / 2)
+        onMouseOver(0, height, width, 0) { (x: Double, y: Double) =>
+          mouseX = x
+          mouseY = y
+        }
+        this
+      }
+    }
+
+    val O = Point(0, 0)
+    def M = Point(Screen.width / 2, Screen.height / 2)
+    def E = Point(Screen.width, Screen.height)
+
+    implicit def tupleDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
+    implicit def tupleIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
+
+    trait Shape
+    trait BaseShape {
+      val origin: Point
+    }
+    trait SimpleShape extends BaseShape {
+      val endpoint: Point
+      val width = endpoint.y - origin.y
+      val height = endpoint.x - origin.x
+    }
+    trait PolyShape extends Shape {
+      val points: Seq[Point]
+    }
+    trait Rounded {
+      val curvature: Point
+      def radiusX = curvature.x
+      def radiusY = curvature.y
+    }
+    trait Elliptical extends SimpleShape with Rounded {
+      val curvature = endpoint - origin
+    }
+
+    class Dot(val origin: Point) extends BaseShape {
+      def toLine(p: Point): Line = Line(origin, p)
+    }
+    object Dot {
+      def apply(p: Point) = {
+        val sh = new Dot(p)
+        tCanvas.figure0.point(p.x, p.y)
+        sh
+      }
+    }
+    def dot(x: Double, y: Double) = Dot(Point(x, y))
+    def dot(p: Point) = Dot(p)
+
+    class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
+      def toRectangle() = Rectangle(origin, endpoint)
+      def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
+      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+      override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
+    }
+    object Line {
+      def apply(p1: Point, p2: Point) = {
+        val sh = new Line(p1, p2)
+        tCanvas.figure0.line(p1, p2)
+        sh
+      }
+    }
+    def line(x: Double, y: Double, w: Double, h: Double): Line =
+      Line(Point(x, y), Point(x + w, y + h))
+    def line(p1: Point, w: Double, h: Double): Line = {
+      Line(p1, Point(p1.x + w, p1.y + h))
+    }
+    def line(p1: Point, p2: Point): Line = {
+      Line(p1, p2)
+    }
+
+    class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
+      def toLine() = Line(origin, endpoint)
+      def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
+      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+    }
+    object Rectangle {
+      def apply(p1: Point, p2: Point) = {
+        val sh = new Rectangle(p1, p2)
+        tCanvas.figure0.rectangle(p1, p2)
+        sh
+      }
+    }
+    def rectangle(x: Double, y: Double, w: Double, h: Double): Rectangle =
+      Rectangle(Point(x, y), Point(x + w, y + h))
+    def rectangle(p: Point, w: Double, h: Double): Rectangle =
+      Rectangle(p, Point(p.x + w, p.y + h))
+    def rectangle(p1: Point, p2: Point): Rectangle =
+      Rectangle(p1, p2)
+    def square(x: Double, y: Double, s: Double): Rectangle =
+      Rectangle(Point(x, y), Point(x + s, y + s))
+    def square(p: Point, s: Double): Rectangle =
+      Rectangle(p, Point(p.x + s, p.y + s))
+
+    class RoundRectangle(
+      val origin: Point,
+      val endpoint: Point,
+      val curvature: Point
+    ) extends SimpleShape with Rounded {
+      def toLine() = Line(origin, endpoint)
+      def toRectangle() = Rectangle(origin, endpoint)
+      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+    }
+    object RoundRectangle {
+      def apply(p1: Point, p2: Point, p3: Point) = {
+        val sh = new RoundRectangle(p1, p2, p3)
+        tCanvas.figure0.roundRectangle(p1, p2, sh.radiusX, sh.radiusY)
+        sh
+      }
+    }
+    def roundRectangle(
+      x: Double, y: Double,
+      w: Double, h: Double,
+      rx: Double, ry: Double
+    ) =
+      RoundRectangle(Point(x, y), Point(x + w, y + h), Point(rx, ry))
+    def roundRectangle(
+      p: Point,
+      w: Double, h: Double,
+      rx: Double, ry: Double
+    ) =
+      RoundRectangle(p, Point(p.x + w, p.y + h), Point(rx, ry))
+    def roundRectangle(p1: Point, p2: Point, rx: Double, ry: Double) =
+      RoundRectangle(p1, p2, Point(rx, ry))
+    def roundRectangle(p1: Point, p2: Point, p3: Point) =
+      RoundRectangle(p1, p2, p3)
+
+    class Polyline(val points: Seq[Point]) extends PolyShape
+    object Polyline {
+      def apply(points: Seq[Point]) = {
+        val sh = new Polyline(points)
+        val shapePath = new kgeom.PolyLine()
+        points foreach { p =>
+          shapePath.addPoint(p.x, p.y)
+        }
+        tCanvas.figure0.polyLine(shapePath)
+        sh
+      }
+    }
+    def polyline(pts: Seq[Point]): Polyline = Polyline(pts)
+
+    class Polygon(val points: Seq[Point]) extends PolyShape
+    object Polygon {
+      def apply(points: Seq[Point]) = {
+        val sh = new Polygon(points)
+        val shapePath = new kgeom.PolyLine()
+        points foreach { p =>
+          shapePath.addPoint(p.x, p.y)
+        }
+        shapePath.polyLinePath.closePath
+        tCanvas.figure0.polyLine(shapePath)
+        sh
+      }
+    }
+    def polygon(pts: Seq[Point]): Polygon = Polygon(pts)
+    def triangle(p0: Point, p1: Point, p2: Point) = polygon(Seq(p0, p1, p2))
+    def quad(p0: Point, p1: Point, p2: Point, p3: Point) =
+      polygon(Seq(p0, p1, p2, p3))
+
+    class Ellipse(val origin: Point, val endpoint: Point) extends Elliptical {
+      def toLine() = Line(origin - Point(width / 2, height / 2), endpoint)
+      def toRectangle() = Rectangle(origin - Point(width / 2, height / 2), endpoint)
+      def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
+    }
+    object Ellipse {
+      def apply(origin: Point, endpoint: Point) = {
+        val sh = new Ellipse(origin, endpoint)
+        tCanvas.figure0.ellipse(origin, sh.radiusX, sh.radiusY)
+        sh
+      }
+    }
+    def ellipse(x: Double, y: Double, w: Double, h: Double) =
+      Ellipse(Point(x, y), Point(x + w, y + h))
+    def ellipse(p: Point, w: Double, h: Double) =
+      Ellipse(p, Point(p.x + w, p.y + h))
+    def ellipse(p1: Point, p2: Point) =
+      Ellipse(p1, p2)
+    def circle(x: Double, y: Double, r: Double): Ellipse =
+      Ellipse(Point(x, y), Point(x + 2 * r, y + 2 * r))
+    def circle(p: Point, r: Double): Ellipse =
+      Ellipse(p, Point(p.x + 2 * r, p.y + 2 * r))
+
+    class Arc(
+      val origin: Point, val endpoint: Point,
+      val start: Double, val extent: Double
+    ) extends Elliptical
+    object Arc {
+      def apply(p1: Point, p2: Point, s: Double, e: Double) = {
+        val sh = new Arc(p1, p2, s, e)
+        tCanvas.figure0.arc(p1.x, p1.y, sh.radiusX, sh.radiusY, s, e)
+        sh
+      }
+    }
+    def arc(x: Double, y: Double, w: Double, h: Double, s: Double, e: Double): Arc =
+      Arc(Point(x, y), Point(x + w, y + h), s, e)
+    def arc(p: Point, w: Double, h: Double, s: Double, e: Double): Arc =
+      Arc(p, Point(p.x + w, p.y + h), s, e)
+    def arc(p1: Point, p2: Point, s: Double, e: Double): Arc =
+      Arc(p1, p2, s, e)
+  }
+  object PLSandbox {
+    /* DISCLAIMER
+     This interface is written to approximately conform
+     to the Processing API as described in the reference at
+     <URL: http://processing.org/reference/>.
+     The implementation code is the work of Peter Lewerin
+     (peter.lewerin@tele2.se) and is not in any way
+     derived from the Processing source.
+    */
+    import core._
+    import math._
+
+    type Color = java.awt.Color
+
+    implicit def tupleDToPVector(tuple: (Double, Double)) = PVector(tuple._1, tuple._2)
+    implicit def tupleIToPVector(tuple: (Int, Int)) = PVector(tuple._1, tuple._2)
+
+    class PVector (val x: Double, val y: Double) {
+      def size = sqrt(x * x + y * y)
+      def mag = size
+      def dist (that: PVector): Double = (this - that) size
+      def dot (that: PVector) = this.x * that.x + this.y * that.y
+      def normalize = this / (this size)
+      def +(that: PVector) = PVector(this.x + that.x, this.y + that.y)
+      def -(that: PVector) = PVector(this.x - that.x, this.y - that.y)
+      def unary_- = PVector(-x, -y)
+      def *(value: Double) = PVector(x * value, y * value)
+      def mult(a: Double, b: Double) = PVector(x * a, y * b)
+      def /(v: Double) = {
+        if (v == 0) error("Staging.PVector: can't divide by zero")
+        else {
+          PVector(x / v, y / v)
+        }
+      }
+      override def toString = "Staging.PVector(" + x + ", " + y + ")"
+    }
+    object PVector {
+      def apply (x: Double, y: Double) = new PVector(x, y)
+    }
+
+    case class RichColor (c: java.awt.Color) {
+      def alpha = c.getAlpha
+      def red = c.getRed
+      def blue = c.getBlue
+      def green = c.getGreen
+      private def hsb =
+        java.awt.Color.RGBtoHSB(c.getRed, c.getBlue, c.getGreen, null)
+      def hue = {
+        val h = floor(255 * (1 - this.hsb(0))) + 1
+        if (h > 255) 0 else h.toInt
+      }
+      def saturation = (this.hsb(1) * 255).toInt
+      def brightness = (this.hsb(2) * 255).toInt
+      // TODO blendColor
+      // TODO lerpColor
+    }
+    implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
+
+    def sq(x: Double) = x * x
+
+    def dist(x0: Double, y0: Double, x1: Double, y1: Double) =
+      sqrt(sq(x0 - x1) + sq(y0 - y1))
+
+    private val rand = new scala.util.Random
+    def random(v: Double) = rand.nextDouble * v
+
+    def day    = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_MONTH)
+    def hour   = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+    def millis =  System.currentTimeMillis()
+    def minute = (System.currentTimeMillis() /   60000) % 60
+    def month  = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1
+    def second = (System.currentTimeMillis() /    1000) % 60
+    def year   = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+
+    sealed class ColorModeSymbol
+    case object RGB extends ColorModeSymbol
+    case object HSB extends ColorModeSymbol
+
+    class ColorMode (
+      mode: ColorModeSymbol,
+      range1: Int,
+      range2: Int,
+      range3: Int,
+      range4: Int
+    ) {
+      def this () =
+        this(RGB, 255, 255, 255, 255)
+      def this (mode: ColorModeSymbol) =
+        this(mode, 255, 255, 255, 255)
+      def this (mode: ColorModeSymbol, range: Int) = {
+        this(mode, range, range, range, 255)
+      }
+      def this (mode: ColorModeSymbol, r1: Int, r2: Int, r3: Int) =
+        this(mode, r1, r2, r3, 255)
+
+      def mkColor(v1: Int, v2: Int, v3: Int, v4: Int = 255) = {
+        val hueRange = range1 + 1
+        val hue = (if (v1 > range1) range1 else v1) / hueRange.toFloat
+        val c1 = if (v1 > range1) 1.0f else v1 / range1.toFloat
+        val c2 = if (v2 > range2) 1.0f else v2 / range2.toFloat
+        val c3 = if (v3 > range3) 1.0f else v3 / range3.toFloat
+        val c4 = if (v4 > range4) 1.0f else v4 / range4.toFloat
+        if (mode == RGB) {
+          new java.awt.Color(c1, c2, c3, c4)
+        } else {
+          val rgb = java.awt.Color.HSBtoRGB(hue, c2, c3)
+          if (c4 == 1f) { // opaque color
+            new java.awt.Color(rgb)
+          } else {
+            val alpha = (255 * c4).toInt
+            new java.awt.Color(alpha << 24 | rgb, true)
+          }
+        }
+      }
+    }
+    var currentColorMode = new ColorMode
+
+    def colorMode(mode: ColorModeSymbol) {
+      currentColorMode = new ColorMode(mode)
+    }
+    def colorMode(mode: ColorModeSymbol, range: Int) {
+      currentColorMode = new ColorMode(mode, range)
+    }
+    def colorMode(mode: ColorModeSymbol, r1: Int, r2: Int, r3: Int) {
+      currentColorMode = new ColorMode(mode, r1, r2, r3)
+    }
+    def colorMode(mode: ColorModeSymbol, r1: Int, r2: Int, r3: Int, r4: Int) {
+      currentColorMode = new ColorMode(mode, r1, r2, r3, r4)
+    }
+    def color(gray: Float) =
+      new java.awt.Color(gray, gray, gray)
+    def color(gray: Float, alpha: Float) =
+      new java.awt.Color(gray, gray, gray, alpha)
+    def color(r: Float, g: Float, b: Float) =
+      new java.awt.Color(r, g, b)
+    def color(r: Float, g: Float, b: Float, alpha: Float) =
+      new java.awt.Color(r, g, b, alpha)
+    def color(c: (Int, Int, Int)) =
+      currentColorMode.mkColor(c._1, c._2, c._3)
+    def color(c: (Int, Int, Int, Int)) =
+      currentColorMode.mkColor(c._1, c._2, c._3, c._4)
+    def color(rgb: Int) =
+      new java.awt.Color(rgb)
+    def color(rgb: Int, alpha: Int) =
+      new java.awt.Color(alpha << 24 | rgb, true)
+
+    object Style {
+      import java.awt.BasicStroke
+      // TODO tint
+      // TODO imageMode
+      // TODO rectMode(), ellipseMode(), shapeMode
+      var colorMode  = currentColorMode
+      // TODO textAlign(), textFont(), textMode(), textSize(), textLeading
+      // TODO emissive(), specular(), shininess(), ambient
+      //
+      val stack = new collection.mutable.Stack[(Color, Color, BasicStroke)]()
+      def push = {
+        stack push ((stroke, fill, line))
+        this
+      }
+      def pop = {
+        require(stack.nonEmpty, "no style to pop")
+        val (lineColor, fillColor, lineStroke) = stack.pop
+        tCanvas.figure0.setPenColor(lineColor)
+        tCanvas.figure0.setFillColor(fillColor)
+        tCanvas.figure0.lineStroke = lineStroke
+        this
+      }
+
+      def fill = tCanvas.figure0.fillColor
+      def fill(c: Color) = {
+        tCanvas.figure0.setFillColor(c)
+        this
+      }
+      def fill(oc: Option[Color]) = {
+        oc match {
+          case Some(c) => tCanvas.figure0.setFillColor(c)
+          case None =>    tCanvas.figure0.setFillColor(null)
+        }
+        this
+      }
+
+      def stroke = tCanvas.figure0.lineColor
+      def stroke(c: Color) = {
+        tCanvas.figure0.setPenColor(c)
+        this
+      }
+      def stroke(oc: Option[Color]) = {
+        oc match {
+          case Some(c) => tCanvas.figure0.setPenColor(c)
+          case None =>    tCanvas.figure0.setPenColor(null)
+        }
+        this
+      }
+
+      def line = tCanvas.figure0.lineStroke
+      def width = {
+        val s = tCanvas.figure0.lineStroke
+        s.getLineWidth
+      }
+      def width(sw: Float) = {
+        val s = tCanvas.figure0.lineStroke
+        val t = new BasicStroke(sw, s.getEndCap, s.getLineJoin)
+        tCanvas.figure0.lineStroke = t
+        this
+      }
+
+      def cap(mode: Symbol) = {
+        val cap = mode match {
+          case 'SQUARE =>  BasicStroke.CAP_BUTT
+          case 'PROJECT => BasicStroke.CAP_SQUARE
+          case _ =>        BasicStroke.CAP_ROUND
+        }
+        val s = tCanvas.figure0.lineStroke
+        val t = new java.awt.BasicStroke(s.getLineWidth, cap, s.getLineJoin)
+        tCanvas.figure0.lineStroke = t
+        this
+      }
+
+      def join(mode: Symbol) = {
+        val join = mode match {
+          case 'MITER => java.awt.BasicStroke.JOIN_MITER
+          case 'BEVEL => java.awt.BasicStroke.JOIN_BEVEL
+          case _ =>      java.awt.BasicStroke.JOIN_ROUND
+        }
+        val s = tCanvas.figure0.lineStroke
+        val t = new java.awt.BasicStroke(s.getLineWidth, s.getEndCap, join)
+        tCanvas.figure0.lineStroke = t
+        this
+      }
+    }
+
+    def init(fn: => Unit) = fn
+    def loop(fn: => Unit) = tCanvas.figure0.refresh(fn)
+    def stop = tCanvas.figure0.stopRefresh()
+
+    def clear = tCanvas.figure0.clear()
+
+
+    // "My god---it's full of kludges!"
+    import java.awt.image.BufferedImage
+    class Image (image: BufferedImage) {
+      import java.awt.image.PixelGrabber
+      //import java.awt.image.ImageObserver
+
+      val width      = image.getWidth().toInt
+      val height     = image.getHeight().toInt
+      val pixelArray = new Array[Int](width * height)
+      val pg = new PixelGrabber(image, 0, 0, width, height, pixelArray, 0, width)
+      try {
+        pg.grabPixels
+      } catch {
+        case e: InterruptedException =>
+          error("interrupted waiting for pixels!")
+      }
+
+      def pixels (index: Int) = {
+        pixelArray(index)
+      }
+    }
+    def loadImage(filename: String, extension: String): Image =
+      loadImage(filename + "." + extension)
+    import edu.umd.cs.piccolo.nodes.PImage
+    def loadImage(filename: String): Image = {
+      val img = Utils.loadImage(filename)
+      new Image(PImage.toBufferedImage(img, false))
+    }
+
+    abstract class Shape {
+      val points = new collection.mutable.ArrayBuffer[PVector]
+
+      def add(p: PVector): Shape = {
+        points += p
+        this
+      }
+
+      def addToFigure: Unit
+    }
+
+    class DefaultShape extends Shape {
+      def addToFigure {
+        val shapePath = new kgeom.PolyLine()
+        points foreach { p =>
+          shapePath.addPoint(p.x, p.y)
+        }
+        tCanvas.figure0.polyLine(shapePath)
+      }
+    }
+
+    class ClosedShape extends Shape {
+      def addToFigure {
+        val shapePath = new kgeom.PolyLine()
+        points foreach { p =>
+          shapePath.addPoint(p.x, p.y)
+        }
+        shapePath.polyLinePath.closePath
+        tCanvas.figure0.polyLine(shapePath)
+      }
+    }
+
+    class PointsShape extends Shape {
+      def addToFigure {
+        //points foreach (_.point)
+      }
+    }
+
+    class LinesShape extends Shape {
+      def addToFigure {
+        require(points.size % 2 == 0, "LINES Shape must have even number of points")
+
+        points grouped(2) foreach { case collection.mutable.ArrayBuffer(p0, p1) =>
+          //p0 line p1
+        }
+      }
+    }
+
+    class TrianglesShape extends Shape {
+      def addToFigure {
+        require(points.size % 3 == 0, "Wrong number of points for TRIANGLES Shape")
+
+        points grouped(3) foreach { tpoints =>
+          val shapePath = new kgeom.PolyLine()
+          tpoints foreach { p =>
+            shapePath.addPoint(p.x, p.y)
+          }
+          shapePath.polyLinePath.closePath
+          tCanvas.figure0.polyLine(shapePath)
+        }
+      }
+    }
+
+    class TriangleStripShape extends Shape {
+      def addToFigure {
+        require(points.size >= 3, "Wrong number of points for TRIANGLE_STRIP Shape")
+
+        points sliding(3) foreach { tpoints =>
+          val shapePath = new kgeom.PolyLine()
+          tpoints foreach { p =>
+            shapePath.addPoint(p.x, p.y)
+          }
+          shapePath.polyLinePath.closePath
+          tCanvas.figure0.polyLine(shapePath)
+        }
+      }
+    }
+
+    class TriangleFanShape extends Shape {
+      def addToFigure {
+        require(points.size >= 3, "Wrong number of points for TRIANGLE_FAN Shape")
+
+        val midpoint = points(0)
+        points.tail sliding(2) foreach { tpoints =>
+          val shapePath = new kgeom.PolyLine()
+          shapePath.addPoint(midpoint.x, midpoint.y)
+          tpoints foreach { p =>
+            shapePath.addPoint(p.x, p.y)
+          }
+          tCanvas.figure0.polyLine(shapePath)
+        }
+      }
+    }
+
+    class QuadsShape extends Shape {
+      def addToFigure {
+        require(points.size % 4 == 0, "Wrong number of points for QUADS Shape")
+
+        points grouped(4) foreach { tpoints =>
+          val shapePath = new kgeom.PolyLine()
+          tpoints foreach { p =>
+            shapePath.addPoint(p.x, p.y)
+          }
+          shapePath.polyLinePath.closePath
+          tCanvas.figure0.polyLine(shapePath)
+        }
+      }
+    }
+
+    class QuadStripShape extends Shape {
+      def addToFigure {
+        require(points.size % 4 == 0, "Wrong number of points for QUAD_STRIP Shape")
+
+        points sliding(4, 2) foreach { tpoints =>
+          val shapePath = new kgeom.PolyLine()
+          tpoints foreach { p =>
+            shapePath.addPoint(p.x, p.y)
+          }
+          shapePath.polyLinePath.closePath
+          tCanvas.figure0.polyLine(shapePath)
+        }
+      }
+    }
+
+    object Shape {
+      def apply(mode: Symbol, pts: Seq[PVector]) = {
+        val sh = mode match {
+          case 'POINTS =>         new PointsShape
+          case 'LINES =>          new LinesShape
+          case 'TRIANGLES =>      new TrianglesShape
+          case 'TRIANGLE_STRIP => new TriangleStripShape
+          case 'TRIANGLE_FAN =>   new TriangleFanShape
+          case 'QUADS =>          new QuadsShape
+          case 'QUAD_STRIP =>     new QuadStripShape
+          case 'CLOSED =>         new ClosedShape
+          case _ =>               new DefaultShape
+        }
+        pts foreach { p => sh add p }
+        sh.addToFigure
+      }
+    }
+
+
+    def path (d: String) {
+      tCanvas.figure0.path(d)
+    }
+
+
+    initialize
+    def initialize {
+      tCanvas.setAnimationDelay(0)
     }
   }
 

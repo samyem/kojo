@@ -56,7 +56,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   var figAnimation: PActivity = _
   var lineColor: Color = _
   var fillColor: Color = _
-  var lineStroke: Stroke = _
+  var lineStroke: BasicStroke = _
 
   camera.addLayer(camera.getLayerCount-1, bgLayer)
   camera.addLayer(camera.getLayerCount-1, fgLayer)
@@ -122,6 +122,8 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   type FArc = FigArc
   type FText = FigText
   type FRectangle = FigRectangle
+  type FRRectangle = FigRoundRectangle
+  type FPath = FigPath
 
 
   def point(x: Double, y: Double): FigPoint = {
@@ -209,6 +211,18 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
 
   def rectangle(x0: Double, y0: Double, w: Double, h: Double) = rectangle(new Point(x0, y0), new Point(x0+w, y0+h))
 
+  def roundRectangle(p1: Point, p2: Point, rx: Double, ry: Double) = {
+    val rrect = new FigRoundRectangle(canvas, p1, p2, rx, ry)
+    Utils.runInSwingThread {
+      rrect.pRect.setStroke(lineStroke)
+      rrect.pRect.setStrokePaint(lineColor)
+      rrect.pRect.setPaint(fillColor)
+      currLayer.addChild(rrect.pRect)
+      currLayer.repaint()
+    }
+    rrect
+  }
+
   def text(content: String, x: Double, y: Double): FigText = {
     val txt = new FigText(canvas, content, x, y)
     Utils.runInSwingThread {
@@ -220,6 +234,31 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   }
 
   def text(content: String, p: Point): FText = text(content, p.x, p.y)
+
+
+  def polyLine(path: kgeom.PolyLine): kgeom.PolyLine = {
+    Utils.runInSwingThread {
+      path.setStroke(lineStroke)
+      path.setStrokePaint(lineColor)
+      path.setPaint(fillColor)
+      currLayer.addChild(path)
+      currLayer.repaint()
+    }
+    path
+  }
+
+
+  def path(descriptor: String): FigPath = {
+    val path = new FigPath(canvas, descriptor)
+    Utils.runInSwingThread {
+      path.pPath.setStroke(lineStroke)
+      path.pPath.setStrokePaint(lineColor)
+      path.pPath.setPaint(fillColor)
+      currLayer.addChild(path.pPath)
+      currLayer.repaint
+    }
+    path
+  }
 
 
   def refresh(fn: => Unit) {

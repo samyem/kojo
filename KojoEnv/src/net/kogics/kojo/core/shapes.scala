@@ -33,6 +33,9 @@ trait Labelled extends VisualElement {
 
 // TODO define equality
 class Point(val x: Double, val y: Double) {
+  def +(that: Point) = new Point(this.x + that.x, this.y + that.y)
+  def -(that: Point) = new Point(this.x - that.x, this.y - that.y)
+  def unary_- = new Point(-x, -y)
   override def toString = "Point(%.2f, %.2f)" format(x, y)
 }
 class Line(val p1: Point, val p2: Point)
@@ -47,7 +50,14 @@ class Rectangle(val bLeft: Point, val tRight: Point) {
   val width = tRight.x - bLeft.x
   val height = tRight.y - bLeft.y
 }
+class RoundRectangle(
+  override val bLeft: Point,
+  override val tRight: Point,
+  rx: Double, ry: Double
+) extends Rectangle(bLeft, tRight)
 // class Square(bLeft: Point, tRight: Point) extends Rectangle(bLeft, tRight
+
+class Path(val descriptor: String)
 
 trait MoveablePoint {
   def cx: Double

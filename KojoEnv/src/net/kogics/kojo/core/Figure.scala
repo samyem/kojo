@@ -16,9 +16,15 @@
 package net.kogics.kojo.core
 
 import edu.umd.cs.piccolo.nodes._
+import java.awt.Color
+import java.awt.BasicStroke
 
 
 trait Figure {
+  var lineColor: Color
+  var fillColor: Color
+  var lineStroke: BasicStroke
+
   def clear(): Unit
   def fgClear(): Unit
   def stopRefresh(): Unit
@@ -32,6 +38,8 @@ trait Figure {
   type FArc <: Arc with VisualElement
   type FText <: Text with VisualElement
   type FRectangle <: Rectangle with VisualElement
+  type FRRectangle <: RoundRectangle with VisualElement
+  type FPath <: Path with VisualElement
 
   def point(x: Double, y: Double): FPoint
   def line(p1: Point, p2: Point): FLine
@@ -46,7 +54,11 @@ trait Figure {
   def circle(cx: Double, cy: Double, radius: Double): Ellipse
   def rectangle(bLeft: Point, tRight: Point): FRectangle
   def rectangle(x0: Double, y0: Double, w: Double, h: Double): FRectangle
+  def roundRectangle(p1: Point, p2: Point, rx: Double, ry: Double): FRRectangle
   def text(content: String, p: Point): FText
   def text(content: String, x: Double, y: Double): FText
+  def polyLine(path: net.kogics.kojo.kgeom.PolyLine): net.kogics.kojo.kgeom.PolyLine
+  def path(descr: String): FPath
   def refresh(fn: => Unit): Unit
+  def onMouseMove(fn: (Double, Double) => Unit): Unit
 }
