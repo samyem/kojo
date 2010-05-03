@@ -582,22 +582,23 @@ Here's a partial list of available commands:
         println("Puzzle not available: " + name)
       }
     }
+    def peekZoom: (Double, Double, Double, Double) = tCanvas.peekZoom
   }
 
   object StagingAPI {
     /* DISCLAIMER
-     This interface is written to approximately conform
-     to the Processing API as described in the reference at
-     <URL: http://processing.org/reference/>.
+     Parts of this interface is written to approximately
+     conform to the Processing API as described in the
+     reference at <URL: http://processing.org/reference/>.
      The implementation code is the work of Peter Lewerin
-     (peter.lewerin@tele2.se) and is not in any way
+     <peter.lewerin@tele2.se> and is not in any way
      derived from the Processing source.
     */
     import core._
     import math._
 
     type Color = java.awt.Color
-    type Point = core.Point
+    type Point = net.kogics.kojo.core.Point
     object Point {
       def apply(x: Double, y: Double) = new Point(x, y)
     }
@@ -613,12 +614,14 @@ Here's a partial list of available commands:
       }
     }
 
+    def peekZoom: (Double, Double, Double, Double) = tCanvas.peekZoom
+    
     object Screen {
       var width = 0
       var height = 0
       def background(c: Color) = {
         tCanvas.setBackgroundColor(c)
-        this
+        c
       }
       def size(width: Int, height: Int) = {
         this.width = width
@@ -629,7 +632,7 @@ Here's a partial list of available commands:
           mouseX = x
           mouseY = y
         }
-        this
+        (width, height)
       }
     }
 
@@ -825,6 +828,7 @@ Here's a partial list of available commands:
     def arc(p1: Point, p2: Point, s: Double, e: Double): Arc =
       Arc(p1, p2, s, e)
   }
+
   object PLSandbox {
     /* DISCLAIMER
      This interface is written to approximately conform
@@ -1243,7 +1247,7 @@ Here's a partial list of available commands:
 
     initialize
     def initialize {
-      tCanvas.setAnimationDelay(0)
+//      tCanvas.setAnimationDelay(0)
     }
   }
 
