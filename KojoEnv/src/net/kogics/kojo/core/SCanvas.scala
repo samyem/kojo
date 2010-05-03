@@ -26,6 +26,7 @@ trait SCanvas {
   def gridOff(): Unit
   def newFigure(x: Int, y: Int): Figure
   def zoom(factor: Double, cx: Double, cy: Double)
+  def peekZoom: (Double, Double, Double, Double)
   def undo(): Unit
   def setBackgroundColor(color: java.awt.Color)
 }
