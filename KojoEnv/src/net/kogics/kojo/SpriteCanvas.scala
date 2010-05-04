@@ -215,19 +215,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
-  def peekZoom = {
-    var res = (0d, 0d, 0d, 0d)
-//    Utils.runInSwingThread {
-      res = (
-        getCamera.getViewTransformReference.getScaleX,
-        getCamera.getViewTransformReference.getScaleY,
-        getCamera.getViewTransformReference.getTranslateX,
-        getCamera.getViewTransformReference.getTranslateY
-      )
-//    }
-    res
-  }
-
   def setBackgroundColor(color: java.awt.Color) {
     Utils.runInSwingThread {
       setBackground(color)
