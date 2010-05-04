@@ -93,6 +93,16 @@ class ScreenMethodsTest extends KojoTestBase {
       }).start()
   }
 
+  def peekZoom = {
+    val canvas = SpriteCanvas.instance
+    (
+        canvas.getCamera.getViewTransformReference.getScaleX,
+        canvas.getCamera.getViewTransformReference.getScaleY,
+        canvas.getCamera.getViewTransformReference.getTranslateX,
+        canvas.getCamera.getViewTransformReference.getTranslateY
+      )
+  }
+
   object Tester {
     var resCounter = 0
     var res = ""
