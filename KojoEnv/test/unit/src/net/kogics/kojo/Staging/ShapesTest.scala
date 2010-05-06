@@ -25,7 +25,7 @@ import java.util.concurrent.{CountDownLatch, TimeUnit}
 import net.kogics.kojo.core.RunContext
 
 // cargo coding off CodePaneTest
-class ScreenMethodsTest extends KojoTestBase {
+class ShapesTest extends KojoTestBase {
 
   val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
   val file = new java.io.File(fileStr)
@@ -108,7 +108,7 @@ class ScreenMethodsTest extends KojoTestBase {
     var res = ""
 
     def apply (cmd: String) = {
-      res += stripCrLfs(Delimiter) + "res" + resCounter + ": " + s
+      //res += stripCrLfs(Delimiter) + "res" + resCounter + ": " + s
       resCounter += 1
       pane.setText(cmd)
       runCtx.success.set(false)
@@ -122,7 +122,10 @@ class ScreenMethodsTest extends KojoTestBase {
   // lalit sez: if we have more than five tests, we run out of heap space - maybe a leak in the Scala interpreter/compiler
   // subsystem. So we run (mostly) everything in one test
   def testEvalSession = {
-    Tester("Staging.dot(Point(15, 10))")
+    Tester("Staging.dot(Staging.Point(15, 10))")
+    Tester("Staging.line(Staging.Point(15, 15), Staging.Point(40, 20))")
+    Tester("Staging.line(Staging.Point(15, 15), Staging.Point(40, 20)).toRectangle")
+    Tester("Staging.rectangle(Staging.Point(15, 15), Staging.Point(40, 20))")
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")

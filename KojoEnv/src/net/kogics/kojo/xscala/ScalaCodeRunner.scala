@@ -731,8 +731,8 @@ Here's a partial list of available commands:
     class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
       def draw { tCanvas.figure0.line(origin, endpoint) }
 
-//      def toRectangle() = Rectangle(origin, endpoint)
-//      def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
+      def toRectangle() = Rectangle(origin, endpoint)
+      def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
 //      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
       override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
     }
@@ -752,16 +752,19 @@ Here's a partial list of available commands:
       Line(p1, p2)
     }
 
-    /*
     class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
-      tCanvas.figure0.rectangle(origin, endpoint)
+      def draw { tCanvas.figure0.rectangle(origin, endpoint) }
 
       def toLine() = Line(origin, endpoint)
       def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
-      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+      //def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
     }
     object Rectangle {
-      def apply(p1: Point, p2: Point) = new Rectangle(p1, p2)
+      def apply(p1: Point, p2: Point) = {
+        val shape = new Rectangle(p1, p2)
+        shape.draw
+        shape
+      }
     }
     def rectangle(x: Double, y: Double, w: Double, h: Double): Rectangle =
       Rectangle(Point(x, y), Point(x + w, y + h))
@@ -779,14 +782,20 @@ Here's a partial list of available commands:
       val endpoint: Point,
       val curvature: Point
     ) extends SimpleShape with Rounded {
-      tCanvas.figure0.roundRectangle(origin, endpoint, radiusX, radiusY)
+      def draw {
+        tCanvas.figure0.roundRectangle(origin, endpoint, radiusX, radiusY)
+      }
 
       def toLine() = Line(origin, endpoint)
       def toRectangle() = Rectangle(origin, endpoint)
-      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+      //def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
     }
     object RoundRectangle {
-      def apply(p1: Point, p2: Point, p3: Point) = new RoundRectangle(p1, p2, p3)
+      def apply(p1: Point, p2: Point, p3: Point) = {
+        val shape = new RoundRectangle(p1, p2, p3)
+        shape.draw
+        shape
+      }
     }
     def roundRectangle(
       x: Double, y: Double,
@@ -805,7 +814,6 @@ Here's a partial list of available commands:
     def roundRectangle(p1: Point, p2: Point, p3: Point) =
       RoundRectangle(p1, p2, p3)
 
-    */
     /*
     class Polyline(val points: Seq[Point]) extends PolyShape {
       private val xs = points map { case Point(x, y) => x.toFloat }
