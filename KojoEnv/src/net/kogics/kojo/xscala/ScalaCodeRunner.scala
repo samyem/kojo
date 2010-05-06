@@ -694,6 +694,7 @@ Here's a partial list of available commands:
       val origin: Point
     }
     trait SimpleShape extends BaseShape {
+      // precondition endpoint > origin
       val endpoint: Point
       val width = endpoint.x - origin.x
       val height = endpoint.y - origin.y
@@ -703,8 +704,8 @@ Here's a partial list of available commands:
     }
     trait Rounded {
       val curvature: Point
-      def radiusX = curvature.x
-      def radiusY = curvature.y
+      val radiusX = curvature.x
+      val radiusY = curvature.y
     }
     trait Elliptical extends SimpleShape with Rounded {
       override val width = 2 * (endpoint.x - origin.x)
@@ -713,8 +714,11 @@ Here's a partial list of available commands:
     }
 
     class Dot(val origin: Point) extends BaseShape {
-      private val (x, y) = (origin.x, origin.y)
-      def draw { tCanvas.figure0.point(x, y) }
+      def draw {
+        origin match {
+          case Point(x, y) => tCanvas.figure0.point(x, y)
+        }
+      }
 
       def toLine(p: Point): Line = Line(origin, p)
     }
@@ -733,7 +737,7 @@ Here's a partial list of available commands:
 
       def toRectangle() = Rectangle(origin, endpoint)
       def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
-//      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
       override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
     }
     object Line {
@@ -757,7 +761,7 @@ Here's a partial list of available commands:
 
       def toLine() = Line(origin, endpoint)
       def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
-      //def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
     }
     object Rectangle {
       def apply(p1: Point, p2: Point) = {
@@ -788,7 +792,7 @@ Here's a partial list of available commands:
 
       def toLine() = Line(origin, endpoint)
       def toRectangle() = Rectangle(origin, endpoint)
-      //def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
     }
     object RoundRectangle {
       def apply(p1: Point, p2: Point, p3: Point) = {
@@ -814,52 +818,68 @@ Here's a partial list of available commands:
     def roundRectangle(p1: Point, p2: Point, p3: Point) =
       RoundRectangle(p1, p2, p3)
 
-    /*
     class Polyline(val points: Seq[Point]) extends PolyShape {
-      private val xs = points map { case Point(x, y) => x.toFloat }
-      private val ys = points map { case Point(x, y) => y.toFloat }
-      val ppath =
-        PPath.createPolyline(xs.toArray, ys.toArray)
+      val shapePath = new kgeom.PolyLine()
+      points foreach { case Point(x, y) =>
+        shapePath.addPoint(x, y)
+      }
+      def draw {
+        tCanvas.figure0.polyLine(shapePath)
+      }
+
+      def toPolygon() = Polygon(points)
     }
     object Polyline {
-      def apply(points: Seq[Point]) = {
-        val fig = new Polyline(points)
-        tCanvas.figure0.ppath(fig.ppath)
-        fig
+      def apply(pts: Seq[Point]) = {
+        val shape = new Polyline(pts)
+        shape.draw
+        shape
       }
     }
     def polyline(pts: Seq[Point]): Polyline = Polyline(pts)
 
     class Polygon(val points: Seq[Point]) extends PolyShape {
-      private val xs = points map { case Point(x, y) => x.toFloat }
-      private val ys = points map { case Point(x, y) => y.toFloat }
-      val ppath =
-        PPath.createPolyline(xs.toArray, ys.toArray)
-      ppath.closePath
+      val shapePath = new kgeom.PolyLine()
+      points foreach { case Point(x, y) =>
+        shapePath.addPoint(x, y)
+      }
+      shapePath.polyLinePath.closePath
+      def draw {
+        tCanvas.figure0.polyLine(shapePath)
+      }
+
+      def toPolyline() = Polyline(points)
     }
     object Polygon {
-      def apply(points: Seq[Point]) = {
-        val fig = new Polygon(points)
-        tCanvas.figure0.ppath(fig.ppath)
-        fig
+      def apply(pts: Seq[Point]) = {
+        val shape = new Polygon(pts)
+        shape.draw
+        shape
       }
     }
     def polygon(pts: Seq[Point]): Polygon = Polygon(pts)
     def triangle(p0: Point, p1: Point, p2: Point) = polygon(Seq(p0, p1, p2))
     def quad(p0: Point, p1: Point, p2: Point, p3: Point) =
       polygon(Seq(p0, p1, p2, p3))
-    */
 
-    /*
     class Ellipse(val origin: Point, val endpoint: Point) extends Elliptical {
-      tCanvas.figure0.ellipse(origin, width, height)
+      def draw {
+        tCanvas.figure0.ellipse(origin, width, height)
+      }
 
-      def toLine() = Line(origin - Point(width / 2, height / 2), endpoint)
-      def toRectangle() = Rectangle(origin - Point(width / 2, height / 2), endpoint)
-      def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
+      def toLine() =
+        Line(origin - Point(width / 2, height / 2), endpoint)
+      def toRectangle() =
+        Rectangle(origin - Point(width / 2, height / 2), endpoint)
+      def toRoundRectangle(c: Point) =
+        RoundRectangle(origin - Point(width / 2, height / 2), endpoint, c)
     }
     object Ellipse {
-      def apply(p1: Point, p2: Point) = new Ellipse(p1, p2)
+      def apply(p1: Point, p2: Point) = {
+        val shape = new Ellipse(p1, p2)
+        shape.draw
+        shape
+      }
     }
     def ellipse(x: Double, y: Double, w: Double, h: Double) =
       Ellipse(Point(x, y), Point(x + w, y + h))
@@ -872,26 +892,20 @@ Here's a partial list of available commands:
     def circle(p: Point, r: Double): Ellipse =
       Ellipse(p, Point(p.x + 2 * r, p.y + 2 * r))
 
-    */
-    /*
     class Arc(
       val origin: Point, val endpoint: Point,
       val start: Double, val extent: Double
     ) extends Elliptical {
-      private val arc = new java.awt.geom.Arc2D.Float(
-        (origin.x - width / 2).toFloat,
-        (origin.y - height / 2).toFloat,
-        width.toFloat, height.toFloat,
-        start.toFloat, extent.toFloat,
-        java.awt.geom.Arc2D.PIE
-      )
-      val ppath = new PPath(arc)
+      def draw {
+        val (cx, cy) = (origin.x, origin.y)
+        tCanvas.figure0.arc(cx, cy, width, height, start, extent)
+      }
     }
     object Arc {
       def apply(p1: Point, p2: Point, s: Double, e: Double) = {
-        val fig = new Arc(p1, p2, s, e)
-        tCanvas.figure0.ppath(fig.ppath)
-        fig
+        val shape = new Arc(p1, p2, s, e)
+        shape.draw
+        shape
       }
     }
     def arc(x: Double, y: Double, w: Double, h: Double, s: Double, e: Double): Arc =
@@ -900,7 +914,6 @@ Here's a partial list of available commands:
       Arc(p, Point(p.x + w, p.y + h), s, e)
     def arc(p1: Point, p2: Point, s: Double, e: Double): Arc =
       Arc(p1, p2, s, e)
-    */
   }
 
   object PLSandbox {
