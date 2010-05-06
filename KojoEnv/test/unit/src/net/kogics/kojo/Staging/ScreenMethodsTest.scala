@@ -121,10 +121,14 @@ class ScreenMethodsTest extends KojoTestBase {
   @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe a leak in the Scala interpreter/compiler
   // subsystem. So we run (mostly) everything in one test
+  def testPreEval = {
+    assertEquals(peekZoom, (1.0,-1.0,0.0,0.0))
+  }
+
+  @Test
   def testEvalSession = {
     Tester("Staging.Screen.width",                               "Int = 0")
     Tester("Staging.Screen.height",                              "Int = 0")
-    //TODO assertEquals(peekZoom, (1.0,-1.0,0.0,0.0))
     Tester("Staging.Screen.size(250, 150)",                      "(Int, Int) = (250,150)")
     assertEquals(peekZoom, (3.7333333333333334,-3.7333333333333334,-466.6666666666667,280.0))
     Tester("Staging.Screen.width",                               "Int = 250")
