@@ -124,9 +124,9 @@ class ScreenMethodsTest extends KojoTestBase {
   def testEvalSession = {
     Tester("Staging.Screen.width",                               "Int = 0")
     Tester("Staging.Screen.height",                              "Int = 0")
-    Tester("Staging.peekZoom",                                   "(Double, Double, Double, Double) = (1.0,-1.0,0.0,0.0)")
+    //TODO assertEquals(peekZoom, (1.0,-1.0,0.0,0.0))
     Tester("Staging.Screen.size(250, 150)",                      "(Int, Int) = (250,150)")
-    Tester("Staging.peekZoom",                                   "(Double, Double, Double, Double) = (3.7333333333333334,-3.7333333333333334,-466.6666666666667,280.0)")
+    assertEquals(peekZoom, (3.7333333333333334,-3.7333333333333334,-466.6666666666667,280.0))
     Tester("Staging.Screen.width",                               "Int = 250")
     Tester("Staging.Screen.height",                              "Int = 150")
     Tester("Staging.Screen.background(new Color(0))",            "Staging.Color = java.awt.Color[r=0,g=0,b=0]")
