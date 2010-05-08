@@ -24,6 +24,8 @@ import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import net.kogics.kojo.core.RunContext
 
+import net.kogics.kojo.util._
+
 // cargo coding off CodePaneTest
 class ScreenMethodsTest extends KojoTestBase {
 
@@ -113,6 +115,7 @@ class ScreenMethodsTest extends KojoTestBase {
       pane.setText(cmd)
       runCtx.success.set(false)
       runCode()
+      Utils.runInSwingThreadAndWait {  /* noop */  }
       assertTrue(runCtx.success.get)
       assertEquals(res, stripCrLfs(runCtx.getCurrentOutput))
     }
