@@ -924,9 +924,9 @@ Here's a partial list of available commands:
         points grouped(2) foreach {
           case List() =>
           case Seq(p0, p1) =>
-            tCanvas.figure0.line(p0, p1)
-          case p0 :: Nil =>
-            tCanvas.figure0.point(p0.x, p0.y)
+            line(p0, p1)
+          case Point(x, y) :: Nil =>
+            dot(x, y)
         }
       }
     }
@@ -938,6 +938,50 @@ Here's a partial list of available commands:
       }
     }
     def linesShape(pts: Seq[Point]) = LinesShape(pts)
+
+    class TrianglesShape(val points: Seq[Point]) extends PolyShape {
+      def draw {
+        points grouped(3) foreach {
+          case List() =>
+          case s @ Seq(p0, p1, p2) =>
+            polygon(s)
+          case p0 :: p1 :: Nil =>
+            line(p0, p1)
+          case Point(x, y) :: Nil =>
+            dot(x, y)
+        }
+      }
+    }
+    object TrianglesShape {
+      def apply(pts: Seq[Point]) = {
+        val shape = new TrianglesShape(pts)
+        shape.draw
+        shape
+      }
+    }
+    def trianglesShape(pts: Seq[Point]) = TrianglesShape(pts)
+
+    class TriangleStripShape(val points: Seq[Point]) extends PolyShape {
+      def draw {
+        points sliding(3) foreach {
+          case List() =>
+          case s @ Seq(p0, p1, p2) =>
+            polygon(s)
+          case p0 :: p1 :: Nil =>
+            line(p0, p1)
+          case Point(x, y) :: Nil =>
+            dot(x, y)
+        }
+      }
+    }
+    object TriangleStripShape {
+      def apply(pts: Seq[Point]) = {
+        val shape = new TriangleStripShape(pts)
+        shape.draw
+        shape
+      }
+    }
+    def triangleStripShape(pts: Seq[Point]) = TriangleStripShape(pts)
 
   }
 
@@ -1220,73 +1264,6 @@ Here's a partial list of available commands:
       def addToFigure: Unit
     }
 
-    class DefaultShape extends Shape {
-      def addToFigure {
-        val shapePath = new kgeom.PolyLine()
-        points foreach { p =>
-          shapePath.addPoint(p.x, p.y)
-        }
-        tCanvas.figure0.polyLine(shapePath)
-      }
-    }
-
-    class ClosedShape extends Shape {
-      def addToFigure {
-        val shapePath = new kgeom.PolyLine()
-        points foreach { p =>
-          shapePath.addPoint(p.x, p.y)
-        }
-        shapePath.polyLinePath.closePath
-        tCanvas.figure0.polyLine(shapePath)
-      }
-    }
-
-    class PointsShape extends Shape {
-      def addToFigure {
-        //points foreach (_.point)
-      }
-    }
-
-    class LinesShape extends Shape {
-      def addToFigure {
-        require(points.size % 2 == 0, "LINES Shape must have even number of points")
-
-        points grouped(2) foreach { case collection.mutable.ArrayBuffer(p0, p1) =>
-          //p0 line p1
-        }
-      }
-    }
-
-    class TrianglesShape extends Shape {
-      def addToFigure {
-        require(points.size % 3 == 0, "Wrong number of points for TRIANGLES Shape")
-
-        points grouped(3) foreach { tpoints =>
-          val shapePath = new kgeom.PolyLine()
-          tpoints foreach { p =>
-            shapePath.addPoint(p.x, p.y)
-          }
-          shapePath.polyLinePath.closePath
-          tCanvas.figure0.polyLine(shapePath)
-        }
-      }
-    }
-
-    class TriangleStripShape extends Shape {
-      def addToFigure {
-        require(points.size >= 3, "Wrong number of points for TRIANGLE_STRIP Shape")
-
-        points sliding(3) foreach { tpoints =>
-          val shapePath = new kgeom.PolyLine()
-          tpoints foreach { p =>
-            shapePath.addPoint(p.x, p.y)
-          }
-          shapePath.polyLinePath.closePath
-          tCanvas.figure0.polyLine(shapePath)
-        }
-      }
-    }
-
     class TriangleFanShape extends Shape {
       def addToFigure {
         require(points.size >= 3, "Wrong number of points for TRIANGLE_FAN Shape")
@@ -1333,23 +1310,23 @@ Here's a partial list of available commands:
       }
     }
 
-    object Shape {
-      def apply(mode: Symbol, pts: Seq[PVector]) = {
-        val sh = mode match {
-          case 'POINTS =>         new PointsShape
-          case 'LINES =>          new LinesShape
-          case 'TRIANGLES =>      new TrianglesShape
-          case 'TRIANGLE_STRIP => new TriangleStripShape
-          case 'TRIANGLE_FAN =>   new TriangleFanShape
-          case 'QUADS =>          new QuadsShape
-          case 'QUAD_STRIP =>     new QuadStripShape
-          case 'CLOSED =>         new ClosedShape
-          case _ =>               new DefaultShape
-        }
-        pts foreach { p => sh add p }
-        sh.addToFigure
-      }
-    }
+//    object Shape {
+//      def apply(mode: Symbol, pts: Seq[PVector]) = {
+//        val sh = mode match {
+//          case 'POINTS =>         new PointsShape
+//          case 'LINES =>          new LinesShape
+//          case 'TRIANGLES =>      new TrianglesShape
+//          case 'TRIANGLE_STRIP => new TriangleStripShape
+//          case 'TRIANGLE_FAN =>   new TriangleFanShape
+//          case 'QUADS =>          new QuadsShape
+//          case 'QUAD_STRIP =>     new QuadStripShape
+//          case 'CLOSED =>         new ClosedShape
+//          case _ =>               new DefaultShape
+//        }
+//        pts foreach { p => sh add p }
+//        sh.addToFigure
+//      }
+//    }
 
 
     def path (d: String) {
