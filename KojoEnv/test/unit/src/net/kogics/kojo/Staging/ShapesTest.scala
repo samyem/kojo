@@ -129,14 +129,15 @@ class ShapesTest extends KojoTestBase {
     Tester("import Staging._ ; line((15, 15), (40, 20)).toRectangle")
     Tester("import Staging._ ; rectangle((15, 15), (40, 20))")
     Tester("import Staging._ ; square((15, 15), 20)")
-    //Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)")
+    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5))")
     Tester("import Staging._ ; triangle((15, 15), (25, 35), (35, 15))")
     Tester("import Staging._ ; quad((15, 15), (25, 35), (40, 20), (35, 10))")
     Tester("import Staging._ ; polyline(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
     Tester("import Staging._ ; polygon(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
-    //Tester("import Staging._ ; arc((15, 15), 35, 25, 40, 95)")
+    Tester("import Staging._ ; arc((15, 15), (20, 10), 40, 95)")
     Tester("import Staging._ ; ellipse((15, 15), (35, 25))")
     Tester("import Staging._ ; circle((15, 15), 25)")
+    Tester("import Staging._ ; linesShape(List((10, 20), (10, 50), (20, 50), (20, 20)))")
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
