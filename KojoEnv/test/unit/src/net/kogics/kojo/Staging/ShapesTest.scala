@@ -107,45 +107,152 @@ class ShapesTest extends KojoTestBase {
     var resCounter = 0
     var res = ""
 
-    def apply (cmd: String) = {
+    def apply (cmd: String, res: String = "") = {
       //res += stripCrLfs(Delimiter) + "res" + resCounter + ": " + s
       resCounter += 1
       pane.setText(cmd)
       runCtx.success.set(false)
       runCode()
       assertTrue(runCtx.success.get)
+      val s = SpriteCanvas.instance.figure0.dumpLastOfCurrLayer
+      if (res != "") {
+        assertEquals(res, s)
+      }
+      else {
+        println(s)
+      }
+
       // TODO means of assertion
     }
+  }
+
+  def testPolyLine(r: AnyRef, size: Int) = {
+    assertTrue(r.isInstanceOf[net.kogics.kojo.kgeom.PolyLine])
+    val pl = r.asInstanceOf[net.kogics.kojo.kgeom.PolyLine]
+    assertEquals(pl.size, size)
   }
 
   @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe a leak in the Scala interpreter/compiler
   // subsystem. So we run (mostly) everything in one test
   def testEvalSession = {
-    // for now, test if the commands can be executed at all
-    // TODO check results
-    Tester("Staging.dot(Staging.Point(15, 10))")
+    val f = SpriteCanvas.instance.figure0
+    var n = f.dumpNumOfChildren
+    assertEquals(n, 0)
+
+    Tester("Staging.dot(Staging.Point(15, 10))", "PPoint(15,10)")
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
     Tester("import Staging._ ; line((15, 15), (40, 20))")
+    assertEquals("PolyLine(15,15)", f.dumpChildString(n))
+    testPolyLine(f.dumpChild(n), 2)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
     Tester("import Staging._ ; line((15, 15), (40, 20)).toRectangle")
-    Tester("import Staging._ ; rectangle((15, 15), (40, 20))")
-    Tester("import Staging._ ; square((15, 15), 20)")
-    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5))")
-    Tester("import Staging._ ; triangle((15, 15), (25, 35), (35, 15))")
-    Tester("import Staging._ ; quad((15, 15), (25, 35), (40, 20), (35, 10))")
-    Tester("import Staging._ ; polyline(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
-    Tester("import Staging._ ; polygon(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
+    n += 1 // this command creates two objects, a line and a rectangle
+
+    assertEquals("PPath(15,15)", f.dumpChildString(n))
+    val r1 = f.dumpChild(n)
+    //assertTrue(r1.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    Tester("import Staging._ ; rectangle((15, 15), (40, 20))", "PPath(15,15)")
+    val r2 = f.dumpChild(n)
+    //assertTrue(r2.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    Tester("import Staging._ ; square((15, 15), 20)", "PPath(15,15)")
+    val r3 = f.dumpChild(n)
+    //assertTrue(r3.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5))", "PPath(15,15)")
+    val r4 = f.dumpChild(n)
+    //assertTrue(r4.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    Tester("import Staging._ ; triangle((15, 15), (25, 35), (35, 15))", "PolyLine(15,15)")
+    testPolyLine(f.dumpChild(n), 3)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    Tester("import Staging._ ; quad((15, 15), (25, 35), (40, 20), (35, 10))", "PolyLine(15,10)")
+    testPolyLine(f.dumpChild(n), 4)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    Tester("import Staging._ ; polyline(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))", "PolyLine(15,10)")
+    testPolyLine(f.dumpChild(n), 5)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    Tester("import Staging._ ; polygon(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))", "PolyLine(15,10)")
+    testPolyLine(f.dumpChild(n), 5)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
     Tester("import Staging._ ; arc((15, 15), (20, 10), 40, 95)")
+    // , "PArc(15,10)"
+    val r9 = f.dumpChild(n)
+    assertTrue(r9.isInstanceOf[net.kogics.kojo.kgeom.PArc])
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
     Tester("import Staging._ ; ellipse((15, 15), (35, 25))")
-    Tester("import Staging._ ; circle((15, 15), 25)")
+    // , "PPath(15,15)")
+    val r10 = f.dumpChild(n)
+    assertTrue(r10.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    Tester("import Staging._ ; circle((15, 15), 25)", "PPath(15,15)")
+    val r11 = f.dumpChild(n)
+    assertTrue(r11.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
     val points = """List((10, 20), (10, 50),
        |(20, 50), (20, 20),
        |(30, 20), (30, 50),
        |(40, 50), (40, 20),
        |(50, 20), (50, 50),
        |(60, 50), (60, 20))""".stripMargin
-    Tester("import Staging._ ; linesShape(" + points + ")")
-    Tester("import Staging._ ; trianglesShape(" + points + ")")
-    Tester("import Staging._ ; triangleStripShape(" + points + ")")
+    Tester("import Staging._ ; linesShape(" + points + ")", "PolyLine(60,20)")
+    testPolyLine(f.dumpChild(n), 12)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    Tester("import Staging._ ; trianglesShape(" + points + ")", "PolyLine(50,20)")
+    testPolyLine(f.dumpChild(n), 12)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    val tssPoints = """List((10, 20), (10, 50),
+       |(20, 20), (20, 50),
+       |(30, 20), (30, 50),
+       |(40, 20), (40, 50),
+       |(50, 20), (50, 50),
+       |(60, 20), (60, 50))""".stripMargin
+    Tester("import Staging._ ; triangleStripShape(" + tssPoints + ")", "PolyLine(50,20)")
+    testPolyLine(f.dumpChild(n), 12)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    Tester("import Staging._ ; quadsShape(" + points + ")", "PolyLine(50,20)")
+    testPolyLine(f.dumpChild(n), 12)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    Tester("import Staging._ ; quadStripShape(" + points + ")", "PolyLine(50,20)")
+    testPolyLine(f.dumpChild(n), 12)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")

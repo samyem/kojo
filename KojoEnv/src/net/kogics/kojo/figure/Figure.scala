@@ -42,6 +42,51 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   private val bgLayer = new PLayer
   private val fgLayer = new PLayer
   private var currLayer = bgLayer
+
+  def dumpNumOfChildren: Int = currLayer.getChildrenCount
+  def dumpChild(n: Int): AnyRef = {
+    try {
+      val c = currLayer.getChild(n)
+      if (c.isInstanceOf[net.kogics.kojo.kgeom.PArc]) {
+        c.asInstanceOf[net.kogics.kojo.kgeom.PArc]
+      }
+      else if (c.isInstanceOf[net.kogics.kojo.kgeom.PPoint]) {
+        c.asInstanceOf[net.kogics.kojo.kgeom.PPoint]
+      }
+      else if (c.isInstanceOf[net.kogics.kojo.kgeom.PolyLine]) {
+        c.asInstanceOf[net.kogics.kojo.kgeom.PolyLine]
+      }
+      else if (c.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath]) {
+        c.asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]
+      }
+      else null
+    }
+    catch { case e => throw e }
+  }
+  def dumpChildString(n: Int) = {
+    try {
+      val c = currLayer.getChild(n)
+      if (c.isInstanceOf[net.kogics.kojo.kgeom.PArc]) {
+        "PArc(" + (c.getX.round + 1) + "," + (c.getY.round + 1) + ")"
+      }
+      else if (c.isInstanceOf[net.kogics.kojo.kgeom.PPoint]) {
+        "PPoint(" + (c.getX.round + 1) + "," + (c.getY.round + 1) + ")"
+      }
+      else if (c.isInstanceOf[net.kogics.kojo.kgeom.PolyLine]) {
+        "PolyLine(" + (c.getX.round + 2) + "," + (c.getY.round + 2) + ")"
+      }
+      else if (c.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath]) {
+        "PPath(" + (c.getX.round + 1) + "," + (c.getY.round + 1) + ")"
+      }
+      else c.toString
+    }
+    catch { case e => throw e }
+  }
+  def dumpLastOfCurrLayer: String = {
+    if (currLayer.getChildrenCount > 0) {
+      dumpChildString(currLayer.getChildrenCount - 1)
+    } else { "<None>" }
+  }
   
   // if fgLayer is bigger than bgLayer, (re)painting does not happen very cleanly
   // needs a better fix than the one below

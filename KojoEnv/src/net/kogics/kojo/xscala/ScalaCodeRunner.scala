@@ -983,6 +983,54 @@ Here's a partial list of available commands:
     }
     def triangleStripShape(pts: Seq[Point]) = TriangleStripShape(pts)
 
+    class QuadsShape(val points: Seq[Point]) extends PolyShape {
+      def draw {
+        points grouped(4) foreach {
+          case List() =>
+          case s @ Seq(p0, p1, p2, p3) =>
+            polygon(s)
+          case s @ p0 :: p1 :: p2 :: Nil =>
+            Polyline(s)
+          case p0 :: p1 :: Nil =>
+            line(p0, p1)
+          case Point(x, y) :: Nil =>
+            dot(x, y)
+        }
+      }
+    }
+    object QuadsShape {
+      def apply(pts: Seq[Point]) = {
+        val shape = new QuadsShape(pts)
+        shape.draw
+        shape
+      }
+    }
+    def quadsShape(pts: Seq[Point]) = QuadsShape(pts)
+
+    class QuadStripShape(val points: Seq[Point]) extends PolyShape {
+      def draw {
+        points sliding(4, 2) foreach {
+          case List() =>
+          case s @ Seq(p0, p1, p2, p3) =>
+            polygon(s)
+          case s @ p0 :: p1 :: p2 :: Nil =>
+            polyline(s)
+          case p0 :: p1 :: Nil =>
+            line(p0, p1)
+          case Point(x, y) :: Nil =>
+            dot(x, y)
+        }
+      }
+    }
+    object QuadStripShape {
+      def apply(pts: Seq[Point]) = {
+        val shape = new QuadStripShape(pts)
+        shape.draw
+        shape
+      }
+    }
+    def quadStripShape(pts: Seq[Point]) = QuadStripShape(pts)
+
   }
 
   object PLSandbox {
@@ -1280,35 +1328,6 @@ Here's a partial list of available commands:
       }
     }
 
-    class QuadsShape extends Shape {
-      def addToFigure {
-        require(points.size % 4 == 0, "Wrong number of points for QUADS Shape")
-
-        points grouped(4) foreach { tpoints =>
-          val shapePath = new kgeom.PolyLine()
-          tpoints foreach { p =>
-            shapePath.addPoint(p.x, p.y)
-          }
-          shapePath.polyLinePath.closePath
-          tCanvas.figure0.polyLine(shapePath)
-        }
-      }
-    }
-
-    class QuadStripShape extends Shape {
-      def addToFigure {
-        require(points.size % 4 == 0, "Wrong number of points for QUAD_STRIP Shape")
-
-        points sliding(4, 2) foreach { tpoints =>
-          val shapePath = new kgeom.PolyLine()
-          tpoints foreach { p =>
-            shapePath.addPoint(p.x, p.y)
-          }
-          shapePath.polyLinePath.closePath
-          tCanvas.figure0.polyLine(shapePath)
-        }
-      }
-    }
 
 //    object Shape {
 //      def apply(mode: Symbol, pts: Seq[PVector]) = {
