@@ -603,6 +603,7 @@ Here's a partial list of available commands:
 //  def unary_- = new Point(-x, -y)
 //  override def toString = "Point(%.2f, %.2f)" format(x, y)
 //}
+
     type Point = net.kogics.kojo.core.Point
     object Point {
       def apply(x: Double, y: Double) = new Point(x, y)
@@ -647,45 +648,45 @@ Here's a partial list of available commands:
     implicit def tupleDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
     implicit def tupleIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
 
-    type BasicStroke = java.awt.BasicStroke
-    case class StrokeStyle(
-      width: Float,
-      cap: Int,
-      join: Int,
-      m: Float,
-      da: Array[Float],
-      dp: Float
-    ) {
-      def toStroke = {
-        new BasicStroke(width, cap, join, m, da, dp)
-      }
-    }
-    def defaultStrokeStyle = {
-      val s = new BasicStroke
-      StrokeStyle(
-        s.getLineWidth,
-        s.getEndCap,
-        s.getLineJoin,
-        s.getMiterLimit,
-        s.getDashArray,
-        s.getDashPhase
-      )
-    }
-    case class Style (fill: Color, stroke: Color, strokeStyle: StrokeStyle)
-    var style = Style(null, Color.RED, defaultStrokeStyle)
-    object Style {
-      def fill(fc: Color) =
-        style = Style(fc, style.stroke, style.strokeStyle)
-      def stroke(sc: Color) =
-        style = Style(style.fill, sc, style.strokeStyle)
-      def strokeWeight(w: Double) = {
-        style.strokeStyle match {
-          case StrokeStyle(_, c, j, m, a, p) =>
-            style =
-              Style(style.fill, style.stroke, StrokeStyle(w.toFloat, c, j, m, a, p))
-        }
-      }
-    }
+//    type BasicStroke = java.awt.BasicStroke
+//    case class StrokeStyle(
+//      width: Float,
+//      cap: Int,
+//      join: Int,
+//      m: Float,
+//      da: Array[Float],
+//      dp: Float
+//    ) {
+//      def toStroke = {
+//        new BasicStroke(width, cap, join, m, da, dp)
+//      }
+//    }
+//    def defaultStrokeStyle = {
+//      val s = new BasicStroke
+//      StrokeStyle(
+//        s.getLineWidth,
+//        s.getEndCap,
+//        s.getLineJoin,
+//        s.getMiterLimit,
+//        s.getDashArray,
+//        s.getDashPhase
+//      )
+//    }
+//    case class Style (fill: Color, stroke: Color, strokeStyle: StrokeStyle)
+//    var style = Style(null, Color.RED, defaultStrokeStyle)
+//    object Style {
+//      def fill(fc: Color) =
+//        style = Style(fc, style.stroke, style.strokeStyle)
+//      def stroke(sc: Color) =
+//        style = Style(style.fill, sc, style.strokeStyle)
+//      def strokeWeight(w: Double) = {
+//        style.strokeStyle match {
+//          case StrokeStyle(_, c, j, m, a, p) =>
+//            style =
+//              Style(style.fill, style.stroke, StrokeStyle(w.toFloat, c, j, m, a, p))
+//        }
+//      }
+//    }
 
     trait Shape {
       def draw: Unit
@@ -696,21 +697,21 @@ Here's a partial list of available commands:
     trait SimpleShape extends BaseShape {
       // precondition endpoint > origin
       val endpoint: Point
-      val width = endpoint.x - origin.x
-      val height = endpoint.y - origin.y
+      def width = endpoint.x - origin.x
+      def height = endpoint.y - origin.y
     }
     trait PolyShape extends Shape {
       val points: Seq[Point]
     }
     trait Rounded {
       val curvature: Point
-      val radiusX = curvature.x
-      val radiusY = curvature.y
+      def radiusX = curvature.x
+      def radiusY = curvature.y
     }
-    trait Elliptical extends SimpleShape with Rounded {
-      override val width = 2 * (endpoint.x - origin.x)
-      override val height = 2 * (endpoint.y - origin.y)
+    trait Elliptical extends Rounded with SimpleShape {
       val curvature = endpoint - origin
+      override def width = 2 * radiusX
+      override def height = 2 * radiusY
     }
 
     class Dot(val origin: Point) extends BaseShape {
@@ -721,6 +722,7 @@ Here's a partial list of available commands:
       }
 
       def toLine(p: Point): Line = Line(origin, p)
+      override def toString = "Staging.Dot(" + origin + ")"
     }
     object Dot {
       def apply(p: Point) = {
@@ -897,8 +899,10 @@ Here's a partial list of available commands:
       val start: Double, val extent: Double
     ) extends Elliptical {
       def draw {
-        val (cx, cy) = (origin.x, origin.y)
-        tCanvas.figure0.arc(cx, cy, width, height, start, extent)
+        origin match {
+          case Point(x, y) =>
+          tCanvas.figure0.arc(x, y, width, height, start, extent)
+        }
       }
     }
     object Arc {
@@ -909,11 +913,32 @@ Here's a partial list of available commands:
       }
     }
     def arc(x: Double, y: Double, w: Double, h: Double, s: Double, e: Double): Arc =
-      Arc(Point(x, y), Point(x + w, y + h), s, e)
+      Arc(Point(x, y), Point(x + w / 2, y + h / 2), s, e)
     def arc(p: Point, w: Double, h: Double, s: Double, e: Double): Arc =
-      Arc(p, Point(p.x + w, p.y + h), s, e)
+      Arc(p, Point(p.x + w / 2, p.y + h / 2), s, e)
     def arc(p1: Point, p2: Point, s: Double, e: Double): Arc =
       Arc(p1, p2, s, e)
+
+    class LinesShape(val points: Seq[Point]) extends PolyShape {
+      def draw {
+        points grouped(2) foreach {
+          case List() =>
+          case Seq(p0, p1) =>
+            tCanvas.figure0.line(p0, p1)
+          case p0 :: Nil =>
+            tCanvas.figure0.point(p0.x, p0.y)
+        }
+      }
+    }
+    object LinesShape {
+      def apply(pts: Seq[Point]) = {
+        val shape = new LinesShape(pts)
+        shape.draw
+        shape
+      }
+    }
+    def linesShape(pts: Seq[Point]) = LinesShape(pts)
+
   }
 
   object PLSandbox {
