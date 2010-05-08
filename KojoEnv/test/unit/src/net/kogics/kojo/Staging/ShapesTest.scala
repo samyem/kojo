@@ -24,6 +24,8 @@ import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import net.kogics.kojo.core.RunContext
 
+import net.kogics.kojo.util._
+
 // cargo coding off CodePaneTest
 class ShapesTest extends KojoTestBase {
 
@@ -113,6 +115,7 @@ class ShapesTest extends KojoTestBase {
       pane.setText(cmd)
       runCtx.success.set(false)
       runCode()
+      Utils.runInSwingThreadAndWait {  /* noop */  }
       assertTrue(runCtx.success.get)
       val s = SpriteCanvas.instance.figure0.dumpLastOfCurrLayer
       if (res != "") {
@@ -129,7 +132,7 @@ class ShapesTest extends KojoTestBase {
   def testPolyLine(r: AnyRef, size: Int) = {
     assertTrue(r.isInstanceOf[net.kogics.kojo.kgeom.PolyLine])
     val pl = r.asInstanceOf[net.kogics.kojo.kgeom.PolyLine]
-    assertEquals(pl.size, size)
+    assertEquals(size, pl.size)
   }
 
   @Test
@@ -211,7 +214,8 @@ class ShapesTest extends KojoTestBase {
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; circle((15, 15), 25)", "PPath(15,15)")
+    Tester("import Staging._ ; circle((15, 15), 25)")
+    assertEquals("PPath(-35,-35)", f.dumpChildString(n))
     val r11 = f.dumpChild(n)
     assertTrue(r11.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
     n += 1
@@ -223,13 +227,17 @@ class ShapesTest extends KojoTestBase {
        |(40, 50), (40, 20),
        |(50, 20), (50, 50),
        |(60, 50), (60, 20))""".stripMargin
-    Tester("import Staging._ ; linesShape(" + points + ")", "PolyLine(60,20)")
-    testPolyLine(f.dumpChild(n), 12)
+    Tester("import Staging._ ; linesShape(" + points + ")")
+    assertEquals("PolyLine(10,20)", f.dumpChildString(n))
+    n += 5 // 6 lines total are created, we'll look at the last one
+    testPolyLine(f.dumpChild(n), 2)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; trianglesShape(" + points + ")", "PolyLine(50,20)")
-    testPolyLine(f.dumpChild(n), 12)
+    Tester("import Staging._ ; trianglesShape(" + points + ")")
+    assertEquals("PolyLine(10,20)", f.dumpChildString(n))
+    n += 3 // 4 triangles total are created, we'll look at the last one
+    testPolyLine(f.dumpChild(n), 3)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
@@ -239,18 +247,39 @@ class ShapesTest extends KojoTestBase {
        |(40, 20), (40, 50),
        |(50, 20), (50, 50),
        |(60, 20), (60, 50))""".stripMargin
-    Tester("import Staging._ ; triangleStripShape(" + tssPoints + ")", "PolyLine(50,20)")
-    testPolyLine(f.dumpChild(n), 12)
+    Tester("import Staging._ ; triangleStripShape(" + tssPoints + ")")
+    assertEquals("PolyLine(10,20)", f.dumpChildString(n))
+    n += 9 // 10 triangles total are created, we'll look at the last one
+    testPolyLine(f.dumpChild(n), 3)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; quadsShape(" + points + ")", "PolyLine(50,20)")
-    testPolyLine(f.dumpChild(n), 12)
+    Tester("import Staging._ ; quadsShape(" + points + ")")
+    assertEquals("PolyLine(10,20)", f.dumpChildString(n))
+    n += 2 // 3 quads total are created, we'll look at the last one
+    testPolyLine(f.dumpChild(n), 4)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; quadStripShape(" + points + ")", "PolyLine(50,20)")
-    testPolyLine(f.dumpChild(n), 12)
+    Tester("import Staging._ ; quadStripShape(" + points + ")")
+    assertEquals("PolyLine(10,20)", f.dumpChildString(n))
+    n += 4 // 5 quads total are created, we'll look at the last one
+    testPolyLine(f.dumpChild(n), 4)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    val tfsPoints = """List(
+       |(30, 45), (40, 40),
+       |(40, 40), (45, 30),
+       |(45, 30), (40, 20),
+       |(40, 20), (30, 15),
+       |(30, 15), (20, 20),
+       |(20, 20), (15, 30),
+       |(15, 30), (20, 40))""".stripMargin
+    Tester("import Staging._ ; triangleFanShape((30, 30), " + tfsPoints + ")")
+    assertEquals("PolyLine(30,30)", f.dumpChildString(n))
+    n += 6 // 7 triangles total are created, we'll look at the last one
+    testPolyLine(f.dumpChild(n), 3)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
   }

@@ -1031,6 +1031,27 @@ Here's a partial list of available commands:
     }
     def quadStripShape(pts: Seq[Point]) = QuadStripShape(pts)
 
+    class TriangleFanShape(val origin: Point, val points: Seq[Point]) extends PolyShape
+                                                                         with BaseShape {
+      def draw {
+        points grouped(2) foreach {
+          case List() =>
+          case s @ Seq(p0, p1) =>
+            polyline(Seq(origin) ++ s)
+          case p1 :: Nil =>
+            line(origin, p1)
+        }
+      }
+    }
+    object TriangleFanShape {
+      def apply(p0: Point, pts: Seq[Point]) = {
+        val shape = new TriangleFanShape(p0, pts)
+        shape.draw
+        shape
+      }
+    }
+    def triangleFanShape(p0: Point, pts: Seq[Point]) = TriangleFanShape(p0, pts)
+
   }
 
   object PLSandbox {
@@ -1300,53 +1321,6 @@ Here's a partial list of available commands:
       val img = Utils.loadImage(filename)
       new Image(PImage.toBufferedImage(img, false))
     }
-
-    abstract class Shape {
-      val points = new collection.mutable.ArrayBuffer[PVector]
-
-      def add(p: PVector): Shape = {
-        points += p
-        this
-      }
-
-      def addToFigure: Unit
-    }
-
-    class TriangleFanShape extends Shape {
-      def addToFigure {
-        require(points.size >= 3, "Wrong number of points for TRIANGLE_FAN Shape")
-
-        val midpoint = points(0)
-        points.tail sliding(2) foreach { tpoints =>
-          val shapePath = new kgeom.PolyLine()
-          shapePath.addPoint(midpoint.x, midpoint.y)
-          tpoints foreach { p =>
-            shapePath.addPoint(p.x, p.y)
-          }
-          tCanvas.figure0.polyLine(shapePath)
-        }
-      }
-    }
-
-
-//    object Shape {
-//      def apply(mode: Symbol, pts: Seq[PVector]) = {
-//        val sh = mode match {
-//          case 'POINTS =>         new PointsShape
-//          case 'LINES =>          new LinesShape
-//          case 'TRIANGLES =>      new TrianglesShape
-//          case 'TRIANGLE_STRIP => new TriangleStripShape
-//          case 'TRIANGLE_FAN =>   new TriangleFanShape
-//          case 'QUADS =>          new QuadsShape
-//          case 'QUAD_STRIP =>     new QuadStripShape
-//          case 'CLOSED =>         new ClosedShape
-//          case _ =>               new DefaultShape
-//        }
-//        pts foreach { p => sh add p }
-//        sh.addToFigure
-//      }
-//    }
-
 
     def path (d: String) {
       tCanvas.figure0.path(d)
