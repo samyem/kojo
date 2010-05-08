@@ -137,7 +137,15 @@ class ShapesTest extends KojoTestBase {
     Tester("import Staging._ ; arc((15, 15), (20, 10), 40, 95)")
     Tester("import Staging._ ; ellipse((15, 15), (35, 25))")
     Tester("import Staging._ ; circle((15, 15), 25)")
-    Tester("import Staging._ ; linesShape(List((10, 20), (10, 50), (20, 50), (20, 20)))")
+    val points = """List((10, 20), (10, 50),
+       |(20, 50), (20, 20),
+       |(30, 20), (30, 50),
+       |(40, 50), (40, 20),
+       |(50, 20), (50, 50),
+       |(60, 50), (60, 20))""".stripMargin
+    Tester("import Staging._ ; linesShape(" + points + ")")
+    Tester("import Staging._ ; trianglesShape(" + points + ")")
+    Tester("import Staging._ ; triangleStripShape(" + points + ")")
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
