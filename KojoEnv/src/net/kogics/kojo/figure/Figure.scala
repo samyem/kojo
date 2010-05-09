@@ -44,22 +44,9 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   private var currLayer = bgLayer
 
   def dumpNumOfChildren: Int = currLayer.getChildrenCount
-  def dumpChild(n: Int): AnyRef = {
+  def dumpChild(n: Int): PNode = {
     try {
-      val c = currLayer.getChild(n)
-      if (c.isInstanceOf[net.kogics.kojo.kgeom.PArc]) {
-        c.asInstanceOf[net.kogics.kojo.kgeom.PArc]
-      }
-      else if (c.isInstanceOf[net.kogics.kojo.kgeom.PPoint]) {
-        c.asInstanceOf[net.kogics.kojo.kgeom.PPoint]
-      }
-      else if (c.isInstanceOf[net.kogics.kojo.kgeom.PolyLine]) {
-        c.asInstanceOf[net.kogics.kojo.kgeom.PolyLine]
-      }
-      else if (c.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath]) {
-        c.asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]
-      }
-      else null
+      currLayer.getChild(n)
     }
     catch { case e => throw e }
   }

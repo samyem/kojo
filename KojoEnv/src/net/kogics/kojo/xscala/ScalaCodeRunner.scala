@@ -787,7 +787,7 @@ Here's a partial list of available commands:
       val origin: Point,
       val endpoint: Point,
       val curvature: Point
-    ) extends SimpleShape with Rounded {
+    ) extends Rounded with SimpleShape {
       def draw {
         tCanvas.figure0.roundRectangle(origin, endpoint, radiusX, radiusY)
       }
