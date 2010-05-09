@@ -109,7 +109,7 @@ class ShapesTest extends KojoTestBase {
     var resCounter = 0
     var res = ""
 
-    def apply (cmd: String, res: String = "") = {
+    def apply (cmd: String) = {
       //res += stripCrLfs(Delimiter) + "res" + resCounter + ": " + s
       resCounter += 1
       pane.setText(cmd)
@@ -117,22 +117,76 @@ class ShapesTest extends KojoTestBase {
       runCode()
       Utils.runInSwingThreadAndWait {  /* noop */  }
       assertTrue(runCtx.success.get)
-      val s = SpriteCanvas.instance.figure0.dumpLastOfCurrLayer
-      if (res != "") {
-        assertEquals(res, s)
-      }
-      else {
-        println(s)
-      }
-
-      // TODO means of assertion
     }
   }
 
-  def testPolyLine(r: AnyRef, size: Int) = {
+  type PNode = edu.umd.cs.piccolo.PNode
+
+  def testPolyLine(r: PNode, size: Int) = {
     assertTrue(r.isInstanceOf[net.kogics.kojo.kgeom.PolyLine])
     val pl = r.asInstanceOf[net.kogics.kojo.kgeom.PolyLine]
     assertEquals(size, pl.size)
+  }
+
+  def testPolyLine(r: PNode, x: Int, y: Int, size: Int) = {
+    assertTrue(r.isInstanceOf[net.kogics.kojo.kgeom.PolyLine])
+    val pl = r.asInstanceOf[net.kogics.kojo.kgeom.PolyLine]
+    assertEquals(x, pl.getX.round.toInt)
+    assertEquals(y, pl.getY.round.toInt)
+    assertEquals(size, pl.size)
+  }
+
+  val CL = java.awt.geom.PathIterator.SEG_CLOSE   // 4
+  val CT = java.awt.geom.PathIterator.SEG_CUBICTO // 3
+  val LT = java.awt.geom.PathIterator.SEG_LINETO  // 1
+  val MT = java.awt.geom.PathIterator.SEG_MOVETO  // 0
+  val QT = java.awt.geom.PathIterator.SEG_QUADTO  // 2
+//  public static final int 	WIND_EVEN_ODD 	0
+//  public static final int 	WIND_NON_ZERO 	1
+
+  def ppathToString (pp: edu.umd.cs.piccolo.nodes.PPath) {
+    val pr = pp.getPathReference
+    val at = new java.awt.geom.AffineTransform
+    val pi = pr.getPathIterator(at)
+    var res = "m" + ("%g" format pp.getX) + "," + ("%g" format pp.getY) + " "
+    while (!pi.isDone) {
+      pi.next
+      val coords = Array[Double](0, 0, 0, 0, 0, 0)
+      val t = pi.currentSegment(coords)
+      t match {
+        case MT =>
+          res += "M"
+          res += ("%g" format coords(0)) + ","
+          res += ("%g" format coords(1)) + " "
+        case LT =>
+          res += "L"
+          res += ("%g" format coords(0)) + ","
+          res += ("%g" format coords(1)) + " "
+        case QT =>
+          res += "Q"
+          res += ("%g" format coords(0)) + ","
+          res += ("%g" format coords(1)) + " "
+          res += ("%g" format coords(2)) + ","
+          res += ("%g" format coords(3)) + " "
+        case CT =>
+          res += "C"
+          res += ("%g" format coords(0)) + ","
+          res += ("%g" format coords(1)) + " "
+          res += ("%g" format coords(2)) + ","
+          res += ("%g" format coords(3)) + " "
+          res += ("%g" format coords(4)) + ","
+          res += ("%g" format coords(5)) + " "
+        case CL =>
+          res += "z"
+      }
+    }
+    res
+  }
+
+  def testPPath(r: PNode, path: String) = {
+    assertTrue(r.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    val pp = r.asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]
+    assertEquals(path, ppathToString(pp))
   }
 
   @Test
@@ -143,59 +197,58 @@ class ShapesTest extends KojoTestBase {
     var n = f.dumpNumOfChildren
     assertEquals(n, 0)
 
-    Tester("Staging.dot(Staging.Point(15, 10))", "PPoint(15,10)")
+    Tester("Staging.dot(Staging.Point(15, 10))")
+    assertEquals("PPoint(15,10)", f.dumpChildString(n))
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
     Tester("import Staging._ ; line((15, 15), (40, 20))")
-    assertEquals("PolyLine(15,15)", f.dumpChildString(n))
-    testPolyLine(f.dumpChild(n), 2)
+    testPolyLine(f.dumpChild(n), 13, 13, 2)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
     Tester("import Staging._ ; line((15, 15), (40, 20)).toRectangle")
-    n += 1 // this command creates two objects, a line and a rectangle
-
-    assertEquals("PPath(15,15)", f.dumpChildString(n))
-    val r1 = f.dumpChild(n)
-    //assertTrue(r1.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    testPolyLine(f.dumpChild(n), 13, 13, 2)
+    n += 1
+    testPPath(f.dumpChild(n), "")
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; rectangle((15, 15), (40, 20))", "PPath(15,15)")
-    val r2 = f.dumpChild(n)
-    //assertTrue(r2.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    Tester("import Staging._ ; rectangle((15, 15), (40, 20))")
+    testPPath(f.dumpChild(n), "")
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; square((15, 15), 20)", "PPath(15,15)")
-    val r3 = f.dumpChild(n)
-    //assertTrue(r3.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    Tester("import Staging._ ; square((15, 15), 20)")
+    testPPath(f.dumpChild(n), "")
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5))", "PPath(15,15)")
-    val r4 = f.dumpChild(n)
-    //assertTrue(r4.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5))")
+    testPPath(f.dumpChild(n), "")
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; triangle((15, 15), (25, 35), (35, 15))", "PolyLine(15,15)")
+    Tester("import Staging._ ; triangle((15, 15), (25, 35), (35, 15))")
+    assertEquals("PolyLine(15,15)", f.dumpChildString(n))
     testPolyLine(f.dumpChild(n), 3)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; quad((15, 15), (25, 35), (40, 20), (35, 10))", "PolyLine(15,10)")
+    Tester("import Staging._ ; quad((15, 15), (25, 35), (40, 20), (35, 10))")
+    assertEquals("PolyLine(15,10)", f.dumpChildString(n))
     testPolyLine(f.dumpChild(n), 4)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; polyline(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))", "PolyLine(15,10)")
+    Tester("import Staging._ ; polyline(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
+    assertEquals("PolyLine(15,10)", f.dumpChildString(n))
     testPolyLine(f.dumpChild(n), 5)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; polygon(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))", "PolyLine(15,10)")
+    Tester("import Staging._ ; polygon(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
+    assertEquals("PolyLine(15,10)", f.dumpChildString(n))
     testPolyLine(f.dumpChild(n), 5)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)

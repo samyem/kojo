@@ -126,6 +126,7 @@ class ScreenMethodsTest extends KojoTestBase {
   // subsystem. So we run (mostly) everything in one test
   def testPreEval = {
     assertEquals(peekZoom, (1.0,-1.0,0.0,0.0))
+    Utils.runInSwingThreadAndWait {  /* noop */  }
   }
 
   @Test
