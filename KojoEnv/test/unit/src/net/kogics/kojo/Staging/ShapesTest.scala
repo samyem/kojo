@@ -144,43 +144,34 @@ class ShapesTest extends KojoTestBase {
 //  public static final int 	WIND_EVEN_ODD 	0
 //  public static final int 	WIND_NON_ZERO 	1
 
-  def ppathToString (pp: edu.umd.cs.piccolo.nodes.PPath) {
+  def ppathSegToString (t: Int, coords: Array[Double]) = t match {
+    case MT =>
+      "M" + ("%g" format coords(0)) + "," + ("%g" format coords(1)) + " "
+    case LT =>
+      "L" + ("%g" format coords(0)) + "," + ("%g" format coords(1)) + " "
+    case QT =>
+      "Q" + ("%g" format coords(0)) + "," + ("%g" format coords(1)) + " " +
+            ("%g" format coords(2)) + "," + ("%g" format coords(3)) + " "
+    case CT =>
+      "C" + ("%g" format coords(0)) + "," + ("%g" format coords(1)) + " " +
+            ("%g" format coords(2)) + "," + ("%g" format coords(3)) + " " +
+            ("%g" format coords(4)) + "," + ("%g" format coords(5)) + " "
+    case CL =>
+      "z "
+  }
+  def ppathToString (pp: edu.umd.cs.piccolo.nodes.PPath) = {
     val pr = pp.getPathReference
     val at = new java.awt.geom.AffineTransform
     val pi = pr.getPathIterator(at)
-    var res = "m" + ("%g" format pp.getX) + "," + ("%g" format pp.getY) + " "
+    var res = new StringBuffer
+    res.append("m" + ("%g" format pp.getX) + "," + ("%g" format pp.getY) + " ")
     while (!pi.isDone) {
       pi.next
       val coords = Array[Double](0, 0, 0, 0, 0, 0)
       val t = pi.currentSegment(coords)
-      t match {
-        case MT =>
-          res += "M"
-          res += ("%g" format coords(0)) + ","
-          res += ("%g" format coords(1)) + " "
-        case LT =>
-          res += "L"
-          res += ("%g" format coords(0)) + ","
-          res += ("%g" format coords(1)) + " "
-        case QT =>
-          res += "Q"
-          res += ("%g" format coords(0)) + ","
-          res += ("%g" format coords(1)) + " "
-          res += ("%g" format coords(2)) + ","
-          res += ("%g" format coords(3)) + " "
-        case CT =>
-          res += "C"
-          res += ("%g" format coords(0)) + ","
-          res += ("%g" format coords(1)) + " "
-          res += ("%g" format coords(2)) + ","
-          res += ("%g" format coords(3)) + " "
-          res += ("%g" format coords(4)) + ","
-          res += ("%g" format coords(5)) + " "
-        case CL =>
-          res += "z"
-      }
+      res.append(ppathSegToString(t, coords))
     }
-    res
+    res.toString
   }
 
   def testPPath(r: PNode, path: String) = {
@@ -192,66 +183,383 @@ class ShapesTest extends KojoTestBase {
   @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe a leak in the Scala interpreter/compiler
   // subsystem. So we run (mostly) everything in one test
-  def testEvalSession = {
+  def test1 = {
     val f = SpriteCanvas.instance.figure0
     var n = f.dumpNumOfChildren
-    assertEquals(n, 0)
+    assertEquals(0, n)
+    //W
+    //W===Syntax===
+    //W
+    //WEither of
+    //W
+    //W{{{
+    //Wdot(x, y)
+    Tester("Staging.dot(15, 10)")
+    assertEquals("PPoint(15,10)", f.dumpChildString(n))
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
 
+    //Wdot(point)
     Tester("Staging.dot(Staging.Point(15, 10))")
     assertEquals("PPoint(15,10)", f.dumpChildString(n))
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Dot}}}.
+    //W
+    //W{{{
+    //Wval aDot = dot(p0)
+    //WaDot.toLine(p1)
+    Tester("""import Staging._
+             |val p0 = Point(15, 15)
+             |val p1 = Point(30, 40)
+             |val aDot = dot(p0)
+             |aDot.toLine(p1)""".stripMargin)
+    n += 1
+    testPolyLine(f.dumpChild(n), 13, 13, 2)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+    //W}}}
+    //W
+    //Wdraws a straight line from the dot to a given point, and returns the {{{Line}}} instance.
+
+    //W
+    //W===Syntax===
+    //W
+    //WEither of
+    //W
+    //W{{{
+    //Wline(x, y, width, height)
+    Tester("import Staging._ ; line(15, 15, 25, 5)")
+    testPolyLine(f.dumpChild(n), 13, 13, 2)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //Wline(point1, width, height)
+    Tester("import Staging._ ; line((15, 15), 25, 5)")
+    testPolyLine(f.dumpChild(n), 13, 13, 2)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //Wline(point1, point2)
     Tester("import Staging._ ; line((15, 15), (40, 20))")
     testPolyLine(f.dumpChild(n), 13, 13, 2)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; line((15, 15), (40, 20)).toRectangle")
-    testPolyLine(f.dumpChild(n), 13, 13, 2)
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Line}}}.
+    //W
+    //W{{{
+    //WaLine.toLine
+    Tester("""import Staging._
+             |val p0 = Point(15, 15)
+             |val p1 = Point(30, 40)
+             |val aLine = line(p0, p1)
+             |aLine.toLine""".stripMargin)
+    n += 2
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //W}}}
+    //W
+    //Wdraws and returns another instance of {{{Line}}}.
+    //W
+    //W{{{
+    //WaLine.toRect
+    Tester("""import Staging._
+             |val p0 = Point(15, 15)
+             |val p1 = Point(30, 40)
+             |val aLine = line(p0, p1)
+             |aLine.toRect""".stripMargin)
+    n += 2
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Rectangle}}}.
+    //W
+    //W{{{
+    //WaLine.toRect(p)
+    Tester("""import Staging._
+             |val p0 = Point(15, 15)
+             |val p1 = Point(30, 40)
+             |val aLine = line(p0, p1)
+             |aLine.toRect((3, 5))""".stripMargin)
+    n += 2
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{RoundRectangle}}} whose curvature is determined by `p`.
+    Tester("""import Staging._
+             |val p0 = Point(15, 15)
+             |val p1 = Point(30, 40)
+             |val aLine = line(p0, p1)
+             |aLine.toRect""".stripMargin)
     n += 1
-    testPPath(f.dumpChild(n), "")
+    testPPath(f.dumpChild(n),
+              "m14.0000,14.0000 L30.0000,15.0000 L30.0000,40.0000 " +
+              "L15.0000,40.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
+    //W
+    //W===Syntax===
+    //W
+    //WEither of
+    //W
+    //W{{{
+    //Wrectangle(x, y, width, height)
+    Tester("import Staging._ ; rectangle(15, 15, 25, 5)")
+    testPPath(f.dumpChild(n),
+              "m14.0000,14.0000 L40.0000,15.0000 L40.0000,20.0000 " +
+              "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //Wrectangle(point1, width, height)
+    Tester("import Staging._ ; rectangle((15, 15), 25, 5)")
+    testPPath(f.dumpChild(n),
+              "m14.0000,14.0000 L40.0000,15.0000 L40.0000,20.0000 " +
+              "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //Wrectangle(point1, point2)
     Tester("import Staging._ ; rectangle((15, 15), (40, 20))")
-    testPPath(f.dumpChild(n), "")
+    testPPath(f.dumpChild(n),
+              "m14.0000,14.0000 L40.0000,15.0000 L40.0000,20.0000 " +
+              "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
+    //W}}}
+    //W
+    //Wand
+    //W
+    //W{{{
+    //Wsquare(x, y, size)
+    Tester("import Staging._ ; square(15, 15, 20)")
+    testPPath(f.dumpChild(n),
+              "m14.0000,14.0000 L35.0000,15.0000 L35.0000,35.0000 " +
+              "L15.0000,35.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //Wsquare(point, size)
     Tester("import Staging._ ; square((15, 15), 20)")
-    testPPath(f.dumpChild(n), "")
+    testPPath(f.dumpChild(n),
+              "m14.0000,14.0000 L35.0000,15.0000 L35.0000,35.0000 " +
+              "L15.0000,35.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Rectangle}}}.
+    //W
+    //W{{{
+    //WaRect.toLine
+    Tester("""import Staging._
+             |val p0 = Point(15, 15)
+             |val p1 = Point(30, 40)
+             |val aRect = rectangle(p0, p1)
+             |aRect.toLine""".stripMargin)
+    n += 2
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Line}}}.
+    //W
+    //W{{{
+    //WaRect.toRect
+    Tester("""import Staging._
+             |val p0 = Point(15, 15)
+             |val p1 = Point(30, 40)
+             |val aRect = rectangle(p0, p1)
+             |aRect.toRect""".stripMargin)
+    n += 2
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //W}}}
+    //W
+    //Wdraws and returns another instance of {{{Rectangle}}}.
+    //W
+    //W{{{
+    //WaRect.toRect(p)
+    Tester("""import Staging._
+             |val p0 = Point(15, 15)
+             |val p1 = Point(30, 40)
+             |val p  = Point(3, 5)
+             |val aRect = rectangle(p0, p1)
+             |aRect.toRect(p)""".stripMargin)
+    n += 2
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{RoundRectangle}}} whose curvature is determined by `p`.
+    Tester("import Staging._ ; square((15, 15), 20)")
+    testPPath(f.dumpChild(n),
+              "m14.0000,14.0000 L35.0000,15.0000 L35.0000,35.0000 " +
+              "L15.0000,35.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+
+    //W
+    //W===Syntax===
+    //W
+    //WEither of
+    //W
+    //W{{{
+    //WroundRectangle(x, y, width, height, radiusx, radiusy)
+    Tester("import Staging._ ; roundRectangle(15, 15, 25, 5, 3, 5)")
+    n += 1
+    //WroundRectangle(point1, width, height, radiusx, radiusy)
+    Tester("import Staging._ ; roundRectangle((15, 15), 25, 5, 3, 5)")
+    n += 1
+    //WroundRectangle(point1, point2, radiusx, radiusy)
+    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), 3, 5)")
+    n += 1
+    //WroundRectangle(point1, point2, point3)
     Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5))")
-    testPPath(f.dumpChild(n), "")
+    testPPath(f.dumpChild(n),
+              "m14.0000,14.0000 L15.0000,17.5000 " +
+              "C15.0000,18.8807 15.6716,20.0000 16.5000,20.0000 " +
+              "L38.5000,20.0000 C39.3284,20.0000 40.0000,18.8807 40.0000,17.5000 " +
+              "L40.0000,17.5000 C40.0000,16.1193 39.3284,15.0000 38.5000,15.0000 " +
+              "L16.5000,15.0000 C15.6716,15.0000 15.0000,16.1193 15.0000,17.5000 " +
+              "z M0.00000,0.00000 ")
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{RoundRectangle}}}.
+    //W
+    //W{{{
+    //WaRR.toLine
+    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toLine")
+    n += 2
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Line}}}.
+    //W
+    //W{{{
+    //WaRR.toRect
+    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toRect")
+    n += 2
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Rectangle}}}.
+    //W
+    //W{{{
+    //WaRR.toRect(point)
+    //W}}}
+    //W
+    //Wdraws and returns another instance of {{{RoundRectangle}}}.  The argument
+    //Wto the method isn't used but must be present.
+    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toRect")
+    n += 2
+
+    //W
+    //W===Syntax===
+    //W
+    //W{{{
+    //Wpolyline(points)
+    Tester("import Staging._ ; polyline(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
+    assertEquals("PolyLine(15,10)", f.dumpChildString(n))
+    testPolyLine(f.dumpChild(n), 5)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Polyline}}}.
+    //W
+    //W{{{
+    //WaPL.toPolyline
+    Tester("import Staging._ ; polyline(List((15, 15), (25, 35))).toPolyline")
+    n += 2
+    //W}}}
+    //W
+    //Wdraws and returns another instance of {{{Polyline}}}.
+    //W
+    //W{{{
+    //WaPL.toPolygon
+    Tester("import Staging._ ; polyline(List((15, 15), (25, 35))).toPolygon")
+    n += 2
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Polygon}}}.
+  }
+
+  @Test
+  def test2 = {
+    val f = SpriteCanvas.instance.figure0
+    f.clear
+    var n = f.dumpNumOfChildren
+    // apparently clear does not take away all objects
+    //assertEquals(0, n)
+
+    //W
+    //W===Syntax===
+    //W
+    //WEither of
+    //W
+    //W{{{
+    //Wpolygon(points)
+    Tester("import Staging._ ; polygon(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
+    assertEquals("PolyLine(15,10)", f.dumpChildString(n))
+    testPolyLine(f.dumpChild(n), 5)
+    n += 1
+    assertEquals(n, f.dumpNumOfChildren)
+    //W}}}
+    //W
+    //Wand
+    //W
+    //W{{{
+    //Wtriangle(point2, point2, point3)
     Tester("import Staging._ ; triangle((15, 15), (25, 35), (35, 15))")
     assertEquals("PolyLine(15,15)", f.dumpChildString(n))
     testPolyLine(f.dumpChild(n), 3)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
+    //W}}}
+    //W
+    //Wand
+    //W
+    //W{{{
+    //Wquad(point1, point2, point3, point4)
     Tester("import Staging._ ; quad((15, 15), (25, 35), (40, 20), (35, 10))")
     assertEquals("PolyLine(15,10)", f.dumpChildString(n))
     testPolyLine(f.dumpChild(n), 4)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
-    Tester("import Staging._ ; polyline(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
-    assertEquals("PolyLine(15,10)", f.dumpChildString(n))
-    testPolyLine(f.dumpChild(n), 5)
-    n += 1
-    assertEquals(n, f.dumpNumOfChildren)
-
-    Tester("import Staging._ ; polygon(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
-    assertEquals("PolyLine(15,10)", f.dumpChildString(n))
-    testPolyLine(f.dumpChild(n), 5)
-    n += 1
-    assertEquals(n, f.dumpNumOfChildren)
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Polygon}}}.
+    //W
+    //W{{{
+    //WaPL.toPolyline
+    Tester("import Staging._ ; polyline(List((15, 15), (25, 35))).toPolyline")
+    n += 2
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Polyline}}}.
+    //W
+    //W{{{
+    //WaPL.toPolygon
+    Tester("import Staging._ ; polyline(List((15, 15), (25, 35))).toPolygon")
+    n += 2
+    //W}}}
+    //W
+    //Wdraws and returns another instance of {{{Polygon}}}.
 
     Tester("import Staging._ ; arc((15, 15), (20, 10), 40, 95)")
     // , "PArc(15,10)"
@@ -261,16 +569,21 @@ class ShapesTest extends KojoTestBase {
     assertEquals(n, f.dumpNumOfChildren)
 
     Tester("import Staging._ ; ellipse((15, 15), (35, 25))")
-    // , "PPath(15,15)")
-    val r10 = f.dumpChild(n)
-    assertTrue(r10.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    testPPath(f.dumpChild(n),
+              "m-6.00000,4.00000 C35.0000,20.5228 26.0457,25.0000 15.0000,25.0000 " +
+              "C3.95430,25.0000 -5.00000,20.5228 -5.00000,15.0000 " +
+              "C-5.00000,9.47715 3.95430,5.00000 15.0000,5.00000 " +
+              "C26.0457,5.00000 35.0000,9.47715 35.0000,15.0000 z M0.00000,0.00000 ")
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
     Tester("import Staging._ ; circle((15, 15), 25)")
-    assertEquals("PPath(-35,-35)", f.dumpChildString(n))
-    val r11 = f.dumpChild(n)
-    assertTrue(r11.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
+    testPPath(f.dumpChild(n),
+              "m-36.0000,-36.0000 C65.0000,42.6142 42.6142,65.0000 15.0000,65.0000 " +
+              "C-12.6142,65.0000 -35.0000,42.6142 -35.0000,15.0000 " +
+              "C-35.0000,-12.6142 -12.6142,-35.0000 15.0000,-35.0000 " +
+              "C42.6142,-35.0000 65.0000,-12.6142 65.0000,15.0000 " +
+              "z M0.00000,0.00000 ")
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
 
@@ -335,6 +648,8 @@ class ShapesTest extends KojoTestBase {
     testPolyLine(f.dumpChild(n), 3)
     n += 1
     assertEquals(n, f.dumpNumOfChildren)
+//    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
+    f.clear
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
