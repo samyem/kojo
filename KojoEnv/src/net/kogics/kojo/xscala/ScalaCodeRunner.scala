@@ -593,6 +593,15 @@ Here's a partial list of available commands:
      <peter.lewerin@tele2.se> and is not in any way
      derived from the Processing source.
     */
+    //W#summary Developer home-page for the Staging Module
+    //W
+    //W=Introduction=
+    //W
+    //WThe Staging Module is currently being developed by Peter Lewerin.
+    //WThe original impetus came from a desire to run Processing-style code in Kojo.
+    //W
+    //WAt this point, the shape hierarchy is the most complete part, but
+    //Wutilities for color definition, time keeping etc are being added.
     import core._
     import math._
 
@@ -604,6 +613,13 @@ Here's a partial list of available commands:
 //  override def toString = "Point(%.2f, %.2f)" format(x, y)
 //}
 
+    //W
+    //W=Points=
+    //W
+    //WStaging uses an enriched version of {{{net.kogics.kojo.core.Point}}} for
+    //Wcoordinates.  A companion object provides _apply_ and _unapply_ methods.
+    //WTuples of {{{Double}}}s or {{{Int}}}s are implicitly converted to
+    //W{{{Point}}}s where applicable.
     type Point = net.kogics.kojo.core.Point
     object Point {
       def apply(x: Double, y: Double) = new Point(x, y)
@@ -621,6 +637,11 @@ Here's a partial list of available commands:
       }
     }
 
+    //W
+    //W=Screen=
+    //W
+    //WStaging defines an object {{{Screen}}} that provides methods to set
+    //Wbackground color and screen size.
     object Screen {
       var width = 0
       var height = 0
@@ -688,65 +709,136 @@ Here's a partial list of available commands:
 //      }
 //    }
 
+    //W=Shapes=
+    //W
+    //W==Summary==
+    //W|| *Class* or trait     || *Extends*                 || *Defines* (methods in italics)  ||
+    //W|| Shape                ||                           || _draw_                          ||
+    //W
+    //W==Shape (trait)==
+    //W
+    //W{{{Shape}}} is the base type for all shapes.  Every class that extends
+    //Wit must implement the nullary method _draw_.  This method should create
+    //Wan instance of the shape and add it to the canvas.
+    //W
+    //W_Not implemented yet: shapes should remember the colors and stroke style
+    //Wused and any transforms applied, and apply them again whenever _draw_ is
+    //Wcalled._
     trait Shape {
-      def draw: Unit
+      def draw: Shape
     }
-    trait BaseShape extends Shape {
-      val origin: Point
-    }
-    trait SimpleShape extends BaseShape {
-      // precondition endpoint > origin
-      val endpoint: Point
-      def width = endpoint.x - origin.x
-      def height = endpoint.y - origin.y
-    }
-    trait PolyShape extends Shape {
-      val points: Seq[Point]
-    }
+    //W|| Rounded              ||                           || curvature, _radiusX_, _radiusY_ ||
+    //W
+    //W==Rounded (trait)==
+    //W
+    //W{{{Rounded}}} is a base type for shapes with rounded parts.  Every class
+    //Wthat extends it must have a value member, curvature, of type {{{Point}}}.
+    //WIt defines _radiusX_, _radiusY_ as access methods to the _x_ and _y_
+    //Wcomponents of curvature.
     trait Rounded {
       val curvature: Point
       def radiusX = curvature.x
       def radiusY = curvature.y
     }
+    //W|| !BaseShape           || Shape                     || origin, _toLine_                ||
+    //W
+    //W==!BaseShape (trait)==
+    //W
+    //W{{{BaseShape}}} is the base type for shapes that have a point of origin.
+    //WThis value member of type {{{Point}}} defines the lower left corner of
+    //Wthe shape bounds (except for {{{Elliptical}}} shapes, see below).
+    trait BaseShape extends Shape {
+      val origin: Point
+      def toLine(p: Point): Line = Line(origin, p)
+    }
+
+    //W|| !PolyShape           || Shape                   || points, _toPolyline_, _toPolygon_ ||
+    //W
+    //W==!PolyShape (trait)==
+    //W
+    //W{{{PolyShape}}} is the base type for shapes that are defined by several
+    //Wpoints.  The points are stored in a value member of type sequence of
+    //W{{{Point}}}s.
+    trait PolyShape extends Shape {
+      val points: Seq[Point]
+      def toPolygon: Polygon = Polygon(points)
+      def toPolyline: Polyline = Polyline(points)
+    }
+
+    //W|| !SimpleShape         || !BaseShape|| endpoint, _width_, _height_, _toLine_, _toRect_ ||
+    //W
+    //W==!SimpleShape (trait)==
+    //W
+    //W{{{SimpleShape}}} is the base type for shapes that are defined by two
+    //Wpoints, origin and endpoint (the upper right corner of the shape bounds).
+    //WThey have _width_ and _height_.  Every class that extends this trait must
+    //Whave value members origin and endpoint, of type {{{Point}}}.
+    trait SimpleShape extends BaseShape {
+      val endpoint: Point
+      def width = endpoint.x - origin.x
+      def height = endpoint.y - origin.y
+      // precondition endpoint > origin
+      require(width > 0 && height > 0)
+      def toLine: Line = Line(origin, endpoint)
+      def toRect: Rectangle = Rectangle(origin, endpoint)
+      def toRect(p: Point): RoundRectangle = RoundRectangle(origin, endpoint, p)
+    }
+
+    //W|| Elliptical           || Rounded with !SimpleShape || `*`                             ||
+    //W`*`: {{{Elliptical}}} implements {{{curvature}}} and overrides {{{width}}} and {{{height}}}.
+    //W
+    //W==Elliptical (trait)==
+    //W
+    //W{{{Elliptical}}} is the base type for shapes that are rounded and whose
+    //Worigin value member defines their center.
     trait Elliptical extends Rounded with SimpleShape {
       val curvature = endpoint - origin
       override def width = 2 * radiusX
       override def height = 2 * radiusY
     }
 
+    //W|| *Dot*                || !BaseShape                ||                                 ||
+    //W
+    //W==Dot==
+    //W
+    //W{{{Dot}}} is drawn to the canvas as a dot of the stroke color.
     class Dot(val origin: Point) extends BaseShape {
-      def draw {
+      def draw = {
         origin match {
-          case Point(x, y) => tCanvas.figure0.point(x, y)
+          case Point(x, y) =>
+            tCanvas.figure0.point(x, y)
         }
+        this
       }
 
-      def toLine(p: Point): Line = Line(origin, p)
       override def toString = "Staging.Dot(" + origin + ")"
     }
     object Dot {
       def apply(p: Point) = {
         val shape = new Dot(p)
         shape.draw
-        shape
       }
     }
     def dot(x: Double, y: Double) = Dot(Point(x, y))
     def dot(p: Point) = Dot(p)
 
+    //W|| *Line*               || !SimpleShape              ||                                 ||
+    //W
+    //W==Line==
+    //W
+    //W{{{Line}}} is drawn to the canvas as a straight line of the stroke color
+    //Wfrom origin to endpoint.
     class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
-      def draw { tCanvas.figure0.line(origin, endpoint) }
-
-      def toRectangle() = Rectangle(origin, endpoint)
-      def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
-      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+      def draw = {
+        tCanvas.figure0.line(origin, endpoint)
+        this
+      }
       override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
     }
     object Line {
       def apply(p1: Point, p2: Point) = {
         val shape = new Line(p1, p2)
         shape.draw
-        shape
       }
     }
     def line(x: Double, y: Double, w: Double, h: Double): Line =
@@ -758,18 +850,23 @@ Here's a partial list of available commands:
       Line(p1, p2)
     }
 
+    //W|| *Rectangle*          || !SimpleShape              ||                                 ||
+    //W
+    //W==Rectangle==
+    //W
+    //W{{{Rectangle}}} is drawn to the canvas as a rectangle of the fill and
+    //Wstroke color from origin to endpoint.
     class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
-      def draw { tCanvas.figure0.rectangle(origin, endpoint) }
-
-      def toLine() = Line(origin, endpoint)
-      def toRoundRectangle(c: Point) = RoundRectangle(origin, endpoint, c)
-      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+      def draw = {
+        tCanvas.figure0.rectangle(origin, endpoint)
+        this
+      }
+      override def toString = "Staging.Rectangle(" + origin + ", " + endpoint + ")"
     }
     object Rectangle {
       def apply(p1: Point, p2: Point) = {
         val shape = new Rectangle(p1, p2)
         shape.draw
-        shape
       }
     }
     def rectangle(x: Double, y: Double, w: Double, h: Double): Rectangle =
@@ -783,24 +880,30 @@ Here's a partial list of available commands:
     def square(p: Point, s: Double): Rectangle =
       Rectangle(p, Point(p.x + s, p.y + s))
 
+    //W|| *!RoundRectangle*    || Rounded with !SimpleShape ||                                 ||
+    //W
+    //W==!RoundRectangle==
+    //W
+    //W{{{RoundRectangle}}} is drawn to the canvas as a rectangle with rounded
+    //Wcorners of the fill and stroke color from origin to endpoint.  The
+    //Wcurvature of the corners can be determined by x-radius and y-radius
+    //Wvalues or by a point value.
     class RoundRectangle(
       val origin: Point,
       val endpoint: Point,
       val curvature: Point
     ) extends Rounded with SimpleShape {
-      def draw {
+      def draw = {
         tCanvas.figure0.roundRectangle(origin, endpoint, radiusX, radiusY)
+        this
       }
-
-      def toLine() = Line(origin, endpoint)
-      def toRectangle() = Rectangle(origin, endpoint)
-      def toEllipse() = Ellipse(origin + Point(width / 2, height / 2), endpoint)
+      override def toString =
+        "Staging.RoundRectangle(" + origin + ", " + endpoint + ", " + curvature + ")"
     }
     object RoundRectangle {
       def apply(p1: Point, p2: Point, p3: Point) = {
         val shape = new RoundRectangle(p1, p2, p3)
         shape.draw
-        shape
       }
     }
     def roundRectangle(
@@ -820,43 +923,56 @@ Here's a partial list of available commands:
     def roundRectangle(p1: Point, p2: Point, p3: Point) =
       RoundRectangle(p1, p2, p3)
 
+    //W|| *Polyline*           || !PolyShape                ||                                 ||
+    //W
+    //W==Polyline==
+    //W
+    //W{{{Polyline}}} is drawn to the canvas as a segmented line connecting the
+    //Wgiven points by straight edges, using the fill and stroke color.
     class Polyline(val points: Seq[Point]) extends PolyShape {
       val shapePath = new kgeom.PolyLine()
       points foreach { case Point(x, y) =>
         shapePath.addPoint(x, y)
       }
-      def draw {
+      def draw = {
         tCanvas.figure0.polyLine(shapePath)
+        this
       }
 
-      def toPolygon() = Polygon(points)
+      override def toString = "Staging.Polyline(" + points + ")"
     }
     object Polyline {
       def apply(pts: Seq[Point]) = {
         val shape = new Polyline(pts)
         shape.draw
-        shape
       }
     }
     def polyline(pts: Seq[Point]): Polyline = Polyline(pts)
 
+    //W|| *Polygon*            || !PolyShape                ||                                 ||
+    //W
+    //W==Polygon==
+    //W
+    //W{{{Polygon}}} is drawn to the canvas as a segmented line connecting the
+    //Wgiven points by straight edges, using the fill and stroke color.  The
+    //Wshape is closed, meaning that the last point connects to the first point.
     class Polygon(val points: Seq[Point]) extends PolyShape {
       val shapePath = new kgeom.PolyLine()
       points foreach { case Point(x, y) =>
         shapePath.addPoint(x, y)
       }
       shapePath.polyLinePath.closePath
-      def draw {
+      def draw = {
         tCanvas.figure0.polyLine(shapePath)
+        this
       }
 
-      def toPolyline() = Polyline(points)
+      override def toString = "Staging.Polygon(" + points + ")"
     }
     object Polygon {
       def apply(pts: Seq[Point]) = {
         val shape = new Polygon(pts)
         shape.draw
-        shape
       }
     }
     def polygon(pts: Seq[Point]): Polygon = Polygon(pts)
@@ -864,23 +980,23 @@ Here's a partial list of available commands:
     def quad(p0: Point, p1: Point, p2: Point, p3: Point) =
       polygon(Seq(p0, p1, p2, p3))
 
+    //W|| *Ellipse*            || Elliptical                ||                                 ||
+    //W
+    //W==Ellipse==
+    //W
+    //W{{{Ellipse}}} is drawn to the canvas as an ellipse of the fill and stroke
+    //Wcolor centering on origin, with a curvature defined by the distance from
+    //Worigin to endpoint.
     class Ellipse(val origin: Point, val endpoint: Point) extends Elliptical {
-      def draw {
+      def draw = {
         tCanvas.figure0.ellipse(origin, width, height)
+        this
       }
-
-      def toLine() =
-        Line(origin - Point(width / 2, height / 2), endpoint)
-      def toRectangle() =
-        Rectangle(origin - Point(width / 2, height / 2), endpoint)
-      def toRoundRectangle(c: Point) =
-        RoundRectangle(origin - Point(width / 2, height / 2), endpoint, c)
     }
     object Ellipse {
       def apply(p1: Point, p2: Point) = {
         val shape = new Ellipse(p1, p2)
         shape.draw
-        shape
       }
     }
     def ellipse(x: Double, y: Double, w: Double, h: Double) =
@@ -894,22 +1010,32 @@ Here's a partial list of available commands:
     def circle(p: Point, r: Double): Ellipse =
       Ellipse(p, Point(p.x + 2 * r, p.y + 2 * r))
 
+    //W|| *Arc*                || Elliptical                || start, extent                   ||
+    //W
+    //W==Arc==
+    //W
+    //W{{{Arc}}} is drawn to the canvas as an elliptical sector of the fill and
+    //Wstroke color centering on origin, with a curvature defined by the
+    //Wdistance from origin to endpoint.  The class defines two value members of
+    //Wtype {{{Double}}}: start is angle where the arc begins, and extent is the
+    //Wangle between start and end of the arc.  Both angles are given in degrees,
+    //Wwith 0 at "three o'clock", 90 at "twelve o'clock" and so on.
     class Arc(
       val origin: Point, val endpoint: Point,
       val start: Double, val extent: Double
     ) extends Elliptical {
-      def draw {
+      def draw = {
         origin match {
           case Point(x, y) =>
           tCanvas.figure0.arc(x, y, width, height, start, extent)
         }
+        this
       }
     }
     object Arc {
       def apply(p1: Point, p2: Point, s: Double, e: Double) = {
         val shape = new Arc(p1, p2, s, e)
         shape.draw
-        shape
       }
     }
     def arc(x: Double, y: Double, w: Double, h: Double, s: Double, e: Double): Arc =
@@ -919,8 +1045,14 @@ Here's a partial list of available commands:
     def arc(p1: Point, p2: Point, s: Double, e: Double): Arc =
       Arc(p1, p2, s, e)
 
+    //W|| *!LinesShape*        || !PolyShape                ||                                 ||
+    //W
+    //W==!LinesShape==
+    //W
+    //W{{{LinesShape}}} takes a sequence of {{{Point}}}s and connects them
+    //Wpairwise by straight lines of the stroke color.
     class LinesShape(val points: Seq[Point]) extends PolyShape {
-      def draw {
+      def draw = {
         points grouped(2) foreach {
           case List() =>
           case Seq(p0, p1) =>
@@ -928,19 +1060,25 @@ Here's a partial list of available commands:
           case Point(x, y) :: Nil =>
             dot(x, y)
         }
+        this
       }
     }
     object LinesShape {
       def apply(pts: Seq[Point]) = {
         val shape = new LinesShape(pts)
         shape.draw
-        shape
       }
     }
     def linesShape(pts: Seq[Point]) = LinesShape(pts)
 
+    //W|| *!TrianglesShape*    || !PolyShape                ||                                 ||
+    //W
+    //W==!TrianglesShape==
+    //W
+    //W{{{TrianglesShape}}} takes a sequence of {{{Point}}}s and connects them
+    //Was triangles of the fill and stroke color.
     class TrianglesShape(val points: Seq[Point]) extends PolyShape {
-      def draw {
+      def draw = {
         points grouped(3) foreach {
           case List() =>
           case s @ Seq(p0, p1, p2) =>
@@ -950,19 +1088,25 @@ Here's a partial list of available commands:
           case Point(x, y) :: Nil =>
             dot(x, y)
         }
+        this
       }
     }
     object TrianglesShape {
       def apply(pts: Seq[Point]) = {
         val shape = new TrianglesShape(pts)
         shape.draw
-        shape
       }
     }
     def trianglesShape(pts: Seq[Point]) = TrianglesShape(pts)
 
+    //W|| *!TriangleStripShape*|| !PolyShape                ||                                 ||
+    //W
+    //W==!TriangleStripShape==
+    //W
+    //W{{{TriangleStripShape}}} takes a sequence of {{{Point}}}s and connects
+    //Wthem as adjoining triangles of the fill and stroke color.
     class TriangleStripShape(val points: Seq[Point]) extends PolyShape {
-      def draw {
+      def draw = {
         points sliding(3) foreach {
           case List() =>
           case s @ Seq(p0, p1, p2) =>
@@ -972,19 +1116,25 @@ Here's a partial list of available commands:
           case Point(x, y) :: Nil =>
             dot(x, y)
         }
+        this
       }
     }
     object TriangleStripShape {
       def apply(pts: Seq[Point]) = {
         val shape = new TriangleStripShape(pts)
         shape.draw
-        shape
       }
     }
     def triangleStripShape(pts: Seq[Point]) = TriangleStripShape(pts)
 
+    //W|| *!QuadsShape*        || !PolyShape                ||                                 ||
+    //W
+    //W==!QuadsShape==
+    //W
+    //W{{{QuadsShape}}} takes a sequence of {{{Point}}}s and connects them as
+    //Wquads (polygons of four points) of the fill and stroke color.
     class QuadsShape(val points: Seq[Point]) extends PolyShape {
-      def draw {
+      def draw = {
         points grouped(4) foreach {
           case List() =>
           case s @ Seq(p0, p1, p2, p3) =>
@@ -996,19 +1146,25 @@ Here's a partial list of available commands:
           case Point(x, y) :: Nil =>
             dot(x, y)
         }
+        this
       }
     }
     object QuadsShape {
       def apply(pts: Seq[Point]) = {
         val shape = new QuadsShape(pts)
         shape.draw
-        shape
       }
     }
     def quadsShape(pts: Seq[Point]) = QuadsShape(pts)
 
+    //W|| *!QuadStripShape*    || !PolyShape                ||                                 ||
+    //W
+    //W==!QuadStripShape==
+    //W
+    //W{{{QuadStripShape}}} takes a sequence of {{{Point}}}s and connects them
+    //Was adjoining quads of the fill and stroke color.
     class QuadStripShape(val points: Seq[Point]) extends PolyShape {
-      def draw {
+      def draw = {
         points sliding(4, 2) foreach {
           case List() =>
           case s @ Seq(p0, p1, p2, p3) =>
@@ -1020,20 +1176,27 @@ Here's a partial list of available commands:
           case Point(x, y) :: Nil =>
             dot(x, y)
         }
+        this
       }
     }
     object QuadStripShape {
       def apply(pts: Seq[Point]) = {
         val shape = new QuadStripShape(pts)
         shape.draw
-        shape
       }
     }
     def quadStripShape(pts: Seq[Point]) = QuadStripShape(pts)
 
+    //W|| *!TriangleFanShape*  || !PolyShape with !BaseShape||                                 ||
+    //W
+    //W==!TriangleFanShape==
+    //W
+    //W{{{TriangleFanShape}}} takes a center point (origin) and a sequence of
+    //W{{{Point}}}s, and connects the points pairwise with each other and with
+    //Wthe center point with straight edges of the fill and stroke color.
     class TriangleFanShape(val origin: Point, val points: Seq[Point]) extends PolyShape
                                                                          with BaseShape {
-      def draw {
+      def draw = {
         points grouped(2) foreach {
           case List() =>
           case s @ Seq(p0, p1) =>
@@ -1041,13 +1204,13 @@ Here's a partial list of available commands:
           case p1 :: Nil =>
             line(origin, p1)
         }
+        this
       }
     }
     object TriangleFanShape {
       def apply(p0: Point, pts: Seq[Point]) = {
         val shape = new TriangleFanShape(p0, pts)
         shape.draw
-        shape
       }
     }
     def triangleFanShape(p0: Point, pts: Seq[Point]) = TriangleFanShape(p0, pts)
