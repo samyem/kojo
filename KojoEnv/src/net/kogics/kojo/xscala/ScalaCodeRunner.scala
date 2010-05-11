@@ -777,8 +777,6 @@ Here's a partial list of available commands:
       val endpoint: Point
       def width = endpoint.x - origin.x
       def height = endpoint.y - origin.y
-      // precondition endpoint > origin
-      require(width > 0 && height > 0)
       def toLine: Line = Line(origin, endpoint)
       def toRect: Rectangle = Rectangle(origin, endpoint)
       def toRect(p: Point): RoundRectangle = RoundRectangle(origin, endpoint, p)
@@ -856,7 +854,13 @@ Here's a partial list of available commands:
     //W
     //W{{{Rectangle}}} is drawn to the canvas as a rectangle of the fill and
     //Wstroke color from origin to endpoint.
+    //W
+    //WThe width and height of the rectangle must both be positive, so if the
+    //Wdimensions are given in the form of a {{{Point}}} it must be to the right
+    //Wof and above origin.
     class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
+      // precondition endpoint > origin
+      require(width > 0 && height > 0)
       def draw = {
         tCanvas.figure0.rectangle(origin, endpoint)
         this
@@ -888,11 +892,17 @@ Here's a partial list of available commands:
     //Wcorners of the fill and stroke color from origin to endpoint.  The
     //Wcurvature of the corners can be determined by x-radius and y-radius
     //Wvalues or by a point value.
+    //W
+    //WThe width and height of the rectangle must both be positive, so if the
+    //Wdimensions are given in the form of a {{{Point}}} it must be to the right
+    //Wof and above origin.
     class RoundRectangle(
       val origin: Point,
       val endpoint: Point,
       val curvature: Point
     ) extends Rounded with SimpleShape {
+      // precondition endpoint > origin
+      require(width > 0 && height > 0)
       def draw = {
         tCanvas.figure0.roundRectangle(origin, endpoint, radiusX, radiusY)
         this
