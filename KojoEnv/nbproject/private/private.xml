@@ -7,6 +7,12 @@
             <line>1487</line>
         </file>
         <file>
+            <url>test/unit/src/net/kogics/kojo/Staging/ShapesTest.scala</url>
+            <line>205</line>
+            <line>415</line>
+            <line>506</line>
+        </file>
+        <file>
             <url>src/net/kogics/kojo/xscala/ScalaFormatter.scala</url>
             <line>163</line>
         </file>
