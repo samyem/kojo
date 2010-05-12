@@ -625,6 +625,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       val prevCode = commandHistory.previous
       hPrevButton.setEnabled(commandHistory.hasPrevious)
       hNextButton.setEnabled(true)
+      commandHistory.ensureLastEntryVisible()
     }
 
     def historyMoveForward {
@@ -634,6 +635,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         hNextButton.setEnabled(false)
       }
       hPrevButton.setEnabled(true)
+      commandHistory.ensureLastEntryVisible()
     }
 
     def setCode(historyIdx: Int, selRange: (Int, Int) = (0,0)) {
@@ -676,8 +678,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
                   || tcode.endsWith(".undo")
                   || tcode.endsWith(".undo()"))
 
+      val prevIndex = commandHistory.hIndex
+
       if (!undo) {
-        // automatically shows the last (blank) history entry through listener mechanism
         commandHistory.add(code)
       }
       else {
@@ -686,6 +689,13 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       }
       if (stayPut || undo) {
         setCode(commandHistory.size-1, (_selRange._1, _selRange._2))
+      }
+      if (commandHistory.hIndex == prevIndex + 1) {
+        // the last entry within history was selected
+        commandHistory.ensureLastEntryVisible()
+      }
+      else {
+        commandHistory.ensureVisible(prevIndex)
       }
     }
   }

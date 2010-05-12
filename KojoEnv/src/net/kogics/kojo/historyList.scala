@@ -31,22 +31,16 @@ class HistoryListModel(myList: JList) extends AbstractListModel {
   
   commandHistory.setListener(new HistoryListener {
       def itemAdded {
-        // getSize depends on command history size; item has already
-        // been added to cmd history; hence the two -1s
-        val maybeScroll = (myList.getSelectedIndex == getSize-1-1)
         fireIntervalAdded(HistoryListModel.this,commandHistory.size-1, commandHistory.size-1)
         myList.setSelectedIndex(getSize-1)
-        if (maybeScroll) {
-          myList.ensureIndexIsVisible(getSize-1)
-        }
       }
 
       def selectionChanged(n: Int) {
-        val currSelIndex = myList.getSelectedIndex
-        if (currSelIndex != n) {
           myList.setSelectedIndex(n)
-          myList.ensureIndexIsVisible(n)
-        }
+      }
+
+      def ensureVisible(n: Int) {
+        myList.ensureIndexIsVisible(n)
       }
     })
 

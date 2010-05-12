@@ -20,6 +20,7 @@ import java.io._
 trait HistoryListener {
   def itemAdded
   def selectionChanged(n: Int)
+  def ensureVisible(n: Int)
 }
 
 class HistorySaver {
@@ -231,4 +232,12 @@ class CommandHistory private[kojo] (historySaver: HistorySaver, maxHistorySize: 
   }
 
   def isStarred(idx: Int) = stars.contains(idx)
+
+  def ensureVisible(idx: Int) {
+    if(listener.isDefined) listener.get.ensureVisible(idx)
+  }
+
+  def ensureLastEntryVisible() {
+    ensureVisible(hIndex)
+  }
 }
