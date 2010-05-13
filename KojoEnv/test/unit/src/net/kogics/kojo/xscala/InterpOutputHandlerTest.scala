@@ -232,9 +232,44 @@ class InterpOutputHandlerTest {
   }
 
   @Test
+  def testErrorExceptionOutput1 = {
+    val output =
+      """java.lang.NoClassDefFoundError: org/apache/log4j/Logger
+        at edu.jas.poly.GenPolynomialTokenizer.<clinit>(GenPolynomialTokenizer.java:53)
+        at .<init>(<console>:14)
+        at .<clinit>(<console>)
+        at RequestResult$.<init>(<console>:9)
+        at RequestResult$.<clinit>(<console>)
+        at RequestResult$scala_repl_result(<console>)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:597)
+        at scala.tools.nsc.Interpreter$Request$$anonfun$loadAndRun$1$$anonfun$apply$18.apply(Interpreter.scala:984)
+        at scala.tools.nsc.Interpreter$Request$$anonfun$loadAndRun$1$$anonfun$apply$18.apply(..."""
+
+    val output5 =
+      """java.lang.NoClassDefFoundError: org/apache/log4j/Logger
+        at edu.jas.poly.GenPolynomialTokenizer.<clinit>(GenPolynomialTokenizer.java:53)
+        at .<init>(<console>:14)
+        at .<clinit>(<console>)
+        at RequestResult$.<init>(<console>:9)......""" + "\n"
+
+    val runCtx = (context.mock(classOf[RunContext])).asInstanceOf[RunContext]
+    context.checking (new Expectations {
+        one(runCtx).println(output5)
+      })
+
+    val outputHandler = new InterpOutputHandler(runCtx)
+    outputHandler.reportInterpOutput(output)
+  }
+
+
+  @Test
   def testNotExceptionOutput1 = {
     val output =
       """ java.lang.RuntimeException
+        There's an extra space above!
         at .<init>(<console>:9)
         at .<clinit>(<console>)
         at RequestResult$.<init>(<console>:4)
@@ -262,6 +297,7 @@ class InterpOutputHandlerTest {
   def testNotExceptionOutput2 = {
     val output =
       """RuntimeException
+        No dot before the RuntimeException above
         at .<init>(<console>:9)
         at .<clinit>(<console>)
         at RequestResult$.<init>(<console>:4)
@@ -275,6 +311,20 @@ class InterpOutputHandlerTest {
         at scala.tools.nsc.Interpreter$Request$$anonfun$loadAndRun$1$$anonfun$apply$13.apply(Interpreter.scala)
         at scala.util.control.Exception$Catch.apply(Exception.scala)
         at scala.tools.nsc.Interpreter$Request$$anonfun$loadAndRun$1.apply(Interpreter.scala)"""
+
+    val runCtx = (context.mock(classOf[RunContext])).asInstanceOf[RunContext]
+    context.checking (new Expectations {
+        one(runCtx).reportOutput(output)
+      })
+
+    val outputHandler = new InterpOutputHandler(runCtx)
+    outputHandler.reportInterpOutput(output)
+  }
+
+  @Test
+  def testNotErrorExceptionOutput = {
+    val output =
+      """The Error word in the output"""
 
     val runCtx = (context.mock(classOf[RunContext])).asInstanceOf[RunContext]
     context.checking (new Expectations {

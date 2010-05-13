@@ -45,6 +45,8 @@ class CodeExecutionSupportTest extends KojoTestBase {
       def selectionChanged(n: Int) {
         ce.loadCodeFromHistory(n)
       }
+
+      def ensureVisible(n: Int) {}
     })
 
 
