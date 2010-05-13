@@ -574,6 +574,22 @@ class ShapesTest extends KojoTestBase {
     //WEither of
     //W
     //W{{{
+    //Wellipse(x, y, width, height)
+    Tester("import Staging._ ; ellipse(15, 15, 35, 25)")
+    testPPath(f.dumpChild(n),
+              "m-6.00000,4.00000 C35.0000,20.5228 26.0457,25.0000 15.0000,25.0000 " +
+              "C3.95430,25.0000 -5.00000,20.5228 -5.00000,15.0000 " +
+              "C-5.00000,9.47715 3.95430,5.00000 15.0000,5.00000 " +
+              "C26.0457,5.00000 35.0000,9.47715 35.0000,15.0000 z M0.00000,0.00000 ")
+    n += 1
+    //Wellipse(point1, width, height)
+    Tester("import Staging._ ; ellipse((15, 15), 35, 25)")
+    testPPath(f.dumpChild(n),
+              "m-6.00000,4.00000 C35.0000,20.5228 26.0457,25.0000 15.0000,25.0000 " +
+              "C3.95430,25.0000 -5.00000,20.5228 -5.00000,15.0000 " +
+              "C-5.00000,9.47715 3.95430,5.00000 15.0000,5.00000 " +
+              "C26.0457,5.00000 35.0000,9.47715 35.0000,15.0000 z M0.00000,0.00000 ")
+    n += 1
     //Wellipse(point1, point2)
     Tester("import Staging._ ; ellipse((15, 15), (35, 25))")
     testPPath(f.dumpChild(n),
@@ -587,14 +603,15 @@ class ShapesTest extends KojoTestBase {
     //Wand
     //W
     //W{{{
+    //Wcircle(x, y, size)
+    Tester("import Staging._ ; circle(15, 15, 25)")
+    testPPath(f.dumpChild(n),
+              "")
+    n += 1
     //Wcircle(point1, size)
     Tester("import Staging._ ; circle((15, 15), 25)")
     testPPath(f.dumpChild(n),
-              "m-36.0000,-36.0000 C65.0000,42.6142 42.6142,65.0000 15.0000,65.0000 " +
-              "C-12.6142,65.0000 -35.0000,42.6142 -35.0000,15.0000 " +
-              "C-35.0000,-12.6142 -12.6142,-35.0000 15.0000,-35.0000 " +
-              "C42.6142,-35.0000 65.0000,-12.6142 65.0000,15.0000 " +
-              "z M0.00000,0.00000 ")
+              "")
     n += 1
     //W}}}
     //W
@@ -663,6 +680,50 @@ class ShapesTest extends KojoTestBase {
     n += 6 // 7 triangles total are created, we'll look at the last one
     testPolyLine(f.dumpChild(n), 3)
     n += 1
+
+    //W
+    //W===Syntax===
+    //W
+    //W{{{
+    //WsvgShape(<rect x="15" y="15" width="25" height="5"/>)
+    Tester("""import Staging._ ; svgShape(<rect x="15" y="15" width="25" height="5"/>)""")
+    testPPath(f.dumpChild(n),
+              "m14.0000,14.0000 L40.0000,15.0000 L40.0000,20.0000 " +
+              "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
+    n += 1
+
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Rectangle}}}.
+    //W
+    //WEither of
+    //W
+    //W{{{
+    //WsvgShape(<circle cx="15" cy="15" r="25"/>)
+    Tester("""import Staging._ ; svgShape(<circle cx="15" cy="15" r="25"/>)""")
+    testPPath(f.dumpChild(n),
+              "")
+    n += 1
+
+    //W}}}
+    //W
+    //Wand
+    //W
+    //W{{{
+    //WsvgShape(<ellipse cx="15" cy="15" rx="35" ry="25"/>)
+    Tester("""import Staging._ ; svgShape(<ellipse cx="15" cy="15" rx="35" ry="25"/>)""")
+    testPPath(f.dumpChild(n),
+              "m-6.00000,4.00000 C35.0000,20.5228 26.0457,25.0000 15.0000,25.0000 " +
+              "C3.95430,25.0000 -5.00000,20.5228 -5.00000,15.0000 " +
+              "C-5.00000,9.47715 3.95430,5.00000 15.0000,5.00000 " +
+              "C26.0457,5.00000 35.0000,9.47715 35.0000,15.0000 z M0.00000,0.00000 ")
+    n += 1
+
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Ellipse}}}.
+
+
 //    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
   }
 
