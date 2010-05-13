@@ -587,6 +587,7 @@ class ShapesTest extends KojoTestBase {
     //Wand
     //W
     //W{{{
+    //Wcircle(point1, size)
     Tester("import Staging._ ; circle((15, 15), 25)")
     testPPath(f.dumpChild(n),
               "m-36.0000,-36.0000 C65.0000,42.6142 42.6142,65.0000 15.0000,65.0000 " +
