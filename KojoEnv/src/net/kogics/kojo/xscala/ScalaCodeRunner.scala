@@ -1016,7 +1016,7 @@ Here's a partial list of available commands:
     def ellipse(p1: Point, p2: Point) =
       Ellipse(p1, p2)
     def circle(x: Double, y: Double, r: Double): Ellipse =
-      Ellipse(Point(x, y), Point(x + 2 * r, y + 2 * r))
+      Ellipse(Point(x, y), Point(x + r, y + r))
     def circle(p: Point, r: Double): Ellipse =
       Ellipse(p, Point(p.x + r, p.y + r))
 
@@ -1260,8 +1260,8 @@ Here's a partial list of available commands:
         require(x >= 0, "Bad rx for XML element " + ns)
         val y = if (yStr == "") 0 else yStr.toDouble
         require(y >= 0, "Bad ry for XML element " + ns)
-        val rx = if (x == 0 && y != 0) y else 0
-        val ry = if (x != 0 && y == 0) x else 0
+        val rx = if (x != 0) x else y
+        val ry = if (y != 0) y else x
         (rx, ry)
       }
 
