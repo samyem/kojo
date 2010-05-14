@@ -501,13 +501,6 @@ class ShapesTest extends KojoTestBase {
     //W}}}
     //W
     //Wdraws and returns an instance of {{{Polygon}}}.
-  }
-
-  @Test
-  def test3 = {
-    val f = SpriteCanvas.instance.figure0
-    f.clear
-    var n = 0
 
     //W
     //W===Syntax===
@@ -577,26 +570,29 @@ class ShapesTest extends KojoTestBase {
     //Wellipse(x, y, width, height)
     Tester("import Staging._ ; ellipse(15, 15, 35, 25)")
     testPPath(f.dumpChild(n),
-              "m-6.00000,4.00000 C35.0000,20.5228 26.0457,25.0000 15.0000,25.0000 " +
-              "C3.95430,25.0000 -5.00000,20.5228 -5.00000,15.0000 " +
-              "C-5.00000,9.47715 3.95430,5.00000 15.0000,5.00000 " +
-              "C26.0457,5.00000 35.0000,9.47715 35.0000,15.0000 z M0.00000,0.00000 ")
+              "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
+              "C-4.32997,40.0000 -20.0000,28.8071 -20.0000,15.0000 " +
+              "C-20.0000,1.19288 -4.32997,-10.0000 15.0000,-10.0000 " +
+              "C34.3300,-10.0000 50.0000,1.19288 50.0000,15.0000 " +
+              "z M0.00000,0.00000 ")
     n += 1
     //Wellipse(point1, width, height)
     Tester("import Staging._ ; ellipse((15, 15), 35, 25)")
     testPPath(f.dumpChild(n),
-              "m-6.00000,4.00000 C35.0000,20.5228 26.0457,25.0000 15.0000,25.0000 " +
-              "C3.95430,25.0000 -5.00000,20.5228 -5.00000,15.0000 " +
-              "C-5.00000,9.47715 3.95430,5.00000 15.0000,5.00000 " +
-              "C26.0457,5.00000 35.0000,9.47715 35.0000,15.0000 z M0.00000,0.00000 ")
+              "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
+              "C-4.32997,40.0000 -20.0000,28.8071 -20.0000,15.0000 " +
+              "C-20.0000,1.19288 -4.32997,-10.0000 15.0000,-10.0000 " +
+              "C34.3300,-10.0000 50.0000,1.19288 50.0000,15.0000 " +
+              "z M0.00000,0.00000 ")
     n += 1
     //Wellipse(point1, point2)
-    Tester("import Staging._ ; ellipse((15, 15), (35, 25))")
+    Tester("import Staging._ ; ellipse((15, 15), (50, 40))")
     testPPath(f.dumpChild(n),
-              "m-6.00000,4.00000 C35.0000,20.5228 26.0457,25.0000 15.0000,25.0000 " +
-              "C3.95430,25.0000 -5.00000,20.5228 -5.00000,15.0000 " +
-              "C-5.00000,9.47715 3.95430,5.00000 15.0000,5.00000 " +
-              "C26.0457,5.00000 35.0000,9.47715 35.0000,15.0000 z M0.00000,0.00000 ")
+              "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
+              "C-4.32997,40.0000 -20.0000,28.8071 -20.0000,15.0000 " +
+              "C-20.0000,1.19288 -4.32997,-10.0000 15.0000,-10.0000 " +
+              "C34.3300,-10.0000 50.0000,1.19288 50.0000,15.0000 " +
+              "z M0.00000,0.00000 ")
     n += 1
     //W}}}
     //W
@@ -606,123 +602,24 @@ class ShapesTest extends KojoTestBase {
     //Wcircle(x, y, size)
     Tester("import Staging._ ; circle(15, 15, 25)")
     testPPath(f.dumpChild(n),
-              "")
+              "m-11.0000,-11.0000 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
+              "C1.19288,40.0000 -10.0000,28.8071 -10.0000,15.0000 " +
+              "C-10.0000,1.19288 1.19288,-10.0000 15.0000,-10.0000 " +
+              "C28.8071,-10.0000 40.0000,1.19288 40.0000,15.0000 " +
+              "z M0.00000,0.00000 ")
     n += 1
     //Wcircle(point1, size)
     Tester("import Staging._ ; circle((15, 15), 25)")
     testPPath(f.dumpChild(n),
-              "")
+              "m-11.0000,-11.0000 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
+              "C1.19288,40.0000 -10.0000,28.8071 -10.0000,15.0000 " +
+              "C-10.0000,1.19288 1.19288,-10.0000 15.0000,-10.0000 " +
+              "C28.8071,-10.0000 40.0000,1.19288 40.0000,15.0000 " +
+              "z M0.00000,0.00000 ")
     n += 1
     //W}}}
     //W
     //Wdraws and returns an instance of {{{Ellipse}}}.
-
-    //W
-    //W===Syntax===
-    //W
-    //W{{{
-    //WlinesShape(pointsSequence)
-    val points = """List((10, 20), (10, 50),
-       |(20, 50), (20, 20),
-       |(30, 20), (30, 50),
-       |(40, 50), (40, 20),
-       |(50, 20), (50, 50),
-       |(60, 50), (60, 20))""".stripMargin
-    Tester("import Staging._ ; linesShape(" + points + ")")
-    assertEquals("PolyLine(10,20)", dumpChildString(n))
-    n += 5 // 6 lines total are created, we'll look at the last one
-    testPolyLine(f.dumpChild(n), 2)
-    n += 1
-    //W}}}
-    //W
-    //Wdraws one line for each two points, and returns an instance of {{{LinesShape}}}.
-
-    Tester("import Staging._ ; trianglesShape(" + points + ")")
-    assertEquals("PolyLine(10,20)", dumpChildString(n))
-    n += 3 // 4 triangles total are created, we'll look at the last one
-    testPolyLine(f.dumpChild(n), 3)
-    n += 1
-
-    val tssPoints = """List((10, 20), (10, 50),
-       |(20, 20), (20, 50),
-       |(30, 20), (30, 50),
-       |(40, 20), (40, 50),
-       |(50, 20), (50, 50),
-       |(60, 20), (60, 50))""".stripMargin
-    Tester("import Staging._ ; triangleStripShape(" + tssPoints + ")")
-    assertEquals("PolyLine(10,20)", dumpChildString(n))
-    n += 9 // 10 triangles total are created, we'll look at the last one
-    testPolyLine(f.dumpChild(n), 3)
-    n += 1
-
-    Tester("import Staging._ ; quadsShape(" + points + ")")
-    assertEquals("PolyLine(10,20)", dumpChildString(n))
-    n += 2 // 3 quads total are created, we'll look at the last one
-    testPolyLine(f.dumpChild(n), 4)
-    n += 1
-
-    Tester("import Staging._ ; quadStripShape(" + points + ")")
-    assertEquals("PolyLine(10,20)", dumpChildString(n))
-    n += 4 // 5 quads total are created, we'll look at the last one
-    testPolyLine(f.dumpChild(n), 4)
-    n += 1
-
-    val tfsPoints = """List(
-       |(30, 45), (40, 40),
-       |(40, 40), (45, 30),
-       |(45, 30), (40, 20),
-       |(40, 20), (30, 15),
-       |(30, 15), (20, 20),
-       |(20, 20), (15, 30),
-       |(15, 30), (20, 40))""".stripMargin
-    Tester("import Staging._ ; triangleFanShape((30, 30), " + tfsPoints + ")")
-    assertEquals("PolyLine(30,30)", dumpChildString(n))
-    n += 6 // 7 triangles total are created, we'll look at the last one
-    testPolyLine(f.dumpChild(n), 3)
-    n += 1
-
-    //W
-    //W===Syntax===
-    //W
-    //W{{{
-    //WsvgShape(<rect x="15" y="15" width="25" height="5"/>)
-    Tester("""import Staging._ ; svgShape(<rect x="15" y="15" width="25" height="5"/>)""")
-    testPPath(f.dumpChild(n),
-              "m14.0000,14.0000 L40.0000,15.0000 L40.0000,20.0000 " +
-              "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
-    n += 1
-
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Rectangle}}}.
-    //W
-    //WEither of
-    //W
-    //W{{{
-    //WsvgShape(<circle cx="15" cy="15" r="25"/>)
-    Tester("""import Staging._ ; svgShape(<circle cx="15" cy="15" r="25"/>)""")
-    testPPath(f.dumpChild(n),
-              "")
-    n += 1
-
-    //W}}}
-    //W
-    //Wand
-    //W
-    //W{{{
-    //WsvgShape(<ellipse cx="15" cy="15" rx="35" ry="25"/>)
-    Tester("""import Staging._ ; svgShape(<ellipse cx="15" cy="15" rx="35" ry="25"/>)""")
-    testPPath(f.dumpChild(n),
-              "m-6.00000,4.00000 C35.0000,20.5228 26.0457,25.0000 15.0000,25.0000 " +
-              "C3.95430,25.0000 -5.00000,20.5228 -5.00000,15.0000 " +
-              "C-5.00000,9.47715 3.95430,5.00000 15.0000,5.00000 " +
-              "C26.0457,5.00000 35.0000,9.47715 35.0000,15.0000 z M0.00000,0.00000 ")
-    n += 1
-
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Ellipse}}}.
-
 
 //    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
   }
