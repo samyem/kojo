@@ -1225,17 +1225,16 @@ Here's a partial list of available commands:
     }
     def triangleFanShape(p0: Point, pts: Seq[Point]) = TriangleFanShape(p0, pts)
 
-    //W|| *!SvgShape*  || Shape || elem                            ||
+    //W|| *!SvgShape*  || Shape || node                            ||
     //W
     //W==!SvgShape==
     //W
     //W{{{SvgShape}}} takes a SVG element (rect, circle, ellipse, line, polyline,
     //Wpolygon, or path) and draws it as a shape of the fill and stroke color.
     //W
-    //WTODO: does not successfully support ellipse, polyline, or polygon yet.
-    //WShould handle g and svg elements in the future.
-    class SvgShape(val elem: scala.xml.Elem) extends Shape {
-      private def matchXY (ns: scala.xml.NodeSeq, xn: String = "x", yn: String = "y"): (Double, Double) = {
+    //WTODO: Should handle g and svg elements in the future.
+    class SvgShape(val node: scala.xml.Node) extends Shape {
+      private def matchXY (ns: scala.xml.Node, xn: String = "x", yn: String = "y"): (Double, Double) = {
         val xStr = (ns \ ("@" + xn)).toString
         val yStr = (ns \ ("@" + yn)).toString
         val x = if (xStr == "") 0 else xStr.toDouble
@@ -1243,7 +1242,7 @@ Here's a partial list of available commands:
         (x, y)
       }
 
-      private def matchWH (ns: scala.xml.NodeSeq): (Double, Double) = {
+      private def matchWH (ns: scala.xml.Node): (Double, Double) = {
         val widthStr = (ns \ "@width").toString
         val heightStr = (ns \ "@height").toString
         val width = if (widthStr == "") 0 else widthStr.toDouble
@@ -1253,7 +1252,7 @@ Here's a partial list of available commands:
         (width, height)
       }
 
-      private def matchRXY (ns: scala.xml.NodeSeq): (Double, Double) = {
+      private def matchRXY (ns: scala.xml.Node): (Double, Double) = {
         val xStr = (ns \ "@rx").toString
         val yStr = (ns \ "@ry").toString
         val x = if (xStr == "") 0 else xStr.toDouble
@@ -1265,11 +1264,18 @@ Here's a partial list of available commands:
         (rx, ry)
       }
 
-      private def matchFillStroke (ns: scala.xml.NodeSeq): (Option[Color], Option[Color]) = {
+      private def matchFillStroke (ns: scala.xml.Node): (Option[Color], Option[Color]) = {
         val fStr = (ns \ "@fill").toString
         val sStr = (ns \ "@stroke").toString
         //TODO
         (None, None)
+      }
+
+      private def matchPoints (ns: scala.xml.Node): Seq[Point] = {
+        val pointsStr = (node \ "@points").toString
+        val splitter = "(:?,\\s*|\\s+)".r
+        val pointsItr = (splitter split pointsStr) map (_.toDouble) grouped(2)
+        (pointsItr map { a => Point(a(0), a(1)) }).toList
       }
 
       def draw = {
@@ -1279,57 +1285,59 @@ Here's a partial list of available commands:
         //   color-interpolation, color-rendering
         // and
         //   transform-list
-        elem match {
+        node match {
           case <rect></rect> =>
-            val (x, y) = matchXY(elem)
-            val (width, height) = matchWH(elem)
-            val (fc, sc) = matchFillStroke(elem)
-            val (rx, ry) = matchRXY(elem)
+            val (x, y) = matchXY(node)
+            val (width, height) = matchWH(node)
+            val (fc, sc) = matchFillStroke(node)
+            val (rx, ry) = matchRXY(node)
             if (rx != 0) {
               roundRectangle(x, y, width, height, rx, ry)
             } else {
               rectangle(x, y, width, height)
             }
           case <circle></circle> =>
-            val (cx, cy) = matchXY(elem, "cx", "cy")
-            val rStr = (elem \ "@r").toString
+            val (cx, cy) = matchXY(node, "cx", "cy")
+            val rStr = (node \ "@r").toString
             val r = if (rStr == "") 0 else rStr.toDouble
             circle(cx, cy, r)
           case <ellipse></ellipse> =>
-            val (cx, cy) = matchXY(elem, "cx", "cy")
-            val (rx, ry) = matchRXY(elem)
+            val (cx, cy) = matchXY(node, "cx", "cy")
+            val (rx, ry) = matchRXY(node)
             ellipse(cx, cy, rx, ry)
           case <line></line> =>
-            val (x1, y1) = matchXY(elem, "x1", "y1")
-            val (x2, y2) = matchXY(elem, "x2", "y2")
+            val (x1, y1) = matchXY(node, "x1", "y1")
+            val (x2, y2) = matchXY(node, "x2", "y2")
             line(x1, y1, x2, y2)
           case <polyline></polyline> =>
-            val pointsStr = (elem \ "@points").toString
-            //TODO
-            //polyline(points)
+            val points = matchPoints(node)
+            polyline(points)
           case <polygon></polygon> =>
-            val pointsStr = (elem \ "@points").toString
-            //TODO
-            //polygon(points)
+            val points = matchPoints(node)
+            polygon(points)
           case <path></path> =>
-            val d = (elem \ "@d").toString
+            val d = (node \ "@d").toString
             tCanvas.figure0.path(d)
           case <g>{ shapes @ _* }</g> =>
-            //TODO draw all shapes in the group
+            for (s <- shapes) {
+              svgShape(s)
+            }
           case <svg>{ shapes @ _* }</svg> =>
-            //TODO draw all shapes in the document
+            for (s <- shapes) {
+              svgShape(s)
+            }
           case _ => // unknown element, ignore
         }
         this
       }
     }
     object SvgShape {
-      def apply(elem: scala.xml.Elem) = {
-        val shape = new SvgShape(elem)
+      def apply(node: scala.xml.Node) = {
+        val shape = new SvgShape(node)
         shape.draw
       }
     }
-    def svgShape(elem: scala.xml.Elem) = SvgShape(elem)
+    def svgShape(node: scala.xml.Node) = SvgShape(node)
 
   }
 
