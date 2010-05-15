@@ -27,5 +27,4 @@ trait SCanvas {
   def newFigure(x: Int, y: Int): Figure
   def zoom(factor: Double, cx: Double, cy: Double)
   def undo(): Unit
-  def setBackgroundColor(color: java.awt.Color)
 }

@@ -137,9 +137,6 @@ class ScreenMethodsTest extends KojoTestBase {
     assertEquals(peekZoom, (3.7333333333333334,-3.7333333333333334,-466.6666666666667,280.0))
     Tester("Staging.Screen.width",                               "Int = 250")
     Tester("Staging.Screen.height",                              "Int = 150")
-    Tester("Staging.Screen.background(new Color(0))",            "Staging.Color = java.awt.Color[r=0,g=0,b=0]")
-    Tester("Staging.Screen.background(new Color(100))",          "Staging.Color = java.awt.Color[r=0,g=0,b=100]")
-    Tester("Staging.Screen.background(new Color(50, 100, 100))", "Staging.Color = java.awt.Color[r=50,g=100,b=100]")
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
