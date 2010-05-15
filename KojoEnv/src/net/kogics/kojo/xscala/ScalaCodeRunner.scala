@@ -943,10 +943,10 @@ Here's a partial list of available commands:
         shape.draw
       }
     }
-    def ellipse(x: Double, y: Double, w: Double, h: Double) =
-      Ellipse(Point(x, y), Point(x + w, y + h))
-    def ellipse(p: Point, w: Double, h: Double) =
-      Ellipse(p, Point(p.x + w, p.y + h))
+    def ellipse(x: Double, y: Double, rx: Double, ry: Double) =
+      Ellipse(Point(x, y), Point(x + rx, y + ry))
+    def ellipse(p: Point, rx: Double, ry: Double) =
+      Ellipse(p, Point(p.x + rx, p.y + ry))
     def ellipse(p1: Point, p2: Point) =
       Ellipse(p1, p2)
     def circle(x: Double, y: Double, r: Double): Ellipse =
@@ -1242,7 +1242,7 @@ Here's a partial list of available commands:
           case <line></line> =>
             val (x1, y1) = matchXY(node, "x1", "y1")
             val (x2, y2) = matchXY(node, "x2", "y2")
-            line(x1, y1, x2, y2)
+            line(x1, y1, x2 - x1, y2 - y1)
           case <polyline></polyline> =>
             val points = matchPoints(node)
             polyline(points)
