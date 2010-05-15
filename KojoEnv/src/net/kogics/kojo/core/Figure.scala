@@ -52,6 +52,5 @@ trait Figure {
   def text(content: String, x: Double, y: Double): FText
   def polyLine(path: net.kogics.kojo.kgeom.PolyLine): net.kogics.kojo.kgeom.PolyLine
   def path(descr: String): FPath
-  def ppath(path: PPath): Unit
   def refresh(fn: => Unit): Unit
 }

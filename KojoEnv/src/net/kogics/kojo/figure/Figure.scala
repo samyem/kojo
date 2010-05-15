@@ -268,14 +268,6 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   }
 
 
-  def ppath(path: PPath) {
-    Utils.runInSwingThread {
-      currLayer.addChild(path)
-      currLayer.repaint()
-    }
-  }
-
-
   def refresh(fn: => Unit) {
     
     Utils.runInSwingThread {
