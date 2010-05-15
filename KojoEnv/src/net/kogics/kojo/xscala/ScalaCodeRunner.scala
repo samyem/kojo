@@ -619,17 +619,6 @@ Here's a partial list of available commands:
       def unapply(p: Point) = Some((p.x, p.y))
     }
 
-    var mouseX = 0.
-    var mouseY = 0.
-    def onMouseMove(fn: (Double, Double) => Unit) {
-      tCanvas.figure0.onMouseMove(fn)
-    }
-    def onMouseOver(left: Int, top: Int, right: Int, bottom: Int)(fn: (Double, Double) => Unit) {
-      onMouseMove { (x: Double, y: Double) =>
-        if (x >= left && y <= top && x <= right && y >= bottom) fn(x, y)
-      }
-    }
-
     //W
     //W=Screen=
     //W
@@ -643,10 +632,6 @@ Here's a partial list of available commands:
         this.height = height
         // TODO make less ad-hoc
         tCanvas.zoom(560 / height, width / 2, height / 2)
-        onMouseOver(0, height, width, 0) { (x: Double, y: Double) =>
-          mouseX = x
-          mouseY = y
-        }
         (width, height)
       }
     }

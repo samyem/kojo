@@ -54,5 +54,4 @@ trait Figure {
   def path(descr: String): FPath
   def ppath(path: PPath): Unit
   def refresh(fn: => Unit): Unit
-  def onMouseMove(fn: (Double, Double) => Unit): Unit
 }
