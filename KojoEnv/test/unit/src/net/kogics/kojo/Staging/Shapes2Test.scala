@@ -361,6 +361,21 @@ class Shapes2Test extends KojoTestBase {
     //W===Syntax===
     //W
     //W{{{
+    //WsvgShape(<path d="M15,15 40,15 40,20 15,20 z"/>)
+    Tester("""import Staging._ ; svgShape(<path d="M15,15 40,15 40,20 15,20 z"/>)""")
+//    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
+    testPPath(f.dumpChild(n),
+      "m14.0000,14.0000 L40.0000,15.0000 L40.0000,20.0000 L15.0000,20.0000 " +
+      "z M0.00000,0.00000 ")
+    n += 1
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Polyline}}}.
+
+    //W
+    //W===Syntax===
+    //W
+    //W{{{
     //WsvgShape(<g>... svg elements ...</g>)
     Tester("""import Staging._
              |svgShape(<g>

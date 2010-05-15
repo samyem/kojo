@@ -16,15 +16,8 @@
 package net.kogics.kojo.core
 
 import edu.umd.cs.piccolo.nodes._
-import java.awt.Color
-import java.awt.BasicStroke
-
 
 trait Figure {
-  var lineColor: Color
-  var fillColor: Color
-  var lineStroke: BasicStroke
-
   def clear(): Unit
   def fgClear(): Unit
   def stopRefresh(): Unit
