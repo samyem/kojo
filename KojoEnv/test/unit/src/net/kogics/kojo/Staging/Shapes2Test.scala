@@ -27,7 +27,7 @@ import net.kogics.kojo.core.RunContext
 import net.kogics.kojo.util._
 
 // cargo coding off CodePaneTest
-class ShapesTest2 extends KojoTestBase {
+class Shapes2Test extends KojoTestBase {
 
   val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
   val file = new java.io.File(fileStr)
@@ -330,6 +330,79 @@ class ShapesTest2 extends KojoTestBase {
     //W}}}
     //W
     //Wdraws and returns an instance of {{{Line}}}.
+
+    //W
+    //W===Syntax===
+    //W
+    //W{{{
+    //WsvgShape(<polyline points="15,15 25,35 40,20 45,25 50,10"/>)
+    Tester("""import Staging._ ; svgShape(<polyline points="15,15 25,35 40,20 45,25 50,10"/>)""")
+    assertEquals("PolyLine(15,10)", dumpChildString(n))
+    testPolyLine(f.dumpChild(n), 5)
+    n += 1
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Polyline}}}.
+
+    //W
+    //W===Syntax===
+    //W
+    //W{{{
+    //WsvgShape(<polygon points="15,15 25,35 40,20 45,25 50,10"/>)
+    Tester("""import Staging._ ; svgShape(<polygon points="15,15 25,35 40,20 45,25 50,10"/>)""")
+    assertEquals("PolyLine(15,10)", dumpChildString(n))
+    testPolyLine(f.dumpChild(n), 5)
+    n += 1
+    //W}}}
+    //W
+    //Wdraws and returns an instance of {{{Polyline}}}.
+
+    //W
+    //W===Syntax===
+    //W
+    //W{{{
+    //WsvgShape(<g>... svg elements ...</g>)
+    Tester("""import Staging._
+             |svgShape(<g>
+             |           <rect x="15" y="15" width="25" height="5"/>
+             |           <circle cx="15" cy="15" r="25"/>
+             |</g>)""".stripMargin)
+    n += 1
+    testPPath(f.dumpChild(n),
+              "m-11.0000,-11.0000 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
+              "C1.19288,40.0000 -10.0000,28.8071 -10.0000,15.0000 " +
+              "C-10.0000,1.19288 1.19288,-10.0000 15.0000,-10.0000 " +
+              "C28.8071,-10.0000 40.0000,1.19288 40.0000,15.0000 " +
+              "z M0.00000,0.00000 ")
+    n += 1
+    //W}}}
+    //W
+    //Wdraws and returns multiple shapes.
+
+    //W
+    //W===Syntax===
+    //W
+    //W{{{
+    //WsvgShape(<svg>... svg elements ...</svg>)
+    Tester("""import Staging._
+             |svgShape(<svg>
+             |           <rect x="45" y="45" width="25" height="5"/>
+             |           <g>
+             |             <rect x="15" y="15" width="25" height="5"/>
+             |             <circle cx="15" cy="15" r="25"/>
+             |           </g>
+             |</svg>)""".stripMargin)
+    n += 2
+    testPPath(f.dumpChild(n),
+              "m-11.0000,-11.0000 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
+              "C1.19288,40.0000 -10.0000,28.8071 -10.0000,15.0000 " +
+              "C-10.0000,1.19288 1.19288,-10.0000 15.0000,-10.0000 " +
+              "C28.8071,-10.0000 40.0000,1.19288 40.0000,15.0000 " +
+              "z M0.00000,0.00000 ")
+    n += 1
+    //W}}}
+    //W
+    //Wdraws and returns multiple shapes.
 
 //    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
   }
