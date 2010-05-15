@@ -567,7 +567,7 @@ class ShapesTest extends KojoTestBase {
     //WEither of
     //W
     //W{{{
-    //Wellipse(x, y, width, height)
+    //Wellipse(x-center, y-center, x-radius, y-radius)
     Tester("import Staging._ ; ellipse(15, 15, 35, 25)")
     testPPath(f.dumpChild(n),
               "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
@@ -576,7 +576,7 @@ class ShapesTest extends KojoTestBase {
               "C34.3300,-10.0000 50.0000,1.19288 50.0000,15.0000 " +
               "z M0.00000,0.00000 ")
     n += 1
-    //Wellipse(point1, width, height)
+    //Wellipse(point-center, x-radius, y-radius)
     Tester("import Staging._ ; ellipse((15, 15), 35, 25)")
     testPPath(f.dumpChild(n),
               "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
@@ -585,7 +585,7 @@ class ShapesTest extends KojoTestBase {
               "C34.3300,-10.0000 50.0000,1.19288 50.0000,15.0000 " +
               "z M0.00000,0.00000 ")
     n += 1
-    //Wellipse(point1, point2)
+    //Wellipse(point-center, point-upper-right)
     Tester("import Staging._ ; ellipse((15, 15), (50, 40))")
     testPPath(f.dumpChild(n),
               "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
@@ -599,7 +599,7 @@ class ShapesTest extends KojoTestBase {
     //Wand
     //W
     //W{{{
-    //Wcircle(x, y, size)
+    //Wcircle(x-center, y-center, radius)
     Tester("import Staging._ ; circle(15, 15, 25)")
     testPPath(f.dumpChild(n),
               "m-11.0000,-11.0000 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
@@ -608,7 +608,7 @@ class ShapesTest extends KojoTestBase {
               "C28.8071,-10.0000 40.0000,1.19288 40.0000,15.0000 " +
               "z M0.00000,0.00000 ")
     n += 1
-    //Wcircle(point1, size)
+    //Wcircle(point-center, radius)
     Tester("import Staging._ ; circle((15, 15), 25)")
     testPPath(f.dumpChild(n),
               "m-11.0000,-11.0000 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
