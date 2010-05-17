@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1">
+        <file>
+            <url>src/net/kogics/kojo/xscala/ScalaFormatter.scala</url>
+            <line>163</line>
+        </file>
+    </editor-bookmarks>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/1">
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/SpriteCanvas.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/turtle/commands.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/turtle/Turtle.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/core/TurtleMover.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/xscala/ScalaCodeRunner.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/test/unit/src/net/kogics/kojo/turtle/TurtleTest.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/test/unit/src/net/kogics/kojo/turtle/TurtleUndoTest.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/geogebra/GeoGebraCanvas.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/LoadFrom.java</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/SaveTo.java</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/geogebra/GeomCanvas.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/Installer.java</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/kgeom/PolyLine.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/turtle/Pen.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/core/Figure.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/figure/Figure.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/figure/FigArc.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/figure/FigEllipse.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/figure/FigLine.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/geogebra/MwLine.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/core/shapes.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/core/GeomCanvas.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/geogebra/MwAngle.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/core/SCanvas.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/test/unit/src/net/kogics/kojo/SpriteCanvasTest.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/core/Turtle.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/build.xml</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/nbproject/project.xml</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/nbproject/build-impl.xml</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/scala-build.xml</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/nbproject/project.properties</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/test/unit/src/net/kogics/kojo/xscala/InterpOutputHandlerTest.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/CodeExecutionSupport.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/historyList.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/src/net/kogics/kojo/CommandHistory.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo/KojoEnv/test/unit/src/net/kogics/kojo/CodeExecutionSupportTest.scala</file>
+    </open-files>
+</project-private>
