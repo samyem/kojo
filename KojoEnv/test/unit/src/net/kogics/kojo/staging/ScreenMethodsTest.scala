@@ -13,6 +13,7 @@
  *
  */
 package net.kogics.kojo
+package staging
 
 import org.junit.After
 import org.junit.Before
@@ -98,11 +99,11 @@ class ScreenMethodsTest extends KojoTestBase {
   def peekZoom = {
     val canvas = SpriteCanvas.instance
     (
-        canvas.getCamera.getViewTransformReference.getScaleX,
-        canvas.getCamera.getViewTransformReference.getScaleY,
-        canvas.getCamera.getViewTransformReference.getTranslateX,
-        canvas.getCamera.getViewTransformReference.getTranslateY
-      )
+      canvas.getCamera.getViewTransformReference.getScaleX,
+      canvas.getCamera.getViewTransformReference.getScaleY,
+      canvas.getCamera.getViewTransformReference.getTranslateX,
+      canvas.getCamera.getViewTransformReference.getTranslateY
+    )
   }
 
   object Tester {
@@ -131,12 +132,12 @@ class ScreenMethodsTest extends KojoTestBase {
 
   @Test
   def testEvalSession = {
-    Tester("Staging.Screen.width",                               "Int = 0")
-    Tester("Staging.Screen.height",                              "Int = 0")
-    Tester("Staging.Screen.size(250, 150)",                      "(Int, Int) = (250,150)")
+    Tester("Staging.screenWidth",                               "Int = 0")
+    Tester("Staging.screenHeight",                              "Int = 0")
+    Tester("Staging.screenSize(250, 150)",                      "(Int, Int) = (250,150)")
     assertEquals(peekZoom, (3.7333333333333334,-3.7333333333333334,-466.6666666666667,280.0))
-    Tester("Staging.Screen.width",                               "Int = 250")
-    Tester("Staging.Screen.height",                              "Int = 150")
+    Tester("Staging.screenWidth",                               "Int = 250")
+    Tester("Staging.screenHeight",                              "Int = 150")
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
