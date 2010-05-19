@@ -15,8 +15,8 @@
 package net.kogics.kojo
 package staging
 
-import org.junit.After
-import org.junit.Before
+//import org.junit.After
+//import org.junit.Before
 import org.junit.Test
 import org.junit.Assert._
 
@@ -125,6 +125,15 @@ class MathTest extends KojoTestBase {
     Tester("Staging.norm(-2, -13, 78).toFloat", "Float = 0.12087912")
     Tester("Staging.norm(22, -13, 78).toFloat", "Float = 0.3846154")
     Tester("Staging.norm(82, -13, 78).toFloat", "Float = 1.043956")
+    Tester("Staging.map(-22, -13, 78, 5, 20).toFloat", "Float = 3.5164835")
+    Tester("Staging.map(-2, -13, 78, 5, 20).toFloat", "Float = 6.8131866")
+    Tester("Staging.map(22, -13, 78, 5, 20).toFloat", "Float = 10.769231")
+    Tester("Staging.map(82, -13, 78, 5, 20).toFloat", "Float = 20.65934")
+    Tester("Staging.sq(-8)", "Double = 64.0")
+    Tester("Staging.lerp(-22, -13, 0.0).toFloat", "Float = -22.0")
+    Tester("Staging.lerp(-22, -13, 0.3).toFloat", "Float = -19.3")
+    Tester("Staging.lerp(-22, -13, 0.5).toFloat", "Float = -17.5")
+    Tester("Staging.lerp(-22, -13, 1.0).toFloat", "Float = -13.0")
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
