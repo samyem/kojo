@@ -48,7 +48,7 @@ object API {
   def M = Point(Screen.width / 2, Screen.height / 2)
   def E = Point(Screen.width, Screen.height)
 
-  //def point(x: Double, y: Double) = Point(x, y)
+  def point(x: Double, y: Double) = Point(x, y)
   def screenWidth = Screen.width
   def screenHeight = Screen.height
   def screenSize(width: Int, height: Int): (Int, Int) = Screen.size(width, height)
@@ -166,23 +166,26 @@ object API {
 
   def dist(x0: Double, y0: Double, x1: Double, y1: Double) =
     sqrt(sq(x1 - x0) + sq(y1 - y0))
+  def dist(p1: Point, p2: Point) =
+    sqrt(sq(p2.x - p1.x) + sq(p2.y - p1.y))
 
   def mag(x: Double, y: Double) = dist(0, 0, x, y)
+  def mag(p: Point) = dist(0, 0, p.x, p.y)
 } // end of API
 
 
 
-//W
-//W=Points=
-//W
-//WStaging uses {{{net.kogics.kojo.core.Point}}} for coordinates.  A companion
-//Wobject provides _apply_ and _unapply_ methods.
-//WTuples of {{{Double}}}s or {{{Int}}}s are implicitly converted to
-//W{{{Point}}}s where applicable.
-object Point {
-  def apply(x: Double, y: Double) = new Point(x, y)
-  def unapply(p: Point) = Some((p.x, p.y))
-}
+  //W
+  //W=Points=
+  //W
+  //WStaging uses {{{net.kogics.kojo.core.Point}}} for coordinates.  A companion
+  //Wobject provides _apply_ and _unapply_ methods.
+  //WTuples of {{{Double}}}s or {{{Int}}}s are implicitly converted to
+  //W{{{Point}}}s where applicable.
+  object Point {
+    def apply(x: Double, y: Double) = new Point(x, y)
+    def unapply(p: Point) = Some((p.x, p.y))
+  }
 
 //W
 //W=Screen=
@@ -806,8 +809,7 @@ object Math {
   def map(value: Double, low1: Double, high1: Double, low2: Double, high2: Double) = {
     val range1: Double = high1 - low1
     val range2: Double = high2 - low2
-    if (value >= low1 && value <= high1) range2 * value / range1
-    else value
+    low2 + range2 * (value - low1) / range1
   }
 
   def lerp(value1: Double, value2: Double, amt: Double) = {
