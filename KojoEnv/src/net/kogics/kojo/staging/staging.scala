@@ -18,6 +18,7 @@ package staging
 
 import net.kogics.kojo.core.Point
 import java.awt.Color
+import math._
 
 object Impl {
   val figure0 = SpriteCanvas.instance.figure0
@@ -42,19 +43,19 @@ object API {
   //W
   //WAt this point, the shape hierarchy is the most complete part, but
   //Wutilities for color definition, time keeping etc are being added.
-  import math._
 
   val O = Point(0, 0)
   def M = Point(Screen.width / 2, Screen.height / 2)
   def E = Point(Screen.width, Screen.height)
 
-  def point(x: Double, y: Double) = Point(x, y)
+  //def point(x: Double, y: Double) = Point(x, y)
   def screenWidth = Screen.width
   def screenHeight = Screen.height
   def screenSize(width: Int, height: Int): (Int, Int) = Screen.size(width, height)
 
   implicit def tupleDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
   implicit def tupleIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
+  implicit def ColorToRichColor (c: Color) = RichColor(c)
 
   def dot(x: Double, y: Double) = Dot(Point(x, y))
   def dot(p: Point) = Dot(p)
@@ -134,15 +135,48 @@ object API {
   def triangleFanShape(p0: Point, pts: Seq[Point]) = TriangleFanShape(p0, pts)
 
   def svgShape(node: scala.xml.Node): SvgShape = SvgShape(node)
-}
+
+  def millis = System.currentTimeMillis()
+
+  def second = (millis / 1000) % 60
+  def minute = (millis / 60000) % 60
+
+  import java.util.Calendar
+  def hour   = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+  def day    = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+  def month  = Calendar.getInstance().get(Calendar.MONTH) + 1
+  def year   = Calendar.getInstance().get(Calendar.YEAR)
+
+  def lerpColor(from: RichColor, to: RichColor, amt: Double) =
+    RichColor.lerpColor(from, to, amt)
+
+  def constrain(value: Double, min: Double, max: Double) =
+    Math.constrain(value, min, max)
+
+  def norm(value: Double, low: Double, high: Double) =
+    Math.map(value, low, high, 0, 1)
+
+  def map(value: Double, low1: Double, high1: Double, low2: Double, high2: Double) =
+    Math.map(value, low1, high1, low2, high2)
+
+  def lerp(value1: Double, value2: Double, amt: Double) =
+    Math.lerp(value1, value2, amt)
+
+  def sq(x: Double) = x * x
+
+  def dist(x0: Double, y0: Double, x1: Double, y1: Double) =
+    sqrt(sq(x1 - x0) + sq(y1 - y0))
+
+  def mag(x: Double, y: Double) = dist(0, 0, x, y)
+} // end of API
 
 
 
 //W
 //W=Points=
 //W
-//WStaging uses an enriched version of {{{net.kogics.kojo.core.Point}}} for
-//Wcoordinates.  A companion object provides _apply_ and _unapply_ methods.
+//WStaging uses {{{net.kogics.kojo.core.Point}}} for coordinates.  A companion
+//Wobject provides _apply_ and _unapply_ methods.
 //WTuples of {{{Double}}}s or {{{Int}}}s are implicitly converted to
 //W{{{Point}}}s where applicable.
 object Point {
@@ -731,5 +765,54 @@ object SvgShape {
   def apply(node: scala.xml.Node) = {
     val shape = new SvgShape(node)
     shape.draw
+  }
+}
+
+class RichColor (val c: Color) {
+  def alpha = c.getAlpha
+  def red = c.getRed
+  def blue = c.getBlue
+  def green = c.getGreen
+  private def hsb =
+    Color.RGBtoHSB(c.getRed, c.getBlue, c.getGreen, null)
+  def hue = {
+    val h = floor(255 * (1 - this.hsb(0))) + 1
+    if (h > 255) 0 else h.toInt
+  }
+  def saturation = (this.hsb(1) * 255).toInt
+  def brightness = (this.hsb(2) * 255).toInt
+  // TODO blendColor
+}
+object RichColor {
+  def apply(c: Color) = new RichColor(c)
+
+  def lerpColor(from: RichColor, to: RichColor, amt: Double) = {
+    require(amt >= 0d && amt <= 1d)
+    new Color(
+      Math.lerp(from.red, to.red, amt).round.toInt,
+      Math.lerp(from.green, to.green, amt).round.toInt,
+      Math.lerp(from.blue, to.blue, amt).round.toInt
+    )
+  }
+}
+
+object Math {
+  def constrain(value: Double, min: Double, max: Double) = {
+    if (value < min) min
+    else if (value > max) max
+    else value
+  }
+
+  def map(value: Double, low1: Double, high1: Double, low2: Double, high2: Double) = {
+    val range1: Double = high1 - low1
+    val range2: Double = high2 - low2
+    if (value >= low1 && value <= high1) range2 * value / range1
+    else value
+  }
+
+  def lerp(value1: Double, value2: Double, amt: Double) = {
+    require(amt >= 0d && amt <= 1d)
+    val range: Double = value2 - value1
+    value1 + amt * range
   }
 }
