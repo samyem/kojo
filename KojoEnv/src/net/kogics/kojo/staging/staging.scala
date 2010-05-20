@@ -16,6 +16,8 @@
 package net.kogics.kojo
 package staging
 
+import edu.umd.cs.piccolo.nodes.PPath
+
 import net.kogics.kojo.core.Point
 import java.awt.Color
 import math._
@@ -62,12 +64,10 @@ object API {
 
   def line(x: Double, y: Double, w: Double, h: Double): Line =
     Line(Point(x, y), Point(x + w, y + h))
-  def line(p1: Point, w: Double, h: Double): Line = {
+  def line(p1: Point, w: Double, h: Double): Line =
     Line(p1, Point(p1.x + w, p1.y + h))
-  }
-  def line(p1: Point, p2: Point): Line = {
+  def line(p1: Point, p2: Point): Line =
     Line(p1, p2)
-  }
 
   def rectangle(x: Double, y: Double, w: Double, h: Double): Rectangle =
     Rectangle(Point(x, y), Point(x + w, y + h))
@@ -307,6 +307,7 @@ object Dot {
 //W{{{Line}}} is drawn to the canvas as a straight line of the stroke color
 //Wfrom origin to endpoint.
 class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
+  private val p = PPath.createLine(origin.x.toFloat, origin.y.toFloat, endpoint.x.toFloat, endpoint.y.toFloat)
   def draw = {
     Impl.figure0.line(origin, endpoint)
     this
