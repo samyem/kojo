@@ -753,7 +753,7 @@ object SvgShape {
     val (width, height) = matchWH(ns)
     val p1 = p0 + Point(width, height)
     val p2 = matchRXY(ns)
-    if (p2 != API.O) {
+    if (p2.x != 0. || p2.y != 0.) {
       RoundRectangle(p0, p1, p2)
     } else {
       Rectangle(p0, p1)
