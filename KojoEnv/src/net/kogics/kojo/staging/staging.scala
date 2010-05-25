@@ -16,8 +16,9 @@
 package net.kogics.kojo
 package staging
 
-import edu.umd.cs.piccolo.nodes.PPath
+import edu.umd.cs.piccolo.PNode
 
+import net.kogics.kojo.util.Utils
 import net.kogics.kojo.core.Point
 import java.awt.Color
 import math._
@@ -62,22 +63,22 @@ object API {
   def dot(x: Double, y: Double) = Dot(Point(x, y))
   def dot(p: Point) = Dot(p)
 
-  def line(x: Double, y: Double, w: Double, h: Double): Line =
+  def line(x: Double, y: Double, w: Double, h: Double) =
     Line(Point(x, y), Point(x + w, y + h))
-  def line(p1: Point, w: Double, h: Double): Line =
+  def line(p1: Point, w: Double, h: Double) =
     Line(p1, Point(p1.x + w, p1.y + h))
-  def line(p1: Point, p2: Point): Line =
+  def line(p1: Point, p2: Point) =
     Line(p1, p2)
 
-  def rectangle(x: Double, y: Double, w: Double, h: Double): Rectangle =
+  def rectangle(x: Double, y: Double, w: Double, h: Double) =
     Rectangle(Point(x, y), Point(x + w, y + h))
-  def rectangle(p: Point, w: Double, h: Double): Rectangle =
+  def rectangle(p: Point, w: Double, h: Double) =
     Rectangle(p, Point(p.x + w, p.y + h))
-  def rectangle(p1: Point, p2: Point): Rectangle =
+  def rectangle(p1: Point, p2: Point) =
     Rectangle(p1, p2)
-  def square(x: Double, y: Double, s: Double): Rectangle =
+  def square(x: Double, y: Double, s: Double) =
     Rectangle(Point(x, y), Point(x + s, y + s))
-  def square(p: Point, s: Double): Rectangle =
+  def square(p: Point, s: Double) =
     Rectangle(p, Point(p.x + s, p.y + s))
 
   def roundRectangle(
@@ -97,7 +98,7 @@ object API {
   def roundRectangle(p1: Point, p2: Point, p3: Point) =
     RoundRectangle(p1, p2, p3)
 
-  def polyline(pts: Seq[Point]): Polyline = Polyline(pts)
+  def polyline(pts: Seq[Point]) = Polyline(pts)
 
   def polygon(pts: Seq[Point]): Polygon = Polygon(pts)
   def triangle(p0: Point, p1: Point, p2: Point) = polygon(Seq(p0, p1, p2))
@@ -110,19 +111,19 @@ object API {
     Ellipse(p, Point(p.x + rx, p.y + ry))
   def ellipse(p1: Point, p2: Point) =
     Ellipse(p1, p2)
-  def circle(x: Double, y: Double, r: Double): Ellipse =
+  def circle(x: Double, y: Double, r: Double) =
     Ellipse(Point(x, y), Point(x + r, y + r))
-  def circle(p: Point, r: Double): Ellipse =
+  def circle(p: Point, r: Double) =
     Ellipse(p, Point(p.x + r, p.y + r))
 
-  def arc(x: Double, y: Double, w: Double, h: Double, s: Double, e: Double): Arc =
+  def arc(x: Double, y: Double, w: Double, h: Double, s: Double, e: Double) =
     Arc(Point(x, y), Point(x + w / 2, y + h / 2), s, e)
-  def arc(p: Point, w: Double, h: Double, s: Double, e: Double): Arc =
+  def arc(p: Point, w: Double, h: Double, s: Double, e: Double) =
     Arc(p, Point(p.x + w / 2, p.y + h / 2), s, e)
-  def arc(p1: Point, p2: Point, s: Double, e: Double): Arc =
+  def arc(p1: Point, p2: Point, s: Double, e: Double) =
     Arc(p1, p2, s, e)
 
-  def linesShape(pts: Seq[Point]): LinesShape = LinesShape(pts)
+  def linesShape(pts: Seq[Point]) = LinesShape(pts)
 
   def trianglesShape(pts: Seq[Point]) = TrianglesShape(pts)
 
@@ -134,7 +135,7 @@ object API {
 
   def triangleFanShape(p0: Point, pts: Seq[Point]) = TriangleFanShape(p0, pts)
 
-  def svgShape(node: scala.xml.Node): SvgShape = SvgShape(node)
+  def svgShape(node: scala.xml.Node) = SvgShape(node)
 
   def millis = System.currentTimeMillis()
 
@@ -175,23 +176,18 @@ object API {
 
 
 
-  //W
-  //W=Points=
-  //W
-  //WStaging uses {{{net.kogics.kojo.core.Point}}} for coordinates.  A companion
-  //Wobject provides _apply_ and _unapply_ methods.
-  //WTuples of {{{Double}}}s or {{{Int}}}s are implicitly converted to
-  //W{{{Point}}}s where applicable.
-  object Point {
-    def apply(x: Double, y: Double) = new Point(x, y)
-    def unapply(p: Point) = Some((p.x, p.y))
-  }
+//W
+//W=Points=
+//W
+//WStaging uses {{{net.kogics.kojo.core.Point}}} for coordinates.  A companion
+//Wobject provides _apply_ and _unapply_ methods.
+//WTuples of {{{Double}}}s or {{{Int}}}s are implicitly converted to
+//W{{{Point}}}s where applicable.
+object Point {
+  def apply(x: Double, y: Double) = new Point(x, y)
+  def unapply(p: Point) = Some((p.x, p.y))
+}
 
-//W
-//W=Screen=
-//W
-//WStaging defines an object {{{Screen}}} that provides methods to set
-//Wbackground color and screen size.
 object Screen {
   var width = 0
   var height = 0
@@ -219,7 +215,11 @@ object Screen {
 //W_Not implemented yet: shapes should remember the colors and stroke style
 //Wused and any transforms applied, and apply them again whenever _draw_ is
 //Wcalled._
-trait Shape {
+trait Shape extends core.VisualElement {
+  val shapes: Seq[figure.FigShape]
+  def hide() = shapes foreach (_.hide)
+  def show() = shapes foreach (_.show)
+  def setColor(color: Color) = shapes foreach (_.setColor(color))
   def draw: Shape
 }
 //W|| Rounded              ||                           || curvature, _radiusX_, _radiusY_ ||
@@ -244,7 +244,7 @@ trait Rounded {
 //Wthe shape bounds (except for {{{Elliptical}}} shapes, see below).
 trait BaseShape extends Shape {
   val origin: Point
-  def toLine(p: Point): Line = Line(origin, p)
+  def toLine(p: Point) = Line(origin, p)
 }
 
 //W|| !SimpleShape         || !BaseShape|| endpoint, _width_, _height_, _toLine_, _toRect_ ||
@@ -283,13 +283,8 @@ trait Elliptical extends Rounded with SimpleShape {
 //W
 //W{{{Dot}}} is drawn to the canvas as a dot of the stroke color.
 class Dot(val origin: Point) extends BaseShape {
-  def draw = {
-    origin match {
-      case Point(x, y) =>
-        Impl.figure0.point(x, y)
-    }
-    this
-  }
+  val shapes = List(Impl.figure0.point(origin.x, origin.y))
+  def draw = this
 
   override def toString = "Staging.Dot(" + origin + ")"
 }
@@ -307,11 +302,8 @@ object Dot {
 //W{{{Line}}} is drawn to the canvas as a straight line of the stroke color
 //Wfrom origin to endpoint.
 class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
-  private val p = PPath.createLine(origin.x.toFloat, origin.y.toFloat, endpoint.x.toFloat, endpoint.y.toFloat)
-  def draw = {
-    Impl.figure0.line(origin, endpoint)
-    this
-  }
+  val shapes = List(Impl.figure0.line(origin, endpoint))
+  def draw = this
   override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
 }
 object Line {
@@ -334,10 +326,8 @@ object Line {
 class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
   // precondition endpoint > origin
   require(width > 0 && height > 0)
-  def draw = {
-    Impl.figure0.rectangle(origin, endpoint)
-    this
-  }
+  val shapes = List(Impl.figure0.rectangle(origin, endpoint))
+  def draw = this
   override def toString = "Staging.Rectangle(" + origin + ", " + endpoint + ")"
 }
 object Rectangle {
@@ -380,10 +370,8 @@ class RoundRectangle(
 ) extends Rounded with SimpleShape {
   // precondition endpoint > origin
   require(width > 0 && height > 0)
-  def draw = {
-    Impl.figure0.roundRectangle(origin, endpoint, radiusX, radiusY)
-    this
-  }
+  val shapes = List(Impl.figure0.roundRectangle(origin, endpoint, radiusX, radiusY))
+  def draw = this
   override def toString =
     "Staging.RoundRectangle(" + origin + ", " + endpoint + ", " + curvature + ")"
 }
@@ -405,10 +393,8 @@ class Polyline(val points: Seq[Point]) extends PolyShape {
   points foreach { case Point(x, y) =>
       shapePath.addPoint(x, y)
   }
-  def draw = {
-    Impl.figure0.polyLine(shapePath)
-    this
-  }
+  val shapes = List(Impl.figure0.polyLine(shapePath))
+  def draw = this
 
   override def toString = "Staging.Polyline(" + points + ")"
 }
@@ -432,10 +418,8 @@ class Polygon(val points: Seq[Point]) extends PolyShape {
       shapePath.addPoint(x, y)
   }
   shapePath.polyLinePath.closePath
-  def draw = {
-    Impl.figure0.polyLine(shapePath)
-    this
-  }
+  val shapes = List(Impl.figure0.polyLine(shapePath))
+  def draw = this
 
   override def toString = "Staging.Polygon(" + points + ")"
 }
@@ -454,10 +438,10 @@ object Polygon {
 //Wcolor centering on origin, with a curvature defined by the distance from
 //Worigin to endpoint.
 class Ellipse(val origin: Point, val endpoint: Point) extends Elliptical {
-  def draw = {
-    Impl.figure0.ellipse(origin, width, height)
-    this
-  }
+  val shapes = List(Impl.figure0.ellipse(origin, width, height))
+  def draw = this
+
+  override def toString = "Staging.Ellipse(" + origin + "," + endpoint + ")"
 }
 object Ellipse {
   def apply(p1: Point, p2: Point) = {
@@ -480,13 +464,10 @@ class Arc(
   val origin: Point, val endpoint: Point,
   val start: Double, val extent: Double
 ) extends Elliptical {
-  def draw = {
-    origin match {
-      case Point(x, y) =>
-        Impl.figure0.arc(x, y, width, height, start, extent)
-    }
-    this
-  }
+  val shapes = List(Impl.figure0.arc(origin.x, origin.y, width, height, start, extent))
+  def draw = this
+
+  override def toString = "Staging.Arc(" + origin + "," + endpoint + start + "," + extent + ")"
 }
 object Arc {
   def apply(p1: Point, p2: Point, s: Double, e: Double) = {
@@ -502,16 +483,26 @@ object Arc {
 //W{{{LinesShape}}} takes a sequence of {{{Point}}}s and connects them
 //Wpairwise by straight lines of the stroke color.
 class LinesShape(val points: Seq[Point]) extends PolyShape {
-  def draw = {
+  val shapes = init
+
+  def init = {
+    val shapePath = new kgeom.PolyLine()
+    shapePath.reset
     points grouped(2) foreach {
       case List() =>
-      case Seq(p0, p1) =>
-        API.line(p0, p1)
-      case Point(x, y) :: Nil =>
-        API.dot(x, y)
+      case Seq(Point(x1, y1), Point(x2, y2)) =>
+        //println("points " + x1 + "," + y1 + " " + x2 + "," + y2)
+        shapePath.polyLinePath.moveTo(x1, y1)
+        shapePath.polyLinePath.lineTo(x2, y2)
+      case p :: Nil =>
     }
-    this
+    shapePath.updateBounds
+    List(Impl.figure0.polyLine(shapePath))
   }
+
+  def draw = this
+
+  override def toString = "Staging.LinesShape(" + points + ")"
 }
 object LinesShape {
   def apply(pts: Seq[Point]) = {
@@ -527,18 +518,27 @@ object LinesShape {
 //W{{{TrianglesShape}}} takes a sequence of {{{Point}}}s and connects them
 //Was triangles of the fill and stroke color.
 class TrianglesShape(val points: Seq[Point]) extends PolyShape {
-  def draw = {
+  val shapes = init
+
+  def init = {
+    val shapePath = new kgeom.PolyLine()
+    shapePath.reset
     points grouped(3) foreach {
       case List() =>
-      case s @ Seq(p0, p1, p2) =>
-        API.polygon(s)
-      case p0 :: p1 :: Nil =>
-        API.line(p0, p1)
-      case Point(x, y) :: Nil =>
-        API.dot(x, y)
+      case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)) =>
+        shapePath.polyLinePath.moveTo(x0, y0)
+        shapePath.polyLinePath.lineTo(x1, y1)
+        shapePath.polyLinePath.lineTo(x2, y2)
+        shapePath.polyLinePath.closePath
+      case _ =>
     }
-    this
+    shapePath.updateBounds
+    List(Impl.figure0.polyLine(shapePath))
   }
+
+  def draw = this
+
+  override def toString = "Staging.TrianglesShape(" + points + ")"
 }
 object TrianglesShape {
   def apply(pts: Seq[Point]) = {
@@ -554,18 +554,27 @@ object TrianglesShape {
 //W{{{TriangleStripShape}}} takes a sequence of {{{Point}}}s and connects
 //Wthem as adjoining triangles of the fill and stroke color.
 class TriangleStripShape(val points: Seq[Point]) extends PolyShape {
-  def draw = {
+  val shapes = init
+
+  def init = {
+    val shapePath = new kgeom.PolyLine()
+    shapePath.reset
     points sliding(3) foreach {
       case List() =>
-      case s @ Seq(p0, p1, p2) =>
-        API.polygon(s)
-      case p0 :: p1 :: Nil =>
-        API.line(p0, p1)
-      case Point(x, y) :: Nil =>
-        API.dot(x, y)
+      case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)) =>
+        shapePath.polyLinePath.moveTo(x0, y0)
+        shapePath.polyLinePath.lineTo(x1, y1)
+        shapePath.polyLinePath.lineTo(x2, y2)
+        shapePath.polyLinePath.closePath
+      case _ =>
     }
-    this
+    shapePath.updateBounds
+    List(Impl.figure0.polyLine(shapePath))
   }
+
+  def draw = this
+
+  override def toString = "Staging.TriangleStripShape(" + points + ")"
 }
 object TriangleStripShape {
   def apply(pts: Seq[Point]) = {
@@ -581,20 +590,28 @@ object TriangleStripShape {
 //W{{{QuadsShape}}} takes a sequence of {{{Point}}}s and connects them as
 //Wquads (polygons of four points) of the fill and stroke color.
 class QuadsShape(val points: Seq[Point]) extends PolyShape {
-  def draw = {
+  val shapes = init
+
+  def init = {
+    val shapePath = new kgeom.PolyLine()
+    shapePath.reset
     points grouped(4) foreach {
       case List() =>
-      case s @ Seq(p0, p1, p2, p3) =>
-        API.polygon(s)
-      case s @ p0 :: p1 :: p2 :: Nil =>
-        Polyline(s)
-      case p0 :: p1 :: Nil =>
-        API.line(p0, p1)
-      case Point(x, y) :: Nil =>
-        API.dot(x, y)
+      case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
+        shapePath.polyLinePath.moveTo(x0, y0)
+        shapePath.polyLinePath.lineTo(x1, y1)
+        shapePath.polyLinePath.lineTo(x2, y2)
+        shapePath.polyLinePath.lineTo(x3, y3)
+        shapePath.polyLinePath.closePath
+      case _ =>
     }
-    this
+    shapePath.updateBounds
+    List(Impl.figure0.polyLine(shapePath))
   }
+
+  def draw = this
+
+  override def toString = "Staging.QuadsShape(" + points + ")"
 }
 object QuadsShape {
   def apply(pts: Seq[Point]) = {
@@ -610,20 +627,28 @@ object QuadsShape {
 //W{{{QuadStripShape}}} takes a sequence of {{{Point}}}s and connects them
 //Was adjoining quads of the fill and stroke color.
 class QuadStripShape(val points: Seq[Point]) extends PolyShape {
-  def draw = {
+  val shapes = init
+
+  def init = {
+    val shapePath = new kgeom.PolyLine()
+    shapePath.reset
     points sliding(4, 2) foreach {
       case List() =>
-      case s @ Seq(p0, p1, p2, p3) =>
-        API.polygon(s)
-      case s @ p0 :: p1 :: p2 :: Nil =>
-        API.polyline(s)
-      case p0 :: p1 :: Nil =>
-        API.line(p0, p1)
-      case Point(x, y) :: Nil =>
-        API.dot(x, y)
+      case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
+        shapePath.polyLinePath.moveTo(x0, y0)
+        shapePath.polyLinePath.lineTo(x1, y1)
+        shapePath.polyLinePath.lineTo(x2, y2)
+        shapePath.polyLinePath.lineTo(x3, y3)
+        shapePath.polyLinePath.closePath
+      case _ =>
     }
-    this
+    shapePath.updateBounds
+    List(Impl.figure0.polyLine(shapePath))
   }
+
+  def draw = this
+
+  override def toString = "Staging.QuadStripShape(" + points + ")"
 }
 object QuadStripShape {
   def apply(pts: Seq[Point]) = {
@@ -641,16 +666,26 @@ object QuadStripShape {
 //Wthe center point with straight edges of the fill and stroke color.
 class TriangleFanShape(val origin: Point, val points: Seq[Point]) extends PolyShape
                                                                      with BaseShape {
-  def draw = {
+  val shapes = init
+
+  def init = {
+    val shapePath = new kgeom.PolyLine()
+    shapePath.reset
     points grouped(2) foreach {
       case List() =>
-      case s @ Seq(p0, p1) =>
-        API.polyline(Seq(origin) ++ s)
-      case p1 :: Nil =>
-        API.line(origin, p1)
+      case Seq(Point(x1, y1), Point(x2, y2)) =>
+        shapePath.polyLinePath.moveTo(origin.x, origin.y)
+        shapePath.polyLinePath.lineTo(x1, y1)
+        shapePath.polyLinePath.lineTo(x2, y2)
+      case _ =>
     }
-    this
+    shapePath.updateBounds
+    List(Impl.figure0.polyLine(shapePath))
   }
+
+  def draw = this
+
+  override def toString = "Staging.QuadStripShape(" + origin + "," + points + ")"
 }
 object TriangleFanShape {
   def apply(p0: Point, pts: Seq[Point]) = {
@@ -667,108 +702,133 @@ object TriangleFanShape {
 //Wpolygon, or path) and draws it as a shape of the fill and stroke color.
 //W
 //WTODO: Should handle g and svg elements in the future.
-class SvgShape(val node: scala.xml.Node) extends Shape {
-  private def matchXY (ns: scala.xml.Node, xn: String = "x", yn: String = "y"): (Double, Double) = {
-    val xStr = (ns \ ("@" + xn)).toString
-    val yStr = (ns \ ("@" + yn)).toString
-    val x = if (xStr == "") 0 else xStr.toDouble
-    val y = if (yStr == "") 0 else yStr.toDouble
-    (x, y)
+abstract class SvgShape(val node: scala.xml.Node) extends Shape {
+}
+object SvgShape {
+  def getAttr (ns: scala.xml.Node, s: String): Option[String] = {
+    ns \ ("@" + s) text match {
+      case "" => None
+      case z  => Some(z)
+    }
   }
 
-  private def matchWH (ns: scala.xml.Node): (Double, Double) = {
-    val widthStr = (ns \ "@width").toString
-    val heightStr = (ns \ "@height").toString
-    val width = if (widthStr == "") 0 else widthStr.toDouble
-    val height = if (heightStr == "") 0 else heightStr.toDouble
-    require(width >= 0, "Bad width for XML element " + ns)
-    require(height >= 0, "Bad height for XML element " + ns)
-    (width, height)
+  private def matchXY (ns: scala.xml.Node, xn: String = "x", yn: String = "y") = {
+    val x = (getAttr(ns, xn) getOrElse "0").toDouble
+    val y = (getAttr(ns, yn) getOrElse "0").toDouble
+    Point(x, y)
   }
 
-  private def matchRXY (ns: scala.xml.Node): (Double, Double) = {
-    val xStr = (ns \ "@rx").toString
-    val yStr = (ns \ "@ry").toString
-    val x = if (xStr == "") 0 else xStr.toDouble
+  private def matchWH (ns: scala.xml.Node) = {
+    val w = (getAttr(ns, "width") getOrElse "0").toDouble
+    val h = (getAttr(ns, "height") getOrElse "0").toDouble
+    require(w >= 0, "Bad width for XML element " + ns)
+    require(h >= 0, "Bad height for XML element " + ns)
+    (w, h)
+  }
+
+  private def matchRXY (ns: scala.xml.Node) = {
+    val x = (getAttr(ns, "rx") getOrElse "0").toDouble
+    val y = (getAttr(ns, "ry") getOrElse "0").toDouble
     require(x >= 0, "Bad rx for XML element " + ns)
-    val y = if (yStr == "") 0 else yStr.toDouble
     require(y >= 0, "Bad ry for XML element " + ns)
     val rx = if (x != 0) x else y
     val ry = if (y != 0) y else x
-    (rx, ry)
+    Point(rx, ry)
   }
 
-  private def matchFillStroke (ns: scala.xml.Node): (Option[Color], Option[Color]) = {
-    val fStr = (ns \ "@fill").toString
-    val sStr = (ns \ "@stroke").toString
+  private def matchFillStroke (ns: scala.xml.Node) = {
     //TODO
-    (None, None)
+    (getAttr(ns, "fill"), getAttr(ns, "stroke"))
   }
 
   private def matchPoints (ns: scala.xml.Node): Seq[Point] = {
-    val pointsStr = (node \ "@points").toString
+    val pointsStr = ns \ "@points" text
     val splitter = "(:?,\\s*|\\s+)".r
     val pointsItr = (splitter split pointsStr) map (_.toDouble) grouped(2)
     (pointsItr map { a => Point(a(0), a(1)) }).toList
   }
 
-  def draw = {
+  private def matchRect(ns: scala.xml.Node) = {
+    val p0 = matchXY(ns)
+    val (width, height) = matchWH(ns)
+    val p1 = p0 + Point(width, height)
+    val p2 = matchRXY(ns)
+    if (p2 != API.O) {
+      RoundRectangle(p0, p1, p2)
+    } else {
+      Rectangle(p0, p1)
+    }
+  }
+
+  private def matchCircle(ns: scala.xml.Node) = {
+    val p0 = matchXY(ns, "cx", "cy")
+    val r = (getAttr(ns, "r") getOrElse "0").toDouble
+    val p1 = p0 + Point(r, r)
+    Ellipse(p0, p1)
+  }
+
+  private def matchEllipse(ns: scala.xml.Node) = {
+    val p0 = matchXY(ns, "cx", "cy")
+    val p1 = p0 + matchRXY(ns)
+    Ellipse(p0, p1)
+  }
+
+  private def matchLine(ns: scala.xml.Node) = {
+    val p1 = matchXY(ns, "x1", "y1")
+    val p2 = matchXY(ns, "x2", "y2")
+    Line(p1, p2)
+  }
+
+  private def matchPath(ns: scala.xml.Node) = {
+    val d = (ns \ "@d" text)
+    new Shape {
+      val shapes = List(Impl.figure0.path(d))
+      def draw = this
+    }
+  }
+
+  def apply(node: scala.xml.Node): Shape = {
     // should handle some of
     //   color, fill-rule, stroke, stroke-dasharray, stroke-dashoffset,
     //   stroke-linecap, stroke-linejoin, stroke-miterlimit, stroke-width,
     //   color-interpolation, color-rendering
     // and
     //   transform-list
-    node match {
+  node match {
       case <rect></rect> =>
-        val (x, y) = matchXY(node)
-        val (width, height) = matchWH(node)
-        val (fc, sc) = matchFillStroke(node)
-        val (rx, ry) = matchRXY(node)
-        if (rx != 0) {
-          API.roundRectangle(x, y, width, height, rx, ry)
-        } else {
-          API.rectangle(x, y, width, height)
-        }
+        matchRect(node)
       case <circle></circle> =>
-        val (cx, cy) = matchXY(node, "cx", "cy")
-        val rStr = (node \ "@r").toString
-        val r = if (rStr == "") 0 else rStr.toDouble
-        API.circle(cx, cy, r)
+        matchCircle(node)
       case <ellipse></ellipse> =>
-        val (cx, cy) = matchXY(node, "cx", "cy")
-        val (rx, ry) = matchRXY(node)
-        API.ellipse(cx, cy, rx, ry)
+        matchEllipse(node)
       case <line></line> =>
-        val (x1, y1) = matchXY(node, "x1", "y1")
-        val (x2, y2) = matchXY(node, "x2", "y2")
-        API.line(x1, y1, x2 - x1, y2 - y1)
+        matchLine(node)
       case <polyline></polyline> =>
-        val points = matchPoints(node)
-        API.polyline(points)
+        Polyline(matchPoints(node))
       case <polygon></polygon> =>
-        val points = matchPoints(node)
-        API.polygon(points)
+        Polygon(matchPoints(node))
       case <path></path> =>
-        val d = (node \ "@d").toString
-        Impl.figure0.path(d)
+        matchPath(node)
       case <g>{ shapes @ _* }</g> =>
-        for (s <- shapes) {
-          API.svgShape(s)
+        new Shape {
+          val shapes = Nil
+          def draw = this
         }
+        //for (s <- shapes) yield SvgShape(s)
       case <svg>{ shapes @ _* }</svg> =>
-        for (s <- shapes) {
-          API.svgShape(s)
+        new Shape {
+          val shapes = Nil
+          def draw = this
         }
+        //for (s <- shapes) yield SvgShape(s)
       case _ => // unknown element, ignore
-    }
-    this
+        new Shape {
+          val shapes = Nil
+          def draw = this
+        }
   }
-}
-object SvgShape {
-  def apply(node: scala.xml.Node) = {
-    val shape = new SvgShape(node)
-    shape.draw
+//    val shape = new SvgShape(node)
+//    shape.draw
   }
 }
 

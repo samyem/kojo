@@ -130,6 +130,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   type FText = FigText
   type FRectangle = FigRectangle
   type FRRectangle = FigRoundRectangle
+  type FPolyLine = FigShape
   type FPath = FigPath
 
 
@@ -243,15 +244,22 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def text(content: String, p: Point): FText = text(content, p.x, p.y)
 
 
-  def polyLine(path: kgeom.PolyLine): kgeom.PolyLine = {
+  def polyLine(path: kgeom.PolyLine) = {
+    val cv = canvas
+    // fake a FigShape-derived class for the benefit of staging.Shape.shapes
+    val poly = new FigShape {
+      val pLine = path
+      val canvas = cv
+      val piccoloNode = pLine
+    }
     Utils.runInSwingThread {
-      path.setStroke(lineStroke)
-      path.setStrokePaint(lineColor)
-      path.setPaint(fillColor)
-      currLayer.addChild(path)
+      poly.pLine.setStroke(lineStroke)
+      poly.pLine.setStrokePaint(lineColor)
+      poly.pLine.setPaint(fillColor)
+      currLayer.addChild(poly.pLine)
       currLayer.repaint()
     }
-    path
+    poly
   }
 
 
