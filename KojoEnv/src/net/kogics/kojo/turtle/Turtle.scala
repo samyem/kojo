@@ -113,7 +113,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     // _animationDelay is delay for 100 steps;
     // Here we calculate delay for specified distance
     val speed = 100f / _animationDelay
-    val delay = dist / speed
+    val delay = Math.abs(dist) / speed
     delay.round
   }
 
