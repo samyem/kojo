@@ -36,26 +36,27 @@ import net.kogics.kojo.core.CodeCompletionSupport
 class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) extends CodeCompletionHandler {
   val Log = Logger.getLogger(getClass.getName);
 
-  object ScalaElementHandle extends ElementHandle {
+  class ScalaElementHandle(name: String, offset: Int, kind: ElementKind) extends ElementHandle {
     def getFileObject: FileObject = null
     def getMimeType: String = org.netbeans.modules.scala.core.ScalaMimeResolver.MIME_TYPE
-    def getName: String = "Uh-Oh"
-    def getIn: String = "Uh-Oh"
-    def getKind: ElementKind = ElementKind.OTHER
+    def getName: String = name
+    def getIn: String = null
+    def getKind: ElementKind = kind
     def getModifiers: java.util.Set[Modifier] = java.util.Collections.emptySet[Modifier]
-    def signatureEquals(handle: ElementHandle): Boolean = true;
-    def getOffsetRange(result: ParserResult): OffsetRange = new OffsetRange(0,0)
+    def signatureEquals(handle: ElementHandle): Boolean = false;
+    def getOffsetRange(result: ParserResult): OffsetRange = new OffsetRange(0,offset)
   }
 
   class ScalaCompletionProposal(offset: Int, proposal: String, kind: ElementKind, 
                                 template: String = null,
                                 icon: ImageIcon = null) extends CompletionProposal {
+    val elemHandle = new ScalaElementHandle(proposal, offset, kind)
     def getAnchorOffset: Int = offset
-    def getName: String = "proposalName"
+    def getName: String = proposal
     def getInsertPrefix: String = proposal
     def getSortText: String = proposal
     def getSortPrioOverride: Int = 0
-    def getElement: ElementHandle = ScalaElementHandle
+    def getElement: ElementHandle = elemHandle
     def getKind: ElementKind = kind
     def getIcon: ImageIcon = icon
     def getLhsHtml(fm: HtmlFormatter): String = {
@@ -66,7 +67,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
       fm.getText
     }
     def getRhsHtml(fm: HtmlFormatter): String = ""
-    def getModifiers: java.util.Set[Modifier] = ScalaElementHandle.getModifiers
+    def getModifiers: java.util.Set[Modifier] = elemHandle.getModifiers
     override def toString: String = "Proposal(%s, %s)" format(proposal, template)
     def isSmart: Boolean = false
     def getCustomInsertTemplate: String = template
@@ -75,6 +76,10 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
   val scalaImageIcon = Utils.loadIcon("/images/scala16x16.png")
 
   override def complete(context: CodeCompletionContext): CodeCompletionResult = {
+    if (context.getQueryType != QueryType.COMPLETION) {
+      return null
+    }
+    
     val proposals = new java.util.ArrayList[CompletionProposal]
     val caretOffset = context.getCaretOffset
 
@@ -92,7 +97,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
 
     val (keywordCompletions, koffset) = completionSupport.keywordCompletions(caretOffset)
     keywordCompletions.foreach { completion =>
-      proposals.add(new ScalaCompletionProposal(caretOffset - voffset, completion,
+      proposals.add(new ScalaCompletionProposal(caretOffset - koffset, completion,
                                                 ElementKind.KEYWORD, 
                                                 CodeCompletionUtils.KeywordTemplates.getOrElse(completion, null),
                                                 scalaImageIcon))
