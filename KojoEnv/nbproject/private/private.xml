@@ -8,8 +8,8 @@
         </file>
         <file>
             <url>src/net/kogics/kojo/staging/staging.scala</url>
-            <line>27</line>
-            <line>173</line>
+            <line>30</line>
+            <line>174</line>
         </file>
         <file>
             <url>test/unit/src/net/kogics/kojo/Staging/ShapesTest.scala</url>
