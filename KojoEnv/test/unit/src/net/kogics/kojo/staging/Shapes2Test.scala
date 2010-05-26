@@ -264,7 +264,8 @@ class Shapes2Test extends KojoTestBase {
        |(50, 20), (50, 50),
        |(60, 20), (60, 50))""".stripMargin
     Tester("import Staging._ ; triangleStripShape(" + tssPoints + ")")
-    //TODO restore this test testPolyLine(f.dumpChild(n), "")
+    //TODO restore this test
+    testPolyLine(f.dumpChild(n), "")
     n += 1
 
     Tester("import Staging._ ; quadsShape(" + points + ")")
