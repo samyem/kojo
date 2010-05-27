@@ -15,8 +15,8 @@
 package net.kogics.kojo
 package staging
 
-import org.junit.After
-import org.junit.Before
+//import org.junit.After
+//import org.junit.Before
 import org.junit.Test
 import org.junit.Assert._
 
@@ -28,7 +28,7 @@ import net.kogics.kojo.core.RunContext
 import net.kogics.kojo.util._
 
 // cargo coding off CodePaneTest
-class ScreenMethodsTest extends KojoTestBase {
+class PointTest extends KojoTestBase {
 
   val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
   val file = new java.io.File(fileStr)
@@ -96,23 +96,17 @@ class ScreenMethodsTest extends KojoTestBase {
       }).start()
   }
 
-  def peekZoom = {
-    val a = SpriteCanvas.instance.getCamera.getViewTransformReference
-    (
-      "%.4g" format a.getScaleX,
-      "%.4g" format a.getScaleY,
-      "%.4g" format a.getTranslateX,
-      "%.4g" format a.getTranslateY
-    )
-  }
-
   object Tester {
     var resCounter = 0
     var res = ""
 
-    def apply (cmd: String, s: String) = {
-      res += stripCrLfs(Delimiter) + "res" + resCounter + ": " + s
-      resCounter += 1
+    def apply (cmd: String, s: String, f: Boolean = true) = {
+      res += stripCrLfs(Delimiter)
+      if (f) {
+        res += "res" + resCounter + ": "
+        resCounter += 1
+      }
+      res += s
       pane.setText(cmd)
       runCtx.success.set(false)
       runCode()
@@ -123,54 +117,74 @@ class ScreenMethodsTest extends KojoTestBase {
   }
 
   @Test
-  // lalit sez: if we have more than five tests, we run out of heap space - maybe a leak in the Scala interpreter/compiler
-  // subsystem. So we run (mostly) everything in one test
-  def testPreEval = {
-    assertEquals(("1.000","-1.000","0.000","0.000"), peekZoom)
-    Utils.runInSwingThreadAndWait {  /* noop */  }
-  }
-
-  @Test
-  def testEvalSession = {
+  // lalit sez: if we have more than five tests, we run out of heap space - maybe
+  // a leak in the Scala interpreter/compiler subsystem. So we run (mostly)
+  // everything in one test
+  def test1 = {
   //W
-  //W==User Screen==
+  //W==Points==
   //W
-  //WThe current width and height of the user screen is stored in the variables
-  //W`screenWidth` and `screenHeight` (both are 0 by default).
-  //W
-    Tester("Staging.screenWidth",
-           "Int = 0")
-    Tester("Staging.screenHeight",
-           "Int = 0")
-  //WThe dimensions of the user screen can be set by calling
+  //WA point value can be created by calling the method
   //W
   //W{{{
-  //WscreenSize(width, height)
+  //Wpoint(xval, yval)
   //W}}}
-    Tester("Staging.screenSize(250, 150)",
-           "(Int, Int) = (250,150)")
-    assertEquals(("3.000","-3.000","-375.0","225.0"), peekZoom)
-    Tester("Staging.screenWidth",
-           "Int = 250")
-    Tester("Staging.screenHeight",
-           "Int = 150")
-  //WThe orientation of either axis can be reversed by negation, e.g.:
+  //W
+    Tester("Staging.point(-22, -13)", "net.kogics.kojo.core.Point = Point(-22,00, -13,00)")
+  //W
+  //WThe constant `O` (capital o) has the same value of `point(0, 0)`.
+    Tester("Staging.O", "net.kogics.kojo.core.Point = Point(0,00, 0,00)")
+  //W
+  //WThe methods `M` and `E` have the coordinates of the middle point of the
+  //Wuser screen and the coordinates of the upper right corner of the user
+  //Wscreen, respectively.  Both return value `point(0, 0)` if `screenSize`
+  //Whasn't been called yet.
+    Tester("Staging.M", "net.kogics.kojo.core.Point = Point(0,00, 0,00)")
+    Tester("Staging.E", "net.kogics.kojo.core.Point = Point(0,00, 0,00)")
+    Tester("Staging.screenSize(10,10)", "(Int, Int) = (10,10)")
+    Tester("Staging.M", "net.kogics.kojo.core.Point = Point(5,00, 5,00)")
+    Tester("Staging.E", "net.kogics.kojo.core.Point = Point(10,00, 10,00)")
+  //W
+  //WPoint values can be added, subtracted, or negated
   //W
   //W{{{
-  //WscreenSize(width, -height)
+  //Wpoint(10, 20) + point(25, 0) is the same as point(35, 20)
+    Tester(
+      "Staging.point(10, 20) + Staging.point(25, 0)",
+      "net.kogics.kojo.core.Point = Point(35,00, 20,00)"
+    )
+  //Wpoint(35, 20) - point(25, 0) is the same as point(10, 20)
+    Tester(
+      "Staging.point(35, 20) - Staging.point(25, 0)",
+      "net.kogics.kojo.core.Point = Point(10,00, 20,00)"
+    )
+  //W-point(10, -20) is the same as point(-10, 20)
+    Tester(
+      "-Staging.point(10, -20)",
+      "net.kogics.kojo.core.Point = Point(-10,00, 20,00)"
+    )
   //W}}}
   //W
-  //Wmakes (0,0) the upper left corner and (width, height) the lower right
-  //Wcorner.
-    Tester("Staging.screenSize(250, -150)",
-           "(Int, Int) = (250,150)")
-    assertEquals(("3.000","3.000","-375.0","-225.0"), peekZoom)
-    Tester("Staging.screenSize(-250, 150)",
-           "(Int, Int) = (250,150)")
-    assertEquals(("-3.000","-3.000","375.0","225.0"), peekZoom)
-    Tester("Staging.screenSize(-250, -150)",
-           "(Int, Int) = (250,150)")
-    assertEquals(("-3.000","3.000","375.0","-225.0"), peekZoom)
+  //W
+  //WTuples of {{{Double}}}s or {{{Int}}}s are implicitly converted to
+  //W{{{Point}}}s where applicable, if `Staging` has been imported.
+    Tester("""import Staging._
+             |var a = Staging.point(0,0)
+             |a = (-22, -13)""".stripMargin,
+      "import Staging._" +
+      "a: net.kogics.kojo.core.Point = Point(0,00, 0,00)" +
+      "a: net.kogics.kojo.core.Point = Point(-22,00, -13,00)",
+      false
+    )
+    Tester("""import Staging._
+             |var b = Staging.point(0,0)
+             |b = (5., .45)""".stripMargin,
+      "import Staging._" +
+      "b: net.kogics.kojo.core.Point = Point(0,00, 0,00)" +
+      "b: net.kogics.kojo.core.Point = Point(5,00, 0,45)",
+      false
+    )
+  //W
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
