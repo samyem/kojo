@@ -171,7 +171,37 @@ object API {
   //W
   //WTODO
   //W
-  implicit def ColorToRichColor (c: Color) = RichColor(c)
+  abstract class ColorModes
+  case class RGB(r: Int, g: Int, b: Int) extends ColorModes
+  case class RGBA(r: Int, g: Int, b: Int, a: Int) extends ColorModes
+  case class HSB(h: Int, s: Int, b: Int) extends ColorModes
+  case class HSBA(h: Int, s: Int, b: Int, a: Int) extends ColorModes
+  case class GRAY(v: Int) extends ColorModes
+  case class GRAYA(v: Int, a: Int) extends ColorModes
+  def colorMode(mode: ColorModes) = ColorMode(mode)
+  def color(v: Int) = ColorMode.color(v)
+  def color(v: Int, a: Int) = ColorMode.color(v, a)
+  def color(v: Double) = ColorMode.color(v)
+  def color(v: Double, a: Double) = ColorMode.color(v, a)
+  def color(v1: Int, v2: Int, v3: Int) = ColorMode.color(v1, v2, v3)
+  def color(v1: Int, v2: Int, v3: Int, a: Int) = ColorMode.color(v1, v2, v3, a)
+  def color(v1: Double, v2: Double, v3: Double) = ColorMode.color(v1, v2, v3)
+  def color(v1: Double, v2: Double, v3: Double, a: Double) = ColorMode.color(v1, v2, v3, a)
+  def fill(c: Color) = Impl.figure0.setFillColor(c)
+  def noFill = Impl.figure0.setFillColor(null)
+  def withFill(c: Color)(body: => Unit) = {
+    //NOTE: does not reset fill unless the return value is used?
+    val cc = Impl.figure0.fillColor
+    fill(c)
+    try { body }
+    finally { fill(cc) }
+    cc
+  }
+  def stroke(c: Color) = Impl.figure0.setPenColor(c)
+  def noStroke = Impl.figure0.setPenColor(null)
+  implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
+
+  colorMode(RGB(255, 255, 255))
 
   //W
   //W==Timekeeping==
@@ -891,31 +921,120 @@ object SvgShape {
   }
 }
 
-abstract class ColorModes
-case class RGB(r: Int, g: Int, b: Int) extends ColorModes
-case class RGBA(r: Int, g: Int, b: Int, a: Int) extends ColorModes
-case class HSB(h: Int, s: Int, b: Int) extends ColorModes
-case class HSBA(h: Int, s: Int, b: Int, a: Int) extends ColorModes
-case class GRAY(v: Int) extends ColorModes
-case class GRAYA(v: Int, a: Int) extends ColorModes
 object ColorMode {
   type Color = java.awt.Color
-  var mode: ColorModes = RGB(255, 255, 255)
-  var color: Color = null
+  var mode: API.ColorModes = API.RGB(255, 255, 255)
 
-  def apply(cm: ColorModes) { mode = cm }
+  def apply(cm: API.ColorModes) { mode = cm }
 
   def color(v: Int) = {
-    require(mode.isInstanceOf[GRAY], "Color mode isn't GRAY")
-    val vv = API.norm(v, 0, mode.asInstanceOf[GRAY].v).toFloat
+    require(mode.isInstanceOf[API.GRAY] ||
+            mode.isInstanceOf[API.RGB],
+            "Color mode isn't GRAY or RGB")
+    if (mode.isInstanceOf[API.GRAY]) {
+      val vv = API.norm(v, 0, mode.asInstanceOf[API.GRAY].v).toFloat
+      new Color(vv, vv, vv)
+    } else {
+      new Color(v)
+    }
+  }
+  def color(v: Double) = {
+    require(mode.isInstanceOf[API.GRAY], "Color mode isn't GRAY")
+    val vv = v.toFloat
     new Color(vv, vv, vv)
   }
 
   def color(v: Int, a: Int) = {
-    require(mode.isInstanceOf[GRAYA], "Color mode isn't GRAYA (gray with alpha)")
-    val vv = API.norm(v, 0, mode.asInstanceOf[GRAYA].v).toFloat
-    val aa = API.norm(a, 0, mode.asInstanceOf[GRAYA].a).toFloat
-    new Color(vv, vv, vv, aa)
+    require(mode.isInstanceOf[API.GRAYA] ||
+            mode.isInstanceOf[API.RGBA],
+            "Color mode isn't GRAYA (gray with alpha) or RGBA")
+    if (mode.isInstanceOf[API.GRAY]) {
+      val vv = API.norm(v, 0, mode.asInstanceOf[API.GRAY].v).toFloat
+      val aa = API.norm(a, 0, mode.asInstanceOf[API.GRAYA].a).toFloat
+      new Color(vv, vv, vv, aa)
+    } else {
+      val aa = API.norm(a, 0, mode.asInstanceOf[API.RGBA].a).toFloat
+      new Color(v | Math.lerp(0, 255, aa).toInt << 12, true)
+    }
+  }
+  def color(v: Double, a: Double) = {
+    require(v >= 0 && v <= 1, "Grayscale value off range")
+    require(a >= 0 && a <= 1, "Alpha value off range")
+    val vv = v.toFloat
+    new Color(vv, vv, vv, a.toFloat)
+  }
+
+  def color(v1: Int, v2: Int, v3: Int) = {
+    require(mode.isInstanceOf[API.RGB] ||
+            mode.isInstanceOf[API.HSB],
+            "Color mode isn't RGB or HSB")
+    if (mode.isInstanceOf[API.RGB]) {
+      val r = API.norm(v1, 0, mode.asInstanceOf[API.RGB].r).toFloat
+      val g = API.norm(v2, 0, mode.asInstanceOf[API.RGB].g).toFloat
+      val b = API.norm(v3, 0, mode.asInstanceOf[API.RGB].b).toFloat
+      new Color(r, g, b)
+    } else {
+      val h = API.norm(v1, 0, mode.asInstanceOf[API.HSB].h).toFloat
+      val s = API.norm(v2, 0, mode.asInstanceOf[API.HSB].s).toFloat
+      val b = API.norm(v3, 0, mode.asInstanceOf[API.HSB].b).toFloat
+      java.awt.Color.getHSBColor(h, s, b)
+    }
+  }
+  def color(v1: Int, v2: Int, v3: Int, a: Int) = {
+    require(mode.isInstanceOf[API.RGBA] ||
+            mode.isInstanceOf[API.HSBA],
+            "Color mode isn't RGBA or HSBA")
+    if (mode.isInstanceOf[API.RGBA]) {
+      val r = API.norm(v1, 0, mode.asInstanceOf[API.RGBA].r).toFloat
+      val g = API.norm(v2, 0, mode.asInstanceOf[API.RGBA].g).toFloat
+      val b = API.norm(v3, 0, mode.asInstanceOf[API.RGBA].b).toFloat
+      val aa = API.norm(a, 0, mode.asInstanceOf[API.RGBA].a).toFloat
+      new Color(r, g, b, aa)
+    } else {
+      //TODO transparency not working
+      val h = API.norm(v1, 0, mode.asInstanceOf[API.HSBA].h).toFloat
+      val s = API.norm(v2, 0, mode.asInstanceOf[API.HSBA].s).toFloat
+      val b = API.norm(v3, 0, mode.asInstanceOf[API.HSBA].b).toFloat
+      val aa = API.norm(a, 0, mode.asInstanceOf[API.HSBA].a).toFloat
+      val c = java.awt.Color.getHSBColor(h, s, b)
+      new Color(c.getRGB | Math.lerp(0, 255, aa).toInt << 12, true)
+    }
+  }
+
+  def color(v1: Double, v2: Double, v3: Double) = {
+    require(mode.isInstanceOf[API.RGB] ||
+            mode.isInstanceOf[API.HSB],
+            "Color mode isn't RGB or HSB")
+    if (mode.isInstanceOf[API.RGB]) {
+      val r = v1.toFloat
+      val g = v2.toFloat
+      val b = v3.toFloat
+      new Color(r, g, b)
+    } else {
+      val h = v1.toFloat
+      val s = v2.toFloat
+      val b = v3.toFloat
+      java.awt.Color.getHSBColor(h, s, b)
+    }
+  }
+  def color(v1: Double, v2: Double, v3: Double, a: Double) = {
+    require(mode.isInstanceOf[API.RGBA] ||
+            mode.isInstanceOf[API.HSBA],
+            "Color mode isn't RGBA or HSBA")
+    if (mode.isInstanceOf[API.RGBA]) {
+      val r = v1.toFloat
+      val g = v2.toFloat
+      val b = v3.toFloat
+      val aa = a.toFloat
+      new Color(r, g, b, aa)
+    } else {
+      val h = v1.toFloat
+      val s = v2.toFloat
+      val b = v3.toFloat
+      val aa = a.toFloat
+      val c = java.awt.Color.getHSBColor(h, s, b)
+      new Color(c.getRGB | Math.lerp(0, 255, a).toInt << 12, true)
+    }
   }
 }
 
