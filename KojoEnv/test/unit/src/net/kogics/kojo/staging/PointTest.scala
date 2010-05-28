@@ -148,23 +148,34 @@ class PointTest extends KojoTestBase {
   //WPoint values can be added, subtracted, or negated
   //W
   //W{{{
-  //Wpoint(10, 20) + point(25, 0) is the same as point(35, 20)
+  //Wpoint(10, 20) + point(25, 0)
     Tester(
       "Staging.point(10, 20) + Staging.point(25, 0)",
       "net.kogics.kojo.core.Point = Point(35,00, 20,00)"
     )
-  //Wpoint(35, 20) - point(25, 0) is the same as point(10, 20)
+  //W}}}
+  //W
+  //Wis the same as `point(35, 20)`
+  //W
+  //W{{{
+  //Wpoint(35, 20) - point(25, 0)
     Tester(
       "Staging.point(35, 20) - Staging.point(25, 0)",
       "net.kogics.kojo.core.Point = Point(10,00, 20,00)"
     )
-  //W-point(10, -20) is the same as point(-10, 20)
+  //W}}}
+  //W
+  //Wis the same as `point(10, 20)`
+  //W
+  //W{{{
+  //W-point(10, -20)
     Tester(
       "-Staging.point(10, -20)",
       "net.kogics.kojo.core.Point = Point(-10,00, 20,00)"
     )
   //W}}}
   //W
+  //Wis the same as `point(-10, 20)`
   //W
   //WTuples of {{{Double}}}s or {{{Int}}}s are implicitly converted to
   //W{{{Point}}}s where applicable, if `Staging` has been imported.
