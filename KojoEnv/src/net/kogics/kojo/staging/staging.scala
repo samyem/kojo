@@ -60,6 +60,9 @@ object API {
 
   def point(x: Double, y: Double) = Point(x, y)
 
+  implicit def tupleDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
+  implicit def tupleIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
+
   //W
   //W==User Screen==
   //W
@@ -69,10 +72,12 @@ object API {
   def screenHeight = Screen.height
   def screenSize(width: Int, height: Int) = Screen.size(width, height)
 
-  implicit def tupleDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
-  implicit def tupleIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
-  implicit def ColorToRichColor (c: Color) = RichColor(c)
-
+  //W
+  //W==Simple Shapes==
+  //W
+  //WGiven `Point`s or _x_ and _y_ coordinate values, simple shapes like dots,
+  //Wlines, rectangles, ellipses, and elliptic arcs can be drawn.
+  //W
   def dot(x: Double, y: Double) = Dot(Point(x, y))
   def dot(p: Point) = Dot(p)
 
@@ -111,15 +116,8 @@ object API {
   def roundRectangle(p1: Point, p2: Point, p3: Point) =
     RoundRectangle(p1, p2, p3)
 
-  def polyline(pts: Seq[Point]) = Polyline(pts)
-
-  def polygon(pts: Seq[Point]): Polygon = Polygon(pts)
-  def triangle(p0: Point, p1: Point, p2: Point) = polygon(Seq(p0, p1, p2))
-  def quad(p0: Point, p1: Point, p2: Point, p3: Point) =
-    polygon(Seq(p0, p1, p2, p3))
-
-  def ellipse(x: Double, y: Double, rx: Double, ry: Double) =
-    Ellipse(Point(x, y), Point(x + rx, y + ry))
+  def ellipse(cx: Double, cy: Double, rx: Double, ry: Double) =
+    Ellipse(Point(cx, cy), Point(cx + rx, cy + ry))
   def ellipse(p: Point, rx: Double, ry: Double) =
     Ellipse(p, Point(p.x + rx, p.y + ry))
   def ellipse(p1: Point, p2: Point) =
@@ -129,12 +127,25 @@ object API {
   def circle(p: Point, r: Double) =
     Ellipse(p, Point(p.x + r, p.y + r))
 
-  def arc(x: Double, y: Double, w: Double, h: Double, s: Double, e: Double) =
-    Arc(Point(x, y), Point(x + w / 2, y + h / 2), s, e)
-  def arc(p: Point, w: Double, h: Double, s: Double, e: Double) =
-    Arc(p, Point(p.x + w / 2, p.y + h / 2), s, e)
+  def arc(cx: Double, cy: Double, rx: Double, ry: Double, s: Double, e: Double) =
+    Arc(Point(cx, cy), Point(cx + rx, cy + ry), s, e)
+  def arc(p: Point, rx: Double, ry: Double, s: Double, e: Double) =
+    Arc(p, Point(p.x + rx, p.y + ry), s, e)
   def arc(p1: Point, p2: Point, s: Double, e: Double) =
     Arc(p1, p2, s, e)
+
+  //W
+  //W==Complex Shapes==
+  //W
+  //WGiven a sequence of `Point`s, a number of complex shapes can be drawn,
+  //Wincluding basic polylines and polygons, and patterns of polylines/polygons.
+  //W
+  def polyline(pts: Seq[Point]) = Polyline(pts)
+
+  def polygon(pts: Seq[Point]): Polygon = Polygon(pts)
+  def triangle(p0: Point, p1: Point, p2: Point) = polygon(Seq(p0, p1, p2))
+  def quad(p0: Point, p1: Point, p2: Point, p3: Point) =
+    polygon(Seq(p0, p1, p2, p3))
 
   def linesShape(pts: Seq[Point]) = LinesShape(pts)
 
@@ -148,19 +159,56 @@ object API {
 
   def triangleFanShape(p0: Point, pts: Seq[Point]) = TriangleFanShape(p0, pts)
 
+  //W
+  //W==SVG Shapes==
+  //W
+  //WGiven an SVG element, the corresponding shape can be drawn.
+  //W
   def svgShape(node: scala.xml.Node) = SvgShape(node)
 
+  //W
+  //W==Color==
+  //W
+  //WTODO
+  //W
+  implicit def ColorToRichColor (c: Color) = RichColor(c)
+
+  //W
+  //W==Timekeeping==
+  //W
+  //WA number of methods report the current time.
+  //W
+  //W
+  //W{{{
+  //Wmillis // milliseconds
   def millis = System.currentTimeMillis()
 
+  //Wsecond // second of the minute
   def second = (millis / 1000) % 60
+
+  //Wminute // minute of the hour
   def minute = (millis / 60000) % 60
 
   import java.util.Calendar
-  def hour   = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-  def day    = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-  def month  = Calendar.getInstance().get(Calendar.MONTH) + 1
-  def year   = Calendar.getInstance().get(Calendar.YEAR)
 
+  //Whour   // hour of the day
+  def hour   = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+
+  //Wday    // day of the month
+  def day    = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+
+  //Wmonth  // month of the year (1..12)
+  def month  = Calendar.getInstance().get(Calendar.MONTH) + 1
+
+  //Wyear   // year C.E.
+  def year   = Calendar.getInstance().get(Calendar.YEAR)
+  //W}}}
+
+  //W
+  //W==Math==
+  //W
+  //WA number of methods perform number processing tasks.
+  //W
   def lerpColor(from: RichColor, to: RichColor, amt: Double) =
     RichColor.lerpColor(from, to, amt)
 
@@ -189,7 +237,6 @@ object API {
   //W=Usage=
   //W
 } // end of API
-
 
 
 object Point {
@@ -844,13 +891,42 @@ object SvgShape {
   }
 }
 
-class RichColor (val c: Color) {
+abstract class ColorModes
+case class RGB(r: Int, g: Int, b: Int) extends ColorModes
+case class RGBA(r: Int, g: Int, b: Int, a: Int) extends ColorModes
+case class HSB(h: Int, s: Int, b: Int) extends ColorModes
+case class HSBA(h: Int, s: Int, b: Int, a: Int) extends ColorModes
+case class GRAY(v: Int) extends ColorModes
+case class GRAYA(v: Int, a: Int) extends ColorModes
+object ColorMode {
+  type Color = java.awt.Color
+  var mode: ColorModes = RGB(255, 255, 255)
+  var color: Color = null
+
+  def apply(cm: ColorModes) { mode = cm }
+
+  def color(v: Int) = {
+    require(mode.isInstanceOf[GRAY], "Color mode isn't GRAY")
+    val vv = API.norm(v, 0, mode.asInstanceOf[GRAY].v).toFloat
+    new Color(vv, vv, vv)
+  }
+
+  def color(v: Int, a: Int) = {
+    require(mode.isInstanceOf[GRAYA], "Color mode isn't GRAYA (gray with alpha)")
+    val vv = API.norm(v, 0, mode.asInstanceOf[GRAYA].v).toFloat
+    val aa = API.norm(a, 0, mode.asInstanceOf[GRAYA].a).toFloat
+    new Color(vv, vv, vv, aa)
+  }
+}
+
+class RichColor (val c: java.awt.Color) {
+  type Color = java.awt.Color
   def alpha = c.getAlpha
   def red = c.getRed
   def blue = c.getBlue
   def green = c.getGreen
   private def hsb =
-    Color.RGBtoHSB(c.getRed, c.getBlue, c.getGreen, null)
+    java.awt.Color.RGBtoHSB(c.getRed, c.getBlue, c.getGreen, null)
   def hue = {
     val h = floor(255 * (1 - this.hsb(0))) + 1
     if (h > 255) 0 else h.toInt
@@ -860,11 +936,11 @@ class RichColor (val c: Color) {
   // TODO blendColor
 }
 object RichColor {
-  def apply(c: Color) = new RichColor(c)
+  def apply(c: java.awt.Color) = new RichColor(c)
 
   def lerpColor(from: RichColor, to: RichColor, amt: Double) = {
     require(amt >= 0d && amt <= 1d)
-    new Color(
+    new java.awt.Color(
       Math.lerp(from.red, to.red, amt).round.toInt,
       Math.lerp(from.green, to.green, amt).round.toInt,
       Math.lerp(from.blue, to.blue, amt).round.toInt

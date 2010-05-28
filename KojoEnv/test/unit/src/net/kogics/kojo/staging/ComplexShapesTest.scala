@@ -28,7 +28,7 @@ import net.kogics.kojo.core.RunContext
 import net.kogics.kojo.util._
 
 // cargo coding off CodePaneTest
-class Shapes2Test extends KojoTestBase {
+class ComplexShapesTest extends KojoTestBase {
 
   val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
   val file = new java.io.File(fileStr)
@@ -158,16 +158,16 @@ class Shapes2Test extends KojoTestBase {
 
   def ppathSegToString (t: Int, coords: Array[Double]) = t match {
     case MT =>
-      "M" + ("%.4g" format coords(0)) + "," + ("%.4g" format coords(1)) + " "
+      "M" + ("%.2g" format coords(0)) + "," + ("%.2g" format coords(1)) + " "
     case LT =>
-      "L" + ("%.4g" format coords(0)) + "," + ("%.4g" format coords(1)) + " "
+      "L" + ("%.2g" format coords(0)) + "," + ("%.2g" format coords(1)) + " "
     case QT =>
-      "Q" + ("%.4g" format coords(0)) + "," + ("%.4g" format coords(1)) + " " +
-            ("%.4g" format coords(2)) + "," + ("%.4g" format coords(3)) + " "
+      "Q" + ("%.2g" format coords(0)) + "," + ("%.2g" format coords(1)) + " " +
+            ("%.2g" format coords(2)) + "," + ("%.2g" format coords(3)) + " "
     case CT =>
-      "C" + ("%.4g" format coords(0)) + "," + ("%.4g" format coords(1)) + " " +
-            ("%.4g" format coords(2)) + "," + ("%.4g" format coords(3)) + " " +
-            ("%.4g" format coords(4)) + "," + ("%.4g" format coords(5)) + " "
+      "C" + ("%.2g" format coords(0)) + "," + ("%.2g" format coords(1)) + " " +
+            ("%.2g" format coords(2)) + "," + ("%.2g" format coords(3)) + " " +
+            ("%.2g" format coords(4)) + "," + ("%.2g" format coords(5)) + " "
     case CL =>
       "z "
   }
@@ -187,8 +187,14 @@ class Shapes2Test extends KojoTestBase {
     val at = new java.awt.geom.AffineTransform
     val pi = pr.getPathIterator(at)
     var res = new StringBuffer
-    res.append("m" + ("%.4g" format pp.getX) + "," + ("%.4g" format pp.getY) + " ")
-    getPathString(pi, res)
+    res.append("m" + ("%.2g" format pp.getX) + "," + ("%.2g" format pp.getY) + " ")
+    while (!pi.isDone) {
+      pi.next
+      val coords = Array[Double](0, 0, 0, 0, 0, 0)
+      val t = pi.currentSegment(coords)
+      res.append(ppathSegToString(t, coords))
+    }
+    res.toString
   }
 
   def testPPath(r: PNode, path: String) = {
@@ -222,17 +228,76 @@ class Shapes2Test extends KojoTestBase {
   @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe a leak in the Scala interpreter/compiler
   // subsystem. So we run (mostly) everything in one test
-  def test2 = {
+  def test1 = {
     val f = SpriteCanvas.instance.figure0
-    f.clear
     var n = 0
-
-
     //W
-    //W===Syntax===
+    //W==Complex Shapes==
+    //W
+    //W===Polylines===
     //W
     //W{{{
-    //WlinesShape(pointsSequence)
+    //Wpolyline(points)
+    Tester("import Staging._ ; polyline(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
+    assertEquals("PolyLine(15,10)", dumpChildString(n))
+    testPolyLine(f.dumpChild(n), 5)
+    n += 1
+
+    //WaPolyline.toPolyline
+    Tester("import Staging._ ; polyline(List((15, 15), (25, 35))).toPolyline")
+    n += 2
+
+    //WaPolygon.toPolyline
+    Tester("import Staging._ ; polygon(List((15, 15), (25, 35))).toPolyline")
+    n += 2
+    
+    //W}}}
+    //W
+
+    //W
+    //W===Polygons===
+    //W
+    //W{{{
+    //Wpolygon(points)
+    Tester("import Staging._ ; polygon(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
+    assertEquals("PolyLine(15,10)", dumpChildString(n))
+    testPolyLine(f.dumpChild(n), 5)
+    n += 1
+
+    //WaPolyline.toPolygon
+    Tester("import Staging._ ; polyline(List((15, 15), (25, 35))).toPolygon")
+    n += 2
+
+    //WaPolygon.toPolygon
+    Tester("import Staging._ ; polygon(List((15, 15), (25, 35))).toPolygon")
+    n += 2
+    
+    //W}}}
+    //W
+    //W{{{
+    //Wtriangle(point1, point2, point3)
+    Tester("import Staging._ ; triangle((15, 15), (25, 35), (35, 15))")
+    assertEquals("PolyLine(15,15)", dumpChildString(n))
+    testPolyLine(f.dumpChild(n), 3)
+    n += 1
+
+    //W}}}
+    //W
+    //W{{{
+    //Wquad(point1, point2, point3, point4)
+    Tester("import Staging._ ; quad((15, 15), (25, 35), (40, 20), (35, 10))")
+    assertEquals("PolyLine(15,10)", dumpChildString(n))
+    testPolyLine(f.dumpChild(n), 4)
+    n += 1
+
+    //W}}}
+    //W
+
+    //W
+    //W===Line pattern===
+    //W
+    //W{{{
+    //WlinesShape(points)
     val points = """List((10, 20), (10, 50),
        |(20, 50), (20, 20),
        |(30, 20), (30, 50),
@@ -248,8 +313,13 @@ class Shapes2Test extends KojoTestBase {
     n += 1
     //W}}}
     //W
-    //Wdraws one line for each two points, and returns an instance of {{{LinesShape}}}.
+    //Wdraws one line for each two points.
 
+    //W
+    //W===Triangles pattern===
+    //W
+    //W{{{
+    //WtrianglesShape(points)
     Tester("import Staging._ ; trianglesShape(" + points + ")")
     testPolyLine(f.dumpChild(n), "L10.00,50.00 L20.00,50.00 z " +
                  "M20.00,20.00 L30.00,20.00 L30.00,50.00 z " +
@@ -257,6 +327,15 @@ class Shapes2Test extends KojoTestBase {
                  "M50.00,50.00 L60.00,50.00 L60.00,20.00 z M0.000,0.000 ")
     n += 1
 
+    //W}}}
+    //W
+    //Wdraws one triangle for each three points.
+
+    //W
+    //W===Triangle strip pattern===
+    //W
+    //W{{{
+    //WtriangleStripShape(points)
     val tssPoints = """List((10, 20), (10, 50),
        |(20, 20), (20, 50),
        |(30, 20), (30, 50),
@@ -268,6 +347,15 @@ class Shapes2Test extends KojoTestBase {
     testPolyLine(f.dumpChild(n), "")
     n += 1
 
+    //W}}}
+    //W
+    //Wdraws a contiguous pattern of triangles.
+
+    //W
+    //W===Quads pattern===
+    //W
+    //W{{{
+    //WquadsShape(points)
     Tester("import Staging._ ; quadsShape(" + points + ")")
     testPolyLine(f.dumpChild(n), "L10.00,50.00 L20.00,50.00 L20.00,20.00 z " +
                  "M30.00,20.00 L30.00,50.00 L40.00,50.00 L40.00,20.00 z " +
@@ -275,10 +363,28 @@ class Shapes2Test extends KojoTestBase {
                  "M0.000,0.000 ")
     n += 1
 
+    //W}}}
+    //W
+    //Wdraws one quad for each four points.
+
+    //W
+    //W===Quad strip pattern===
+    //W
+    //W{{{
+    //WquadStripShape(points)
     Tester("import Staging._ ; quadStripShape(" + points + ")")
     //TODO restore this test testPolyLine(f.dumpChild(n), "")
     n += 1
 
+    //W}}}
+    //W
+    //Wdraws a contiguous pattern of quads.
+
+    //W
+    //W===Triangle fan pattern===
+    //W
+    //W{{{
+    //WtriangleFanShape(points)
     val tfsPoints = """List(
        |(30, 45), (40, 40),
        |(40, 40), (45, 30),
@@ -297,150 +403,13 @@ class Shapes2Test extends KojoTestBase {
                  "M30.00,30.00 L15.00,30.00 L20.00,40.00 M0.000,0.000 ")
     n += 1
 
-    //W
-    //W===Syntax===
-    //W
-    //W{{{
-    //WsvgShape(<rect x="15" y="15" width="25" height="5"/>)
-    Tester("""import Staging._ ; svgShape(<rect x="15" y="15" width="25" height="5"/>)""")
-    testPPath(
-      f.dumpChild(n),
-      "m14.00,14.00 L40.00,15.00 L40.00,20.00 L15.00,20.00 L15.00,15.00 z M0.000,0.000 "
-    )
-    n += 1
-
     //W}}}
     //W
-    //Wdraws and returns an instance of {{{Rectangle}}}.
-    //W
-    //WEither of
-    //W
-    //W{{{
-    //WsvgShape(<circle cx="15" cy="15" r="25"/>)
-    Tester("""import Staging._ ; svgShape(<circle cx="15" cy="15" r="25"/>)""")
-    testPPath(f.dumpChild(n),
-              "m-11.00,-11.00 C40.00,28.81 28.81,40.00 15.00,40.00 " +
-              "C1.193,40.00 -10.00,28.81 -10.00,15.00 " +
-              "C-10.00,1.193 1.193,-10.00 15.00,-10.00 " +
-              "C28.81,-10.00 40.00,1.193 40.00,15.00 z M0.000,0.000 ")
-    n += 1
-
-    //W}}}
-    //W
-    //Wand
-    //W
-    //W{{{
-    //WsvgShape(<ellipse cx="15" cy="15" rx="35" ry="25"/>)
-    Tester("""import Staging._ ; svgShape(<ellipse cx="15" cy="15" rx="35" ry="25"/>)""")
-    testPPath(f.dumpChild(n), "m-21.00,-11.00 C50.00,28.81 34.33,40.00 15.00,40.00 " +
-              "C-4.330,40.00 -20.00,28.81 -20.00,15.00 " +
-              "C-20.00,1.193 -4.330,-10.00 15.00,-10.00 " +
-              "C34.33,-10.00 50.00,1.193 50.00,15.00 z M0.000,0.000 ")
-    n += 1
-
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Ellipse}}}.
-
-    //W
-    //W{{{
-    //WsvgShape(<line x1="15" y1="15" x2="40" y2="20"/>)
-    Tester("""import Staging._ ; svgShape(<line x1="15" y1="15" x2="40" y2="20"/>)""")
-    testPolyLine(f.dumpChild(n), "L40.00,20.00 M0.000,0.000 ")
-    n += 1
-
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Line}}}.
-
-    //W
-    //W===Syntax===
-    //W
-    //W{{{
-    //WsvgShape(<polyline points="15,15 25,35 40,20 45,25 50,10"/>)
-    Tester("""import Staging._ ; svgShape(<polyline points="15,15 25,35 40,20 45,25 50,10"/>)""")
-    testPolyLine(f.dumpChild(n), "L25.00,35.00 L40.00,20.00 L45.00,25.00 L50.00,10.00 M0.000,0.000 ")
-    n += 1
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Polyline}}}.
-
-    //W
-    //W===Syntax===
-    //W
-    //W{{{
-    //WsvgShape(<polygon points="15,15 25,35 40,20 45,25 50,10"/>)
-    Tester("""import Staging._ ; svgShape(<polygon points="15,15 25,35 40,20 45,25 50,10"/>)""")
-    testPolyLine(f.dumpChild(n), "L25.00,35.00 L40.00,20.00 L45.00,25.00 L50.00,10.00 z M0.000,0.000 ")
-    n += 1
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Polyline}}}.
-
-    //W
-    //W===Syntax===
-    //W
-    //W{{{
-    //WsvgShape(<path d="M15,15 40,15 40,20 15,20 z"/>)
-    Tester("""import Staging._ ; svgShape(<path d="M15,15 40,15 40,20 15,20 z"/>)""")
-//    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
-    testPPath(f.dumpChild(n), "m14.00,14.00 L40.00,15.00 L40.00,20.00 L15.00,20.00 z M0.000,0.000 ")
-    n += 1
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Polyline}}}.
-
-/* TODO restore these tests
-    //W
-    //W===Syntax===
-    //W
-    //W{{{
-    //WsvgShape(<g>... svg elements ...</g>)
-    Tester("""import Staging._
-             |svgShape(<g>
-             |           <rect x="15" y="15" width="25" height="5"/>
-             |           <circle cx="15" cy="15" r="25"/>
-             |</g>)""".stripMargin)
-    n += 1
-    testPPath(f.dumpChild(n),
-              "m-11.00,-11.00 C40.00,28.8071 28.8071,40.00 15.00,40.00 " +
-              "C1.19288,40.00 -10.00,28.8071 -10.00,15.00 " +
-              "C-10.00,1.19288 1.19288,-10.00 15.00,-10.00 " +
-              "C28.8071,-10.00 40.00,1.19288 40.00,15.00 " +
-              "z M0.00,0.00 ")
-    n += 1
-    //W}}}
-    //W
-    //Wdraws and returns multiple shapes.
-
-    //W
-    //W===Syntax===
-    //W
-    //W{{{
-    //WsvgShape(<svg>... svg elements ...</svg>)
-    Tester("""import Staging._
-             |svgShape(<svg>
-             |           <rect x="45" y="45" width="25" height="5"/>
-             |           <g>
-             |             <rect x="15" y="15" width="25" height="5"/>
-             |             <circle cx="15" cy="15" r="25"/>
-             |           </g>
-             |</svg>)""".stripMargin)
-    n += 2
-    testPPath(f.dumpChild(n),
-              "m-11.00,-11.00 C40.00,28.81 28.81,40.00 15.00,40.00 " +
-              "C1.19,40.00 -10.00,28.81 -10.00,15.00 " +
-              "C-10.00,1.19 1.19,-10.00 15.00,-10.00 " +
-              "C28.81,-10.00 40.00,1.19 40.00,15.00 " +
-              "z M0.00,0.00 ")
-    n += 1
-    //W}}}
-    //W
-    //Wdraws and returns multiple shapes.
-*/
+    //Wdraws a pattern of triangles around a central point.
 
 //    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
   }
+
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
 }
 

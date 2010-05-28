@@ -28,7 +28,7 @@ import net.kogics.kojo.core.RunContext
 import net.kogics.kojo.util._
 
 // cargo coding off CodePaneTest
-class ShapesTest extends KojoTestBase {
+class SimpleShapesTest extends KojoTestBase {
 
   val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
   val file = new java.io.File(fileStr)
@@ -207,11 +207,13 @@ class ShapesTest extends KojoTestBase {
   def test1 = {
     val f = SpriteCanvas.instance.figure0
     var n = 0
-    assertEquals(0, n)
     //W
-    //W===Syntax===
+    //W==Simple Shapes==
     //W
-    //WEither of
+    //W===Dots===
+    //W
+    //WA dot is defined by a single coordinate pair, given as _x_, _y_ values
+    //Wor as a `Point`.
     //W
     //W{{{
     //Wdot(x, y)
@@ -225,28 +227,13 @@ class ShapesTest extends KojoTestBase {
     n += 1
 
     //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Dot}}}.
-    //W
-    //W{{{
-    //Wval aDot = dot(p0)
-    //WaDot.toLine(p1)
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val aDot = dot(p0)
-             |aDot.toLine(p1)""".stripMargin)
-    n += 1
-    testPolyLine(f.dumpChild(n), 13, 13, 2)
-    n += 1
-    //W}}}
-    //W
-    //Wdraws a straight line from the dot to a given point, and returns the {{{Line}}} instance.
 
     //W
-    //W===Syntax===
+    //W===Lines===
     //W
-    //WEither of
+    //WA line is defined either by
+    //W# a coordinate pair, given as _x_, _y_ values or as a `Point`, and a _width_-_height_ pair, or
+    //W# two points.
     //W
     //W{{{
     //Wline(x, y, width, height)
@@ -263,12 +250,23 @@ class ShapesTest extends KojoTestBase {
     Tester("import Staging._ ; line((15, 15), (40, 20))")
     testPolyLine(f.dumpChild(n), 13, 13, 2)
     n += 1
-
     //W}}}
     //W
-    //Wdraws and returns an instance of {{{Line}}}.
+
+    //W
+    //WA line can also be defined from an existing shape:
     //W
     //W{{{
+    //WaDot.toLine(p1)
+    Tester("""import Staging._
+             |val p0 = point(15, 15)
+             |val p1 = point(30, 40)
+             |val aDot = dot(p0)
+             |aDot.toLine(p1)""".stripMargin)
+    n += 1
+    testPolyLine(f.dumpChild(n), 13, 13, 2)
+    n += 1
+
     //WaLine.toLine
     Tester("""import Staging._
              |val p0 = point(15, 15)
@@ -277,50 +275,28 @@ class ShapesTest extends KojoTestBase {
              |aLine.toLine""".stripMargin)
     n += 2
 
-    //W}}}
-    //W
-    //Wdraws and returns another instance of {{{Line}}}.
-    //W
-    //W{{{
-    //WaLine.toRect
+    //WaRect.toLine
     Tester("""import Staging._
              |val p0 = point(15, 15)
              |val p1 = point(30, 40)
-             |val aLine = line(p0, p1)
-             |aLine.toRect""".stripMargin)
+             |val aRect = rectangle(p0, p1)
+             |aRect.toLine""".stripMargin)
+    n += 2
+
+    //WaRoundRectangle.toLine
+    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toLine")
     n += 2
 
     //W}}}
     //W
-    //Wdraws and returns an instance of {{{Rectangle}}}.
-    //W
-    //W{{{
-    //WaLine.toRect(p)
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val aLine = line(p0, p1)
-             |aLine.toRect((3, 5))""".stripMargin)
-    n += 2
-
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{RoundRectangle}}} whose curvature is determined by `p`.
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val aLine = line(p0, p1)
-             |aLine.toRect""".stripMargin)
-    n += 1
-    testPPath(f.dumpChild(n),
-              "m14.0000,14.0000 L30.0000,15.0000 L30.0000,40.0000 " +
-              "L15.0000,40.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
-    n += 1
 
     //W
-    //W===Syntax===
+    //W===Rectangles===
     //W
-    //WEither of
+    //WA rectangle is defined the same way as a line, either by
+    //W# a coordinate pair for the lower left corner, given as _x_, _y_ values or as a `Point`, and a _width_-_height_ pair, or
+    //W# two points (in lower left / upper right order).
+    //W# from another shape.
     //W
     //W{{{
     //Wrectangle(x, y, width, height)
@@ -344,9 +320,31 @@ class ShapesTest extends KojoTestBase {
               "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
     n += 1
 
+    //WaLine.toRect
+    Tester("""import Staging._
+             |val p0 = point(15, 15)
+             |val p1 = point(30, 40)
+             |val aLine = line(p0, p1)
+             |aLine.toRect""".stripMargin)
+    n += 1
+    testPPath(f.dumpChild(n),
+              "m14.0000,14.0000 L30.0000,15.0000 L30.0000,40.0000 " +
+              "L15.0000,40.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
+    n += 1
+
+    //WaRect.toRect
+    Tester("""import Staging._
+             |val p0 = point(15, 15)
+             |val p1 = point(30, 40)
+             |val aRect = rectangle(p0, p1)
+             |aRect.toRect""".stripMargin)
+    n += 2
+
+    //WaRoundRectangle.toRect
+    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toRect")
+    n += 2
+
     //W}}}
-    //W
-    //Wand
     //W
     //W{{{
     //Wsquare(x, y, size)
@@ -365,64 +363,13 @@ class ShapesTest extends KojoTestBase {
 
     //W}}}
     //W
-    //Wdraws and returns an instance of {{{Rectangle}}}.
-    //W
-    //W{{{
-    //WaRect.toLine
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val aRect = rectangle(p0, p1)
-             |aRect.toLine""".stripMargin)
-    n += 2
-
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Line}}}.
-    //W
-    //W{{{
-    //WaRect.toRect
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val aRect = rectangle(p0, p1)
-             |aRect.toRect""".stripMargin)
-    n += 2
-
-    //W}}}
-    //W
-    //Wdraws and returns another instance of {{{Rectangle}}}.
-    //W
-    //W{{{
-    //WaRect.toRect(p)
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val p  = point(3, 5)
-             |val aRect = rectangle(p0, p1)
-             |aRect.toRect(p)""".stripMargin)
-    n += 2
-
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{RoundRectangle}}} whose curvature is determined by `p`.
-    Tester("import Staging._ ; square((15, 15), 20)")
-    testPPath(f.dumpChild(n),
-              "m14.0000,14.0000 L35.0000,15.0000 L35.0000,35.0000 " +
-              "L15.0000,35.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
-    n += 1
-  }
-
-  @Test
-  def test2 = {
-    val f = SpriteCanvas.instance.figure0
-    f.clear
-    var n = 0
 
     //W
-    //W===Syntax===
+    //W===Rectangles with round corners===
     //W
-    //WEither of
+    //WA rectangle with rounded corners is defined just like a rectangle, with
+    //Wan additional _x-radius_, _y-radius_ pair or point that defines the
+    //Wcurvature of the corners.
     //W
     //W{{{
     //WroundRectangle(x, y, width, height, radiusx, radiusy)
@@ -445,130 +392,56 @@ class ShapesTest extends KojoTestBase {
               "z M0.00000,0.00000 ")
     n += 1
 
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{RoundRectangle}}}.
-    //W
-    //W{{{
-    //WaRR.toLine
-    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toLine")
-    n += 2
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Line}}}.
-    //W
-    //W{{{
-    //WaRR.toRect
-    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toRect")
-    n += 2
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Rectangle}}}.
-    //W
-    //W{{{
-    //WaRR.toRect(point)
-    //W}}}
-    //W
-    //Wdraws and returns another instance of {{{RoundRectangle}}}.  The argument
-    //Wto the method isn't used but must be present.
-    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toRect")
+    //WaLine.toRect(p)
+    Tester("""import Staging._
+             |val p0 = point(15, 15)
+             |val p1 = point(30, 40)
+             |val aLine = line(p0, p1)
+             |aLine.toRect((3, 5))""".stripMargin)
     n += 2
 
-    //W
-    //W===Syntax===
-    //W
-    //W{{{
-    //Wpolyline(points)
-    Tester("import Staging._ ; polyline(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
-    assertEquals("PolyLine(15,10)", dumpChildString(n))
-    testPolyLine(f.dumpChild(n), 5)
-    n += 1
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Polyline}}}.
-    //W
-    //W{{{
-    //WaPL.toPolyline
-    Tester("import Staging._ ; polyline(List((15, 15), (25, 35))).toPolyline")
+    //WaRect.toRect(p)
+    Tester("""import Staging._
+             |val p0 = point(15, 15)
+             |val p1 = point(30, 40)
+             |val p  = point(3, 5)
+             |val aRect = rectangle(p0, p1)
+             |aRect.toRect(p)""".stripMargin)
     n += 2
-    //W}}}
-    //W
-    //Wdraws and returns another instance of {{{Polyline}}}.
-    //W
-    //W{{{
-    //WaPL.toPolygon
-    Tester("import Staging._ ; polyline(List((15, 15), (25, 35))).toPolygon")
-    n += 2
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Polygon}}}.
-
-    //W
-    //W===Syntax===
-    //W
-    //WEither of
-    //W
-    //W{{{
-    //Wpolygon(points)
-    Tester("import Staging._ ; polygon(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
-    assertEquals("PolyLine(15,10)", dumpChildString(n))
-    testPolyLine(f.dumpChild(n), 5)
-    n += 1
-    //W}}}
-    //W
-    //Wand
-    //W
-    //W{{{
-    //Wtriangle(point2, point2, point3)
-    Tester("import Staging._ ; triangle((15, 15), (25, 35), (35, 15))")
-    assertEquals("PolyLine(15,15)", dumpChildString(n))
-    testPolyLine(f.dumpChild(n), 3)
-    n += 1
 
     //W}}}
     //W
-    //Wand
+    //WNote:
     //W
     //W{{{
-    //Wquad(point1, point2, point3, point4)
-    Tester("import Staging._ ; quad((15, 15), (25, 35), (40, 20), (35, 10))")
-    assertEquals("PolyLine(15,10)", dumpChildString(n))
-    testPolyLine(f.dumpChild(n), 4)
-    n += 1
-
-    //W}}}
-    //W
-    //Wdraws and returns an instance of {{{Polygon}}}.
-    //W
-    //W{{{
-    //WaPG.toPolyline
-    Tester("import Staging._ ; polygon(List((15, 15), (25, 35))).toPolyline")
+    //WaRoundRectangle.toRect(point)
+    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toRect(O)")
     n += 2
     //W}}}
     //W
-    //Wdraws and returns an instance of {{{Polyline}}}.
+    //Wdraws another instance of {{{RoundRectangle}}} with the same dimensions.
+    //WThe argument to the method isn't used but must be present.
     //W
-    //W{{{
-    //WaPG.toPolygon
-    Tester("import Staging._ ; polygon(List((15, 15), (25, 35))).toPolygon")
-    n += 2
-    //W}}}
-    //W
-    //Wdraws and returns another instance of {{{Polygon}}}.
+  }
 
-    Tester("import Staging._ ; arc((15, 15), (20, 10), 40, 95)")
-    // , "PArc(15,10)"
-    val r9 = f.dumpChild(n)
-    assertTrue(r9.isInstanceOf[net.kogics.kojo.kgeom.PArc])
-    n += 1
+  @Test
+  def test2 = {
+    val f = SpriteCanvas.instance.figure0
+    f.clear
+    var n = 0
 
     //W
-    //W===Syntax===
+    //W===Ellipses===
     //W
-    //WEither of
+    //WAn ellipse is defined by a center point and a curvature.  The center point
+    //Wcan be given as _cx_, _cy_ coordinates or as a `Point`, and the
+    //Wcurvature can be given as _rx_, _ry_ radii or as an absolute `Point`.
+    //W
+    //W(Thus, `ellipse((15, 15), 35, 25)` and `ellipse((15, 15), (50, 40))`
+    //Wdefine the same shape.)
     //W
     //W{{{
-    //Wellipse(x-center, y-center, x-radius, y-radius)
+    //Wellipse(cx, cy, rx, ry)
     Tester("import Staging._ ; ellipse(15, 15, 35, 25)")
     testPPath(f.dumpChild(n),
               "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
@@ -577,7 +450,8 @@ class ShapesTest extends KojoTestBase {
               "C34.3300,-10.0000 50.0000,1.19288 50.0000,15.0000 " +
               "z M0.00000,0.00000 ")
     n += 1
-    //Wellipse(point-center, x-radius, y-radius)
+
+    //Wellipse(p, rx, ry)
     Tester("import Staging._ ; ellipse((15, 15), 35, 25)")
     testPPath(f.dumpChild(n),
               "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
@@ -586,7 +460,8 @@ class ShapesTest extends KojoTestBase {
               "C34.3300,-10.0000 50.0000,1.19288 50.0000,15.0000 " +
               "z M0.00000,0.00000 ")
     n += 1
-    //Wellipse(point-center, point-upper-right)
+
+    //Wellipse(p1, p2)
     Tester("import Staging._ ; ellipse((15, 15), (50, 40))")
     testPPath(f.dumpChild(n),
               "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
@@ -595,12 +470,11 @@ class ShapesTest extends KojoTestBase {
               "C34.3300,-10.0000 50.0000,1.19288 50.0000,15.0000 " +
               "z M0.00000,0.00000 ")
     n += 1
+
     //W}}}
     //W
-    //Wand
-    //W
     //W{{{
-    //Wcircle(x-center, y-center, radius)
+    //Wcircle(cx, cy, radius)
     Tester("import Staging._ ; circle(15, 15, 25)")
     testPPath(f.dumpChild(n),
               "m-11.0000,-11.0000 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
@@ -609,7 +483,8 @@ class ShapesTest extends KojoTestBase {
               "C28.8071,-10.0000 40.0000,1.19288 40.0000,15.0000 " +
               "z M0.00000,0.00000 ")
     n += 1
-    //Wcircle(point-center, radius)
+
+    //Wcircle(p, radius)
     Tester("import Staging._ ; circle((15, 15), 25)")
     testPPath(f.dumpChild(n),
               "m-11.0000,-11.0000 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
@@ -618,9 +493,34 @@ class ShapesTest extends KojoTestBase {
               "C28.8071,-10.0000 40.0000,1.19288 40.0000,15.0000 " +
               "z M0.00000,0.00000 ")
     n += 1
+
     //W}}}
     //W
-    //Wdraws and returns an instance of {{{Ellipse}}}.
+
+    //W
+    //W===Elliptical arcs===
+    //W
+    //WAn elliptical arc is defined just like an ellipsis, with two additional
+    //Warguments for _starting angle_ and _extent_.  A starting angle of 0
+    //Wis the "three o'clock" direction, and 90 is the "twelve o'clock" direction.
+    //WBoth angles are given in 1/360 degrees.
+    //W
+    //W{{{
+    //Warc(cx, cy, rx, ry, s, e)
+    Tester("import Staging._ ; arc(15, 15, 20, 10, 40, 95)")
+    n += 1
+
+    //Warc(cp, rx, ry, s, e)
+    Tester("import Staging._ ; arc((15, 15), 20, 10, 40, 95)")
+    n += 1
+
+    //Warc(p1, p2, s, e)
+    Tester("import Staging._ ; arc((15, 15), (20, 10), 40, 95)")
+    n += 1
+
+    //W}}}
+    //W
+
 
 //    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
   }
