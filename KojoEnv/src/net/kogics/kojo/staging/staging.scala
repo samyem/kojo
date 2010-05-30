@@ -47,6 +47,14 @@ object API {
   //WAt this point, the shape hierarchy is the most complete part, but
   //Wutilities for color definition, time keeping etc are being added.
   //W
+  //W=Examples=
+  //W
+  //W  * StagingHelloKojoExample
+  //W  * StagingArrayExample
+  //W  * StagingArrayTwoDeeExample
+  //W  * StagingColorWheelExample
+  //W  * StagingCreatingColorsExample
+  //W
   //W=Overview=
   //W
   //W==Points==
@@ -169,7 +177,14 @@ object API {
   //W
   //W==Color==
   //W
-  //WTODO
+  //WColor values can be created with the method `color`, and the way color
+  //Wis specified can be set with `colorMode`.  The methods `fill`, `noFill`,
+  //W`stroke`, and `noStroke` set the colors used to draw the insides and edges
+  //Wof figures.  The method `strokeWidth` doesn't actually affect color but is
+  //Wtypically used together with the color setting methods.  The method
+  //W`withStyle` allows the user to set fill color, stroke color, and stroke
+  //Wwidth temporarily.
+  //W
   //W
   abstract class ColorModes
   case class RGB(r: Int, g: Int, b: Int) extends ColorModes
@@ -187,6 +202,7 @@ object API {
   def color(v1: Int, v2: Int, v3: Int, a: Int) = ColorMode.color(v1, v2, v3, a)
   def color(v1: Double, v2: Double, v3: Double) = ColorMode.color(v1, v2, v3)
   def color(v1: Double, v2: Double, v3: Double, a: Double) = ColorMode.color(v1, v2, v3, a)
+  def color(s: String) = java.awt.Color.decode(s)
   def fill(c: Color) = Impl.figure0.setFillColor(c)
   def noFill = Impl.figure0.setFillColor(null)
   def stroke(c: Color) = Impl.figure0.setPenColor(c)
@@ -957,8 +973,8 @@ object ColorMode {
     require(mode.isInstanceOf[API.GRAYA] ||
             mode.isInstanceOf[API.RGBA],
             "Color mode isn't GRAYA (gray with alpha) or RGBA")
-    if (mode.isInstanceOf[API.GRAY]) {
-      val vv = API.norm(v, 0, mode.asInstanceOf[API.GRAY].v).toFloat
+    if (mode.isInstanceOf[API.GRAYA]) {
+      val vv = API.norm(v, 0, mode.asInstanceOf[API.GRAYA].v).toFloat
       val aa = API.norm(a, 0, mode.asInstanceOf[API.GRAYA].a).toFloat
       new Color(vv, vv, vv, aa)
     } else {
