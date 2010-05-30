@@ -189,16 +189,25 @@ object API {
   def color(v1: Double, v2: Double, v3: Double, a: Double) = ColorMode.color(v1, v2, v3, a)
   def fill(c: Color) = Impl.figure0.setFillColor(c)
   def noFill = Impl.figure0.setFillColor(null)
-  def withFill(c: Color)(body: => Unit) = {
-    //NOTE: does not reset fill unless the return value is used?
-    val cc = Impl.figure0.fillColor
-    fill(c)
-    try { body }
-    finally { fill(cc) }
-    cc
-  }
   def stroke(c: Color) = Impl.figure0.setPenColor(c)
   def noStroke = Impl.figure0.setPenColor(null)
+  def strokeWidth(w: Double) = Impl.figure0.setPenThickness(w)
+  def withStyle(fc: Color, sc: Color, sw: Double)(body: => Unit) = {
+    val ofc = Impl.figure0.fillColor
+    val osc = Impl.figure0.lineColor
+    val oss: java.awt.BasicStroke =
+      Impl.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke]
+    val osw = oss.getLineWidth
+    fill(fc)
+    stroke(sc)
+    strokeWidth(sw)
+    try { body }
+    finally {
+      fill(ofc)
+      stroke(osc)
+      strokeWidth(osw)
+    }
+  }
   implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
 
   colorMode(RGB(255, 255, 255))
