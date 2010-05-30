@@ -176,7 +176,7 @@ class MathTest extends KojoTestBase {
     Tester("Staging.lerp(-22, -13, 1.0).toFloat", "Float = -13.0")
   //W}}}
   //W
-  //WThe inverse of `normalize`; yields a number in the range _low_ -- _high_
+  //WThe inverse of `norm`; yields a number in the range _low_ -- _high_
   //Wwhich corresponds to the position of _value_ in the range 0.0 -- 1.0.
   //W
   }
