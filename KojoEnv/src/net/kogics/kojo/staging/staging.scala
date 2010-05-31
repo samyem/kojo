@@ -81,10 +81,11 @@ object API {
   def screenSize(width: Int, height: Int) = Screen.size(width, height)
 
   //W
-  //W==Simple Shapes==
+  //W==Simple shapes and text==
   //W
   //WGiven `Point`s or _x_ and _y_ coordinate values, simple shapes like dots,
-  //Wlines, rectangles, ellipses, and elliptic arcs can be drawn.
+  //Wlines, rectangles, ellipses, and elliptic arcs can be drawn.  Texts can
+  //Walso be placed in this way.
   //W
   def dot(x: Double, y: Double) = Dot(Point(x, y))
   def dot(p: Point) = Dot(p)
@@ -141,6 +142,9 @@ object API {
     Arc(p, Point(p.x + rx, p.y + ry), s, e)
   def arc(p1: Point, p2: Point, s: Double, e: Double) =
     Arc(p1, p2, s, e)
+
+  def text(s: String, x: Double, y: Double) = Text(s, Point(x, y))
+  def text(s: String, p: Point) = Text(s, p)
 
   //W
   //W==Complex Shapes==
@@ -288,6 +292,10 @@ object API {
 
   def mag(x: Double, y: Double) = dist(0, 0, x, y)
   def mag(p: Point) = dist(0, 0, p.x, p.y)
+
+  def loop(fn: => Unit) = Impl.figure0.refresh(fn)
+  def stop = Impl.figure0.stopRefresh()
+
   //W
   //W=Usage=
   //W
@@ -405,6 +413,19 @@ class Dot(val origin: Point) extends BaseShape {
 object Dot {
   def apply(p: Point) = {
     val shape = new Dot(p)
+    shape.draw
+  }
+}
+
+class Text(val text: String, val origin: Point) extends BaseShape {
+  val shapes = List(Impl.figure0.text(text, origin.x, origin.y))
+  def draw = this
+
+  override def toString = "Staging.Text(" + text + ", " + origin + ")"
+}
+object Text {
+  def apply(s: String, p: Point) = {
+    val shape = new Text(s, p)
     shape.draw
   }
 }
