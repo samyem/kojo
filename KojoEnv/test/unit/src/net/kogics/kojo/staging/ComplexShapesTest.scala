@@ -355,10 +355,8 @@ class ComplexShapesTest extends KojoTestBase {
     //W{{{
     //WquadsShape(points)
     Tester("import Staging._ ; quadsShape(" + points + ")")
-    testPolyLine(f.dumpChild(n), "L10.00,50.00 L20.00,50.00 L20.00,20.00 z " +
-                 "M30.00,20.00 L30.00,50.00 L40.00,50.00 L40.00,20.00 z " +
-                 "M50.00,20.00 L50.00,50.00 L60.00,50.00 L60.00,20.00 z " +
-                 "M0.000,0.000 ")
+    testPolyLine(f.dumpChild(n), "L10,50 L20,50 L20,20 z M30,20 L30,50 L40,50 " +
+                 "L40,20 z M50,20 L50,50 L60,50 L60,20 z M0.0,0.0 ")
     n += 1
 
     //W}}}
@@ -392,13 +390,9 @@ class ComplexShapesTest extends KojoTestBase {
        |(20, 20), (15, 30),
        |(15, 30), (20, 40))""".stripMargin
     Tester("import Staging._ ; triangleFanShape((30, 30), " + tfsPoints + ")")
-    testPolyLine(f.dumpChild(n), "L30.00,45.00 L40.00,40.00 " +
-                 "M30.00,30.00 L40.00,40.00 L45.00,30.00 " +
-                 "M30.00,30.00 L45.00,30.00 L40.00,20.00 " +
-                 "M30.00,30.00 L40.00,20.00 L30.00,15.00 " +
-                 "M30.00,30.00 L30.00,15.00 L20.00,20.00 " +
-                 "M30.00,30.00 L20.00,20.00 L15.00,30.00 " +
-                 "M30.00,30.00 L15.00,30.00 L20.00,40.00 M0.000,0.000 ")
+    testPolyLine(f.dumpChild(n), "L30,45 L40,40 M30,30 L40,40 L45,30 M30,30 " +
+                 "L45,30 L40,20 M30,30 L40,20 L30,15 M30,30 L30,15 L20,20 " +
+                 "M30,30 L20,20 L15,30 M30,30 L15,30 L20,40 M0.0,0.0 ")
     n += 1
 
     //W}}}
