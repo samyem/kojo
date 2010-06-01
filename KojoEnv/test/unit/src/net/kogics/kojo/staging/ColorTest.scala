@@ -281,12 +281,81 @@ class ColorTest extends KojoTestBase {
   //W
   //W{{{
   //Wcolor(s)
+    Tester(
+      """import Staging._ ; println(color("#99ccDD"))""",
+      "java.awt.Color[r=153,g=204,b=221]import Staging._",
+      false
+    )
+
   //W}}}
   //W
   //Wwhere `s` is a string with the format "#rrggbb" creates a color described
   //Wby that (hexadecimal) value regardless of color mode.
   //W
-  //TODO test fill, noFill, stroke, noStroke, strokeWidth, withStyle
+  //WWhen drawing figures, the _fill_ color, which is used for the insides, and
+  //Wthe _stroke_ color, which is used for the edges, can be set and unset.
+  //W
+  //WTo set the fill color, call `fill`.
+  //W
+  //W{{{
+  //Wfill(color)
+    Tester(
+      """import Staging._ ; fill(color("#99ccDD"))""",
+      "import Staging._",
+      false
+    )
+    assertEquals("java.awt.Color[r=153,g=204,b=221]", SpriteCanvas.instance.figure0.fillColor.toString)
+
+  //W}}}
+  //W
+  //WTo unset the fill color, call `noFill`, or `fill` with a `null` argument.
+  //W
+  //W{{{
+  //WnoFill
+  //Wfill(null)
+    Tester("import Staging._ ; fill(null)", "import Staging._", false)
+    assertEquals(null, SpriteCanvas.instance.figure0.fillColor)
+
+    Tester(
+      """import Staging._ ; fill(color("#99ccDD")) ; noFill""",
+      "import Staging._",
+      false
+    )
+    assertEquals(null, SpriteCanvas.instance.figure0.fillColor)
+
+  //W}}}
+  //W
+  //WTo set the stroke color, call `stroke`.
+  //W
+  //W{{{
+  //Wstroke(color)
+    Tester(
+      """import Staging._ ; stroke(color("#99ccDD"))""",
+      "import Staging._",
+      false
+    )
+    assertEquals("java.awt.Color[r=153,g=204,b=221]", SpriteCanvas.instance.figure0.lineColor.toString)
+
+  //W}}}
+  //W
+  //WTo unset the stroke color, call `noStroke`, or `stroke` with a `null` argument.
+  //W
+  //W{{{
+  //WnoStroke
+  //Wstroke(null)
+    Tester("import Staging._ ; stroke(null)", "import Staging._", false)
+    assertEquals(null, SpriteCanvas.instance.figure0.lineColor)
+
+    Tester(
+      """import Staging._ ; stroke(color("#99ccDD")) ; noStroke""",
+      "import Staging._",
+      false
+    )
+    assertEquals(null, SpriteCanvas.instance.figure0.lineColor)
+
+  //W}}}
+  //W
+  //TODO test strokeWidth, withStyle
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
