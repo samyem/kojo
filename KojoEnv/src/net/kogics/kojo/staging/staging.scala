@@ -70,6 +70,7 @@ object API {
 
   implicit def tupleDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
   implicit def tupleIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
+  implicit def baseShapeToPoint(b: BaseShape) = b.origin
 
   //W
   //W==User Screen==
@@ -295,6 +296,8 @@ object API {
 
   def loop(fn: => Unit) = Impl.figure0.refresh(fn)
   def stop = Impl.figure0.stopRefresh()
+  def clear() = Impl.figure0.clear()
+  def fgClear() = Impl.figure0.fgClear()
 
   //W
   //W=Usage=
