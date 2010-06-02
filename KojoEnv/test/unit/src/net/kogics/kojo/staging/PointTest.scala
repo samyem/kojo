@@ -117,6 +117,9 @@ class PointTest extends KojoTestBase {
   }
 
   @Test
+  def runnableTestToSatisfyJunit {}
+
+  // @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe
   // a leak in the Scala interpreter/compiler subsystem. So we run (mostly)
   // everything in one test
