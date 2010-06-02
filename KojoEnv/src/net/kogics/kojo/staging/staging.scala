@@ -342,10 +342,13 @@ object Screen {
 //Mcalled._
 trait Shape extends core.VisualElement {
   val shapes: Seq[figure.FigShape]
+  var rotationPoint: Option[Point] = None
   def hide() = shapes foreach (_.hide)
   def show() = shapes foreach (_.show)
   def setColor(color: Color) = shapes foreach (_.setColor(color))
   def draw: Shape
+  def rotate(theta: Double): Unit
+  def scale(scale: Double): Unit
 }
 //M|| Rounded              ||                           || curvature, _radiusX_, _radiusY_ ||
 //M
@@ -410,6 +413,8 @@ trait Elliptical extends Rounded with SimpleShape {
 class Dot(val origin: Point) extends BaseShape {
   val shapes = List(Impl.figure0.point(origin.x, origin.y))
   def draw = this
+  def rotate(theta: Double) {}
+  def scale(scale: Double) {}
 
   override def toString = "Staging.Dot(" + origin + ")"
 }
@@ -422,7 +427,18 @@ object Dot {
 
 class Text(val text: String, val origin: Point) extends BaseShape {
   val shapes = List(Impl.figure0.text(text, origin.x, origin.y))
+  val pn = shapes(0).pText.asInstanceOf[PNode]
   def draw = this
+  def rotate(theta: Double) {
+    val rp = rotationPoint.getOrElse(origin)
+    rotationPoint = Some(rp)
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    val rp = rotationPoint.getOrElse(origin)
+    rotationPoint = Some(rp)
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
 
   override def toString = "Staging.Text(" + text + ", " + origin + ")"
 }
@@ -441,7 +457,16 @@ object Text {
 //Mfrom origin to endpoint.
 class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
   val shapes = List(Impl.figure0.line(origin, endpoint))
+  val pn = shapes(0).pLine.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(Point(origin.x + width / 2., origin.y + height / 2.))
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
   override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
 }
 object Line {
@@ -465,7 +490,16 @@ class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
   // precondition endpoint > origin
   require(width > 0 && height > 0)
   val shapes = List(Impl.figure0.rectangle(origin, endpoint))
+  val pn = shapes(0).pRect.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(Point(origin.x + width / 2., origin.y + height / 2.))
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
   override def toString = "Staging.Rectangle(" + origin + ", " + endpoint + ")"
 }
 object Rectangle {
@@ -509,7 +543,16 @@ class RoundRectangle(
   // precondition endpoint > origin
   require(width > 0 && height > 0)
   val shapes = List(Impl.figure0.roundRectangle(origin, endpoint, radiusX, radiusY))
+  val pn = shapes(0).pRect.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(Point(origin.x + width / 2., origin.y + height / 2.))
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
   override def toString =
     "Staging.RoundRectangle(" + origin + ", " + endpoint + ", " + curvature + ")"
 }
@@ -532,7 +575,16 @@ class Polyline(val points: Seq[Point]) extends PolyShape {
       shapePath.addPoint(x, y)
   }
   val shapes = List(Impl.figure0.polyLine(shapePath))
+  val pn = shapes(0).pLine.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
 
   override def toString = "Staging.Polyline(" + points + ")"
 }
@@ -557,7 +609,16 @@ class Polygon(val points: Seq[Point]) extends PolyShape {
   }
   shapePath.polyLinePath.closePath
   val shapes = List(Impl.figure0.polyLine(shapePath))
+  val pn = shapes(0).pLine.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
 
   override def toString = "Staging.Polygon(" + points + ")"
 }
@@ -577,7 +638,16 @@ object Polygon {
 //Morigin to endpoint.
 class Ellipse(val origin: Point, val endpoint: Point) extends Elliptical {
   val shapes = List(Impl.figure0.ellipse(origin, width, height))
+  val pn = shapes(0).pEllipse.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(origin)
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
 
   override def toString = "Staging.Ellipse(" + origin + "," + endpoint + ")"
 }
@@ -603,7 +673,16 @@ class Arc(
   val start: Double, val extent: Double
 ) extends Elliptical {
   val shapes = List(Impl.figure0.arc(origin.x, origin.y, width, height, start, extent))
+  val pn = shapes(0).pArc.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(origin)
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
 
   override def toString = "Staging.Arc(" + origin + "," + endpoint + start + "," + extent + ")"
 }
@@ -638,7 +717,16 @@ class LinesShape(val points: Seq[Point]) extends PolyShape {
     List(Impl.figure0.polyLine(shapePath))
   }
 
+  val pn = shapes(0).pLine.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
 
   override def toString = "Staging.LinesShape(" + points + ")"
 }
@@ -674,7 +762,16 @@ class TrianglesShape(val points: Seq[Point]) extends PolyShape {
     List(Impl.figure0.polyLine(shapePath))
   }
 
+  val pn = shapes(0).pLine.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
 
   override def toString = "Staging.TrianglesShape(" + points + ")"
 }
@@ -710,7 +807,16 @@ class TriangleStripShape(val points: Seq[Point]) extends PolyShape {
     List(Impl.figure0.polyLine(shapePath))
   }
 
+  val pn = shapes(0).pLine.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
 
   override def toString = "Staging.TriangleStripShape(" + points + ")"
 }
@@ -747,7 +853,16 @@ class QuadsShape(val points: Seq[Point]) extends PolyShape {
     List(Impl.figure0.polyLine(shapePath))
   }
 
+  val pn = shapes(0).pLine.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
 
   override def toString = "Staging.QuadsShape(" + points + ")"
 }
@@ -784,7 +899,16 @@ class QuadStripShape(val points: Seq[Point]) extends PolyShape {
     List(Impl.figure0.polyLine(shapePath))
   }
 
+  val pn = shapes(0).pLine.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
 
   override def toString = "Staging.QuadStripShape(" + points + ")"
 }
@@ -821,7 +945,16 @@ class TriangleFanShape(val origin: Point, val points: Seq[Point]) extends PolySh
     List(Impl.figure0.polyLine(shapePath))
   }
 
+  val pn = shapes(0).pLine.asInstanceOf[PNode]
+  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
+  rotationPoint = Some(rp)
   def draw = this
+  def rotate(theta: Double) {
+    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  }
+  def scale(scale: Double) {
+    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  }
 
   override def toString = "Staging.QuadStripShape(" + origin + "," + points + ")"
 }
@@ -921,7 +1054,17 @@ object SvgShape {
     val d = (ns \ "@d" text)
     new Shape {
       val shapes = List(Impl.figure0.path(d))
+      val pn = shapes(0).pPath.asInstanceOf[PNode]
+      // TODO better default
+      val rp = rotationPoint.getOrElse(Point(pn.getX, pn.getY))
+      rotationPoint = Some(rp)
       def draw = this
+      def rotate(theta: Double) {
+        pn.rotateAboutPoint(theta, rp.x, rp.y)
+      }
+      def scale(scale: Double) {
+        pn.scaleAboutPoint(scale, rp.x, rp.y)
+      }
     }
   }
 
@@ -951,18 +1094,24 @@ object SvgShape {
         new Shape {
           val shapes = Nil
           def draw = this
+          def rotate(theta: Double) {}
+          def scale(scale: Double) {}
         }
         //for (s <- shapes) yield SvgShape(s)
       case <svg>{ shapes @ _* }</svg> =>
         new Shape {
           val shapes = Nil
           def draw = this
+          def rotate(theta: Double) {}
+          def scale(scale: Double) {}
         }
         //for (s <- shapes) yield SvgShape(s)
       case _ => // unknown element, ignore
         new Shape {
           val shapes = Nil
           def draw = this
+          def rotate(theta: Double) {}
+          def scale(scale: Double) {}
         }
   }
 //    val shape = new SvgShape(node)

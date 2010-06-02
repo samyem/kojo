@@ -36,8 +36,8 @@ class Point(val x: Double, val y: Double) {
   def +(that: Point) = new Point(this.x + that.x, this.y + that.y)
   def -(that: Point) = new Point(this.x - that.x, this.y - that.y)
   def unary_- = new Point(-x, -y)
-  def abscissa() = new Point(x, 0)
-  def ordinate() = new Point(0, y)
+  def onX() = new Point(x, 0)
+  def onY() = new Point(0, y)
   override def toString = "Point(%.2f, %.2f)" format(x, y)
 }
 class Line(val p1: Point, val p2: Point)
