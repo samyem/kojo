@@ -212,7 +212,11 @@ object API {
   def noFill = Impl.figure0.setFillColor(null)
   def stroke(c: Color) = Impl.figure0.setPenColor(c)
   def noStroke = Impl.figure0.setPenColor(null)
-  def strokeWidth(w: Double) = Impl.figure0.setPenThickness(w)
+  def strokeWidth(w: Double) = {
+    if (Impl.figure0.lineColor != null) {
+      Impl.figure0.setPenThickness(w)
+    }
+  }
   def withStyle(fc: Color, sc: Color, sw: Double)(body: => Unit) = {
     val ofc = Impl.figure0.fillColor
     val osc = Impl.figure0.lineColor
@@ -342,13 +346,13 @@ object Screen {
 //Mcalled._
 trait Shape extends core.VisualElement {
   val shapes: Seq[figure.FigShape]
-  var rotationPoint: Option[Point] = None
+  var transformationPoint: Option[Point] = None
   def hide() = shapes foreach (_.hide)
   def show() = shapes foreach (_.show)
   def setColor(color: Color) = shapes foreach (_.setColor(color))
-  def draw: Shape
-  def rotate(theta: Double): Unit
-  def scale(scale: Double): Unit
+  def rotate(amount: Double): Unit
+  def scale(amount: Double): Unit
+  def translate(offset: Point): Unit
 }
 //M|| Rounded              ||                           || curvature, _radiusX_, _radiusY_ ||
 //M
@@ -412,40 +416,41 @@ trait Elliptical extends Rounded with SimpleShape {
 //M{{{Dot}}} is drawn to the canvas as a dot of the stroke color.
 class Dot(val origin: Point) extends BaseShape {
   val shapes = List(Impl.figure0.point(origin.x, origin.y))
-  def draw = this
-  def rotate(theta: Double) {}
-  def scale(scale: Double) {}
+  def rotate(amount: Double) {}
+  def scale(amount: Double) {}
+  def translate(offset: Point) {}
 
   override def toString = "Staging.Dot(" + origin + ")"
 }
 object Dot {
   def apply(p: Point) = {
-    val shape = new Dot(p)
-    shape.draw
+    new Dot(p)
   }
 }
 
 class Text(val text: String, val origin: Point) extends BaseShape {
   val shapes = List(Impl.figure0.text(text, origin.x, origin.y))
   val pn = shapes(0).pText.asInstanceOf[PNode]
-  def draw = this
-  def rotate(theta: Double) {
-    val rp = rotationPoint.getOrElse(origin)
-    rotationPoint = Some(rp)
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  transformationPoint = Some(origin)
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    val rp = rotationPoint.getOrElse(origin)
-    rotationPoint = Some(rp)
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
   }
 
   override def toString = "Staging.Text(" + text + ", " + origin + ")"
 }
 object Text {
   def apply(s: String, p: Point) = {
-    val shape = new Text(s, p)
-    shape.draw
+    new Text(s, p)
   }
 }
 
@@ -458,21 +463,26 @@ object Text {
 class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
   val shapes = List(Impl.figure0.line(origin, endpoint))
   val pn = shapes(0).pLine.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(Point(origin.x + width / 2., origin.y + height / 2.))
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  transformationPoint = Some(Point(origin.x + width / 2., origin.y + height / 2.))
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
   }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
+  }
+
   override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
 }
 object Line {
   def apply(p1: Point, p2: Point) = {
-    val shape = new Line(p1, p2)
-    shape.draw
+    new Line(p1, p2)
   }
 }
 
@@ -491,21 +501,26 @@ class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
   require(width > 0 && height > 0)
   val shapes = List(Impl.figure0.rectangle(origin, endpoint))
   val pn = shapes(0).pRect.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(Point(origin.x + width / 2., origin.y + height / 2.))
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  transformationPoint = Some(Point(origin.x + width / 2., origin.y + height / 2.))
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
   }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
+  }
+
   override def toString = "Staging.Rectangle(" + origin + ", " + endpoint + ")"
 }
 object Rectangle {
   def apply(p1: Point, p2: Point) = {
-    val shape = new Rectangle(p1, p2)
-    shape.draw
+    new Rectangle(p1, p2)
   }
 }
 
@@ -544,22 +559,27 @@ class RoundRectangle(
   require(width > 0 && height > 0)
   val shapes = List(Impl.figure0.roundRectangle(origin, endpoint, radiusX, radiusY))
   val pn = shapes(0).pRect.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(Point(origin.x + width / 2., origin.y + height / 2.))
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  transformationPoint = Some(Point(origin.x + width / 2., origin.y + height / 2.))
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
   }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
+  }
+
   override def toString =
     "Staging.RoundRectangle(" + origin + ", " + endpoint + ", " + curvature + ")"
 }
 object RoundRectangle {
   def apply(p1: Point, p2: Point, p3: Point) = {
-    val shape = new RoundRectangle(p1, p2, p3)
-    shape.draw
+    new RoundRectangle(p1, p2, p3)
   }
 }
 
@@ -576,22 +596,27 @@ class Polyline(val points: Seq[Point]) extends PolyShape {
   }
   val shapes = List(Impl.figure0.polyLine(shapePath))
   val pn = shapes(0).pLine.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  // TODO better default
+  transformationPoint = Some(points(0))
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
   }
 
   override def toString = "Staging.Polyline(" + points + ")"
 }
 object Polyline {
   def apply(pts: Seq[Point]) = {
-    val shape = new Polyline(pts)
-    shape.draw
+    new Polyline(pts)
   }
 }
 
@@ -610,22 +635,27 @@ class Polygon(val points: Seq[Point]) extends PolyShape {
   shapePath.polyLinePath.closePath
   val shapes = List(Impl.figure0.polyLine(shapePath))
   val pn = shapes(0).pLine.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  // TODO better default
+  transformationPoint = Some(points(0))
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
   }
 
   override def toString = "Staging.Polygon(" + points + ")"
 }
 object Polygon {
   def apply(pts: Seq[Point]) = {
-    val shape = new Polygon(pts)
-    shape.draw
+    new Polygon(pts)
   }
 }
 
@@ -639,22 +669,26 @@ object Polygon {
 class Ellipse(val origin: Point, val endpoint: Point) extends Elliptical {
   val shapes = List(Impl.figure0.ellipse(origin, width, height))
   val pn = shapes(0).pEllipse.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(origin)
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  transformationPoint = Some(origin)
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
   }
 
   override def toString = "Staging.Ellipse(" + origin + "," + endpoint + ")"
 }
 object Ellipse {
   def apply(p1: Point, p2: Point) = {
-    val shape = new Ellipse(p1, p2)
-    shape.draw
+    new Ellipse(p1, p2)
   }
 }
 
@@ -674,22 +708,26 @@ class Arc(
 ) extends Elliptical {
   val shapes = List(Impl.figure0.arc(origin.x, origin.y, width, height, start, extent))
   val pn = shapes(0).pArc.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(origin)
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  transformationPoint = Some(origin)
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
   }
 
   override def toString = "Staging.Arc(" + origin + "," + endpoint + start + "," + extent + ")"
 }
 object Arc {
   def apply(p1: Point, p2: Point, s: Double, e: Double) = {
-    val shape = new Arc(p1, p2, s, e)
-    shape.draw
+    new Arc(p1, p2, s, e)
   }
 }
 
@@ -718,22 +756,27 @@ class LinesShape(val points: Seq[Point]) extends PolyShape {
   }
 
   val pn = shapes(0).pLine.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  // TODO better default
+  transformationPoint = Some(points(0))
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
   }
 
   override def toString = "Staging.LinesShape(" + points + ")"
 }
 object LinesShape {
   def apply(pts: Seq[Point]) = {
-    val shape = new LinesShape(pts)
-    shape.draw
+    new LinesShape(pts)
   }
 }
 
@@ -763,22 +806,27 @@ class TrianglesShape(val points: Seq[Point]) extends PolyShape {
   }
 
   val pn = shapes(0).pLine.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  // TODO better default
+  transformationPoint = Some(points(0))
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
   }
 
   override def toString = "Staging.TrianglesShape(" + points + ")"
 }
 object TrianglesShape {
   def apply(pts: Seq[Point]) = {
-    val shape = new TrianglesShape(pts)
-    shape.draw
+    new TrianglesShape(pts)
   }
 }
 
@@ -808,22 +856,27 @@ class TriangleStripShape(val points: Seq[Point]) extends PolyShape {
   }
 
   val pn = shapes(0).pLine.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  // TODO better default
+  transformationPoint = Some(points(0))
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
   }
 
   override def toString = "Staging.TriangleStripShape(" + points + ")"
 }
 object TriangleStripShape {
   def apply(pts: Seq[Point]) = {
-    val shape = new TriangleStripShape(pts)
-    shape.draw
+    new TriangleStripShape(pts)
   }
 }
 
@@ -854,22 +907,27 @@ class QuadsShape(val points: Seq[Point]) extends PolyShape {
   }
 
   val pn = shapes(0).pLine.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  // TODO better default
+  transformationPoint = Some(points(0))
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
   }
 
   override def toString = "Staging.QuadsShape(" + points + ")"
 }
 object QuadsShape {
   def apply(pts: Seq[Point]) = {
-    val shape = new QuadsShape(pts)
-    shape.draw
+    new QuadsShape(pts)
   }
 }
 
@@ -900,22 +958,27 @@ class QuadStripShape(val points: Seq[Point]) extends PolyShape {
   }
 
   val pn = shapes(0).pLine.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  // TODO better default
+  transformationPoint = Some(points(0))
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
   }
 
   override def toString = "Staging.QuadStripShape(" + points + ")"
 }
 object QuadStripShape {
   def apply(pts: Seq[Point]) = {
-    val shape = new QuadStripShape(pts)
-    shape.draw
+    new QuadStripShape(pts)
   }
 }
 
@@ -946,22 +1009,27 @@ class TriangleFanShape(val origin: Point, val points: Seq[Point]) extends PolySh
   }
 
   val pn = shapes(0).pLine.asInstanceOf[PNode]
-  val rp = rotationPoint.getOrElse(points(0)) // TODO better default
-  rotationPoint = Some(rp)
-  def draw = this
-  def rotate(theta: Double) {
-    pn.rotateAboutPoint(theta, rp.x, rp.y)
+  // TODO better default
+  transformationPoint = Some(points(0))
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
   }
-  def scale(scale: Double) {
-    pn.scaleAboutPoint(scale, rp.x, rp.y)
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
   }
 
   override def toString = "Staging.QuadStripShape(" + origin + "," + points + ")"
 }
 object TriangleFanShape {
   def apply(p0: Point, pts: Seq[Point]) = {
-    val shape = new TriangleFanShape(p0, pts)
-    shape.draw
+    new TriangleFanShape(p0, pts)
   }
 }
 
@@ -1056,14 +1124,19 @@ object SvgShape {
       val shapes = List(Impl.figure0.path(d))
       val pn = shapes(0).pPath.asInstanceOf[PNode]
       // TODO better default
-      val rp = rotationPoint.getOrElse(Point(pn.getX, pn.getY))
-      rotationPoint = Some(rp)
-      def draw = this
-      def rotate(theta: Double) {
-        pn.rotateAboutPoint(theta, rp.x, rp.y)
+      transformationPoint = Some(Point(pn.getX, pn.getY))
+      def rotate(amount: Double) {
+        transformationPoint foreach { case Point(x, y) =>
+            pn.rotateAboutPoint(amount, x, y)
+        }
       }
-      def scale(scale: Double) {
-        pn.scaleAboutPoint(scale, rp.x, rp.y)
+      def scale(amount: Double) {
+        transformationPoint foreach { case Point(x, y) =>
+            pn.scaleAboutPoint(amount, x, y)
+        }
+      }
+      def translate(offset: Point) {
+        pn.translate(offset.x, offset.y)
       }
     }
   }
@@ -1093,29 +1166,27 @@ object SvgShape {
       case <g>{ shapes @ _* }</g> =>
         new Shape {
           val shapes = Nil
-          def draw = this
-          def rotate(theta: Double) {}
-          def scale(scale: Double) {}
+          def rotate(amount: Double) {}
+          def scale(amount: Double) {}
+          def translate(offset: Point) {}
         }
         //for (s <- shapes) yield SvgShape(s)
       case <svg>{ shapes @ _* }</svg> =>
         new Shape {
           val shapes = Nil
-          def draw = this
-          def rotate(theta: Double) {}
-          def scale(scale: Double) {}
+          def rotate(amount: Double) {}
+          def scale(amount: Double) {}
+          def translate(offset: Point) {}
         }
         //for (s <- shapes) yield SvgShape(s)
       case _ => // unknown element, ignore
         new Shape {
           val shapes = Nil
-          def draw = this
-          def rotate(theta: Double) {}
-          def scale(scale: Double) {}
+          def rotate(amount: Double) {}
+          def scale(amount: Double) {}
+          def translate(offset: Point) {}
         }
   }
-//    val shape = new SvgShape(node)
-//    shape.draw
   }
 }
 

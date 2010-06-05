@@ -112,14 +112,13 @@ class PointTest extends KojoTestBase {
       runCode()
       Utils.runInSwingThreadAndWait {  /* noop */  }
       assertTrue(runCtx.success.get)
-      assertEquals(res, stripCrLfs(runCtx.getCurrentOutput))
+      println("stripCrLfs(runCtx.getCurrentOutput)=" + stripCrLfs(runCtx.getCurrentOutput))
+      println("res=" + res)
+      assertTrue(stripCrLfs(runCtx.getCurrentOutput) matches res)
     }
   }
 
   @Test
-  def runnableTestToSatisfyJunit {}
-
-  // @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe
   // a leak in the Scala interpreter/compiler subsystem. So we run (mostly)
   // everything in one test
@@ -133,20 +132,20 @@ class PointTest extends KojoTestBase {
   //Wpoint(xval, yval)
   //W}}}
   //W
-    Tester("Staging.point(-22, -13)", "net.kogics.kojo.core.Point = Point(-22,00, -13,00)")
+    Tester("Staging.point(-22, -13)", "net.kogics.kojo.core.Point = Point\\(-22[,.]00, -13[,.]00\\)")
   //W
   //WThe constant `O` (capital o) has the same value of `point(0, 0)`.
-    Tester("Staging.O", "net.kogics.kojo.core.Point = Point(0,00, 0,00)")
+    Tester("Staging.O", "net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)")
   //W
   //WThe methods `M` and `E` have the coordinates of the middle point of the
   //Wuser screen and the coordinates of the upper right corner of the user
   //Wscreen, respectively.  Both return value `point(0, 0)` if `screenSize`
   //Whasn't been called yet.
-    Tester("Staging.M", "net.kogics.kojo.core.Point = Point(0,00, 0,00)")
-    Tester("Staging.E", "net.kogics.kojo.core.Point = Point(0,00, 0,00)")
-    Tester("Staging.screenSize(10,10)", "(Int, Int) = (10,10)")
-    Tester("Staging.M", "net.kogics.kojo.core.Point = Point(5,00, 5,00)")
-    Tester("Staging.E", "net.kogics.kojo.core.Point = Point(10,00, 10,00)")
+    Tester("Staging.M", "net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)")
+    Tester("Staging.E", "net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)")
+    Tester("Staging.screenSize(10,10)", "\\(Int, Int\\) = \\(10,10\\)")
+    Tester("Staging.M", "net.kogics.kojo.core.Point = Point\\(5[,.]00, 5[,.]00\\)")
+    Tester("Staging.E", "net.kogics.kojo.core.Point = Point\\(10[,.]00, 10[,.]00\\)")
   //W
   //WPoint values can be added, subtracted, or negated
   //W
@@ -154,7 +153,7 @@ class PointTest extends KojoTestBase {
   //Wpoint(10, 20) + point(25, 0)
     Tester(
       "Staging.point(10, 20) + Staging.point(25, 0)",
-      "net.kogics.kojo.core.Point = Point(35,00, 20,00)"
+      "net.kogics.kojo.core.Point = Point\\(35[,.]00, 20[,.]00\\)"
     )
   //W}}}
   //W
@@ -164,7 +163,7 @@ class PointTest extends KojoTestBase {
   //Wpoint(35, 20) - point(25, 0)
     Tester(
       "Staging.point(35, 20) - Staging.point(25, 0)",
-      "net.kogics.kojo.core.Point = Point(10,00, 20,00)"
+      "net.kogics.kojo.core.Point = Point\\(10[,.]00, 20[,.]00\\)"
     )
   //W}}}
   //W
@@ -174,7 +173,7 @@ class PointTest extends KojoTestBase {
   //W-point(10, -20)
     Tester(
       "-Staging.point(10, -20)",
-      "net.kogics.kojo.core.Point = Point(-10,00, 20,00)"
+      "net.kogics.kojo.core.Point = Point\\(-10[,.]00, 20[,.]00\\)"
     )
   //W}}}
   //W
@@ -186,16 +185,16 @@ class PointTest extends KojoTestBase {
              |var a = Staging.point(0,0)
              |a = (-22, -13)""".stripMargin,
       "import Staging._" +
-      "a: net.kogics.kojo.core.Point = Point(0,00, 0,00)" +
-      "a: net.kogics.kojo.core.Point = Point(-22,00, -13,00)",
+      "a: net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)" +
+      "a: net.kogics.kojo.core.Point = Point\\(-22[,.]00, -13[,.]00\\)",
       false
     )
     Tester("""import Staging._
              |var b = Staging.point(0,0)
              |b = (5., .45)""".stripMargin,
       "import Staging._" +
-      "b: net.kogics.kojo.core.Point = Point(0,00, 0,00)" +
-      "b: net.kogics.kojo.core.Point = Point(5,00, 0,45)",
+      "b: net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)" +
+      "b: net.kogics.kojo.core.Point = Point\\(5[,.]00, 0[,.]45\\)",
       false
     )
   //W

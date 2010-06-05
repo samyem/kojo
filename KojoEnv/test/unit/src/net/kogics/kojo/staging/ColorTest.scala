@@ -314,14 +314,14 @@ class ColorTest extends KojoTestBase {
   //WnoFill
   //Wfill(null)
     Tester("import Staging._ ; fill(null)", "import Staging._", false)
-    assertEquals(null, SpriteCanvas.instance.figure0.fillColor)
+    assertNull(SpriteCanvas.instance.figure0.fillColor)
 
     Tester(
       """import Staging._ ; fill(color("#99ccDD")) ; noFill""",
       "import Staging._",
       false
     )
-    assertEquals(null, SpriteCanvas.instance.figure0.fillColor)
+    assertNull(SpriteCanvas.instance.figure0.fillColor)
 
   //W}}}
   //W
@@ -344,18 +344,28 @@ class ColorTest extends KojoTestBase {
   //WnoStroke
   //Wstroke(null)
     Tester("import Staging._ ; stroke(null)", "import Staging._", false)
-    assertEquals(null, SpriteCanvas.instance.figure0.lineColor)
+    assertNull(SpriteCanvas.instance.figure0.lineColor)
 
     Tester(
       """import Staging._ ; stroke(color("#99ccDD")) ; noStroke""",
       "import Staging._",
       false
     )
-    assertEquals(null, SpriteCanvas.instance.figure0.lineColor)
+    assertNull(SpriteCanvas.instance.figure0.lineColor)
 
   //W}}}
   //W
-  //TODO test strokeWidth, withStyle
+  //WTo set the stroke width, call `strokeWidth`.
+  //W
+  //W{{{
+  //WstrokeWidth(value)
+    Tester("""import Staging._ ; stroke(red) ; strokeWidth(2)""", "import Staging._", false)
+    Tester("""import Staging._ ; strokeWidth(2)""", "import Staging._", false)
+    //assertEquals(2.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
+
+  //W}}}
+  //W
+  //TODO test withStyle
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
