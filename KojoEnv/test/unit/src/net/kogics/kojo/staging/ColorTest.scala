@@ -372,7 +372,7 @@ class ColorTest extends KojoTestBase {
 
   //W}}}
   //W
-  //WTo set the fill, stroke, and stroke width just for the extent of som lines
+  //WTo set the fill, stroke, and stroke width just for the extent of some lines
   //Wof code, use `withStyle`.
   //W
   //W{{{
@@ -390,7 +390,7 @@ class ColorTest extends KojoTestBase {
   //W}}}
   //W
   //WThe fill, stroke, and stroke width can also be saved with `saveStyle` and
-  //Wlater restored with `restoreStyle` (the later quietly fails if no style
+  //Wlater restored with `restoreStyle` (the latter quietly fails if no style
   //Whas been saved yet).
   //W
   //W{{{
