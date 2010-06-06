@@ -354,6 +354,10 @@ class ColorTest extends KojoTestBase {
     assertNull(SpriteCanvas.instance.figure0.lineColor)
 
   //W}}}
+  }
+
+  @Test
+  def test2 = {
   //W
   //WTo set the stroke width, call `strokeWidth`.
   //W
@@ -361,11 +365,53 @@ class ColorTest extends KojoTestBase {
   //WstrokeWidth(value)
     Tester("""import Staging._ ; stroke(red) ; strokeWidth(2)""", "import Staging._", false)
     Tester("""import Staging._ ; strokeWidth(2)""", "import Staging._", false)
-    //assertEquals(2.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
+    assertEquals(2.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
+    Tester("""import Staging._ ; strokeWidth(2.0)""", "import Staging._", false)
+    assertEquals(2.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
+    Tester("""import Staging._ ; strokeWidth(.2)""", "import Staging._", false)
 
   //W}}}
   //W
-  //TODO test withStyle
+  //WTo set the fill, stroke, and stroke width just for the extent of som lines
+  //Wof code, use `withStyle`.
+  //W
+  //W{{{
+  //WwithStyle(fillColor, strokeColor, strokeWidth) { ...code... }
+    Tester("""import Staging._
+             |
+             |fill(green)
+             |stroke(black)
+             |strokeWidth(1.0)
+             |withStyle(red, blue, 4) {/**/}""".stripMargin, "import Staging._", false)
+    assertEquals("java.awt.Color[r=0,g=255,b=0]", SpriteCanvas.instance.figure0.fillColor.toString)
+    assertEquals("java.awt.Color[r=0,g=0,b=0]", SpriteCanvas.instance.figure0.lineColor.toString)
+    assertEquals(1.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
+
+  //W}}}
+  //W
+  //WThe fill, stroke, and stroke width can also be saved with `saveStyle` and
+  //Wlater restored with `restoreStyle` (the later quietly fails if no style
+  //Whas been saved yet).
+  //W
+  //W{{{
+  //WsaveStyle
+  //WrestoreStyle
+    Tester("""import Staging._
+             |
+             |fill(green)
+             |stroke(black)
+             |strokeWidth(1.0)
+             |saveStyle
+             |fill(red)
+             |stroke(blue)
+             |strokeWidth(4)
+             |restoreStyle""".stripMargin, "import Staging._", false)
+    assertEquals("java.awt.Color[r=0,g=255,b=0]", SpriteCanvas.instance.figure0.fillColor.toString)
+    assertEquals("java.awt.Color[r=0,g=0,b=0]", SpriteCanvas.instance.figure0.lineColor.toString)
+    assertEquals(1.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
+
+  //W}}}
+  //W
   }
 
   def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")

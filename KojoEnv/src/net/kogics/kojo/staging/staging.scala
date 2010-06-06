@@ -212,27 +212,11 @@ object API {
   def noFill = Impl.figure0.setFillColor(null)
   def stroke(c: Color) = Impl.figure0.setPenColor(c)
   def noStroke = Impl.figure0.setPenColor(null)
-  def strokeWidth(w: Double) = {
-    if (Impl.figure0.lineColor != null) {
-      Impl.figure0.setPenThickness(w)
-    }
-  }
-  def withStyle(fc: Color, sc: Color, sw: Double)(body: => Unit) = {
-    val ofc = Impl.figure0.fillColor
-    val osc = Impl.figure0.lineColor
-    val oss: java.awt.BasicStroke =
-      Impl.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke]
-    val osw = oss.getLineWidth
-    fill(fc)
-    stroke(sc)
-    strokeWidth(sw)
-    try { body }
-    finally {
-      fill(ofc)
-      stroke(osc)
-      strokeWidth(osw)
-    }
-  }
+  def strokeWidth(w: Double) = Impl.figure0.setPenThickness(w)
+  def withStyle(fc: Color, sc: Color, sw: Double)(body: => Unit) =
+    Style(fc, sc, sw)(body)
+  def saveStyle = Style.save
+  def restoreStyle = Style.restore
   implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
 
   colorMode(RGB(255, 255, 255))
@@ -1333,6 +1317,35 @@ object RichColor {
       Math.lerp(from.green, to.green, amt).round.toInt,
       Math.lerp(from.blue, to.blue, amt).round.toInt
     )
+  }
+}
+
+object Style {
+  var savedStyles = new scala.collection.mutable.Stack[(Color, Color, Double)]()
+  def save {
+    val s: java.awt.BasicStroke =
+      Impl.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke]
+    savedStyles push Tuple3(
+        Impl.figure0.fillColor,
+        Impl.figure0.lineColor,
+        s.getLineWidth.toDouble
+      )
+  }
+  def restore {
+    if (savedStyles nonEmpty) {
+      val (fc, sc, sw) = savedStyles.pop
+      Impl.figure0.setFillColor(fc)
+      Impl.figure0.setPenColor(sc)
+      Impl.figure0.setPenThickness(sw)
+    }
+  }
+  def apply(fc: Color, sc: Color, sw: Double)(body: => Unit) = {
+    save
+    Impl.figure0.setFillColor(fc)
+    Impl.figure0.setPenColor(sc)
+    Impl.figure0.setPenThickness(sw)
+    try { body }
+    finally { restore }
   }
 }
 
