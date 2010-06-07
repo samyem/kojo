@@ -112,8 +112,6 @@ class PointTest extends KojoTestBase {
       runCode()
       Utils.runInSwingThreadAndWait {  /* noop */  }
       assertTrue(runCtx.success.get)
-      println("stripCrLfs(runCtx.getCurrentOutput)=" + stripCrLfs(runCtx.getCurrentOutput))
-      println("res=" + res)
       assertTrue(stripCrLfs(runCtx.getCurrentOutput) matches res)
     }
   }
@@ -137,15 +135,15 @@ class PointTest extends KojoTestBase {
   //WThe constant `O` (capital o) has the same value of `point(0, 0)`.
     Tester("Staging.O", "net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)")
   //W
-  //WThe methods `M` and `E` have the coordinates of the middle point of the
+  //WThe methods `Mid` and `Ext` have the coordinates of the middle point of the
   //Wuser screen and the coordinates of the upper right corner of the user
-  //Wscreen, respectively.  Both return value `point(0, 0)` if `screenSize`
-  //Whasn't been called yet.
-    Tester("Staging.M", "net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)")
-    Tester("Staging.E", "net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)")
+  //Wscreen (the extreme point), respectively.  Both return value `point(0, 0)`
+  //Wif `screenSize` hasn't been called yet.
+    Tester("Staging.Mid", "net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)")
+    Tester("Staging.Ext", "net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)")
     Tester("Staging.screenSize(10,10)", "\\(Int, Int\\) = \\(10,10\\)")
-    Tester("Staging.M", "net.kogics.kojo.core.Point = Point\\(5[,.]00, 5[,.]00\\)")
-    Tester("Staging.E", "net.kogics.kojo.core.Point = Point\\(10[,.]00, 10[,.]00\\)")
+    Tester("Staging.Mid", "net.kogics.kojo.core.Point = Point\\(5[,.]00, 5[,.]00\\)")
+    Tester("Staging.Ext", "net.kogics.kojo.core.Point = Point\\(10[,.]00, 10[,.]00\\)")
   //W
   //WPoint values can be added, subtracted, or negated
   //W
