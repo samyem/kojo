@@ -54,6 +54,7 @@ object API {
   //W  * StagingArrayTwoDeeExample
   //W  * StagingColorWheelExample
   //W  * StagingCreatingColorsExample
+  //W  * StagingHueSaturationBrightnessExample
   //W
   //W=Overview=
   //W
@@ -63,8 +64,8 @@ object API {
   //W
 
   val O = Point(0, 0)
-  def M = Point(Screen.width / 2, Screen.height / 2)
-  def E = Point(Screen.width, Screen.height)
+  def Mid = Point(Screen.width / 2, Screen.height / 2)
+  def Ext = Point(Screen.width, Screen.height)
 
   def point(x: Double, y: Double) = Point(x, y)
 
@@ -292,6 +293,11 @@ object API {
   def mouseY() = Inputs.stepMousePos.y
   def pmouseX() = Inputs.prevMousePos.x
   def pmouseY() = Inputs.prevMousePos.y
+  val LEFT = 1
+  val CENTER = 2
+  val RIGHT = 3
+  def mouseButton = Inputs.mouseBtn
+  def mousePressed = Inputs.mousePressedFlag
 
   //W
   //W=Usage=
@@ -308,7 +314,7 @@ object Screen {
   var width = 0
   var height = 0
   def size(width: Int, height: Int): (Int, Int) = {
-    // TODO 560 is an value that works on my system, should be less ad-hoc
+    // TODO 560 is a value that works on my system, should be less ad-hoc
     val factor = 560
     val xfactor = factor / (if (width < 0) -(height.abs) else height.abs) // sic!
     val yfactor = factor / height
@@ -1382,6 +1388,8 @@ object Inputs {
   var mousePos: Point = API.O
   var prevMousePos: Point = API.O
   var stepMousePos: Point = API.O
+  var mouseBtn = 0
+  var mousePressedFlag = false
 
   def activityStep() = {
     prevMousePos = stepMousePos
@@ -1415,6 +1423,7 @@ object Inputs {
         super.mouseClicked(e)
         val p = e.getPosition
         mousePos = Point(p.getX, p.getY)
+        mouseBtn = e.getButton
         e match { case ee => println("mouseClicked: e=" + ee) }
       }
       // Will be called when a drag is occurring.
@@ -1427,37 +1436,44 @@ object Inputs {
       // Will be invoked when the mouse enters a specified region.
       override def mouseEntered(e: PInputEvent) {
         super.mouseEntered(e)
+        e.pushCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR))
         val p = e.getPosition
         mousePos = Point(p.getX, p.getY)
-        e match { case ee => println("mouseEntered: e=" + ee) }
+        //e match { case ee => println("mouseEntered: e=" + ee) }
       }
       // Will be invoked when the mouse leaves a specified region.
       override def mouseExited(e: PInputEvent) {
         super.mouseExited(e)
+        e.popCursor
         val p = e.getPosition
         mousePos = Point(p.getX, p.getY)
-        e match { case ee => println("mouseExited: e=" + ee) }
+        mousePressedFlag = false
+        //e match { case ee => println("mouseExited: e=" + ee) }
       }
       // Will be called when the mouse is moved.
       override def mouseMoved(e: PInputEvent) {
         super.mouseMoved(e)
         val p = e.getPosition
         mousePos = Point(p.getX, p.getY)
-        e match { case ee => println("mouseMoved: e=" + ee) }
+        //e match { case ee => println("mouseMoved: e=" + ee) }
       }
       // Will be called when a mouse button is pressed down.
       override def mousePressed(e: PInputEvent) {
         super.mousePressed(e)
         val p = e.getPosition
         mousePos = Point(p.getX, p.getY)
-        e match { case ee => println("mousePressed: e=" + ee) }
+        mouseBtn = e.getButton
+        mousePressedFlag = true
+        //e match { case ee => println("mousePressed: e=" + ee) }
       }
       // Will be called when any mouse button is released.
       override def mouseReleased(e: PInputEvent) {
         super.mouseReleased(e)
         val p = e.getPosition
         mousePos = Point(p.getX, p.getY)
-        e match { case ee => println("mouseReleased: e=" + ee) }
+        mouseBtn = e.getButton
+        mousePressedFlag = false
+        //e match { case ee => println("mouseReleased: e=" + ee) }
       }
       // This method is invoked when the mouse wheel is rotated.
       override def mouseWheelRotated(e: PInputEvent) {
@@ -1473,19 +1489,6 @@ object Inputs {
         mousePos = Point(p.getX, p.getY)
         e match { case ee => println("mouseWheelRotatedByBlock: e=" + ee) }
       }
-
-      /*
-       override def processEvent(e: PInputEvent, t: Int) {
-       (e, t) match {
-       case (ee, 500) => println("e=" + ee + ", t=500")
-       case (ee, 501) => println("e=" + ee + ", t=501")
-       case (ee, 502) => println("e=" + ee + ", t=501")
-       case (ee, 503) => println("e=" + ee + ", t=501")
-       case (ee, 504) => println("e=" + ee + ", t=501")
-       case (ee, tt) => println("e=" + ee + ", t=" + tt)
-       }
-       }
-       */
     }
     
     //iel.setEventFilter(new PInputEventFilter(PInputEventFilter.ALL_MODIFIERS_MASK))
