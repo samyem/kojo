@@ -28,7 +28,7 @@ import net.kogics.kojo.core.RunContext
 import net.kogics.kojo.util._
 
 // cargo coding off CodePaneTest
-class Shapes2Test extends KojoTestBase {
+class SVGShapesTest extends KojoTestBase {
 
   val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
   val file = new java.io.File(fileStr)
