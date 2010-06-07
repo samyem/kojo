@@ -287,6 +287,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
         override def activityStep(elapsedTime: Long) {
           currLayer = fgLayer
           try {
+            staging.Inputs.activityStep
             fn
             if (isStepping) {
               listener.hasPendingCommands()
