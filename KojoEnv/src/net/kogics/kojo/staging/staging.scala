@@ -99,6 +99,13 @@ object API {
   def line(p1: Point, p2: Point) =
     Line(p1, p2)
 
+  def vector(x: Double, y: Double, w: Double, h: Double, a: Double) =
+    Vector(Point(x, y), Point(x + w, y + h), a)
+  def vector(p1: Point, w: Double, h: Double, a: Double) =
+    Vector(p1, Point(p1.x + w, p1.y + h), a)
+  def vector(p1: Point, p2: Point, a: Double) =
+    Vector(p1, p2, a)
+
   def rectangle(x: Double, y: Double, w: Double, h: Double) =
     Rectangle(Point(x, y), Point(x + w, y + h))
   def rectangle(p: Point, w: Double, h: Double) =
@@ -724,6 +731,55 @@ class Arc(
 object Arc {
   def apply(p1: Point, p2: Point, s: Double, e: Double) = {
     new Arc(p1, p2, s, e)
+  }
+}
+
+class Vector(val origin: Point, val endpoint: Point, val length: Double) extends SimpleShape {
+  transformationPoint = Some(origin)
+  val vlength = API.dist(origin, endpoint)
+  val arrowHalfWidth = length / 3
+  val shapes = init
+
+  def init = {
+    val shapePath = new kgeom.PolyLine()
+    shapePath.reset
+    shapePath.polyLinePath.moveTo(origin.x, origin.y)
+    val p = Point(origin.x + vlength, origin.y)
+    shapePath.polyLinePath.lineTo(p.x, p.y)
+    shapePath.polyLinePath.moveTo(p.x, p.y)
+    shapePath.polyLinePath.lineTo(p.x - length, p.y - arrowHalfWidth)
+    shapePath.polyLinePath.lineTo(p.x - length, p.y + arrowHalfWidth)
+    shapePath.polyLinePath.closePath
+    shapePath.updateBounds
+    List(Impl.figure0.polyLine(shapePath))
+  }
+
+  val angle =
+    if (origin.x < endpoint.x) { math.asin((endpoint.y - origin.y) / vlength) }
+    else { math.Pi - math.asin((endpoint.y - origin.y) / vlength) }
+
+  val pn = shapes(0).pLine.asInstanceOf[PNode]
+  pn.rotate(angle)
+
+  def rotate(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.rotateAboutPoint(amount, x, y)
+    }
+  }
+  def scale(amount: Double) {
+    transformationPoint foreach { case Point(x, y) =>
+      pn.scaleAboutPoint(amount, x, y)
+    }
+  }
+  def translate(offset: Point) {
+    pn.translate(offset.x, offset.y)
+  }
+
+  override def toString = "Staging.Vector(" + origin + ", " + endpoint + ")"
+}
+object Vector {
+  def apply(p1: Point, p2: Point, length: Double) = {
+    new Vector(p1, p2, length)
   }
 }
 
