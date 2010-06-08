@@ -23,88 +23,9 @@ import org.junit.Assert._
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
-import net.kogics.kojo.core.RunContext
-
 import net.kogics.kojo.util._
 
-// cargo coding off CodePaneTest
-class ComplexShapesTest extends KojoTestBase {
-
-  val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
-  val file = new java.io.File(fileStr)
-  assertTrue(file.exists)
-  System.setProperty("netbeans.dirs", fileStr)
-
-  val runCtx = new RunContext {
-    val currOutput = new StringBuilder()
-    val success = new AtomicBoolean()
-    val error = new AtomicBoolean()
-
-    def inspect(obj: AnyRef) {}
-    def onInterpreterInit() {}
-    def showScriptInOutput() {}
-    def hideScriptInOutput() {}
-    def showVerboseOutput() {}
-    def hideVerboseOutput() {}
-    def reportRunError() {}
-    def readInput(prompt: String) = ""
-
-    def println(outText: String) = reportOutput(outText)
-    def reportOutput(lineFragment: String) {
-      currOutput.append(lineFragment)
-    }
-
-    def onInterpreterStart(code: String) {}
-    def clearOutput {currOutput.clear}
-    def getCurrentOutput: String  = currOutput.toString
-
-    def onRunError() {
-      error.set(true)
-      latch.countDown()
-    }
-    def onRunSuccess() {
-      success.set(true)
-      latch.countDown()
-    }
-    def onRunInterpError() {latch.countDown()}
-
-    def reportErrorMsg(errMsg: String) {
-      currOutput.append(errMsg)
-    }
-    def reportErrorText(errText: String) {
-      currOutput.append(errText)
-    }
-  }
-
-  val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance, geogebra.GeoGebraCanvas.instance.geomCanvas)
-  val pane = new javax.swing.JEditorPane()
-  val Delimiter = ""
-  var latch: CountDownLatch = _
-
-  def runCode() {
-    latch = new CountDownLatch(1)
-    codeRunner.runCode(pane.getText())
-    latch.await()
-  }
-
-  def scheduleInterruption() {
-    new Thread(new Runnable {
-        def run() {
-          Thread.sleep(1000)
-          codeRunner.interruptInterpreter()
-        }
-      }).start()
-  }
-
-  def peekZoom = {
-    val canvas = SpriteCanvas.instance
-    (
-        canvas.getCamera.getViewTransformReference.getScaleX,
-        canvas.getCamera.getViewTransformReference.getScaleY,
-        canvas.getCamera.getViewTransformReference.getTranslateX,
-        canvas.getCamera.getViewTransformReference.getTranslateY
-      )
-  }
+class ComplexShapesTest extends StagingTestBase {
 
   object Tester {
     var resCounter = 0
@@ -120,8 +41,6 @@ class ComplexShapesTest extends KojoTestBase {
       assertTrue(runCtx.success.get)
     }
   }
-
-  type PNode = edu.umd.cs.piccolo.PNode
 
   def testPolyLine(r: PNode, size: Int) = {
     assertTrue(r.isInstanceOf[net.kogics.kojo.kgeom.PolyLine])
@@ -205,26 +124,6 @@ class ComplexShapesTest extends KojoTestBase {
     assertEquals(path, s)
   }
 
-  def dumpChildString(n: Int) = {
-    try {
-      val c = SpriteCanvas.instance.figure0.dumpChild(n)
-      if (c.isInstanceOf[net.kogics.kojo.kgeom.PArc]) {
-        "PArc(" + (c.getX.round + 1) + "," + (c.getY.round + 1) + ")"
-      }
-      else if (c.isInstanceOf[net.kogics.kojo.kgeom.PPoint]) {
-        "PPoint(" + (c.getX.round + 1) + "," + (c.getY.round + 1) + ")"
-      }
-      else if (c.isInstanceOf[net.kogics.kojo.kgeom.PolyLine]) {
-        "PolyLine(" + (c.getX.round + 2) + "," + (c.getY.round + 2) + ")"
-      }
-      else if (c.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath]) {
-        "PPath(" + (c.getX.round + 1) + "," + (c.getY.round + 1) + ")"
-      }
-      else c.toString
-    }
-    catch { case e => throw e }
-  }
-
   @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe a leak in the Scala interpreter/compiler
   // subsystem. So we run (mostly) everything in one test
@@ -239,7 +138,7 @@ class ComplexShapesTest extends KojoTestBase {
     //W{{{
     //Wpolyline(points)
     Tester("import Staging._ ; polyline(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
-    assertEquals("PolyLine(15,10)", dumpChildString(n))
+    assertEquals("PolyLine(15,10)", makeString(f.dumpChild(n)))
     testPolyLine(f.dumpChild(n), 5)
     n += 1
 
@@ -260,7 +159,7 @@ class ComplexShapesTest extends KojoTestBase {
     //W{{{
     //Wpolygon(points)
     Tester("import Staging._ ; polygon(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
-    assertEquals("PolyLine(15,10)", dumpChildString(n))
+    assertEquals("PolyLine(15,10)", makeString(f.dumpChild(n)))
     testPolyLine(f.dumpChild(n), 5)
     n += 1
 
@@ -277,7 +176,7 @@ class ComplexShapesTest extends KojoTestBase {
     //W{{{
     //Wtriangle(point1, point2, point3)
     Tester("import Staging._ ; triangle((15, 15), (25, 35), (35, 15))")
-    assertEquals("PolyLine(15,15)", dumpChildString(n))
+    assertEquals("PolyLine(15,15)", makeString(f.dumpChild(n)))
     testPolyLine(f.dumpChild(n), 3)
     n += 1
 
@@ -286,7 +185,7 @@ class ComplexShapesTest extends KojoTestBase {
     //W{{{
     //Wquad(point1, point2, point3, point4)
     Tester("import Staging._ ; quad((15, 15), (25, 35), (40, 20), (35, 10))")
-    assertEquals("PolyLine(15,10)", dumpChildString(n))
+    assertEquals("PolyLine(15,10)", makeString(f.dumpChild(n)))
     testPolyLine(f.dumpChild(n), 4)
     n += 1
 
