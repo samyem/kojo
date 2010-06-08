@@ -23,88 +23,9 @@ import org.junit.Assert._
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
-import net.kogics.kojo.core.RunContext
-
 import net.kogics.kojo.util._
 
-// cargo coding off CodePaneTest
-class SimpleShapesTest extends KojoTestBase {
-
-  val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
-  val file = new java.io.File(fileStr)
-  assertTrue(file.exists)
-  System.setProperty("netbeans.dirs", fileStr)
-
-  val runCtx = new RunContext {
-    val currOutput = new StringBuilder()
-    val success = new AtomicBoolean()
-    val error = new AtomicBoolean()
-
-    def inspect(obj: AnyRef) {}
-    def onInterpreterInit() {}
-    def showScriptInOutput() {}
-    def hideScriptInOutput() {}
-    def showVerboseOutput() {}
-    def hideVerboseOutput() {}
-    def reportRunError() {}
-    def readInput(prompt: String) = ""
-
-    def println(outText: String) = reportOutput(outText)
-    def reportOutput(lineFragment: String) {
-      currOutput.append(lineFragment)
-    }
-
-    def onInterpreterStart(code: String) {}
-    def clearOutput {currOutput.clear}
-    def getCurrentOutput: String  = currOutput.toString
-
-    def onRunError() {
-      error.set(true)
-      latch.countDown()
-    }
-    def onRunSuccess() {
-      success.set(true)
-      latch.countDown()
-    }
-    def onRunInterpError() {latch.countDown()}
-
-    def reportErrorMsg(errMsg: String) {
-      currOutput.append(errMsg)
-    }
-    def reportErrorText(errText: String) {
-      currOutput.append(errText)
-    }
-  }
-
-  val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance, geogebra.GeoGebraCanvas.instance.geomCanvas)
-  val pane = new javax.swing.JEditorPane()
-  val Delimiter = ""
-  var latch: CountDownLatch = _
-
-  def runCode() {
-    latch = new CountDownLatch(1)
-    codeRunner.runCode(pane.getText())
-    latch.await()
-  }
-
-  def scheduleInterruption() {
-    new Thread(new Runnable {
-        def run() {
-          Thread.sleep(1000)
-          codeRunner.interruptInterpreter()
-        }
-      }).start()
-  }
-
-  def peekZoom = {
-    val canvas = SpriteCanvas.instance
-    (
-        canvas.getCamera.getViewTransformReference.getScaleX,
-        canvas.getCamera.getViewTransformReference.getScaleY,
-        canvas.getCamera.getViewTransformReference.getTranslateX,
-        canvas.getCamera.getViewTransformReference.getTranslateY
-      )
-  }
+class SimpleShapesTest extends StagingTestBase {
 
   object Tester {
     var resCounter = 0
@@ -121,8 +42,6 @@ class SimpleShapesTest extends KojoTestBase {
     }
   }
 
-  type PNode = edu.umd.cs.piccolo.PNode
-
   def testPolyLine(r: PNode, size: Int) = {
     assertTrue(r.isInstanceOf[net.kogics.kojo.kgeom.PolyLine])
     val pl = r.asInstanceOf[net.kogics.kojo.kgeom.PolyLine]
@@ -135,6 +54,17 @@ class SimpleShapesTest extends KojoTestBase {
     assertEquals(x, pl.getX.round.toInt)
     assertEquals(y, pl.getY.round.toInt)
     assertEquals(size, pl.size)
+  }
+
+  def testPolyLine(r: PNode, s: String) = {
+    assertTrue(r.isInstanceOf[net.kogics.kojo.kgeom.PolyLine])
+    val pl = r.asInstanceOf[net.kogics.kojo.kgeom.PolyLine]
+    val at = new java.awt.geom.AffineTransform
+    val pi = pl.polyLinePath.getPathIterator(at)
+    var res = new StringBuffer
+    val z = getPathString(pi, res).toString
+    if (s != z) println(z)
+    assertEquals(s, z)
   }
 
   val CL = java.awt.geom.PathIterator.SEG_CLOSE   // 4
@@ -160,12 +90,23 @@ class SimpleShapesTest extends KojoTestBase {
     case CL =>
       "z "
   }
+
+  def getPathString(pi: java.awt.geom.PathIterator, res: StringBuffer) = {
+    while (!pi.isDone) {
+      pi.next
+      val coords = Array[Double](0, 0, 0, 0, 0, 0)
+      val t = pi.currentSegment(coords)
+      res.append(ppathSegToString(t, coords))
+    }
+    res.toString
+  }
+
   def ppathToString (pp: edu.umd.cs.piccolo.nodes.PPath) = {
     val pr = pp.getPathReference
     val at = new java.awt.geom.AffineTransform
     val pi = pr.getPathIterator(at)
     var res = new StringBuffer
-    res.append("m" + ("%g" format pp.getX) + "," + ("%g" format pp.getY) + " ")
+    res.append("m" + ("%.2g" format pp.getX) + "," + ("%.2g" format pp.getY) + " ")
     while (!pi.isDone) {
       pi.next
       val coords = Array[Double](0, 0, 0, 0, 0, 0)
@@ -178,27 +119,9 @@ class SimpleShapesTest extends KojoTestBase {
   def testPPath(r: PNode, path: String) = {
     assertTrue(r.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
     val pp = r.asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]
-    assertEquals(path, ppathToString(pp))
-  }
-
-  def dumpChildString(n: Int) = {
-    try {
-      val c = SpriteCanvas.instance.figure0.dumpChild(n)
-      if (c.isInstanceOf[net.kogics.kojo.kgeom.PArc]) {
-        "PArc(" + (c.getX.round + 1) + "," + (c.getY.round + 1) + ")"
-      }
-      else if (c.isInstanceOf[net.kogics.kojo.kgeom.PPoint]) {
-        "PPoint(" + (c.getX.round + 1) + "," + (c.getY.round + 1) + ")"
-      }
-      else if (c.isInstanceOf[net.kogics.kojo.kgeom.PolyLine]) {
-        "PolyLine(" + (c.getX.round + 2) + "," + (c.getY.round + 2) + ")"
-      }
-      else if (c.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath]) {
-        "PPath(" + (c.getX.round + 1) + "," + (c.getY.round + 1) + ")"
-      }
-      else c.toString
-    }
-    catch { case e => throw e }
+    val s = ppathToString(pp)
+    if (path != s) println(s)
+    assertEquals(path, s)
   }
 
   @Test
@@ -218,12 +141,12 @@ class SimpleShapesTest extends KojoTestBase {
     //W{{{
     //Wdot(x, y)
     Tester("Staging.dot(15, 10)")
-    assertEquals("PPoint(15,10)", dumpChildString(n))
+    assertEquals("PPoint(15,10)", makeString(f.dumpChild(n)))
     n += 1
 
     //Wdot(point)
     Tester("Staging.dot(Staging.point(15, 10))")
-    assertEquals("PPoint(15,10)", dumpChildString(n))
+    assertEquals("PPoint(15,10)", makeString(f.dumpChild(n)))
     n += 1
 
     //W}}}
@@ -302,21 +225,21 @@ class SimpleShapesTest extends KojoTestBase {
     //Wrectangle(x, y, width, height)
     Tester("import Staging._ ; rectangle(15, 15, 25, 5)")
     testPPath(f.dumpChild(n),
-              "m14.0000,14.0000 L40.0000,15.0000 L40.0000,20.0000 " +
+              "m14,14 L40.0000,15.0000 L40.0000,20.0000 " +
               "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
     n += 1
 
     //Wrectangle(point1, width, height)
     Tester("import Staging._ ; rectangle((15, 15), 25, 5)")
     testPPath(f.dumpChild(n),
-              "m14.0000,14.0000 L40.0000,15.0000 L40.0000,20.0000 " +
+              "m14,14 L40.0000,15.0000 L40.0000,20.0000 " +
               "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
     n += 1
 
     //Wrectangle(point1, point2)
     Tester("import Staging._ ; rectangle((15, 15), (40, 20))")
     testPPath(f.dumpChild(n),
-              "m14.0000,14.0000 L40.0000,15.0000 L40.0000,20.0000 " +
+              "m14,14 L40.0000,15.0000 L40.0000,20.0000 " +
               "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
     n += 1
 
@@ -328,7 +251,7 @@ class SimpleShapesTest extends KojoTestBase {
              |aLine.toRect""".stripMargin)
     n += 1
     testPPath(f.dumpChild(n),
-              "m14.0000,14.0000 L30.0000,15.0000 L30.0000,40.0000 " +
+              "m14,14 L30.0000,15.0000 L30.0000,40.0000 " +
               "L15.0000,40.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
     n += 1
 
@@ -350,14 +273,14 @@ class SimpleShapesTest extends KojoTestBase {
     //Wsquare(x, y, size)
     Tester("import Staging._ ; square(15, 15, 20)")
     testPPath(f.dumpChild(n),
-              "m14.0000,14.0000 L35.0000,15.0000 L35.0000,35.0000 " +
+              "m14,14 L35.0000,15.0000 L35.0000,35.0000 " +
               "L15.0000,35.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
     n += 1
 
     //Wsquare(point, size)
     Tester("import Staging._ ; square((15, 15), 20)")
     testPPath(f.dumpChild(n),
-              "m14.0000,14.0000 L35.0000,15.0000 L35.0000,35.0000 " +
+              "m14,14 L35.0000,15.0000 L35.0000,35.0000 " +
               "L15.0000,35.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
     n += 1
 
@@ -384,7 +307,7 @@ class SimpleShapesTest extends KojoTestBase {
     //WroundRectangle(point1, point2, point3)
     Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5))")
     testPPath(f.dumpChild(n),
-              "m14.0000,14.0000 L15.0000,17.5000 " +
+              "m14,14 L15.0000,17.5000 " +
               "C15.0000,18.8807 15.6716,20.0000 16.5000,20.0000 " +
               "L38.5000,20.0000 C39.3284,20.0000 40.0000,18.8807 40.0000,17.5000 " +
               "L40.0000,17.5000 C40.0000,16.1193 39.3284,15.0000 38.5000,15.0000 " +
@@ -444,7 +367,7 @@ class SimpleShapesTest extends KojoTestBase {
     //Wellipse(cx, cy, rx, ry)
     Tester("import Staging._ ; ellipse(15, 15, 35, 25)")
     testPPath(f.dumpChild(n),
-              "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
+              "m-21,-11 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
               "C-4.32997,40.0000 -20.0000,28.8071 -20.0000,15.0000 " +
               "C-20.0000,1.19288 -4.32997,-10.0000 15.0000,-10.0000 " +
               "C34.3300,-10.0000 50.0000,1.19288 50.0000,15.0000 " +
@@ -454,7 +377,7 @@ class SimpleShapesTest extends KojoTestBase {
     //Wellipse(p, rx, ry)
     Tester("import Staging._ ; ellipse((15, 15), 35, 25)")
     testPPath(f.dumpChild(n),
-              "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
+              "m-21,-11 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
               "C-4.32997,40.0000 -20.0000,28.8071 -20.0000,15.0000 " +
               "C-20.0000,1.19288 -4.32997,-10.0000 15.0000,-10.0000 " +
               "C34.3300,-10.0000 50.0000,1.19288 50.0000,15.0000 " +
@@ -464,7 +387,7 @@ class SimpleShapesTest extends KojoTestBase {
     //Wellipse(p1, p2)
     Tester("import Staging._ ; ellipse((15, 15), (50, 40))")
     testPPath(f.dumpChild(n),
-              "m-21.0000,-11.0000 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
+              "m-21,-11 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
               "C-4.32997,40.0000 -20.0000,28.8071 -20.0000,15.0000 " +
               "C-20.0000,1.19288 -4.32997,-10.0000 15.0000,-10.0000 " +
               "C34.3300,-10.0000 50.0000,1.19288 50.0000,15.0000 " +
@@ -477,7 +400,7 @@ class SimpleShapesTest extends KojoTestBase {
     //Wcircle(cx, cy, radius)
     Tester("import Staging._ ; circle(15, 15, 25)")
     testPPath(f.dumpChild(n),
-              "m-11.0000,-11.0000 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
+              "m-11,-11 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
               "C1.19288,40.0000 -10.0000,28.8071 -10.0000,15.0000 " +
               "C-10.0000,1.19288 1.19288,-10.0000 15.0000,-10.0000 " +
               "C28.8071,-10.0000 40.0000,1.19288 40.0000,15.0000 " +
@@ -487,7 +410,7 @@ class SimpleShapesTest extends KojoTestBase {
     //Wcircle(p, radius)
     Tester("import Staging._ ; circle((15, 15), 25)")
     testPPath(f.dumpChild(n),
-              "m-11.0000,-11.0000 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
+              "m-11,-11 C40.0000,28.8071 28.8071,40.0000 15.0000,40.0000 " +
               "C1.19288,40.0000 -10.0000,28.8071 -10.0000,15.0000 " +
               "C-10.0000,1.19288 1.19288,-10.0000 15.0000,-10.0000 " +
               "C28.8071,-10.0000 40.0000,1.19288 40.0000,15.0000 " +
@@ -521,6 +444,32 @@ class SimpleShapesTest extends KojoTestBase {
     //W}}}
     //W
 
+    //W
+    //W===Vectors===
+    //W
+    //WA vector is a specialized line with an arrowhead at the endpoint.  An
+    //Wadditional argument specifies the length of the arrowhead.
+    //W
+    //W{{{
+    //Wvector(x, y, width, height, length)
+    Tester("import Staging._ ; vector(15, 15, 25, 5, 3)")
+    testPolyLine(f.dumpChild(n), "L40.4951,15.0000 M40.4951,15.0000 " +
+              "L37.4951,14.0000 L37.4951,16.0000 z M0.00000,0.00000 ")
+    n += 1
+
+    //Wvector(point1, width, height, length)
+    Tester("import Staging._ ; vector((15, 15), 25, 5, 3)")
+    testPolyLine(f.dumpChild(n), "L40.4951,15.0000 M40.4951,15.0000 " +
+              "L37.4951,14.0000 L37.4951,16.0000 z M0.00000,0.00000 ")
+    n += 1
+
+    //Wvector(point1, point2, length)
+    Tester("import Staging._ ; vector((15, 15), (40, 20), 3)")
+    testPolyLine(f.dumpChild(n), "L40.4951,15.0000 M40.4951,15.0000 " +
+              "L37.4951,14.0000 L37.4951,16.0000 z M0.00000,0.00000 ")
+    n += 1
+    //W}}}
+    //W
 
 //    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
   }
