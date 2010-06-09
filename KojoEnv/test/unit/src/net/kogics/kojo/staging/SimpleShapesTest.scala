@@ -20,22 +20,7 @@ import org.junit.Assert._
 
 import net.kogics.kojo.util._
 
-class SimpleShapesTest extends StagingTestBase {
-
-  object Tester {
-    var resCounter = 0
-    var res = ""
-
-    def apply (cmd: String) = {
-      //res += stripCrLfs(Delimiter) + "res" + resCounter + ": " + s
-      resCounter += 1
-      pane.setText(cmd)
-      runCtx.success.set(false)
-      runCode()
-      Utils.runInSwingThreadAndWait {  /* noop */  }
-      assertTrue(runCtx.success.get)
-    }
-  }
+class ASimpleShapesTest extends StagingTestBase {
 
   def testPolyLine(r: PNode, size: Int) = {
     assertTrue(r.isInstanceOf[net.kogics.kojo.kgeom.PolyLine])
@@ -52,6 +37,7 @@ class SimpleShapesTest extends StagingTestBase {
   }
 
   def testPolyLine(r: PNode, s: String) = {
+    /*
     assertTrue(r.isInstanceOf[net.kogics.kojo.kgeom.PolyLine])
     val pl = r.asInstanceOf[net.kogics.kojo.kgeom.PolyLine]
     val at = new java.awt.geom.AffineTransform
@@ -60,32 +46,11 @@ class SimpleShapesTest extends StagingTestBase {
     val z = getPathString(pi, res).toString
     if (s != z) println(z)
     assertEquals(s, z)
+    */
   }
 
-  val CL = java.awt.geom.PathIterator.SEG_CLOSE   // 4
-  val CT = java.awt.geom.PathIterator.SEG_CUBICTO // 3
-  val LT = java.awt.geom.PathIterator.SEG_LINETO  // 1
-  val MT = java.awt.geom.PathIterator.SEG_MOVETO  // 0
-  val QT = java.awt.geom.PathIterator.SEG_QUADTO  // 2
-//  public static final int 	WIND_EVEN_ODD 	0
-//  public static final int 	WIND_NON_ZERO 	1
 
-  def ppathSegToString (t: Int, coords: Array[Double]) = t match {
-    case MT =>
-      "M" + ("%g" format coords(0)) + "," + ("%g" format coords(1)) + " "
-    case LT =>
-      "L" + ("%g" format coords(0)) + "," + ("%g" format coords(1)) + " "
-    case QT =>
-      "Q" + ("%g" format coords(0)) + "," + ("%g" format coords(1)) + " " +
-            ("%g" format coords(2)) + "," + ("%g" format coords(3)) + " "
-    case CT =>
-      "C" + ("%g" format coords(0)) + "," + ("%g" format coords(1)) + " " +
-            ("%g" format coords(2)) + "," + ("%g" format coords(3)) + " " +
-            ("%g" format coords(4)) + "," + ("%g" format coords(5)) + " "
-    case CL =>
-      "z "
-  }
-
+  /*
   def getPathString(pi: java.awt.geom.PathIterator, res: StringBuffer) = {
     while (!pi.isDone) {
       pi.next
@@ -110,21 +75,31 @@ class SimpleShapesTest extends StagingTestBase {
     }
     res.toString
   }
+  */
 
   def testPPath(r: PNode, path: String) = {
+    /*
     assertTrue(r.isInstanceOf[edu.umd.cs.piccolo.nodes.PPath])
     val pp = r.asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]
     val s = ppathToString(pp)
     if (path != s) println(s)
     assertEquals(path, s)
+    */
   }
+
+  val f = SpriteCanvas.instance.figure0
+  var n = 0
+  def peekPNode = {
+    val res = f.dumpChild(n)
+    n += 1
+    res
+  }
+  def skipNode { n += 1 }
 
   @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe a leak in the Scala interpreter/compiler
   // subsystem. So we run (mostly) everything in one test
   def test1 = {
-    val f = SpriteCanvas.instance.figure0
-    var n = 0
     //W
     //W==Simple Shapes==
     //W
@@ -136,13 +111,11 @@ class SimpleShapesTest extends StagingTestBase {
     //W{{{
     //Wdot(x, y)
     Tester("Staging.dot(15, 10)")
-    assertEquals("PPoint(15,10)", makeString(f.dumpChild(n)))
-    n += 1
+    assertEquals("PPoint(15,10)", makeString(peekPNode))
 
     //Wdot(point)
     Tester("Staging.dot(Staging.point(15, 10))")
-    assertEquals("PPoint(15,10)", makeString(f.dumpChild(n)))
-    n += 1
+    assertEquals("PPoint(15,10)", makeString(peekPNode))
 
     //W}}}
 
@@ -156,18 +129,24 @@ class SimpleShapesTest extends StagingTestBase {
     //W{{{
     //Wline(x, y, width, height)
     Tester("import Staging._ ; line(15, 15, 25, 5)")
-    testPolyLine(f.dumpChild(n), 13, 13, 2)
-    n += 1
+    assertEquals(
+      "PolyLine(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //Wline(point1, width, height)
     Tester("import Staging._ ; line((15, 15), 25, 5)")
-    testPolyLine(f.dumpChild(n), 13, 13, 2)
-    n += 1
+    assertEquals(
+      "PolyLine(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //Wline(point1, point2)
     Tester("import Staging._ ; line((15, 15), (40, 20))")
-    testPolyLine(f.dumpChild(n), 13, 13, 2)
-    n += 1
+    assertEquals(
+      "PolyLine(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
     //W}}}
     //W
 
@@ -181,9 +160,11 @@ class SimpleShapesTest extends StagingTestBase {
              |val p1 = point(30, 40)
              |val aDot = dot(p0)
              |aDot.toLine(p1)""".stripMargin)
-    n += 1
-    testPolyLine(f.dumpChild(n), 13, 13, 2)
-    n += 1
+    skipNode
+    assertEquals(
+      "PolyLine(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //WaLine.toLine
     Tester("""import Staging._
@@ -191,7 +172,11 @@ class SimpleShapesTest extends StagingTestBase {
              |val p1 = point(30, 40)
              |val aLine = line(p0, p1)
              |aLine.toLine""".stripMargin)
-    n += 2
+    skipNode
+    assertEquals(
+      "PolyLine(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //WaRect.toLine
     Tester("""import Staging._
@@ -199,11 +184,19 @@ class SimpleShapesTest extends StagingTestBase {
              |val p1 = point(30, 40)
              |val aRect = rectangle(p0, p1)
              |aRect.toLine""".stripMargin)
-    n += 2
+    skipNode
+    assertEquals(
+      "PolyLine(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //WaRoundRectangle.toLine
     Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toLine")
-    n += 2
+    skipNode
+    assertEquals(
+      "PolyLine(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //W}}}
     //W
@@ -219,24 +212,27 @@ class SimpleShapesTest extends StagingTestBase {
     //W{{{
     //Wrectangle(x, y, width, height)
     Tester("import Staging._ ; rectangle(15, 15, 25, 5)")
-    testPPath(f.dumpChild(n),
-              "m14,14 L40.0000,15.0000 L40.0000,20.0000 " +
-              "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
-    n += 1
+    assertEquals(
+      "PPath(15,15 L40.0000,15.0000 L40.0000,20.0000 L15.0000,20.0000 " +
+              "L15.0000,15.0000 z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //Wrectangle(point1, width, height)
     Tester("import Staging._ ; rectangle((15, 15), 25, 5)")
-    testPPath(f.dumpChild(n),
-              "m14,14 L40.0000,15.0000 L40.0000,20.0000 " +
-              "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
-    n += 1
+    assertEquals(
+      "PPath(15,15 L40.0000,15.0000 L40.0000,20.0000 L15.0000,20.0000 " +
+              "L15.0000,15.0000 z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //Wrectangle(point1, point2)
     Tester("import Staging._ ; rectangle((15, 15), (40, 20))")
-    testPPath(f.dumpChild(n),
-              "m14,14 L40.0000,15.0000 L40.0000,20.0000 " +
-              "L15.0000,20.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
-    n += 1
+    assertEquals(
+      "PPath(15,15 L40.0000,15.0000 L40.0000,20.0000 L15.0000,20.0000 " +
+              "L15.0000,15.0000 z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //WaLine.toRect
     Tester("""import Staging._
@@ -244,11 +240,12 @@ class SimpleShapesTest extends StagingTestBase {
              |val p1 = point(30, 40)
              |val aLine = line(p0, p1)
              |aLine.toRect""".stripMargin)
-    n += 1
-    testPPath(f.dumpChild(n),
-              "m14,14 L30.0000,15.0000 L30.0000,40.0000 " +
-              "L15.0000,40.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
-    n += 1
+    skipNode
+    assertEquals(
+      "PPath(15,15 L30.0000,15.0000 L30.0000,40.0000 " +
+              "L15.0000,40.0000 L15.0000,15.0000 z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //WaRect.toRect
     Tester("""import Staging._
@@ -256,28 +253,40 @@ class SimpleShapesTest extends StagingTestBase {
              |val p1 = point(30, 40)
              |val aRect = rectangle(p0, p1)
              |aRect.toRect""".stripMargin)
-    n += 2
+    skipNode
+    assertEquals(
+      "PPath(15,15 L30.0000,15.0000 L30.0000,40.0000 " +
+              "L15.0000,40.0000 L15.0000,15.0000 z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //WaRoundRectangle.toRect
     Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toRect")
-    n += 2
+    skipNode
+    assertEquals(
+      "PPath(15,15 L40.0000,15.0000 L40.0000,20.0000 L15.0000,20.0000 " +
+        "L15.0000,15.0000 z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //W}}}
     //W
     //W{{{
     //Wsquare(x, y, size)
     Tester("import Staging._ ; square(15, 15, 20)")
-    testPPath(f.dumpChild(n),
-              "m14,14 L35.0000,15.0000 L35.0000,35.0000 " +
-              "L15.0000,35.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
-    n += 1
+    assertEquals(
+      "PPath(15,15 L35.0000,15.0000 L35.0000,35.0000 L15.0000,35.0000 " +
+        "L15.0000,15.0000 z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //Wsquare(point, size)
     Tester("import Staging._ ; square((15, 15), 20)")
-    testPPath(f.dumpChild(n),
-              "m14,14 L35.0000,15.0000 L35.0000,35.0000 " +
-              "L15.0000,35.0000 L15.0000,15.0000 z M0.00000,0.00000 ")
-    n += 1
+    assertEquals(
+      "PPath(15,15 L35.0000,15.0000 L35.0000,35.0000 L15.0000,35.0000 " +
+        "L15.0000,15.0000 z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //W}}}
     //W
@@ -292,23 +301,23 @@ class SimpleShapesTest extends StagingTestBase {
     //W{{{
     //WroundRectangle(x, y, width, height, radiusx, radiusy)
     Tester("import Staging._ ; roundRectangle(15, 15, 25, 5, 3, 5)")
-    n += 1
+    skipNode
     //WroundRectangle(point1, width, height, radiusx, radiusy)
     Tester("import Staging._ ; roundRectangle((15, 15), 25, 5, 3, 5)")
-    n += 1
+    skipNode
     //WroundRectangle(point1, point2, radiusx, radiusy)
     Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), 3, 5)")
-    n += 1
+    skipNode
     //WroundRectangle(point1, point2, point3)
     Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5))")
-    testPPath(f.dumpChild(n),
-              "m14,14 L15.0000,17.5000 " +
-              "C15.0000,18.8807 15.6716,20.0000 16.5000,20.0000 " +
-              "L38.5000,20.0000 C39.3284,20.0000 40.0000,18.8807 40.0000,17.5000 " +
-              "L40.0000,17.5000 C40.0000,16.1193 39.3284,15.0000 38.5000,15.0000 " +
-              "L16.5000,15.0000 C15.6716,15.0000 15.0000,16.1193 15.0000,17.5000 " +
-              "z M0.00000,0.00000 ")
-    n += 1
+    assertEquals(
+      "PPath(15,15 L15.0000,17.5000 C15.0000,18.8807 15.6716,20.0000 16.5000,20.0000 " +
+        "L38.5000,20.0000 C39.3284,20.0000 40.0000,18.8807 40.0000,17.5000 " +
+        "L40.0000,17.5000 C40.0000,16.1193 39.3284,15.0000 38.5000,15.0000 " +
+        "L16.5000,15.0000 C15.6716,15.0000 15.0000,16.1193 15.0000,17.5000 " +
+        "z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //WaLine.toRect(p)
     Tester("""import Staging._
@@ -316,7 +325,8 @@ class SimpleShapesTest extends StagingTestBase {
              |val p1 = point(30, 40)
              |val aLine = line(p0, p1)
              |aLine.toRect((3, 5))""".stripMargin)
-    n += 2
+    skipNode
+    skipNode
 
     //WaRect.toRect(p)
     Tester("""import Staging._
@@ -325,7 +335,8 @@ class SimpleShapesTest extends StagingTestBase {
              |val p  = point(3, 5)
              |val aRect = rectangle(p0, p1)
              |aRect.toRect(p)""".stripMargin)
-    n += 2
+    skipNode
+    skipNode
 
     //W}}}
     //W
@@ -334,7 +345,16 @@ class SimpleShapesTest extends StagingTestBase {
     //W{{{
     //WaRoundRectangle.toRect(point)
     Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toRect(O)")
-    n += 2
+    skipNode
+    assertEquals(
+      "PPath(15,15 L15.0000,20.0000 C15.0000,20.0000 15.0000,20.0000 15.0000,20.0000 " +
+        "L40.0000,20.0000 C40.0000,20.0000 40.0000,20.0000 40.0000,20.0000 " +
+        "L40.0000,15.0000 C40.0000,15.0000 40.0000,15.0000 40.0000,15.0000 " +
+        "L15.0000,15.0000 C15.0000,15.0000 15.0000,15.0000 15.0000,15.0000 " +
+        "z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
+
     //W}}}
     //W
     //Wdraws another instance of {{{RoundRectangle}}} with the same dimensions.
@@ -344,9 +364,6 @@ class SimpleShapesTest extends StagingTestBase {
 
   @Test
   def test2 = {
-    val f = SpriteCanvas.instance.figure0
-    f.clear
-    var n = 0
 
     //W
     //W===Ellipses===
@@ -361,6 +378,7 @@ class SimpleShapesTest extends StagingTestBase {
     //W{{{
     //Wellipse(cx, cy, rx, ry)
     Tester("import Staging._ ; ellipse(15, 15, 35, 25)")
+    println(makeString(peekPNode)) ; assertTrue(false)
     testPPath(f.dumpChild(n),
               "m-21,-11 C50.0000,28.8071 34.3300,40.0000 15.0000,40.0000 " +
               "C-4.32997,40.0000 -20.0000,28.8071 -20.0000,15.0000 " +
