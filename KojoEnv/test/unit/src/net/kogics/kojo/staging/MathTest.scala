@@ -98,10 +98,10 @@ class MathTest extends KojoTestBase {
 
   object Tester {
     var resCounter = 0
-    var res = ""
 
     def apply (cmd: String, s: String) = {
-      res += stripCrLfs(Delimiter) + "res" + resCounter + ": " + s
+      runCtx.clearOutput
+      val res = stripCrLfs(Delimiter) + "res" + resCounter + ": " + s
       resCounter += 1
       pane.setText(cmd)
       runCtx.success.set(false)

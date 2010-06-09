@@ -47,17 +47,44 @@ class StagingTestBase extends KojoTestBase {
     latch.await()
   }
 
-  def scheduleInterruption() {
-    new Thread(new Runnable {
-        def run() {
-          Thread.sleep(1000)
-          codeRunner.interruptInterpreter()
-        }
-      }).start()
+  object Tester {
+    var resCounter = 0
+    var res = ""
+
+    def postIncrCounter = {
+      val c = resCounter
+      resCounter += 1
+      c
+    }
+
+    def isMultiLine(cmd: String) = cmd.contains("\n") || cmd.contains(" ; ")
+
+    def outputPrefix(cmd: String) = {
+      if (isMultiLine(cmd)) ""
+      else "res" + postIncrCounter + ": "
+    }
+
+    def apply (cmd: String, s: Option[String] = None) = {
+      runCtx.clearOutput
+      pane.setText(cmd)
+      runCtx.success.set(false)
+
+      runCode()
+      Utils.runInSwingThreadAndWait {  /* noop */  }
+
+      assertTrue(runCtx.success.get)
+      s foreach { ss =>
+          val expect = outputPrefix(cmd) + ss
+          val output = stripCrLfs(runCtx.getCurrentOutput)
+          assertEquals(expect, output)
+      }
+    }
   }
 
   type PNode = edu.umd.cs.piccolo.PNode
   type PPath = edu.umd.cs.piccolo.nodes.PPath
+
+  def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
 
   def makeString(pnode: PNode) = {
     val x = pnode.getX.round + 1
