@@ -15,13 +15,8 @@
 package net.kogics.kojo
 package staging
 
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.junit.Assert._
-
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import net.kogics.kojo.util._
 
@@ -473,7 +468,5 @@ class SimpleShapesTest extends StagingTestBase {
 
 //    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
   }
-
-  def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
 }
 

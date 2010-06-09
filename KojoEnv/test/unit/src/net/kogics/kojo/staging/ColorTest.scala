@@ -15,106 +15,13 @@
 package net.kogics.kojo
 package staging
 
-//import org.junit.After
-//import org.junit.Before
 import org.junit.Test
 import org.junit.Assert._
-
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.{CountDownLatch, TimeUnit}
-
-import net.kogics.kojo.core.RunContext
 
 import net.kogics.kojo.util._
 
 // cargo coding off CodePaneTest
-class ColorTest extends KojoTestBase {
-
-  val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
-  val file = new java.io.File(fileStr)
-  assertTrue(file.exists)
-  System.setProperty("netbeans.dirs", fileStr)
-
-  val runCtx = new RunContext {
-    val currOutput = new StringBuilder()
-    val success = new AtomicBoolean()
-    val error = new AtomicBoolean()
-
-    def inspect(obj: AnyRef) {}
-    def onInterpreterInit() {}
-    def showScriptInOutput() {}
-    def hideScriptInOutput() {}
-    def showVerboseOutput() {}
-    def hideVerboseOutput() {}
-    def reportRunError() {}
-    def readInput(prompt: String) = ""
-
-    def println(outText: String) = reportOutput(outText)
-    def reportOutput(lineFragment: String) {
-      currOutput.append(lineFragment)
-    }
-
-    def onInterpreterStart(code: String) {}
-    def clearOutput {currOutput.clear}
-    def getCurrentOutput: String  = currOutput.toString
-
-    def onRunError() {
-      error.set(true)
-      latch.countDown()
-    }
-    def onRunSuccess() {
-      success.set(true)
-      latch.countDown()
-    }
-    def onRunInterpError() {latch.countDown()}
-
-    def reportErrorMsg(errMsg: String) {
-      currOutput.append(errMsg)
-    }
-    def reportErrorText(errText: String) {
-      currOutput.append(errText)
-    }
-  }
-
-  val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance, geogebra.GeoGebraCanvas.instance.geomCanvas)
-  val pane = new javax.swing.JEditorPane()
-  val Delimiter = ""
-  var latch: CountDownLatch = _
-
-  def runCode() {
-    latch = new CountDownLatch(1)
-    codeRunner.runCode(pane.getText())
-    latch.await()
-  }
-
-  def scheduleInterruption() {
-    new Thread(new Runnable {
-        def run() {
-          Thread.sleep(1000)
-          codeRunner.interruptInterpreter()
-        }
-      }).start()
-  }
-
-  object Tester {
-    var resCounter = 0
-    var res = ""
-
-    def apply (cmd: String, s: String, f: Boolean = true) = {
-      res += stripCrLfs(Delimiter)
-      if (f) {
-        res += "res" + resCounter + ": "
-        resCounter += 1
-      }
-      res += s
-      pane.setText(cmd)
-      runCtx.success.set(false)
-      runCode()
-      Utils.runInSwingThreadAndWait {  /* noop */  }
-      assertTrue(runCtx.success.get)
-      assertEquals(res, stripCrLfs(runCtx.getCurrentOutput))
-    }
-  }
+class ColorTest extends StagingTestBase {
 
   @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe
@@ -130,8 +37,7 @@ class ColorTest extends KojoTestBase {
   //Wcolor( ... )
     Tester(
       "import Staging._ ; println(color(22, 13, 75))",
-      "java.awt.Color[r=22,g=13,b=75]import Staging._",
-      false
+      Some("java.awt.Color[r=22,g=13,b=75]import Staging._")
     )
 
   //W}}}
@@ -144,13 +50,11 @@ class ColorTest extends KojoTestBase {
   //Wcolor(arg)
     Tester(
       "import Staging._ ; colorMode(GRAY(255)) ; println(color(22))",
-      "java.awt.Color[r=22,g=22,b=22]import Staging._",
-      false
+      Some("java.awt.Color[r=22,g=22,b=22]import Staging._")
     )
     Tester(
       "import Staging._ ; colorMode(GRAY(255)) ; println(color(.1))",
-      "java.awt.Color[r=26,g=26,b=26]import Staging._",
-      false
+      Some("java.awt.Color[r=26,g=26,b=26]import Staging._")
     )
 
   //W}}}
@@ -164,8 +68,7 @@ class ColorTest extends KojoTestBase {
   //Wcolor(norm(arg, 0, lim))
     Tester(
       "import Staging._ ; colorMode(GRAY(255)) ; println(color(norm(22, 0, 255)))",
-      "java.awt.Color[r=22,g=22,b=22]import Staging._",
-      false
+      Some("java.awt.Color[r=22,g=22,b=22]import Staging._")
     )
 
   //W}}}
@@ -175,8 +78,7 @@ class ColorTest extends KojoTestBase {
   //Wcolor(intVal)
     Tester(
       "import Staging._ ; colorMode(RGB(255, 255, 255)) ; println(color(22))",
-      "java.awt.Color[r=0,g=0,b=22]import Staging._",
-      false
+      Some("java.awt.Color[r=0,g=0,b=22]import Staging._")
     )
 
   //W}}}
@@ -188,13 +90,11 @@ class ColorTest extends KojoTestBase {
   //Wcolor(arg1, arg2)
     Tester(
       "import Staging._ ; colorMode(GRAYA(255, 255)) ; println(color(22, 22))",
-      "java.awt.Color[r=22,g=22,b=22]import Staging._",
-      false
+      Some("java.awt.Color[r=22,g=22,b=22]import Staging._")
     )
     Tester(
       "import Staging._ ; colorMode(GRAYA(255, 255)) ; println(color(.1, .1))",
-      "java.awt.Color[r=26,g=26,b=26]import Staging._",
-      false
+      Some("java.awt.Color[r=26,g=26,b=26]import Staging._")
     )
 
   //W}}}
@@ -207,13 +107,11 @@ class ColorTest extends KojoTestBase {
   //Wcolor(arg1, arg2, arg3)
     Tester(
       "import Staging._ ; colorMode(RGB(255, 255, 255)) ; println(color(22, 22, 22))",
-      "java.awt.Color[r=22,g=22,b=22]import Staging._",
-      false
+      Some("java.awt.Color[r=22,g=22,b=22]import Staging._")
     )
     Tester(
       "import Staging._ ; colorMode(RGB(255, 255, 255)) ; println(color(.1, .1, .1))",
-      "java.awt.Color[r=26,g=26,b=26]import Staging._",
-      false
+      Some("java.awt.Color[r=26,g=26,b=26]import Staging._")
     )
 
   //W}}}
@@ -225,13 +123,11 @@ class ColorTest extends KojoTestBase {
   //Wcolor(arg1, arg2, arg3, arg4)
     Tester(
       "import Staging._ ; colorMode(RGBA(255, 255, 255, 255)) ; println(color(22, 22, 22, 22))",
-      "java.awt.Color[r=22,g=22,b=22]import Staging._",
-      false
+      Some("java.awt.Color[r=22,g=22,b=22]import Staging._")
     )
     Tester(
       "import Staging._ ; colorMode(RGBA(255, 255, 255, 255)) ; println(color(.1, .1, .1, .1))",
-      "java.awt.Color[r=26,g=26,b=26]import Staging._",
-      false
+      Some("java.awt.Color[r=26,g=26,b=26]import Staging._")
     )
 
   //W}}}
@@ -244,13 +140,11 @@ class ColorTest extends KojoTestBase {
   //Wcolor(arg1, arg2, arg3)
     Tester(
       "import Staging._ ; colorMode(HSB(255, 255, 255)) ; println(color(22, 22, 22))",
-      "java.awt.Color[r=22,g=21,b=20]import Staging._",
-      false
+      Some("java.awt.Color[r=22,g=21,b=20]import Staging._")
     )
     Tester(
       "import Staging._ ; colorMode(HSB(255, 255, 255)) ; println(color(.1, .1, .1))",
-      "java.awt.Color[r=26,g=24,b=23]import Staging._",
-      false
+      Some("java.awt.Color[r=26,g=24,b=23]import Staging._")
     )
 
   //W}}}
@@ -263,13 +157,11 @@ class ColorTest extends KojoTestBase {
   //Wcolor(arg1, arg2, arg3, arg4)
     Tester(
       "import Staging._ ; colorMode(HSBA(255, 255, 255, 255)) ; println(color(22, 22, 22, 22))",
-      "java.awt.Color[r=23,g=117,b=20]import Staging._",
-      false
+      Some("java.awt.Color[r=23,g=117,b=20]import Staging._")
     )
     Tester(
       "import Staging._ ; colorMode(HSBA(255, 255, 255, 255)) ; println(color(.1, .1, .1, .1))",
-      "java.awt.Color[r=27,g=152,b=23]import Staging._",
-      false
+      Some("java.awt.Color[r=27,g=152,b=23]import Staging._")
     )
 
   //W}}}
@@ -283,8 +175,7 @@ class ColorTest extends KojoTestBase {
   //Wcolor(s)
     Tester(
       """import Staging._ ; println(color("#99ccDD"))""",
-      "java.awt.Color[r=153,g=204,b=221]import Staging._",
-      false
+      Some("java.awt.Color[r=153,g=204,b=221]import Staging._")
     )
 
   //W}}}
@@ -301,8 +192,7 @@ class ColorTest extends KojoTestBase {
   //Wfill(color)
     Tester(
       """import Staging._ ; fill(color("#99ccDD"))""",
-      "import Staging._",
-      false
+      Some("import Staging._")
     )
     assertEquals("java.awt.Color[r=153,g=204,b=221]", SpriteCanvas.instance.figure0.fillColor.toString)
 
@@ -313,13 +203,12 @@ class ColorTest extends KojoTestBase {
   //W{{{
   //WnoFill
   //Wfill(null)
-    Tester("import Staging._ ; fill(null)", "import Staging._", false)
+    Tester("import Staging._ ; fill(null)", Some("import Staging._"))
     assertNull(SpriteCanvas.instance.figure0.fillColor)
 
     Tester(
       """import Staging._ ; fill(color("#99ccDD")) ; noFill""",
-      "import Staging._",
-      false
+      Some("import Staging._")
     )
     assertNull(SpriteCanvas.instance.figure0.fillColor)
 
@@ -331,8 +220,7 @@ class ColorTest extends KojoTestBase {
   //Wstroke(color)
     Tester(
       """import Staging._ ; stroke(color("#99ccDD"))""",
-      "import Staging._",
-      false
+      Some("import Staging._")
     )
     assertEquals("java.awt.Color[r=153,g=204,b=221]", SpriteCanvas.instance.figure0.lineColor.toString)
 
@@ -343,13 +231,12 @@ class ColorTest extends KojoTestBase {
   //W{{{
   //WnoStroke
   //Wstroke(null)
-    Tester("import Staging._ ; stroke(null)", "import Staging._", false)
+    Tester("import Staging._ ; stroke(null)", Some("import Staging._"))
     assertNull(SpriteCanvas.instance.figure0.lineColor)
 
     Tester(
       """import Staging._ ; stroke(color("#99ccDD")) ; noStroke""",
-      "import Staging._",
-      false
+      Some("import Staging._")
     )
     assertNull(SpriteCanvas.instance.figure0.lineColor)
 
@@ -363,12 +250,12 @@ class ColorTest extends KojoTestBase {
   //W
   //W{{{
   //WstrokeWidth(value)
-    Tester("""import Staging._ ; stroke(red) ; strokeWidth(2)""", "import Staging._", false)
-    Tester("""import Staging._ ; strokeWidth(2)""", "import Staging._", false)
+    Tester("""import Staging._ ; stroke(red) ; strokeWidth(2)""", Some("import Staging._"))
+    Tester("""import Staging._ ; strokeWidth(2)""", Some("import Staging._"))
     assertEquals(2.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
-    Tester("""import Staging._ ; strokeWidth(2.0)""", "import Staging._", false)
+    Tester("""import Staging._ ; strokeWidth(2.0)""", Some("import Staging._"))
     assertEquals(2.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
-    Tester("""import Staging._ ; strokeWidth(.2)""", "import Staging._", false)
+    Tester("""import Staging._ ; strokeWidth(.2)""", Some("import Staging._"))
 
   //W}}}
   //W
@@ -382,7 +269,7 @@ class ColorTest extends KojoTestBase {
              |fill(green)
              |stroke(black)
              |strokeWidth(1.0)
-             |withStyle(red, blue, 4) {/**/}""".stripMargin, "import Staging._", false)
+             |withStyle(red, blue, 4) {/**/}""".stripMargin, Some("import Staging._"))
     assertEquals("java.awt.Color[r=0,g=255,b=0]", SpriteCanvas.instance.figure0.fillColor.toString)
     assertEquals("java.awt.Color[r=0,g=0,b=0]", SpriteCanvas.instance.figure0.lineColor.toString)
     assertEquals(1.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
@@ -405,7 +292,7 @@ class ColorTest extends KojoTestBase {
              |fill(red)
              |stroke(blue)
              |strokeWidth(4)
-             |restoreStyle""".stripMargin, "import Staging._", false)
+             |restoreStyle""".stripMargin, Some("import Staging._"))
     assertEquals("java.awt.Color[r=0,g=255,b=0]", SpriteCanvas.instance.figure0.fillColor.toString)
     assertEquals("java.awt.Color[r=0,g=0,b=0]", SpriteCanvas.instance.figure0.lineColor.toString)
     assertEquals(1.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
@@ -413,7 +300,5 @@ class ColorTest extends KojoTestBase {
   //W}}}
   //W
   }
-
-  def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
 }
 

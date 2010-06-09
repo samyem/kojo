@@ -27,21 +27,6 @@ import net.kogics.kojo.util._
 
 class ComplexShapesTest extends StagingTestBase {
 
-  object Tester {
-    var resCounter = 0
-    var res = ""
-
-    def apply (cmd: String) = {
-      //res += stripCrLfs(Delimiter) + "res" + resCounter + ": " + s
-      resCounter += 1
-      pane.setText(cmd)
-      runCtx.success.set(false)
-      runCode()
-      Utils.runInSwingThreadAndWait {  /* noop */  }
-      assertTrue(runCtx.success.get)
-    }
-  }
-
   def testPolyLine(r: PNode, size: Int) = {
     assertTrue(r.isInstanceOf[net.kogics.kojo.kgeom.PolyLine])
     val pl = r.asInstanceOf[net.kogics.kojo.kgeom.PolyLine]
@@ -319,7 +304,5 @@ class ComplexShapesTest extends StagingTestBase {
 
 //    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
   }
-
-  def stripCrLfs(str: String) = str.replaceAll("\r?\n", "")
 }
 
