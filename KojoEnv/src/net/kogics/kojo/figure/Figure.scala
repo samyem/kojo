@@ -43,6 +43,8 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   private val fgLayer = new PLayer
   private var currLayer = bgLayer
 
+  def dumpLastChild = currLayer.getChild(currLayer.getChildrenCount - 1)
+
   def dumpChild(n: Int): PNode = {
     try {
       currLayer.getChild(n)
