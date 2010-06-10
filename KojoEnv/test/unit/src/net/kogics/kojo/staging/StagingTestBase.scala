@@ -124,6 +124,11 @@ class StagingTestBase extends KojoTestBase {
     val pi = pr.getPathIterator(at)
     pathIteratorToString(pi)
   }
+
+  def pathData(arc: kgeom.PArc) = {
+    List(arc.arc.getWidth, arc.arc.getHeight, arc.arc.getAngleStart,
+         arc.arc.getAngleExtent).mkString(" ")
+  }
   def pathData(polyLine: kgeom.PolyLine) = {
     pathReferenceToString(polyLine.polyLinePath)
   }
@@ -135,7 +140,8 @@ class StagingTestBase extends KojoTestBase {
     val x = pnode.getX.round + 1
     val y = pnode.getY.round + 1
     if (pnode.isInstanceOf[kgeom.PArc]) {
-      "PArc(" + x + "," + y + ")"
+      "PArc(" + x + "," + y + " " +
+        pathData(pnode.asInstanceOf[kgeom.PArc]) + ")"
     }
     else if (pnode.isInstanceOf[kgeom.PPoint]) {
       "PPoint(" + x + "," + y + ")"
