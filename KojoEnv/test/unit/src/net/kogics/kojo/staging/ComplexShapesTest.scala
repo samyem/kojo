@@ -15,13 +15,8 @@
 package net.kogics.kojo
 package staging
 
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.junit.Assert._
-
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import net.kogics.kojo.util._
 
@@ -225,26 +220,23 @@ class ComplexShapesTest extends StagingTestBase {
        |(20, 20), (15, 30),
        |(15, 30), (20, 40))""".stripMargin
     Tester("import Staging._ ; triangleFanShape((30, 30), " + tfsPoints + ")")
-    println(makeString(peekPNode)) ; fail
-  /*
-
-    assertEquals("" +
-                 "",
+    assertEquals("PolyLine(15,15 L30.0000,45.0000 L40.0000,40.0000 " +
+                 "M30.0000,30.0000 L40.0000,40.0000 L45.0000,30.0000 " +
+                 "M30.0000,30.0000 L45.0000,30.0000 L40.0000,20.0000 " +
+                 "M30.0000,30.0000 L40.0000,20.0000 L30.0000,15.0000 " +
+                 "M30.0000,30.0000 L30.0000,15.0000 L20.0000,20.0000 " +
+                 "M30.0000,30.0000 L20.0000,20.0000 L15.0000,30.0000 " +
+                 "M30.0000,30.0000 L15.0000,30.0000 L20.0000,40.0000 " +
+                 "M0.00000,0.00000 )",
                  makeString(peekPNode))
 
-    /* TODO find problem: code works but the test fails
-    testPolyLine(f.dumpChild(n), "L30,45 L40,40 M30,30 L40,40 L45,30 M30,30 " +
-                 "L45,30 L40,20 M30,30 L40,20 L30,15 M30,30 L30,15 L20,20 " +
-                 "M30,30 L20,20 L15,30 M30,30 L15,30 L20,40 M0.0,0.0 ")
-*/
-    n += 1
 
     //W}}}
     //W
     //Wdraws a pattern of triangles around a central point.
 
 //    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
-    */
+    //println(makeString(peekPNode)) ; fail
   }
 }
 

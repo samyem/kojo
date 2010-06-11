@@ -20,7 +20,6 @@ import org.junit.Assert._
 
 import net.kogics.kojo.util._
 
-// cargo coding off CodePaneTest
 class MathTest extends StagingTestBase {
 
   @Test
