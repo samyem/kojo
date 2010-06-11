@@ -1128,9 +1128,12 @@ object SvgShape {
     Point(rx, ry)
   }
 
-  private def matchFill(ns: scala.xml.Node) = {
-    // parse the fill attribute
-  }
+  private def matchFill(ns: scala.xml.Node) = getAttr(ns, "fill")
+
+  private def matchStroke(ns: scala.xml.Node) = getAttr(ns, "stroke")
+
+  private def matchStrokeWidth(ns: scala.xml.Node) = getAttr(ns, "stroke-width")
+
   private def matchFillStroke (ns: scala.xml.Node) = {
     //TODO
     (getAttr(ns, "fill"), getAttr(ns, "stroke"))
@@ -1143,41 +1146,66 @@ object SvgShape {
     (pointsItr map { a => Point(a(0), a(1)) }).toList
   }
 
+  def setStyle(ns: scala.xml.Node) {
+    val fc_? = matchFill(ns)
+    val sc_? = matchStroke(ns)
+    val sw_? = matchStrokeWidth(ns)
+    API.saveStyle
+    fc_? foreach { fc => API.fill(API.color(fc)) }
+    sc_? foreach { sc => API.stroke(API.color(sc)) }
+    sw_? foreach { sw => API.strokeWidth(sw.toDouble) }
+  }
+
   private def matchRect(ns: scala.xml.Node) = {
     val p0 = matchXY(ns)
     val (width, height) = matchWH(ns)
     val p1 = p0 + Point(width, height)
     val p2 = matchRXY(ns)
-    if (p2.x != 0. || p2.y != 0.) {
-      RoundRectangle(p0, p1, p2)
-    } else {
-      Rectangle(p0, p1)
-    }
+    setStyle(ns)
+    val res =
+      if (p2.x != 0. || p2.y != 0.) {
+        RoundRectangle(p0, p1, p2)
+      } else {
+        Rectangle(p0, p1)
+      }
+    API.restoreStyle
+    res
   }
 
   private def matchCircle(ns: scala.xml.Node) = {
     val p0 = matchXY(ns, "cx", "cy")
     val r = (getAttr(ns, "r") getOrElse "0").toDouble
     val p1 = p0 + Point(r, r)
-    Ellipse(p0, p1)
+    setStyle(ns)
+    val res = Ellipse(p0, p1)
+    API.restoreStyle
+    res
   }
 
   private def matchEllipse(ns: scala.xml.Node) = {
     val p0 = matchXY(ns, "cx", "cy")
     val p1 = p0 + matchRXY(ns)
-    Ellipse(p0, p1)
+    setStyle(ns)
+    val res = Ellipse(p0, p1)
+    API.restoreStyle
+    res
   }
 
   private def matchLine(ns: scala.xml.Node) = {
     val p1 = matchXY(ns, "x1", "y1")
     val p2 = matchXY(ns, "x2", "y2")
-    Line(p1, p2)
+    setStyle(ns)
+    val res = Line(p1, p2)
+    API.restoreStyle
+    res
   }
 
   private def matchPath(ns: scala.xml.Node) = {
     val d = (ns \ "@d" text)
     new Shape {
+      setStyle(ns)
       val shapes = List(Impl.figure0.path(d))
+      API.restoreStyle
       val pn = shapes(0).pPath.asInstanceOf[PNode]
       // TODO better default
       transformationPoint = Some(Point(pn.getX, pn.getY))
@@ -1214,9 +1242,15 @@ object SvgShape {
       case <line></line> =>
         matchLine(node)
       case <polyline></polyline> =>
-        Polyline(matchPoints(node))
+        setStyle(node)
+        val res = Polyline(matchPoints(node))
+        API.restoreStyle
+        res
       case <polygon></polygon> =>
-        Polygon(matchPoints(node))
+        setStyle(node)
+        val res = Polygon(matchPoints(node))
+        API.restoreStyle
+        res
       case <path></path> =>
         matchPath(node)
       case <g>{ shapes @ _* }</g> =>
