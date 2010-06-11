@@ -178,10 +178,20 @@ class ColorTest extends StagingTestBase {
       Some("java.awt.Color[r=153,g=204,b=221]import Staging._")
     )
 
+    Tester(
+      """import Staging._ ; println(color("aliceblue"))""",
+      Some("java.awt.Color[r=240,g=248,b=255]import Staging._")
+    )
+
   //W}}}
   //W
-  //Wwhere `s` is a string with the format "#rrggbb" creates a color described
-  //Wby that (hexadecimal) value regardless of color mode.
+  //Wwhere s is either
+  //W
+  //W    * "none",
+  //W    * one of the names in this list: http://www.w3.org/TR/SVG/types.html#ColorKeywords, or
+  //W    * a string with the format "#rrggbb" (in hexadecimal)
+  //W
+  //Wreturns the described color regardless of color mode.
   //W
   //WWhen drawing figures, the _fill_ color, which is used for the insides, and
   //Wthe _stroke_ color, which is used for the edges, can be set and unset.
@@ -213,6 +223,10 @@ class ColorTest extends StagingTestBase {
     assertNull(SpriteCanvas.instance.figure0.fillColor)
 
   //W}}}
+  }
+
+  @Test
+  def test2 = {
   //W
   //WTo set the stroke color, call `stroke`.
   //W
@@ -241,10 +255,6 @@ class ColorTest extends StagingTestBase {
     assertNull(SpriteCanvas.instance.figure0.lineColor)
 
   //W}}}
-  }
-
-  @Test
-  def test2 = {
   //W
   //WTo set the stroke width, call `strokeWidth`.
   //W

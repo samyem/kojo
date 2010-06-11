@@ -55,6 +55,7 @@ object API {
   //W  * StagingColorWheelExample
   //W  * StagingCreatingColorsExample
   //W  * StagingHueSaturationBrightnessExample
+  //W  * StagingSineOfAnAngleExample
   //W
   //W=Overview=
   //W
@@ -215,7 +216,7 @@ object API {
   def color(v1: Int, v2: Int, v3: Int, a: Int) = ColorMode.color(v1, v2, v3, a)
   def color(v1: Double, v2: Double, v3: Double) = ColorMode.color(v1, v2, v3)
   def color(v1: Double, v2: Double, v3: Double, a: Double) = ColorMode.color(v1, v2, v3, a)
-  def color(s: String) = java.awt.Color.decode(s)
+  def color(s: String) = ColorMode.color(s)
   def fill(c: Color) = Impl.figure0.setFillColor(c)
   def noFill = Impl.figure0.setFillColor(null)
   def stroke(c: Color) = Impl.figure0.setPenColor(c)
@@ -1127,6 +1128,9 @@ object SvgShape {
     Point(rx, ry)
   }
 
+  private def matchFill(ns: scala.xml.Node) = {
+    // parse the fill attribute
+  }
   private def matchFillStroke (ns: scala.xml.Node) = {
     //TODO
     (getAttr(ns, "fill"), getAttr(ns, "stroke"))
@@ -1356,6 +1360,11 @@ object ColorMode {
       val c = java.awt.Color.getHSBColor(h, s, b)
       new Color(c.getRGB | Math.lerp(0, 255, a).toInt << 12, true)
     }
+  }
+  def color(s: String): Color = s match {
+    case ColorName(cc) => cc
+    case "none"        => null
+    case z             => java.awt.Color.decode(s)
   }
 }
 
