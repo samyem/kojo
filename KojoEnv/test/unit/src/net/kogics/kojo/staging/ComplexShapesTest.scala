@@ -155,12 +155,6 @@ class ComplexShapesTest extends StagingTestBase {
     //W
     //W{{{
     //WtriangleStripShape(points)
-    val _tssPoints = """List((10, 20), (10, 50),
-       |(20, 20), (20, 50),
-       |(30, 20), (30, 50),
-       |(40, 20), (40, 50),
-       |(50, 20), (50, 50),
-       |(60, 20), (60, 50))""".stripMargin
     val tssPoints = """List((10, 20), (10, 50),
        |(20, 20), (20, 50),
        |(30, 20), (30, 50),
@@ -187,17 +181,11 @@ class ComplexShapesTest extends StagingTestBase {
     //W{{{
     //WquadsShape(points)
     Tester("import Staging._ ; quadsShape(" + points + ")")
-    println(makeString(peekPNode)) ; fail
-  /*
-
-    /* TODO find problem: code works but the test fails
-    testPolyLine(f.dumpChild(n),
-                        "L10,50 L20,50 L20,20 z " +
-                 "M30,20 L30,50 L40,50 L40,20 z " +
-                 "M50,20 L50,50 L60,50 L60,20 z M0.0,0.0 "
-)
-*/
-    n += 1
+    assertEquals("PolyLine(10,20 L10.0000,50.0000 L20.0000,50.0000 L20.0000,20.0000 z " +
+                 "M30.0000,20.0000 L30.0000,50.0000 L40.0000,50.0000 L40.0000,20.0000 z " +
+                 "M50.0000,20.0000 L50.0000,50.0000 L60.0000,50.0000 L60.0000,20.0000 z " +
+                 "M0.00000,0.00000 )",
+                 makeString(peekPNode))
 
     //W}}}
     //W
@@ -208,11 +196,16 @@ class ComplexShapesTest extends StagingTestBase {
     //W
     //W{{{
     //WquadStripShape(points)
-    Tester("import Staging._ ; quadStripShape(" + points + ")")
-    /* TODO find problem: code works but the test fails
-    testPolyLine(f.dumpChild(n), "")
-*/
-    n += 1
+    val points2 = """List((10, 20), (10, 50),
+       |(20, 50), (20, 20),
+       |(30, 20), (30, 50),
+       |(40, 50), (40, 20))""".stripMargin
+    Tester("import Staging._ ; quadStripShape(" + points2 + ")")
+    assertEquals("PolyLine(10,20 L10.0000,50.0000 L20.0000,50.0000 L20.0000,20.0000 z " +
+                 "M20.0000,50.0000 L20.0000,20.0000 L30.0000,20.0000 L30.0000,50.0000 z " +
+                 "M30.0000,20.0000 L30.0000,50.0000 L40.0000,50.0000 L40.0000,20.0000 z " +
+                 "M0.00000,0.00000 )",
+                 makeString(peekPNode))
 
     //W}}}
     //W
@@ -232,6 +225,13 @@ class ComplexShapesTest extends StagingTestBase {
        |(20, 20), (15, 30),
        |(15, 30), (20, 40))""".stripMargin
     Tester("import Staging._ ; triangleFanShape((30, 30), " + tfsPoints + ")")
+    println(makeString(peekPNode)) ; fail
+  /*
+
+    assertEquals("" +
+                 "",
+                 makeString(peekPNode))
+
     /* TODO find problem: code works but the test fails
     testPolyLine(f.dumpChild(n), "L30,45 L40,40 M30,30 L40,40 L45,30 M30,30 " +
                  "L45,30 L40,20 M30,30 L40,20 L30,15 M30,30 L30,15 L20,20 " +
