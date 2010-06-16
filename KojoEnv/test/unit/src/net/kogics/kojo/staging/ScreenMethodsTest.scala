@@ -42,6 +42,19 @@ class ScreenMethodsTest extends StagingTestBase {
   //W
     Tester("Staging.screenWidth", Some("Int = 0"))
     Tester("Staging.screenHeight", Some("Int = 0"))
+
+  //W
+  //WThe methods `screenMid` and `screenExt` yield the coordinates of the middle
+  //Wpoint of the user screen and the coordinates of the upper right corner of
+  //Wthe user screen (the extreme point), respectively.  Both return value
+  //W`point(0, 0)` if `screenSize` hasn't been called yet.
+    Tester("Staging.screenMid", Some("$net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)"))
+    Tester("Staging.screenExt", Some("$net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)"))
+    Tester("Staging.screenSize(10,10)", Some("$\\(Int, Int\\) = \\(10,10\\)"))
+    Tester("Staging.screenMid", Some("$net.kogics.kojo.core.Point = Point\\(5[,.]00, 5[,.]00\\)"))
+    Tester("Staging.screenExt", Some("$net.kogics.kojo.core.Point = Point\\(10[,.]00, 10[,.]00\\)"))
+
+  //W
   //WThe dimensions of the user screen can be set by calling
   //W
   //W{{{
@@ -51,6 +64,8 @@ class ScreenMethodsTest extends StagingTestBase {
     assertEquals(("3.000","-3.000","-375.0","225.0"), peekZoom)
     Tester("Staging.screenWidth", Some("Int = 250"))
     Tester("Staging.screenHeight", Some("Int = 150"))
+
+  //W
   //WThe orientation of either axis can be reversed by negation, e.g.:
   //W
   //W{{{
@@ -65,6 +80,18 @@ class ScreenMethodsTest extends StagingTestBase {
     assertEquals(("-3.000","-3.000","375.0","225.0"), peekZoom)
     Tester("Staging.screenSize(-250, -150)", Some("(Int, Int) = (250,150)"))
     assertEquals(("-3.000","3.000","375.0","-225.0"), peekZoom)
+
+  //W
+  //WThe background color for the user screen area can be set:
+  //W
+  //W{{{
+  //Wbackground(color)
+    Tester("""import Staging._
+             |screenSize(250, 150)
+             |background(color("black"))""".stripMargin,
+           None)
+  //W}}}
+  //W
   }
 }
 

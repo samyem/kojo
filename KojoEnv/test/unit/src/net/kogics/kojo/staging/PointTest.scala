@@ -43,16 +43,7 @@ class PointTest extends StagingTestBase {
   //W
   //WThe constant `O` (capital o) has the same value of `point(0, 0)`.
     Tester("Staging.O", Some("$net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)"))
-  //W
-  //WThe methods `Mid` and `Ext` have the coordinates of the middle point of the
-  //Wuser screen and the coordinates of the upper right corner of the user
-  //Wscreen (the extreme point), respectively.  Both return value `point(0, 0)`
-  //Wif `screenSize` hasn't been called yet.
-    Tester("Staging.Mid", Some("$net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)"))
-    Tester("Staging.Ext", Some("$net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)"))
-    Tester("Staging.screenSize(10,10)", Some("$\\(Int, Int\\) = \\(10,10\\)"))
-    Tester("Staging.Mid", Some("$net.kogics.kojo.core.Point = Point\\(5[,.]00, 5[,.]00\\)"))
-    Tester("Staging.Ext", Some("$net.kogics.kojo.core.Point = Point\\(10[,.]00, 10[,.]00\\)"))
+
   //W
   //WPoint values can be added, subtracted, or negated
   //W
