@@ -17,6 +17,7 @@ package net.kogics.kojo
 package staging
 
 import edu.umd.cs.piccolo.PNode
+import edu.umd.cs.piccolo.util.PBounds
 
 import net.kogics.kojo.util.Utils
 import net.kogics.kojo.core.Point
@@ -28,15 +29,19 @@ object Impl {
   val canvas = SpriteCanvas.instance
 }
 
+/** Staging API
+  *
+  * This object contains the API for using Staging within Kojo scripts.
+  *
+  * DISCLAIMER
+  *
+  * Parts of this interface is written to approximately conform to the
+  * Processing API as described in the reference at
+  * <URL: http://processing.org/reference/>.
+  * The implementation code is the work of Peter Lewerin
+  * (<peter.lewerin@tele2.se>) and is not in any way derived from the
+  * Processing source. */
 object API {
-  /* DISCLAIMER
-   Parts of this interface is written to approximately
-   conform to the Processing API as described in the
-   reference at <URL: http://processing.org/reference/>.
-   The implementation code is the work of Peter Lewerin
-   <peter.lewerin@tele2.se> and is not in any way
-   derived from the Processing source.
-   */
   //W#summary Developer home-page for the Staging Module
   //W
   //W=Introduction=
@@ -64,25 +69,40 @@ object API {
   //WStaging uses {{{net.kogics.kojo.core.Point}}} for coordinates.
   //W
 
-  val O = Point(0, 0)
-  def Mid = Point(Screen.width / 2, Screen.height / 2)
-  def Ext = Point(Screen.width, Screen.height)
-
   def point(x: Double, y: Double) = Point(x, y)
 
   implicit def tupleDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
   implicit def tupleIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
   implicit def baseShapeToPoint(b: BaseShape) = b.origin
+  implicit def awtPointToPoint(p: java.awt.geom.Point2D) = Point(p.getX, p.getY)
+  implicit def awtDimToPoint(d: java.awt.geom.Dimension2D) = Point(d.getWidth, d.getHeight)
+
+  /** The point of origin, located at a corner of the user screen if
+    * `screenSize` has been called, or the middle of the screen otherwise. */
+  val O = Point(0, 0)
 
   //W
   //W==User Screen==
   //W
   //WThe zoom level and axis orientations can be set using `screenSize`.
   //W
-  def screenWidth = Screen.width
-  def screenHeight = Screen.height
+  def screenWidth = Screen.rect.width.toInt
+  def screenHeight = Screen.rect.height.toInt
   def screenSize(width: Int, height: Int) = Screen.size(width, height)
 
+  /** The middle point of the user screen, or (0, 0) if `screenSize` hasn't
+    * been called. */
+  def screenMid: Point = Screen.midpoint
+
+  /** The extreme point of the user screen (i.e. the opposite corner from
+    * the point of origin), or (0, 0) if `screenSize` hasn't been called. */
+  def screenExt: Point = Screen.extpoint
+
+  /** Fills the user screen with the specified color. */
+  def background(bc: Color) = {
+    withStyle(bc, null, 1) { rectangle(O, screenExt) }
+  }
+  
   //W
   //W==Simple shapes and text==
   //W
@@ -319,18 +339,20 @@ object Point {
 }
 
 object Screen {
-  var width = 0
-  var height = 0
-  def size(width: Int, height: Int): (Int, Int) = {
+  var rect = new PBounds(0, 0, 0, 0)
+
+  def size(width: Int, height: Int) = {
     // TODO 560 is a value that works on my system, should be less ad-hoc
     val factor = 560
     val xfactor = factor / (if (width < 0) -(height.abs) else height.abs) // sic!
     val yfactor = factor / height
     Impl.canvas.zoomXY(xfactor, yfactor, width / 2, height / 2)
-    this.width = width.abs
-    this.height = height.abs
-    (this.width, this.height)
+    rect.setRect(0, 0, width.abs, height.abs)
+    (rect.width.toInt, rect.height.toInt)
   }
+
+  def midpoint = rect.getCenter2D
+  def extpoint = rect.getSize
 }
 
 //M=Shapes=
@@ -380,6 +402,7 @@ trait Rounded {
 //Mthe shape bounds (except for {{{Elliptical}}} shapes, see below).
 trait BaseShape extends Shape {
   val origin: Point
+  val pn: PNode
   def toLine(p: Point) = Line(origin, p)
 }
 
@@ -420,6 +443,7 @@ trait Elliptical extends Rounded with SimpleShape {
 //M{{{Dot}}} is drawn to the canvas as a dot of the stroke color.
 class Dot(val origin: Point) extends BaseShape {
   val shapes = List(Impl.figure0.point(origin.x, origin.y))
+  val pn = null
   def rotate(amount: Double) {}
   def scale(amount: Double) {}
   def translate(offset: Point) {}
@@ -1086,6 +1110,20 @@ object TriangleFanShape {
   }
 }
 
+class Group(val shapes: Seq[figure.FigShape]) extends Shape {
+  //delegate transformations to shapes somehow
+  def rotate(amount: Double) {  }
+  def scale(amount: Double) {  }
+  def translate(offset: Point) {  }
+
+  override def toString = "Staging.Group(" + shapes.mkString(",") + ")"
+}
+object Group {
+  def apply(shapes: Seq[figure.FigShape]) = {
+    new Group(shapes)
+  }
+}
+
 //M|| *!SvgShape*  || Shape || node                            ||
 //M
 //M==!SvgShape==
@@ -1133,11 +1171,6 @@ object SvgShape {
   private def matchStroke(ns: scala.xml.Node) = getAttr(ns, "stroke")
 
   private def matchStrokeWidth(ns: scala.xml.Node) = getAttr(ns, "stroke-width")
-
-  private def matchFillStroke (ns: scala.xml.Node) = {
-    //TODO
-    (getAttr(ns, "fill"), getAttr(ns, "stroke"))
-  }
 
   private def matchPoints (ns: scala.xml.Node): Seq[Point] = {
     val pointsStr = ns \ "@points" text
@@ -1200,6 +1233,17 @@ object SvgShape {
     res
   }
 
+  private def matchText(ns: scala.xml.Node) = {
+    //TODO hmm not working
+    val p1 = matchXY(ns)
+    // should also support dx/dy, rotate, textLength, lengthAdjust
+    // and font attributes (as far as piccolo/awt can support them)
+    setStyle(ns)
+    val res = Text(ns.text, p1)
+    API.restoreStyle
+    res
+  }
+
   private def matchPath(ns: scala.xml.Node) = {
     val d = (ns \ "@d" text)
     new Shape {
@@ -1232,6 +1276,7 @@ object SvgShape {
     //   color-interpolation, color-rendering
     // and
     //   transform-list
+    //
   node match {
       case <rect></rect> =>
         matchRect(node)
@@ -1241,6 +1286,8 @@ object SvgShape {
         matchEllipse(node)
       case <line></line> =>
         matchLine(node)
+      case <text></text> =>
+        matchText(node)
       case <polyline></polyline> =>
         setStyle(node)
         val res = Polyline(matchPoints(node))
@@ -1476,7 +1523,7 @@ object Math {
   def lerp(value1: Double, value2: Double, amt: Double) = {
     require(amt >= 0d && amt <= 1d)
     val range: Double = value2 - value1
-    value1 + amt * range
+     value1 + amt * range
   }
 }
 
