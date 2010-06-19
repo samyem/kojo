@@ -133,7 +133,6 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   type FRectangle = FigRectangle
   type FRRectangle = FigRoundRectangle
   type FPolyLine = FigShape
-  type FPath = FigPath
 
 
   def point(x: Double, y: Double): FigPoint = {
@@ -265,16 +264,22 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   }
 
 
-  def path(descriptor: String): FigPath = {
-    val path = new FigPath(canvas, descriptor)
+  def pnode(node: PNode) = {
     Utils.runInSwingThread {
-      path.pPath.setStroke(lineStroke)
-      path.pPath.setStrokePaint(lineColor)
-      path.pPath.setPaint(fillColor)
-      currLayer.addChild(path.pPath)
+      if (node.isInstanceOf[PPath]) {
+        val p = node.asInstanceOf[PPath]
+        p.setPaint(fillColor)
+        p.setStroke(lineStroke)
+        p.setStrokePaint(lineColor)
+      }
+      else if (node.isInstanceOf[PText]) {
+        val t = node.asInstanceOf[PText]
+        t.setTextPaint(lineColor)
+      }
+      currLayer.addChild(node)
       currLayer.repaint
     }
-    path
+    node
   }
 
 

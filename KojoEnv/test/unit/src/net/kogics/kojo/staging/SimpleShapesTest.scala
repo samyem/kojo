@@ -40,11 +40,11 @@ class SimpleShapesTest extends StagingTestBase {
     //W{{{
     //Wdot(x, y)
     Tester("Staging.dot(15, 10)")
-    assertEquals("PPoint(15,10)", makeString(peekPNode))
+    assertEquals("PPath(15,10 L15.0000,10.0000 M0.00000,0.00000 )", makeString(peekPNode))
 
     //Wdot(point)
     Tester("Staging.dot(Staging.point(15, 10))")
-    assertEquals("PPoint(15,10)", makeString(peekPNode))
+    assertEquals("PPath(15,10 L15.0000,10.0000 M0.00000,0.00000 )", makeString(peekPNode))
 
     //W}}}
 
@@ -59,21 +59,21 @@ class SimpleShapesTest extends StagingTestBase {
     //Wline(x, y, width, height)
     Tester("import Staging._ ; line(15, 15, 25, 5)")
     assertEquals(
-      "PolyLine(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
+      "PPath(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
       makeString(peekPNode)
     )
 
     //Wline(point1, width, height)
     Tester("import Staging._ ; line((15, 15), 25, 5)")
     assertEquals(
-      "PolyLine(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
+      "PPath(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
       makeString(peekPNode)
     )
 
     //Wline(point1, point2)
     Tester("import Staging._ ; line((15, 15), (40, 20))")
     assertEquals(
-      "PolyLine(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
+      "PPath(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
       makeString(peekPNode)
     )
     //W}}}
@@ -90,7 +90,7 @@ class SimpleShapesTest extends StagingTestBase {
              |val aDot = dot(p0)
              |aDot.toLine(p1)""".stripMargin)
     assertEquals(
-      "PolyLine(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
+      "PPath(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
       makeString(peekPNode)
     )
 
@@ -101,7 +101,7 @@ class SimpleShapesTest extends StagingTestBase {
              |val aLine = line(p0, p1)
              |aLine.toLine""".stripMargin)
     assertEquals(
-      "PolyLine(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
+      "PPath(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
       makeString(peekPNode)
     )
 
@@ -112,14 +112,14 @@ class SimpleShapesTest extends StagingTestBase {
              |val aRect = rectangle(p0, p1)
              |aRect.toLine""".stripMargin)
     assertEquals(
-      "PolyLine(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
+      "PPath(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
       makeString(peekPNode)
     )
 
     //WaRoundRectangle.toLine
     Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toLine")
     assertEquals(
-      "PolyLine(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
+      "PPath(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
       makeString(peekPNode)
     )
 
@@ -373,7 +373,7 @@ class SimpleShapesTest extends StagingTestBase {
     //Warc(cx, cy, rx, ry, s, e)
     Tester("import Staging._ ; arc(15, 15, 20, 10, 40, 95)")
     assertEquals(
-      "PArc(1,15 40.0 20.0 -40.0 -95.0)",
+      "PPath(1,15 C26.7165,23.5756 21.4744,24.8682 15.8724,24.9905 C10.2703,25.1128 4.82289,24.0536 0.857864,22.0711 L15.0000,15.0000 z M0.00000,0.00000 )",
       makeString(peekPNode)
     )
 
@@ -396,7 +396,7 @@ class SimpleShapesTest extends StagingTestBase {
     //Wvector(x, y, width, height, length)
     Tester("import Staging._ ; vector(15, 15, 25, 5, 3)")
     assertEquals(
-      "PolyLine(15,14 L40.4951,15.0000 M40.4951,15.0000 L37.4951,14.0000 " +
+      "PPath(15,14 L40.4951,15.0000 M40.4951,15.0000 L37.4951,14.0000 " +
         "L37.4951,16.0000 z M0.00000,0.00000 )",
       makeString(peekPNode)
     )

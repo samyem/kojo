@@ -36,7 +36,7 @@ class ComplexShapesTest extends StagingTestBase {
     //W{{{
     //Wpolyline(points)
     Tester("import Staging._ ; polyline(List((15, 15), (25, 35), (40, 20), (45, 25), (50, 10)))")
-    assertEquals("PolyLine(15,10 L25.0000,35.0000 L40.0000,20.0000 " +
+    assertEquals("PPath(15,10 L25.0000,35.0000 L40.0000,20.0000 " +
                  "L45.0000,25.0000 L50.0000,10.0000 M0.00000,0.00000 )",
                  makeString(peekPNode))
 
@@ -57,7 +57,7 @@ class ComplexShapesTest extends StagingTestBase {
     Tester("""import Staging._
              |polygon(List((15, 15), (25, 35),
              |(40, 20), (45, 25), (50, 10)))""".stripMargin)
-    assertEquals("PolyLine(15,10 L25.0000,35.0000 L40.0000,20.0000 " +
+    assertEquals("PPath(15,10 L25.0000,35.0000 L40.0000,20.0000 " +
                  "L45.0000,25.0000 L50.0000,10.0000 z M0.00000,0.00000 )",
                  makeString(peekPNode))
 
@@ -76,7 +76,7 @@ class ComplexShapesTest extends StagingTestBase {
     //W{{{
     //Wtriangle(point1, point2, point3)
     Tester("import Staging._ ; triangle((15, 15), (25, 35), (35, 15))")
-    assertEquals("PolyLine(15,15 L25.0000,35.0000 L35.0000,15.0000 " +
+    assertEquals("PPath(15,15 L25.0000,35.0000 L35.0000,15.0000 " +
                  "z M0.00000,0.00000 )",
                  makeString(peekPNode))
 
@@ -85,7 +85,7 @@ class ComplexShapesTest extends StagingTestBase {
     //W{{{
     //Wquad(point1, point2, point3, point4)
     Tester("import Staging._ ; quad((15, 15), (25, 35), (40, 20), (35, 10))")
-    assertEquals("PolyLine(15,10 L25.0000,35.0000 L40.0000,20.0000 " +
+    assertEquals("PPath(15,10 L25.0000,35.0000 L40.0000,20.0000 " +
                  "L35.0000,10.0000 z M0.00000,0.00000 )",
                  makeString(peekPNode))
 
@@ -104,7 +104,7 @@ class ComplexShapesTest extends StagingTestBase {
        |(50, 20), (50, 50),
        |(60, 50), (60, 20))""".stripMargin
     Tester("import Staging._ ; linesShape(" + points + ")")
-    assertEquals("PolyLine(10,20 L10.0000,50.0000 " +
+    assertEquals("PPath(10,20 L10.0000,50.0000 " +
                  "M20.0000,50.0000 L20.0000,20.0000 " +
                  "M30.0000,20.0000 L30.0000,50.0000 " +
                  "M40.0000,50.0000 L40.0000,20.0000 " +
@@ -123,7 +123,7 @@ class ComplexShapesTest extends StagingTestBase {
     //W{{{
     //WtrianglesShape(points)
     Tester("import Staging._ ; trianglesShape(" + points + ")")
-    assertEquals("PolyLine(10,20 L10.0000,50.0000 L20.0000,50.0000 z " +
+    assertEquals("PPath(10,20 L10.0000,50.0000 L20.0000,50.0000 z " +
                  "M20.0000,20.0000 L30.0000,20.0000 L30.0000,50.0000 z " +
                  "M40.0000,50.0000 L40.0000,20.0000 L50.0000,20.0000 z " +
                  "M50.0000,50.0000 L60.0000,50.0000 L60.0000,20.0000 z " +
@@ -156,7 +156,7 @@ class ComplexShapesTest extends StagingTestBase {
        |(40, 20), (40, 50),
        |(50, 20))""".stripMargin
     Tester("import Staging._ ; triangleStripShape(" + tssPoints + ")")
-    assertEquals("PolyLine(10,20 L10.0000,50.0000 L20.0000,20.0000 z " +
+    assertEquals("PPath(10,20 L10.0000,50.0000 L20.0000,20.0000 z " +
                  "M10.0000,50.0000 L20.0000,20.0000 L20.0000,50.0000 z " +
                  "M20.0000,20.0000 L20.0000,50.0000 L30.0000,20.0000 z " +
                  "M20.0000,50.0000 L30.0000,20.0000 L30.0000,50.0000 z " +
@@ -176,7 +176,7 @@ class ComplexShapesTest extends StagingTestBase {
     //W{{{
     //WquadsShape(points)
     Tester("import Staging._ ; quadsShape(" + points + ")")
-    assertEquals("PolyLine(10,20 L10.0000,50.0000 L20.0000,50.0000 L20.0000,20.0000 z " +
+    assertEquals("PPath(10,20 L10.0000,50.0000 L20.0000,50.0000 L20.0000,20.0000 z " +
                  "M30.0000,20.0000 L30.0000,50.0000 L40.0000,50.0000 L40.0000,20.0000 z " +
                  "M50.0000,20.0000 L50.0000,50.0000 L60.0000,50.0000 L60.0000,20.0000 z " +
                  "M0.00000,0.00000 )",
@@ -196,7 +196,7 @@ class ComplexShapesTest extends StagingTestBase {
        |(30, 20), (30, 50),
        |(40, 50), (40, 20))""".stripMargin
     Tester("import Staging._ ; quadStripShape(" + points2 + ")")
-    assertEquals("PolyLine(10,20 L10.0000,50.0000 L20.0000,50.0000 L20.0000,20.0000 z " +
+    assertEquals("PPath(10,20 L10.0000,50.0000 L20.0000,50.0000 L20.0000,20.0000 z " +
                  "M20.0000,50.0000 L20.0000,20.0000 L30.0000,20.0000 L30.0000,50.0000 z " +
                  "M30.0000,20.0000 L30.0000,50.0000 L40.0000,50.0000 L40.0000,20.0000 z " +
                  "M0.00000,0.00000 )",
@@ -220,7 +220,7 @@ class ComplexShapesTest extends StagingTestBase {
        |(20, 20), (15, 30),
        |(15, 30), (20, 40))""".stripMargin
     Tester("import Staging._ ; triangleFanShape((30, 30), " + tfsPoints + ")")
-    assertEquals("PolyLine(15,15 L30.0000,45.0000 L40.0000,40.0000 " +
+    assertEquals("PPath(15,15 L30.0000,45.0000 L40.0000,40.0000 " +
                  "M30.0000,30.0000 L40.0000,40.0000 L45.0000,30.0000 " +
                  "M30.0000,30.0000 L45.0000,30.0000 L40.0000,20.0000 " +
                  "M30.0000,30.0000 L40.0000,20.0000 L30.0000,15.0000 " +

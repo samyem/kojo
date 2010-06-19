@@ -80,7 +80,7 @@ class SVGShapesTest extends StagingTestBase {
     //W{{{
     //WsvgShape(<line x1="15" y1="15" x2="40" y2="20"/>)
     Tester("""import Staging._ ; svgShape(<line x1="15" y1="15" x2="40" y2="20"/>)""")
-    assertEquals("PolyLine(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
+    assertEquals("PPath(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
                  makeString(peekPNode))
 
     //W}}}
@@ -91,7 +91,7 @@ class SVGShapesTest extends StagingTestBase {
     //W{{{
     //WsvgShape(<polyline points="15,15 25,35 40,20 45,25 50,10"/>)
     Tester("""import Staging._ ; svgShape(<polyline points="15,15 25,35 40,20 45,25 50,10"/>)""")
-    assertEquals("PolyLine(15,10 L25.0000,35.0000 L40.0000,20.0000 " +
+    assertEquals("PPath(15,10 L25.0000,35.0000 L40.0000,20.0000 " +
                  "L45.0000,25.0000 L50.0000,10.0000 M0.00000,0.00000 )",
                  makeString(peekPNode))
 
@@ -103,7 +103,7 @@ class SVGShapesTest extends StagingTestBase {
     //W{{{
     //WsvgShape(<polygon points="15,15 25,35 40,20 45,25 50,10"/>)
     Tester("""import Staging._ ; svgShape(<polygon points="15,15 25,35 40,20 45,25 50,10"/>)""")
-    assertEquals("PolyLine(15,10 L25.0000,35.0000 L40.0000,20.0000 " +
+    assertEquals("PPath(15,10 L25.0000,35.0000 L40.0000,20.0000 " +
                  "L45.0000,25.0000 L50.0000,10.0000 z M0.00000,0.00000 )",
                  makeString(peekPNode))
 

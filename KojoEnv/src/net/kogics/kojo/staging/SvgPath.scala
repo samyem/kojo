@@ -14,7 +14,7 @@
  */
 
 package net.kogics.kojo
-package figure
+package staging
 
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
@@ -25,10 +25,15 @@ import javax.swing._
 
 import core._
 
-class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShape {
-  val pPath = new PPath()
+class SvgPath(val path: PPath) extends StrokedShape {
+  val origin = Point(path.getX, path.getY)
 
-  case class Point(x: Float, y: Float)
+  override def toString = "Staging.SvgPath(" + path + ")"
+}
+object SvgPath {
+  var pPath: PPath = _
+
+//  case class Point(x: Float, y: Float)
   
   type CurvePointGroup = (Point, Point, Point)
   type QuadPointGroup = (Point, Point)
@@ -46,7 +51,7 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
     var t: Point = _
 
     def adjust(p: Point): Point = p match { case Point(x, y) =>
-      adjust(x, y)
+      adjust(x.toFloat, y.toFloat)
     }
     def adjust(x: Float, y: Float): Point
 
@@ -82,11 +87,11 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
     }
     def apply () = {
       if (pts.nonEmpty) adjust(pts.head) match { case Point(x, y) =>
-        pPath.moveTo(x, y)
+        pPath.moveTo(x.toFloat, y.toFloat)
         currentPoint = adjust(pts.head)
       }
       this foreach { case Point(x, y) =>
-        pPath.lineTo(x, y)
+        pPath.lineTo(x.toFloat, y.toFloat)
       }
     }
   }
@@ -105,8 +110,8 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
       pts map adjust foreach fn
       currentPoint = pts.last
     }
-    def apply () = this foreach { case Point(x, y) =>
-      pPath.lineTo(x, y)
+    def apply () = this foreach { case(Point(x, y)) =>
+      pPath.lineTo(x.toFloat, y.toFloat)
     }
   }
 
@@ -127,8 +132,8 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
       }
       currentPoint = t
     }
-    def apply () = this foreach { case(p) =>
-      pPath.lineTo(p.x, p.y)
+    def apply () = this foreach { case(Point(x, y)) =>
+      pPath.lineTo(x.toFloat, y.toFloat)
     }
   }
 
@@ -149,8 +154,8 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
       }
       currentPoint = t
     }
-    def apply () = this foreach { case(p) =>
-      pPath.lineTo(p.x, p.y)
+    def apply () = this foreach { case(Point(x, y)) =>
+      pPath.lineTo(x.toFloat, y.toFloat)
     }
   }
 
@@ -175,9 +180,8 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
       currentControlPoint = t2
       currentPoint = t
     }
-    def apply () = this foreach {
-      case(p1, p2, p) =>
-        pPath.curveTo(p1.x, p1.y, p2.x, p2.y, p.x, p.y)
+    def apply () = this foreach { case(Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
+      pPath.curveTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat, x3.toFloat, y3.toFloat)
     }
   }
 
@@ -202,9 +206,8 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
       currentControlPoint = t2
       currentPoint = t
     }
-    def apply () = this foreach {
-      case(p1, p2, p) =>
-        pPath.curveTo(p1.x, p1.y, p2.x, p2.y, p.x, p.y)
+    def apply () = this foreach { case(Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
+      pPath.curveTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat, x3.toFloat, y3.toFloat)
     }
   }
 
@@ -228,8 +231,8 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
       currentControlPoint = t1
       currentPoint = t
     }
-    def apply () = this foreach { case(p1, p) =>
-      pPath.quadTo(p1.x, p1.y, p.x, p.y)
+    def apply () = this foreach { case(Point(x1, y1), Point(x2, y2)) =>
+      pPath.quadTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat)
     }
   }
   case class QuadBezierAbs(cs: List[QuadPointGroup]) extends SVGCmd
@@ -251,8 +254,8 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
       currentControlPoint = t1
       currentPoint = t
     }
-    def apply () = this foreach { case(p1, p) =>
-      pPath.quadTo(p1.x, p1.y, p.x, p.y)
+    def apply () = this foreach { case(Point(x1, y1), Point(x2, y2)) =>
+      pPath.quadTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat)
     }
   }
 
@@ -349,17 +352,25 @@ class FigPath (val canvas: PCanvas, d: String) extends core.Path(d) with FigShap
     def apply (d: String) = parseAll(svgpath, d)
   }
 
-  try {
-    ParseExpr(d).get match {
-      case List((move: SVGCmd, drawcmds: List[SVGCmd])) =>
-        move()
-        drawcmds foreach (_())
-      case List() =>
+  def apply(d: String) = {
+    pPath = new PPath
+    
+    try {
+      ParseExpr(d).get match {
+        case List((move: SVGCmd, drawcmds: List[SVGCmd])) =>
+          move()
+          drawcmds foreach (_())
+        case List() =>
+      }
     }
-  }
-  catch {
-    case e => throw e
-  }
+    catch {
+      // TODO if exceptions crop up, handle them here.  If not, eventually
+      // take out exception handling entirely.
+      case e => throw e
+    }
 
-  protected val piccoloNode = pPath
+    val shape = new SvgPath(pPath)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
 }

@@ -17,7 +17,9 @@ package net.kogics.kojo
 package staging
 
 import edu.umd.cs.piccolo.PNode
+import edu.umd.cs.piccolo.nodes.PPath
 import edu.umd.cs.piccolo.util.PBounds
+import edu.umd.cs.piccolo.activities.PActivity
 
 import net.kogics.kojo.util.Utils
 import net.kogics.kojo.core.Point
@@ -355,66 +357,52 @@ object Screen {
   def extpoint = rect.getSize
 }
 
-//M=Shapes=
-//M
-//M==Summary==
-//M|| *Class* or trait     || *Extends*                 || *Defines* (methods in italics)  ||
-//M|| Shape                ||                           || _draw_                          ||
-//M
-//M==Shape (trait)==
-//M
-//M{{{Shape}}} is the base type for all shapes.  Every class that extends
-//Mit must implement the nullary method _draw_.  This method should create
-//Man instance of the shape and add it to the canvas.
-//M
-//M_Not implemented yet: shapes should remember the colors and stroke style
-//Mused and any transforms applied, and apply them again whenever _draw_ is
-//Mcalled._
-trait Shape extends core.VisualElement {
-  val shapes: Seq[figure.FigShape]
-  var transformationPoint: Option[Point] = None
-  def hide() = shapes foreach (_.hide)
-  def show() = shapes foreach (_.show)
-  def setColor(color: Color) = shapes foreach (_.setColor(color))
-  def rotate(amount: Double): Unit
-  def scale(amount: Double): Unit
-  def translate(offset: Point): Unit
+trait Shape {
+  def node: PNode
+  def hide() = node.setVisible(false)
+  def show() = node.setVisible(true)
+  def fill_=(color: Color) { node.setPaint(color) }
+  def fill = node.getPaint
+  def rotate(amount: Double) = node.rotate(amount)
+  def scale(amount: Double) = node.scale(amount)
+  def offset_=(p: Point) = node.setOffset(p.x, p.y)
+  def offset = { val o = node.getOffset ; Point(o.getX, o.getY) }
+  //def addActivity(a: PActivity) = Impl.canvas.getRoot.addActivity(a)
 }
-//M|| Rounded              ||                           || curvature, _radiusX_, _radiusY_ ||
-//M
-//M==Rounded (trait)==
-//M
-//M{{{Rounded}}} is a base type for shapes with rounded parts.  Every class
-//Mthat extends it must have a value member, curvature, of type {{{Point}}}.
-//MIt defines _radiusX_, _radiusY_ as access methods to the _x_ and _y_
-//Mcomponents of curvature.
+
 trait Rounded {
   val curvature: Point
   def radiusX = curvature.x
   def radiusY = curvature.y
 }
-//M|| !BaseShape           || Shape                     || origin, _toLine_                ||
-//M
-//M==!BaseShape (trait)==
-//M
-//M{{{BaseShape}}} is the base type for shapes that have a point of origin.
-//MThis value member of type {{{Point}}} defines the lower left corner of
-//Mthe shape bounds (except for {{{Elliptical}}} shapes, see below).
+
 trait BaseShape extends Shape {
   val origin: Point
-  val pn: PNode
   def toLine(p: Point) = Line(origin, p)
 }
 
-//M|| !SimpleShape         || !BaseShape|| endpoint, _width_, _height_, _toLine_, _toRect_ ||
-//M
-//M==!SimpleShape (trait)==
-//M
-//M{{{SimpleShape}}} is the base type for shapes that are defined by two
-//Mpoints, origin and endpoint (the upper right corner of the shape bounds).
-//MThey have _width_ and _height_.  Every class that extends this trait must
-//Mhave value members origin and endpoint, of type {{{Point}}}.
-trait SimpleShape extends BaseShape {
+trait StrokedShape extends BaseShape {
+  val path: PPath
+  def node = path
+  var style: java.awt.BasicStroke = Impl.figure0.DefaultStroke
+  def stroke_=(color: Color) = path.setStrokePaint(color)
+  def stroke = path.getStrokePaint
+  def strokeWidth_=(width: Double) {
+    this style =
+      new java.awt.BasicStroke(width.toFloat, style.getEndCap, style.getLineJoin)
+  }
+  def strokeWidth = this.strokeStyle.getLineWidth.toDouble
+  def strokeStyle_=(style: java.awt.BasicStroke) { this.style = style }
+  def strokeStyle = style
+
+  def setPalette {
+    fill = Impl.figure0.fillColor
+    strokeStyle = Impl.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke]
+    stroke = Impl.figure0.lineColor
+  }
+}
+
+trait SimpleShape extends StrokedShape {
   val endpoint: Point
   def width = endpoint.x - origin.x
   def height = endpoint.y - origin.y
@@ -423,717 +411,386 @@ trait SimpleShape extends BaseShape {
   def toRect(p: Point): RoundRectangle = RoundRectangle(origin, endpoint, p)
 }
 
-//M|| Elliptical           || Rounded with !SimpleShape || `*`                             ||
-//M`*`: {{{Elliptical}}} implements {{{curvature}}} and overrides {{{width}}} and {{{height}}}.
-//M
-//M==Elliptical (trait)==
-//M
-//M{{{Elliptical}}} is the base type for shapes that are rounded and whose
-//Morigin value member defines their center.
-trait Elliptical extends Rounded with SimpleShape {
+trait Elliptical extends SimpleShape with Rounded {
   val curvature = endpoint - origin
   override def width = 2 * radiusX
   override def height = 2 * radiusY
 }
 
-//M|| *Dot*                || !BaseShape                ||                                 ||
-//M
-//M==Dot==
-//M
-//M{{{Dot}}} is drawn to the canvas as a dot of the stroke color.
-class Dot(val origin: Point) extends BaseShape {
-  val shapes = List(Impl.figure0.point(origin.x, origin.y))
-  val pn = null
-  def rotate(amount: Double) {}
-  def scale(amount: Double) {}
-  def translate(offset: Point) {}
+class Dot(val origin: Point) extends StrokedShape {
+  val path = PPath.createLine(
+    origin.x.toFloat, origin.y.toFloat,
+    origin.x.toFloat, origin.y.toFloat
+  )
 
   override def toString = "Staging.Dot(" + origin + ")"
 }
 object Dot {
   def apply(p: Point) = {
-    new Dot(p)
+    val shape = new Dot(p)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
 class Text(val text: String, val origin: Point) extends BaseShape {
-  val shapes = List(Impl.figure0.text(text, origin.x, origin.y))
-  val pn = shapes(0).pText.asInstanceOf[PNode]
-  transformationPoint = Some(origin)
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  import java.awt.Font
+  val tnode = new edu.umd.cs.piccolo.nodes.PText(text)
+  def node = tnode
+
+  tnode.getTransformReference(true).setToScale(1, -1)
+  tnode.setOffset(origin.x, origin.y)
+  val font = new Font(tnode.getFont.getName, Font.PLAIN, 14)
+  tnode.setFont(font)
 
   override def toString = "Staging.Text(" + text + ", " + origin + ")"
 }
 object Text {
   def apply(s: String, p: Point) = {
-    new Text(s, p)
+    val shape = new Text(s, p)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *Line*               || !SimpleShape              ||                                 ||
-//M
-//M==Line==
-//M
-//M{{{Line}}} is drawn to the canvas as a straight line of the stroke color
-//Mfrom origin to endpoint.
 class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
-  val shapes = List(Impl.figure0.line(origin, endpoint))
-  val pn = shapes(0).pLine.asInstanceOf[PNode]
-  transformationPoint = Some(Point(origin.x + width / 2., origin.y + height / 2.))
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
-
+  val path =
+    PPath.createLine(origin.x.toFloat, origin.y.toFloat, endpoint.x.toFloat, endpoint.y.toFloat)
+  
   override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
 }
 object Line {
   def apply(p1: Point, p2: Point) = {
-    new Line(p1, p2)
+    val shape = new Line(p1, p2)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *Rectangle*          || !SimpleShape              ||                                 ||
-//M
-//M==Rectangle==
-//M
-//M{{{Rectangle}}} is drawn to the canvas as a rectangle of the fill and
-//Mstroke color from origin to endpoint.
-//M
-//MThe width and height of the rectangle must both be positive, so if the
-//Mdimensions are given in the form of a {{{Point}}} it must be to the right
-//Mof and above origin.
 class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
   // precondition endpoint > origin
   require(width > 0 && height > 0)
-  val shapes = List(Impl.figure0.rectangle(origin, endpoint))
-  val pn = shapes(0).pRect.asInstanceOf[PNode]
-  transformationPoint = Some(Point(origin.x + width / 2., origin.y + height / 2.))
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  val path =
+    PPath.createRectangle(origin.x.toFloat, origin.y.toFloat, width.toFloat, height.toFloat)
 
   override def toString = "Staging.Rectangle(" + origin + ", " + endpoint + ")"
 }
 object Rectangle {
   def apply(p1: Point, p2: Point) = {
-    new Rectangle(p1, p2)
+    val shape = new Rectangle(p1, p2)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
 
-//M|| !PolyShape           || Shape                   || points, _toPolyline_, _toPolygon_ ||
-//M
-//M==!PolyShape (trait)==
-//M
-//M{{{PolyShape}}} is the base type for shapes that are defined by several
-//Mpoints.  The points are stored in a value member of type sequence of
-//M{{{Point}}}s.
-trait PolyShape extends Shape {
+trait PolyShape extends BaseShape {
   val points: Seq[Point]
+  val origin = points(0)
   def toPolygon: Polygon = Polygon(points)
   def toPolyline: Polyline = Polyline(points)
 }
 
-//M|| *!RoundRectangle*    || Rounded with !SimpleShape ||                                 ||
-//M
-//M==!RoundRectangle==
-//M
-//M{{{RoundRectangle}}} is drawn to the canvas as a rectangle with rounded
-//Mcorners of the fill and stroke color from origin to endpoint.  The
-//Mcurvature of the corners can be determined by x-radius and y-radius
-//Mvalues or by a point value.
-//M
-//MThe width and height of the rectangle must both be positive, so if the
-//Mdimensions are given in the form of a {{{Point}}} it must be to the right
-//Mof and above origin.
 class RoundRectangle(
   val origin: Point,
   val endpoint: Point,
   val curvature: Point
-) extends Rounded with SimpleShape {
+) extends SimpleShape with Rounded {
   // precondition endpoint > origin
   require(width > 0 && height > 0)
-  val shapes = List(Impl.figure0.roundRectangle(origin, endpoint, radiusX, radiusY))
-  val pn = shapes(0).pRect.asInstanceOf[PNode]
-  transformationPoint = Some(Point(origin.x + width / 2., origin.y + height / 2.))
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  val path =
+    PPath.createRoundRectangle(
+      origin.x.toFloat, origin.y.toFloat,
+      width.toFloat, height.toFloat,
+      curvature.x.toFloat, curvature.y.toFloat
+    )
 
   override def toString =
     "Staging.RoundRectangle(" + origin + ", " + endpoint + ", " + curvature + ")"
 }
 object RoundRectangle {
   def apply(p1: Point, p2: Point, p3: Point) = {
-    new RoundRectangle(p1, p2, p3)
+    val shape = new RoundRectangle(p1, p2, p3)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *Polyline*           || !PolyShape                ||                                 ||
-//M
-//M==Polyline==
-//M
-//M{{{Polyline}}} is drawn to the canvas as a segmented line connecting the
-//Mgiven points by straight edges, using the fill and stroke color.
-class Polyline(val points: Seq[Point]) extends PolyShape {
-  val shapePath = new kgeom.PolyLine()
-  points foreach { case Point(x, y) =>
-      shapePath.addPoint(x, y)
-  }
-  val shapes = List(Impl.figure0.polyLine(shapePath))
-  val pn = shapes(0).pLine.asInstanceOf[PNode]
-  // TODO better default
-  transformationPoint = Some(points(0))
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+class Polyline(val points: Seq[Point]) extends PolyShape with StrokedShape {
+  val path = PPath.createPolyline((points map {
+        case Point(x, y) => new java.awt.geom.Point2D.Double(x, y)
+      }).toArray)
 
   override def toString = "Staging.Polyline(" + points + ")"
 }
 object Polyline {
   def apply(pts: Seq[Point]) = {
-    new Polyline(pts)
+    val shape = new Polyline(pts)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *Polygon*            || !PolyShape                ||                                 ||
-//M
-//M==Polygon==
-//M
-//M{{{Polygon}}} is drawn to the canvas as a segmented line connecting the
-//Mgiven points by straight edges, using the fill and stroke color.  The
-//Mshape is closed, meaning that the last point connects to the first point.
-class Polygon(val points: Seq[Point]) extends PolyShape {
-  val shapePath = new kgeom.PolyLine()
-  points foreach { case Point(x, y) =>
-      shapePath.addPoint(x, y)
-  }
-  shapePath.polyLinePath.closePath
-  val shapes = List(Impl.figure0.polyLine(shapePath))
-  val pn = shapes(0).pLine.asInstanceOf[PNode]
-  // TODO better default
-  transformationPoint = Some(points(0))
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+class Polygon(val points: Seq[Point]) extends PolyShape with StrokedShape {
+  val path = PPath.createPolyline((points map {
+        case Point(x, y) => new java.awt.geom.Point2D.Double(x, y)
+      }).toArray)
+  path.closePath
 
   override def toString = "Staging.Polygon(" + points + ")"
 }
 object Polygon {
   def apply(pts: Seq[Point]) = {
-    new Polygon(pts)
+    val shape = new Polygon(pts)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *Ellipse*            || Elliptical                ||                                 ||
-//M
-//M==Ellipse==
-//M
-//M{{{Ellipse}}} is drawn to the canvas as an ellipse of the fill and stroke
-//Mcolor centering on origin, with a curvature defined by the distance from
-//Morigin to endpoint.
 class Ellipse(val origin: Point, val endpoint: Point) extends Elliptical {
-  val shapes = List(Impl.figure0.ellipse(origin, width, height))
-  val pn = shapes(0).pEllipse.asInstanceOf[PNode]
-  transformationPoint = Some(origin)
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  val path = PPath.createEllipse(
+    (origin.x - radiusX).toFloat, (origin.y - radiusY).toFloat,
+    width.toFloat, height.toFloat
+  )
 
   override def toString = "Staging.Ellipse(" + origin + "," + endpoint + ")"
 }
 object Ellipse {
   def apply(p1: Point, p2: Point) = {
-    new Ellipse(p1, p2)
+    val shape = new Ellipse(p1, p2)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *Arc*                || Elliptical                || start, extent                   ||
-//M
-//M==Arc==
-//M
-//M{{{Arc}}} is drawn to the canvas as an elliptical sector of the fill and
-//Mstroke color centering on origin, with a curvature defined by the
-//Mdistance from origin to endpoint.  The class defines two value members of
-//Mtype {{{Double}}}: start is angle where the arc begins, and extent is the
-//Mangle between start and end of the arc.  Both angles are given in degrees,
-//Mwith 0 at "three o'clock", 90 at "twelve o'clock" and so on.
 class Arc(
   val origin: Point, val endpoint: Point,
   val start: Double, val extent: Double
 ) extends Elliptical {
-  val shapes = List(Impl.figure0.arc(origin.x, origin.y, width, height, start, extent))
-  val pn = shapes(0).pArc.asInstanceOf[PNode]
-  transformationPoint = Some(origin)
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  val path = new PPath
+  path.setPathTo(new java.awt.geom.Arc2D.Double(
+    (origin.x - radiusX), (origin.y - radiusY), width, height,
+    -start, -extent, java.awt.geom.Arc2D.PIE
+  ))
 
   override def toString = "Staging.Arc(" + origin + "," + endpoint + start + "," + extent + ")"
 }
 object Arc {
   def apply(p1: Point, p2: Point, s: Double, e: Double) = {
-    new Arc(p1, p2, s, e)
+    val shape = new Arc(p1, p2, s, e)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
 class Vector(val origin: Point, val endpoint: Point, val length: Double) extends SimpleShape {
-  transformationPoint = Some(origin)
+  val path = new PPath
+
   val vlength = API.dist(origin, endpoint)
   val arrowHalfWidth = length / 3
-  val shapes = init
 
   def init = {
-    val shapePath = new kgeom.PolyLine()
-    shapePath.reset
-    shapePath.polyLinePath.moveTo(origin.x, origin.y)
-    val p = Point(origin.x + vlength, origin.y)
-    shapePath.polyLinePath.lineTo(p.x, p.y)
-    shapePath.polyLinePath.moveTo(p.x, p.y)
-    shapePath.polyLinePath.lineTo(p.x - length, p.y - arrowHalfWidth)
-    shapePath.polyLinePath.lineTo(p.x - length, p.y + arrowHalfWidth)
-    shapePath.polyLinePath.closePath
-    shapePath.updateBounds
-    List(Impl.figure0.polyLine(shapePath))
+    path.moveTo(origin.x.toFloat, origin.y.toFloat)
+    val (x, y) = ((origin.x + vlength).toFloat, origin.y.toFloat)
+    path.lineTo(x, y)
+    path.moveTo(x, y)
+    path.lineTo(x - length.toFloat, y - arrowHalfWidth.toFloat)
+    path.lineTo(x - length.toFloat, y + arrowHalfWidth.toFloat)
+    path.closePath
   }
+
+  init
 
   val angle =
     if (origin.x < endpoint.x) { math.asin((endpoint.y - origin.y) / vlength) }
     else { math.Pi - math.asin((endpoint.y - origin.y) / vlength) }
 
-  val pn = shapes(0).pLine.asInstanceOf[PNode]
-  pn.rotate(angle)
-
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  node.rotateAboutPoint(angle, origin.x, origin.y)
 
   override def toString = "Staging.Vector(" + origin + ", " + endpoint + ")"
 }
 object Vector {
   def apply(p1: Point, p2: Point, length: Double) = {
-    new Vector(p1, p2, length)
+    val shape = new Vector(p1, p2, length)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *!LinesShape*        || !PolyShape                ||                                 ||
-//M
-//M==!LinesShape==
-//M
-//M{{{LinesShape}}} takes a sequence of {{{Point}}}s and connects them
-//Mpairwise by straight lines of the stroke color.
-class LinesShape(val points: Seq[Point]) extends PolyShape {
-  val shapes = init
+class LinesShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
+  val path = new PPath
 
   def init = {
-    val shapePath = new kgeom.PolyLine()
-    shapePath.reset
     points grouped(2) foreach {
       case List() =>
       case Seq(Point(x1, y1), Point(x2, y2)) =>
-        //println("points " + x1 + "," + y1 + " " + x2 + "," + y2)
-        shapePath.polyLinePath.moveTo(x1, y1)
-        shapePath.polyLinePath.lineTo(x2, y2)
+        path.moveTo(x1.toFloat, y1.toFloat)
+        path.lineTo(x2.toFloat, y2.toFloat)
       case p :: Nil =>
     }
-    shapePath.updateBounds
-    List(Impl.figure0.polyLine(shapePath))
   }
 
-  val pn = shapes(0).pLine.asInstanceOf[PNode]
-  // TODO better default
-  transformationPoint = Some(points(0))
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  init
 
   override def toString = "Staging.LinesShape(" + points + ")"
 }
 object LinesShape {
   def apply(pts: Seq[Point]) = {
-    new LinesShape(pts)
+    val shape = new LinesShape(pts)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *!TrianglesShape*    || !PolyShape                ||                                 ||
-//M
-//M==!TrianglesShape==
-//M
-//M{{{TrianglesShape}}} takes a sequence of {{{Point}}}s and connects them
-//Mas triangles of the fill and stroke color.
-class TrianglesShape(val points: Seq[Point]) extends PolyShape {
-  val shapes = init
+class TrianglesShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
+  val path = new PPath
 
   def init = {
-    val shapePath = new kgeom.PolyLine()
-    shapePath.reset
     points grouped(3) foreach {
       case List() =>
       case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)) =>
-        shapePath.polyLinePath.moveTo(x0, y0)
-        shapePath.polyLinePath.lineTo(x1, y1)
-        shapePath.polyLinePath.lineTo(x2, y2)
-        shapePath.polyLinePath.closePath
+        path.moveTo(x0.toFloat, y0.toFloat)
+        path.lineTo(x1.toFloat, y1.toFloat)
+        path.lineTo(x2.toFloat, y2.toFloat)
+        path.closePath
       case _ =>
     }
-    shapePath.updateBounds
-    List(Impl.figure0.polyLine(shapePath))
   }
 
-  val pn = shapes(0).pLine.asInstanceOf[PNode]
-  // TODO better default
-  transformationPoint = Some(points(0))
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  init
 
   override def toString = "Staging.TrianglesShape(" + points + ")"
 }
 object TrianglesShape {
   def apply(pts: Seq[Point]) = {
-    new TrianglesShape(pts)
+    val shape = new TrianglesShape(pts)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *!TriangleStripShape*|| !PolyShape                ||                                 ||
-//M
-//M==!TriangleStripShape==
-//M
-//M{{{TriangleStripShape}}} takes a sequence of {{{Point}}}s and connects
-//Mthem as adjoining triangles of the fill and stroke color.
-class TriangleStripShape(val points: Seq[Point]) extends PolyShape {
-  val shapes = init
+class TriangleStripShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
+  val path = new PPath
 
   def init = {
-    val shapePath = new kgeom.PolyLine()
-    shapePath.reset
     points sliding(3) foreach {
       case List() =>
       case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)) =>
-        shapePath.polyLinePath.moveTo(x0, y0)
-        shapePath.polyLinePath.lineTo(x1, y1)
-        shapePath.polyLinePath.lineTo(x2, y2)
-        shapePath.polyLinePath.closePath
+        path.moveTo(x0.toFloat, y0.toFloat)
+        path.lineTo(x1.toFloat, y1.toFloat)
+        path.lineTo(x2.toFloat, y2.toFloat)
+        path.closePath
       case _ =>
     }
-    shapePath.updateBounds
-    List(Impl.figure0.polyLine(shapePath))
   }
 
-  val pn = shapes(0).pLine.asInstanceOf[PNode]
-  // TODO better default
-  transformationPoint = Some(points(0))
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  init
 
   override def toString = "Staging.TriangleStripShape(" + points + ")"
 }
 object TriangleStripShape {
   def apply(pts: Seq[Point]) = {
-    new TriangleStripShape(pts)
+    val shape = new TriangleStripShape(pts)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *!QuadsShape*        || !PolyShape                ||                                 ||
-//M
-//M==!QuadsShape==
-//M
-//M{{{QuadsShape}}} takes a sequence of {{{Point}}}s and connects them as
-//Mquads (polygons of four points) of the fill and stroke color.
-class QuadsShape(val points: Seq[Point]) extends PolyShape {
-  val shapes = init
+class QuadsShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
+  val path = new PPath
 
   def init = {
-    val shapePath = new kgeom.PolyLine()
-    shapePath.reset
     points grouped(4) foreach {
       case List() =>
       case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
-        shapePath.polyLinePath.moveTo(x0, y0)
-        shapePath.polyLinePath.lineTo(x1, y1)
-        shapePath.polyLinePath.lineTo(x2, y2)
-        shapePath.polyLinePath.lineTo(x3, y3)
-        shapePath.polyLinePath.closePath
+        path.moveTo(x0.toFloat, y0.toFloat)
+        path.lineTo(x1.toFloat, y1.toFloat)
+        path.lineTo(x2.toFloat, y2.toFloat)
+        path.lineTo(x3.toFloat, y3.toFloat)
+        path.closePath
       case _ =>
     }
-    shapePath.updateBounds
-    List(Impl.figure0.polyLine(shapePath))
   }
 
-  val pn = shapes(0).pLine.asInstanceOf[PNode]
-  // TODO better default
-  transformationPoint = Some(points(0))
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  init
 
   override def toString = "Staging.QuadsShape(" + points + ")"
 }
 object QuadsShape {
   def apply(pts: Seq[Point]) = {
-    new QuadsShape(pts)
+    val shape = new QuadsShape(pts)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *!QuadStripShape*    || !PolyShape                ||                                 ||
-//M
-//M==!QuadStripShape==
-//M
-//M{{{QuadStripShape}}} takes a sequence of {{{Point}}}s and connects them
-//Mas adjoining quads of the fill and stroke color.
-class QuadStripShape(val points: Seq[Point]) extends PolyShape {
-  val shapes = init
+class QuadStripShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
+  val path = new PPath
 
   def init = {
-    val shapePath = new kgeom.PolyLine()
-    shapePath.reset
     points sliding(4, 2) foreach {
       case List() =>
       case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
-        shapePath.polyLinePath.moveTo(x0, y0)
-        shapePath.polyLinePath.lineTo(x1, y1)
-        shapePath.polyLinePath.lineTo(x2, y2)
-        shapePath.polyLinePath.lineTo(x3, y3)
-        shapePath.polyLinePath.closePath
+        path.moveTo(x0.toFloat, y0.toFloat)
+        path.lineTo(x1.toFloat, y1.toFloat)
+        path.lineTo(x2.toFloat, y2.toFloat)
+        path.lineTo(x3.toFloat, y3.toFloat)
+        path.closePath
       case _ =>
     }
-    shapePath.updateBounds
-    List(Impl.figure0.polyLine(shapePath))
   }
 
-  val pn = shapes(0).pLine.asInstanceOf[PNode]
-  // TODO better default
-  transformationPoint = Some(points(0))
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  init
 
   override def toString = "Staging.QuadStripShape(" + points + ")"
 }
 object QuadStripShape {
   def apply(pts: Seq[Point]) = {
-    new QuadStripShape(pts)
+    val shape = new QuadStripShape(pts)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-//M|| *!TriangleFanShape*  || !PolyShape with !BaseShape||                                 ||
-//M
-//M==!TriangleFanShape==
-//M
-//M{{{TriangleFanShape}}} takes a center point (origin) and a sequence of
-//M{{{Point}}}s, and connects the points pairwise with each other and with
-//Mthe center point with straight edges of the fill and stroke color.
-class TriangleFanShape(val origin: Point, val points: Seq[Point]) extends PolyShape
-                                                                     with BaseShape {
-  val shapes = init
+class TriangleFanShape(override val origin: Point, val points: Seq[Point]) extends PolyShape
+                                                                     with StrokedShape {
+  val path = new PPath
 
   def init = {
-    val shapePath = new kgeom.PolyLine()
-    shapePath.reset
     points grouped(2) foreach {
       case List() =>
       case Seq(Point(x1, y1), Point(x2, y2)) =>
-        shapePath.polyLinePath.moveTo(origin.x, origin.y)
-        shapePath.polyLinePath.lineTo(x1, y1)
-        shapePath.polyLinePath.lineTo(x2, y2)
+        path.moveTo(origin.x.toFloat, origin.y.toFloat)
+        path.lineTo(x1.toFloat, y1.toFloat)
+        path.lineTo(x2.toFloat, y2.toFloat)
       case _ =>
     }
-    shapePath.updateBounds
-    List(Impl.figure0.polyLine(shapePath))
   }
 
-  val pn = shapes(0).pLine.asInstanceOf[PNode]
-  // TODO better default
-  transformationPoint = Some(points(0))
-  def rotate(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.rotateAboutPoint(amount, x, y)
-    }
-  }
-  def scale(amount: Double) {
-    transformationPoint foreach { case Point(x, y) =>
-      pn.scaleAboutPoint(amount, x, y)
-    }
-  }
-  def translate(offset: Point) {
-    pn.translate(offset.x, offset.y)
-  }
+  init
 
   override def toString = "Staging.QuadStripShape(" + origin + "," + points + ")"
 }
 object TriangleFanShape {
   def apply(p0: Point, pts: Seq[Point]) = {
-    new TriangleFanShape(p0, pts)
+    val shape = new TriangleFanShape(p0, pts)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
-class Group(val shapes: Seq[figure.FigShape]) extends Shape {
-  //delegate transformations to shapes somehow
-  def rotate(amount: Double) {  }
-  def scale(amount: Double) {  }
-  def translate(offset: Point) {  }
+class Composite(val shapes: Seq[Shape]) extends Shape {
+  val node = new PNode
+  shapes foreach { shape => node.addChild(shape.node) }
 
   override def toString = "Staging.Group(" + shapes.mkString(",") + ")"
 }
-object Group {
-  def apply(shapes: Seq[figure.FigShape]) = {
-    new Group(shapes)
+object Composite {
+  def apply(shapes: Seq[Shape]) = {
+    new Composite(shapes)
   }
 }
 
-//M|| *!SvgShape*  || Shape || node                            ||
-//M
-//M==!SvgShape==
-//M
-//M{{{SvgShape}}} takes a SVG element (rect, circle, ellipse, line, polyline,
-//Mpolygon, or path) and draws it as a shape of the fill and stroke color.
-//M
-//MTODO: Should handle g and svg elements in the future.
-abstract class SvgShape(val node: scala.xml.Node) extends Shape {
-}
 object SvgShape {
   def getAttr (ns: scala.xml.Node, s: String): Option[String] = {
     ns \ ("@" + s) text match {
@@ -1244,29 +901,10 @@ object SvgShape {
     res
   }
 
-  private def matchPath(ns: scala.xml.Node) = {
-    val d = (ns \ "@d" text)
-    new Shape {
-      setStyle(ns)
-      val shapes = List(Impl.figure0.path(d))
-      API.restoreStyle
-      val pn = shapes(0).pPath.asInstanceOf[PNode]
-      // TODO better default
-      transformationPoint = Some(Point(pn.getX, pn.getY))
-      def rotate(amount: Double) {
-        transformationPoint foreach { case Point(x, y) =>
-            pn.rotateAboutPoint(amount, x, y)
-        }
-      }
-      def scale(amount: Double) {
-        transformationPoint foreach { case Point(x, y) =>
-            pn.scaleAboutPoint(amount, x, y)
-        }
-      }
-      def translate(offset: Point) {
-        pn.translate(offset.x, offset.y)
-      }
-    }
+  private def matchPath(ns: scala.xml.Node): Shape = {
+    val d = getAttr(ns, "d")
+    if (d.nonEmpty) SvgPath(d.get)
+    else new Shape { val node = null }
   }
 
   def apply(node: scala.xml.Node): Shape = {
@@ -1301,28 +939,13 @@ object SvgShape {
       case <path></path> =>
         matchPath(node)
       case <g>{ shapes @ _* }</g> =>
-        new Shape {
-          val shapes = Nil
-          def rotate(amount: Double) {}
-          def scale(amount: Double) {}
-          def translate(offset: Point) {}
-        }
+        new Shape { val node = null }
         //for (s <- shapes) yield SvgShape(s)
       case <svg>{ shapes @ _* }</svg> =>
-        new Shape {
-          val shapes = Nil
-          def rotate(amount: Double) {}
-          def scale(amount: Double) {}
-          def translate(offset: Point) {}
-        }
+        new Shape { val node = null }
         //for (s <- shapes) yield SvgShape(s)
       case _ => // unknown element, ignore
-        new Shape {
-          val shapes = Nil
-          def rotate(amount: Double) {}
-          def scale(amount: Double) {}
-          def translate(offset: Point) {}
-        }
+        new Shape { val node = null }
   }
   }
 }
