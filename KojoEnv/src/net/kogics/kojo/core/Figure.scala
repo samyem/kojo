@@ -33,7 +33,6 @@ trait Figure {
   type FRectangle <: Rectangle with VisualElement
   type FRRectangle <: RoundRectangle with VisualElement
   type FPolyLine <: VisualElement
-  type FPath <: Path with VisualElement
 
   def point(x: Double, y: Double): FPoint
   def line(p1: Point, p2: Point): FLine
@@ -52,6 +51,6 @@ trait Figure {
   def text(content: String, p: Point): FText
   def text(content: String, x: Double, y: Double): FText
   def polyLine(path: net.kogics.kojo.kgeom.PolyLine): FPolyLine
-  def path(descr: String): FPath
+  def pnode(node: edu.umd.cs.piccolo.PNode): edu.umd.cs.piccolo.PNode
   def refresh(fn: => Unit): Unit
 }

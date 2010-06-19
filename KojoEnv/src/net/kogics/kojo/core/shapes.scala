@@ -59,8 +59,6 @@ class RoundRectangle(
 ) extends Rectangle(bLeft, tRight)
 // class Square(bLeft: Point, tRight: Point) extends Rectangle(bLeft, tRight
 
-class Path(val descriptor: String)
-
 trait MoveablePoint {
   def cx: Double
   def cy: Double
