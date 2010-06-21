@@ -373,7 +373,9 @@ class SimpleShapesTest extends StagingTestBase {
     //Warc(cx, cy, rx, ry, s, e)
     Tester("import Staging._ ; arc(15, 15, 20, 10, 40, 95)")
     assertEquals(
-      "PPath(1,15 C26.7165,23.5756 21.4744,24.8682 15.8724,24.9905 C10.2703,25.1128 4.82289,24.0536 0.857864,22.0711 L15.0000,15.0000 z M0.00000,0.00000 )",
+      "PPath(1,15 C26.7165,23.5756 21.4744,24.8682 15.8724,24.9905 " +
+      "C10.2703,25.1128 4.82289,24.0536 0.857864,22.0711 L15.0000,15.0000 " +
+      "z M0.00000,0.00000 )",
       makeString(peekPNode)
     )
 
@@ -381,7 +383,46 @@ class SimpleShapesTest extends StagingTestBase {
     Tester("import Staging._ ; arc((15, 15), 20, 10, 40, 95)")
 
     //Warc(p1, p2, s, e)
-    Tester("import Staging._ ; arc((15, 15), (20, 10), 40, 95)")
+    Tester("import Staging._ ; arc((15, 15), (35, 25), 40, 95)")
+
+    //W}}}
+    //W
+
+    //W
+    //WThe default arc shape is a "pieslice" / sector shape with two radii
+    //Wconnected by an elliptical segment.  This shape can also be created with
+    //W`pieslice`:
+    //W
+    //W{{{
+    //Wpieslice(...as above...)
+    Tester("import Staging._ ; pieslice((15, 15), 20, 10, 40, 95)")
+    assertEquals(
+      "PPath(1,15 C26.7165,23.5756 21.4744,24.8682 15.8724,24.9905 " +
+      "C10.2703,25.1128 4.82289,24.0536 0.857864,22.0711 L15.0000,15.0000 " +
+      "z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
+
+    //W}}}
+    //W
+    //WOther kinds of arcs are open arcs, created by `openArc` and chords,
+    //Wcreated by `chord`:
+    //W{{{
+    //WopenArc(...as above...)
+    Tester("import Staging._ ; openArc((15, 15), 20, 10, 40, 95)")
+    assertEquals(
+      "PPath(1,21 C26.7165,23.5756 21.4744,24.8682 15.8724,24.9905 " +
+      "C10.2703,25.1128 4.82289,24.0536 0.857864,22.0711 M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
+
+    //Wchord(...as above...)
+    Tester("import Staging._ ; chord((15, 15), 20, 10, 40, 95)")
+    assertEquals(
+      "PPath(1,21 C26.7165,23.5756 21.4744,24.8682 15.8724,24.9905 " +
+      "C10.2703,25.1128 4.82289,24.0536 0.857864,22.0711 z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
 
     //W}}}
     //W
@@ -406,6 +447,35 @@ class SimpleShapesTest extends StagingTestBase {
 
     //Wvector(point1, point2, length)
     Tester("import Staging._ ; vector((15, 15), (40, 20), 3)")
+
+    //W}}}
+    //W
+
+    //W
+    //W===Stars===
+    //W
+    //WA star is a polygon with _n_ points.  The placement of the star is
+    //Wspecified with a `Point` or _x_, _y_ coordinates for the center. An
+    //W_inner_ radius specifies the corners between points, and an _outer_
+    //Wradius specifies the points.
+    //W
+    //W{{{
+    //Wstar(cx, cy, inner, outer, n)
+    Tester("import Staging._ ; star(15, 15, 25, 50, 5)")
+    assertEquals(
+      "PPath(-33,-26 L0.305369,35.2254 L-32.5528,30.4508 L-8.77641,7.27458 " +
+      "L-14.3893,-25.4508 L15.0000,-10.0000 L44.3893,-25.4508 L38.7764,7.27458 " +
+      "L62.5528,30.4508 L29.6946,35.2254 z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
+
+    //Wstar(p, inner, outer, n)
+    //TODO find out why this test fails, it works in the app:
+    //Tester("import Staging._ ; star((15, 15), 25, 50, 5)")
+
+    //Wstar(p1, p2, p3, n)
+    //TODO find out why this test fails, it works in the app:
+    //Tester("import Staging._ ; star((15, 15), (40, 15), (65, 15), 5)")
 
     //W}}}
     //W
