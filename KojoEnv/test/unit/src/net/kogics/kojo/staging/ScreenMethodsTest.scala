@@ -86,10 +86,12 @@ class ScreenMethodsTest extends StagingTestBase {
   //W
   //W{{{
   //Wbackground(color)
+    val beforeStroke = SpriteCanvas.instance.figure0.lineStroke.toString
     Tester("""import Staging._
              |screenSize(250, 150)
              |background(color("black"))""".stripMargin,
            None)
+    assertEquals(beforeStroke, SpriteCanvas.instance.figure0.lineStroke.toString)
   //W}}}
   //W
   }

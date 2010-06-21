@@ -57,14 +57,7 @@ class SimpleShapesTest extends StagingTestBase {
     //W
     //W{{{
     //Wline(x, y, width, height)
-    Tester("import Staging._ ; line(15, 15, 25, 5)")
-    assertEquals(
-      "PPath(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
-      makeString(peekPNode)
-    )
-
-    //Wline(point1, width, height)
-    Tester("import Staging._ ; line((15, 15), 25, 5)")
+    Tester("import Staging._ ; line(15, 15, 40, 20)")
     assertEquals(
       "PPath(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
       makeString(peekPNode)
@@ -435,15 +428,12 @@ class SimpleShapesTest extends StagingTestBase {
     //W
     //W{{{
     //Wvector(x, y, width, height, length)
-    Tester("import Staging._ ; vector(15, 15, 25, 5, 3)")
+    Tester("import Staging._ ; vector(15, 15, 40, 20, 3)")
     assertEquals(
       "PPath(15,14 L40.4951,15.0000 M40.4951,15.0000 L37.4951,14.0000 " +
         "L37.4951,16.0000 z M0.00000,0.00000 )",
       makeString(peekPNode)
     )
-
-    //Wvector(point1, width, height, length)
-    Tester("import Staging._ ; vector((15, 15), 25, 5, 3)")
 
     //Wvector(point1, point2, length)
     Tester("import Staging._ ; vector((15, 15), (40, 20), 3)")
