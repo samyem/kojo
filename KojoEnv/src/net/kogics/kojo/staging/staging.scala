@@ -263,13 +263,13 @@ object API {
   //Wmillis // milliseconds
   def millis = System.currentTimeMillis()
 
+  import java.util.Calendar
+
   //Wsecond // second of the minute
-  def second = (millis / 1000) % 60
+  def second = Calendar.getInstance().get(Calendar.SECOND)
 
   //Wminute // minute of the hour
-  def minute = (millis / 60000) % 60
-
-  import java.util.Calendar
+  def minute = Calendar.getInstance().get(Calendar.MINUTE)
 
   //Whour   // hour of the day
   def hour   = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
@@ -313,6 +313,17 @@ object API {
 
   def mag(x: Double, y: Double) = dist(0, 0, x, y)
   def mag(p: Point) = dist(0, 0, p.x, p.y)
+
+  //W
+  //W==Trignometry==
+  //W
+  //WA number of methods perform trignometry tasks.
+  //W
+  val Pi = math.Pi
+  def sin(a: Double) = math.sin(a)
+  def cos(a: Double) = math.cos(a)
+  def radians(deg: Double) = deg * Pi / 180
+
 
   def loop(fn: => Unit) = Impl.figure0.refresh(fn)
   def stop = Impl.figure0.stopRefresh()
