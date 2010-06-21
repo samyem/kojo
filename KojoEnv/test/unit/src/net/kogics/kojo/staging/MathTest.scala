@@ -89,6 +89,21 @@ class MathTest extends StagingTestBase {
   //WThe inverse of `norm`; yields a number in the range _low_ -- _high_
   //Wwhich corresponds to the position of _value_ in the range 0.0 -- 1.0.
   //W
+  //W===Trigonometric functions===
+  //W
+  //WWhile all standard mathematic functions can be used in Staging as
+  //W`math.`_func_, some frequently used functions are methods in the Staging
+  //WAPI as well (they call their standard-library equivalents).
+  //W{{{
+  //Wsin(value)
+    Tester("Staging.sin(0)", Some("Double = 0.0"))
+  //Wcos(value)
+    Tester("Staging.cos(0)", Some("Double = 1.0"))
+  //Wradians(value)
+    Tester("Staging.radians(0)", Some("Double = 0.0"))
+    Tester("Staging.radians(180)", Some("Double = " + math.Pi))
+  //W}}}
+  //W
   }
 }
 

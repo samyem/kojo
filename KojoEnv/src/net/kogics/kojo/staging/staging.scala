@@ -115,17 +115,13 @@ object API {
   def dot(x: Double, y: Double) = Dot(Point(x, y))
   def dot(p: Point) = Dot(p)
 
-  def line(x: Double, y: Double, w: Double, h: Double) =
-    Line(Point(x, y), Point(x + w, y + h))
-  def line(p1: Point, w: Double, h: Double) =
-    Line(p1, Point(p1.x + w, p1.y + h))
+  def line(x1: Double, y1: Double, x2: Double, y2: Double) =
+    Line(Point(x1, y1), Point(x2, y2))
   def line(p1: Point, p2: Point) =
     Line(p1, p2)
 
-  def vector(x: Double, y: Double, w: Double, h: Double, a: Double) =
-    Vector(Point(x, y), Point(x + w, y + h), a)
-  def vector(p1: Point, w: Double, h: Double, a: Double) =
-    Vector(p1, Point(p1.x + w, p1.y + h), a)
+  def vector(x1: Double, y1: Double, x2: Double, y2: Double, a: Double) =
+    Vector(Point(x1, y1), Point(x2, y2), a)
   def vector(p1: Point, p2: Point, a: Double) =
     Vector(p1, p2, a)
 
@@ -1151,22 +1147,21 @@ object RichColor {
 }
 
 object Style {
-  var savedStyles = new scala.collection.mutable.Stack[(Color, Color, Double)]()
+  var savedStyles =
+    new scala.collection.mutable.Stack[(Color, Color, java.awt.Stroke)]()
   def save {
-    val s: java.awt.BasicStroke =
-      Impl.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke]
     savedStyles push Tuple3(
         Impl.figure0.fillColor,
         Impl.figure0.lineColor,
-        s.getLineWidth.toDouble
+        Impl.figure0.lineStroke
       )
   }
   def restore {
     if (savedStyles nonEmpty) {
-      val (fc, sc, sw) = savedStyles.pop
+      val (fc, sc, st) = savedStyles.pop
       Impl.figure0.setFillColor(fc)
       Impl.figure0.setPenColor(sc)
-      Impl.figure0.setPenThickness(sw)
+      Impl.figure0.lineStroke = st
     }
   }
   def apply(fc: Color, sc: Color, sw: Double)(body: => Unit) = {
