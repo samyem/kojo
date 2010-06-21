@@ -169,14 +169,39 @@ object API {
     Ellipse(p, Point(p.x + r, p.y + r))
 
   def arc(cx: Double, cy: Double, rx: Double, ry: Double, s: Double, e: Double) =
-    Arc(Point(cx, cy), Point(cx + rx, cy + ry), s, e)
+    Arc(Point(cx, cy), Point(cx + rx, cy + ry), s, e, java.awt.geom.Arc2D.PIE)
   def arc(p: Point, rx: Double, ry: Double, s: Double, e: Double) =
-    Arc(p, Point(p.x + rx, p.y + ry), s, e)
+    Arc(p, Point(p.x + rx, p.y + ry), s, e, java.awt.geom.Arc2D.PIE)
   def arc(p1: Point, p2: Point, s: Double, e: Double) =
-    Arc(p1, p2, s, e)
+    Arc(p1, p2, s, e, java.awt.geom.Arc2D.PIE)
+  def pieslice(cx: Double, cy: Double, rx: Double, ry: Double, s: Double, e: Double) =
+    Arc(Point(cx, cy), Point(cx + rx, cy + ry), s, e, java.awt.geom.Arc2D.PIE)
+  def pieslice(p: Point, rx: Double, ry: Double, s: Double, e: Double) =
+    Arc(p, Point(p.x + rx, p.y + ry), s, e, java.awt.geom.Arc2D.PIE)
+  def pieslice(p1: Point, p2: Point, s: Double, e: Double) =
+    Arc(p1, p2, s, e, java.awt.geom.Arc2D.PIE)
+  def openArc(cx: Double, cy: Double, rx: Double, ry: Double, s: Double, e: Double) =
+    Arc(Point(cx, cy), Point(cx + rx, cy + ry), s, e, java.awt.geom.Arc2D.OPEN)
+  def openArc(p: Point, rx: Double, ry: Double, s: Double, e: Double) =
+    Arc(p, Point(p.x + rx, p.y + ry), s, e, java.awt.geom.Arc2D.OPEN)
+  def openArc(p1: Point, p2: Point, s: Double, e: Double) =
+    Arc(p1, p2, s, e, java.awt.geom.Arc2D.OPEN)
+  def chord(cx: Double, cy: Double, rx: Double, ry: Double, s: Double, e: Double) =
+    Arc(Point(cx, cy), Point(cx + rx, cy + ry), s, e, java.awt.geom.Arc2D.CHORD)
+  def chord(p: Point, rx: Double, ry: Double, s: Double, e: Double) =
+    Arc(p, Point(p.x + rx, p.y + ry), s, e, java.awt.geom.Arc2D.CHORD)
+  def chord(p1: Point, p2: Point, s: Double, e: Double) =
+    Arc(p1, p2, s, e, java.awt.geom.Arc2D.CHORD)
 
   def text(s: String, x: Double, y: Double) = Text(s, Point(x, y))
   def text(s: String, p: Point) = Text(s, p)
+
+  def star(cx: Double, cy: Double, inner: Double, outer: Double, points: Int) =
+    Star(Point(cx, cy), inner, outer, points)
+  def star(p: Point, inner: Double, outer: Double, points: Int) =
+    Star(p, inner, outer, points)
+  def star(p1: Point, p2: Point, p3: Point, points: Int) =
+    Star(p1, dist(p1, p2), dist(p1, p3), points)
 
   //W
   //W==Complex Shapes==
@@ -576,21 +601,34 @@ object Ellipse {
 
 class Arc(
   val origin: Point, val endpoint: Point,
-  val start: Double, val extent: Double
+  val start: Double, val extent: Double,
+  val kind: Int
 ) extends Elliptical {
   val path = new PPath
   path.setPathTo(new java.awt.geom.Arc2D.Double(
     (origin.x - radiusX), (origin.y - radiusY), width, height,
-    -start, -extent, java.awt.geom.Arc2D.PIE
+    -start, -extent, kind
   ))
 
   override def toString = "Staging.Arc(" + origin + "," + endpoint + start + "," + extent + ")"
 }
 object Arc {
-  def apply(p1: Point, p2: Point, s: Double, e: Double) = {
-    val shape = new Arc(p1, p2, s, e)
+  def apply(p1: Point, p2: Point, s: Double, e: Double, k: Int) = {
+    val shape = new Arc(p1, p2, s, e, k)
     Impl.figure0.pnode(shape.node)
     shape
+  }
+}
+
+object Star {
+  def apply(origin: Point, inner: Double, outer: Double, points: Int) = {
+    val a = math.Pi / points // the angle between outer and inner point
+    val pts = Seq.tabulate(2 * points){ i =>
+      val aa = math.Pi / 2 + a * i
+      if (i % 2 == 0) { origin + Point(outer * cos(aa), outer * sin(aa)) }
+      else { origin + Point(inner * cos(aa), inner * sin(aa)) }
+    }
+    Polygon(pts)
   }
 }
 
