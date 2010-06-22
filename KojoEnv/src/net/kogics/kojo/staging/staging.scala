@@ -336,15 +336,19 @@ object API {
   def mag(p: Point) = dist(0, 0, p.x, p.y)
 
   //W
-  //W==Trignometry==
+  //W==Trigonometry==
   //W
-  //WA number of methods perform trignometry tasks.
+  //WA number of methods perform trigonometry tasks.
   //W
-  val Pi = math.Pi
+  val PI = math.Pi
+  val TWO_PI = 2*PI
+  val HALF_PI = PI/2
+  val QUARTER_PI = PI/4
   def sin(a: Double) = math.sin(a)
   def cos(a: Double) = math.cos(a)
-  def radians(deg: Double) = deg * Pi / 180
-
+  def tan(a: Double) = math.tan(a)
+  def radians(deg: Double) = deg.toRadians
+  def degrees(rad: Double) = rad.toDegrees
 
   def loop(fn: => Unit) = Impl.figure0.refresh(fn)
   def stop = Impl.figure0.stopRefresh()
