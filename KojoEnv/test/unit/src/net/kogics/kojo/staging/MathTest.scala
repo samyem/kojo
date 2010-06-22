@@ -89,7 +89,22 @@ class MathTest extends StagingTestBase {
   //WThe inverse of `norm`; yields a number in the range _low_ -- _high_
   //Wwhich corresponds to the position of _value_ in the range 0.0 -- 1.0.
   //W
-  //W===Trigonometric functions===
+  //W===Pi===
+  //W
+  //WFor convenience, some Processing-style pi-related constants:
+  //W
+  //W{{{
+  //WPI
+    Tester("Staging.PI", Some("Double = " + math.Pi))
+  //WTWO_PI
+    Tester("Staging.TWO_PI", Some("Double = " + 2 * math.Pi))
+  //WHALF_PI
+    Tester("Staging.HALF_PI", Some("Double = " + math.Pi / 2))
+  //WQUARTER_PI
+    Tester("Staging.QUARTER_PI", Some("Double = " + math.Pi / 4))
+  //W}}}
+  //W
+  //W===Standard functions===
   //W
   //WWhile all standard mathematic functions can be used in Staging as
   //W`math.`_func_, some frequently used functions are methods in the Staging
@@ -99,9 +114,20 @@ class MathTest extends StagingTestBase {
     Tester("Staging.sin(0)", Some("Double = 0.0"))
   //Wcos(value)
     Tester("Staging.cos(0)", Some("Double = 1.0"))
+  //Wtan(value)
+    Tester("Staging.tan(math.Pi/4)", Some("Double = 0.9999999999999999"))
+  //W}}}
+  //W
+  //W===Conversions===
+  //W
+  //WAngles can be converted from degrees to radians and vice versa.
+  //W{{{
   //Wradians(value)
     Tester("Staging.radians(0)", Some("Double = 0.0"))
     Tester("Staging.radians(180)", Some("Double = " + math.Pi))
+  //Wdegrees(value)
+    Tester("Staging.degrees(0)", Some("Double = 0.0"))
+    Tester("Staging.degrees(math.Pi)", Some("Double = 180.0"))
   //W}}}
   //W
   }
