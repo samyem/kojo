@@ -432,9 +432,11 @@ trait StrokedShape extends BaseShape {
   def strokeStyle = style
 
   def setPalette {
-    fill = Impl.figure0.fillColor
-    strokeStyle = Impl.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke]
-    stroke = Impl.figure0.lineColor
+    Utils.runInSwingThread {
+      fill = Impl.figure0.fillColor
+      strokeStyle = Impl.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke]
+      stroke = Impl.figure0.lineColor
+    }
   }
 }
 
@@ -1151,28 +1153,32 @@ object RichColor {
 }
 
 object Style {
-  var savedStyles =
+  val savedStyles =
     new scala.collection.mutable.Stack[(Color, Color, java.awt.Stroke)]()
+  val f = Impl.figure0
+
   def save {
-    savedStyles push Tuple3(
-        Impl.figure0.fillColor,
-        Impl.figure0.lineColor,
-        Impl.figure0.lineStroke
-      )
-  }
-  def restore {
-    if (savedStyles nonEmpty) {
-      val (fc, sc, st) = savedStyles.pop
-      Impl.figure0.setFillColor(fc)
-      Impl.figure0.setPenColor(sc)
-      Impl.figure0.lineStroke = st
+    Utils.runInSwingThread {
+      savedStyles push Tuple3(f.fillColor, f.lineColor, f.lineStroke)
     }
   }
+
+  def restore {
+    Utils.runInSwingThread {
+      if (savedStyles nonEmpty) {
+        val (fc, sc, st) = savedStyles.pop
+        f.setFillColor(fc)
+        f.setPenColor(sc)
+        f.lineStroke = st
+      }
+    }
+  }
+
   def apply(fc: Color, sc: Color, sw: Double)(body: => Unit) = {
     save
-    Impl.figure0.setFillColor(fc)
-    Impl.figure0.setPenColor(sc)
-    Impl.figure0.setPenThickness(sw)
+    f.setFillColor(fc)
+    f.setPenColor(sc)
+    f.setPenThickness(sw)
     try { body }
     finally { restore }
   }
