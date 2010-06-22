@@ -32,17 +32,17 @@ object Impl {
 }
 
 /** Staging API
-  *
-  * This object contains the API for using Staging within Kojo scripts.
-  *
-  * DISCLAIMER
-  *
-  * Parts of this interface is written to approximately conform to the
-  * Processing API as described in the reference at
-  * <URL: http://processing.org/reference/>.
-  * The implementation code is the work of Peter Lewerin
-  * (<peter.lewerin@tele2.se>) and is not in any way derived from the
-  * Processing source. */
+ *
+ * This object contains the API for using Staging within Kojo scripts.
+ *
+ * DISCLAIMER
+ *
+ * Parts of this interface is written to approximately conform to the
+ * Processing API as described in the reference at
+ * <URL: http://processing.org/reference/>.
+ * The implementation code is the work of Peter Lewerin
+ * (<peter.lewerin@tele2.se>) and is not in any way derived from the
+ * Processing source. */
 object API {
   //W#summary Developer home-page for the Staging Module
   //W
@@ -80,7 +80,7 @@ object API {
   implicit def awtDimToPoint(d: java.awt.geom.Dimension2D) = Point(d.getWidth, d.getHeight)
 
   /** The point of origin, located at a corner of the user screen if
-    * `screenSize` has been called, or the middle of the screen otherwise. */
+   * `screenSize` has been called, or the middle of the screen otherwise. */
   val O = Point(0, 0)
 
   //W
@@ -93,11 +93,11 @@ object API {
   def screenSize(width: Int, height: Int) = Screen.size(width, height)
 
   /** The middle point of the user screen, or (0, 0) if `screenSize` hasn't
-    * been called. */
+   * been called. */
   def screenMid: Point = Screen.midpoint
 
   /** The extreme point of the user screen (i.e. the opposite corner from
-    * the point of origin), or (0, 0) if `screenSize` hasn't been called. */
+   * the point of origin), or (0, 0) if `screenSize` hasn't been called. */
   def screenExt: Point = Screen.extpoint
 
   /** Fills the user screen with the specified color. */
@@ -399,11 +399,26 @@ trait Shape {
   def show() = node.setVisible(true)
   def fill_=(color: Color) { node.setPaint(color) }
   def fill = node.getPaint
-  def rotate(amount: Double) = node.rotate(amount)
-  def scale(amount: Double) = node.scale(amount)
-  def offset_=(p: Point) = node.setOffset(p.x, p.y)
-  def offset = { val o = node.getOffset ; Point(o.getX, o.getY) }
-  //def addActivity(a: PActivity) = Impl.canvas.getRoot.addActivity(a)
+  def rotate(amount: Double) = {
+    Utils.runInSwingThread {
+      node.rotate(amount)
+      node.repaint()
+    }
+  }
+  def scale(amount: Double) = {
+    Utils.runInSwingThread {
+      node.scale(amount)
+      node.repaint()
+    }
+  }
+  def translate(p: Point) = {
+    Utils.runInSwingThread {
+      node.offset(p.x, p.y)
+      node.repaint()
+    }
+  }
+//  def offset = { val o = node.getOffset ; Point(o.getX, o.getY) }
+//  def addActivity(a: PActivity) = Impl.canvas.getRoot.addActivity(a)
 }
 
 trait Rounded {
@@ -606,9 +621,9 @@ class Arc(
 ) extends Elliptical {
   val path = new PPath
   path.setPathTo(new java.awt.geom.Arc2D.Double(
-    (origin.x - radiusX), (origin.y - radiusY), width, height,
-    -start, -extent, kind
-  ))
+      (origin.x - radiusX), (origin.y - radiusY), width, height,
+      -start, -extent, kind
+    ))
 
   override def toString = "Staging.Arc(" + origin + "," + endpoint + start + "," + extent + ")"
 }
@@ -652,7 +667,7 @@ class Vector(val origin: Point, val endpoint: Point, val length: Double) extends
 
   val angle =
     if (origin.x < endpoint.x) { math.asin((endpoint.y - origin.y) / vlength) }
-    else { math.Pi - math.asin((endpoint.y - origin.y) / vlength) }
+  else { math.Pi - math.asin((endpoint.y - origin.y) / vlength) }
 
   node.rotateAboutPoint(angle, origin.x, origin.y)
 
@@ -802,7 +817,7 @@ object QuadStripShape {
 }
 
 class TriangleFanShape(override val origin: Point, val points: Seq[Point]) extends PolyShape
-                                                                     with StrokedShape {
+                                                                              with StrokedShape {
   val path = new PPath
 
   def init = {
@@ -964,7 +979,7 @@ object SvgShape {
     // and
     //   transform-list
     //
-  node match {
+    node match {
       case <rect></rect> =>
         matchRect(node)
       case <circle></circle> =>
@@ -995,7 +1010,7 @@ object SvgShape {
         //for (s <- shapes) yield SvgShape(s)
       case _ => // unknown element, ignore
         new Shape { val node = null }
-  }
+    }
   }
 }
 
@@ -1154,20 +1169,20 @@ object Style {
   var savedStyles =
     new scala.collection.mutable.Stack[(Color, Color, java.awt.Stroke)]()
   def save {
-    savedStyles push Tuple3(
+      savedStyles push Tuple3(
         Impl.figure0.fillColor,
         Impl.figure0.lineColor,
         Impl.figure0.lineStroke
       )
-  }
-  def restore {
-    if (savedStyles nonEmpty) {
-      val (fc, sc, st) = savedStyles.pop
-      Impl.figure0.setFillColor(fc)
-      Impl.figure0.setPenColor(sc)
-      Impl.figure0.lineStroke = st
     }
-  }
+  def restore {
+      if (savedStyles nonEmpty) {
+        val (fc, sc, st) = savedStyles.pop
+        Impl.figure0.setFillColor(fc)
+        Impl.figure0.setPenColor(sc)
+        Impl.figure0.lineStroke = st
+      }
+    }
   def apply(fc: Color, sc: Color, sw: Double)(body: => Unit) = {
     save
     Impl.figure0.setFillColor(fc)
@@ -1194,7 +1209,7 @@ object Math {
   def lerp(value1: Double, value2: Double, amt: Double) = {
     require(amt >= 0d && amt <= 1d)
     val range: Double = value2 - value1
-     value1 + amt * range
+    value1 + amt * range
   }
 }
 
