@@ -395,8 +395,14 @@ object Screen {
 
 trait Shape {
   def node: PNode
-  def hide() = node.setVisible(false)
-  def show() = node.setVisible(true)
+  def hide() {
+    node.setVisible(false)
+    Impl.canvas.repaint
+  }
+  def show() {
+    node.setVisible(true)
+    Impl.canvas.repaint
+  }
   def fill_=(color: Color) { node.setPaint(color) }
   def fill = node.getPaint
   def rotate(amount: Double) = node.rotate(amount)
