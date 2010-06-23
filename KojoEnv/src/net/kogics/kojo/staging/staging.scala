@@ -272,7 +272,9 @@ object API {
   implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
 
   colorMode(RGB(255, 255, 255))
-  Inputs.init()
+  Utils.runInSwingThread {
+    Inputs.init()
+  }
 
   //W
   //W==Timekeeping==
@@ -1253,10 +1255,15 @@ object Inputs {
   import edu.umd.cs.piccolo.event._
   //import java.awt.event.InputEvent
 
+  @volatile
   var mousePos: Point = API.O
+  @volatile
   var prevMousePos: Point = API.O
+  @volatile
   var stepMousePos: Point = API.O
+  @volatile
   var mouseBtn = 0
+  @volatile
   var mousePressedFlag = false
 
   def activityStep() = {
@@ -1264,7 +1271,7 @@ object Inputs {
     stepMousePos = mousePos
   }
 
-  def init() {
+   def init() {
     val iel = new PBasicInputEventHandler {
       // This method is invoked when a node gains the keyboard focus.
       override def keyboardFocusGained(e: PInputEvent) {
