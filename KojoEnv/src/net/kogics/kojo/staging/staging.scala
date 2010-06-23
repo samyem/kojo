@@ -350,6 +350,12 @@ object API {
   def radians(deg: Double) = deg.toRadians
   def degrees(rad: Double) = rad.toDegrees
 
+  //W
+
+  //W==Control==
+  //W
+  //WThere are methods for execution control and mouse feedback.
+  //W
   def loop(fn: => Unit) = Impl.figure0.refresh(fn)
   def stop = Impl.figure0.stopRefresh()
   def clear() = Impl.figure0.clear()
@@ -364,6 +370,22 @@ object API {
   val RIGHT = 3
   def mouseButton = Inputs.mouseBtn
   def mousePressed = Inputs.mousePressedFlag
+
+  def interpolatePolygon(pts1: Seq[Point], pts2: Seq[Point], n: Int) {
+    require(pts1.size == pts2.size, "The polygons aren't similar")
+
+    var g0 = polygon(pts1)
+    for (i <- 0 to n ; amt = i / n.toFloat) {
+      val pts = (pts1 zip pts2) map { case(p1, p2) =>
+        point(lerp(p1.x, p2.x, amt), lerp(p1.y, p2.y, amt))
+      }
+      g0.hide
+      g0 = polygon(pts)
+      for (i <- 0 to 10) {
+        net.kogics.kojo.util.Throttler.throttle()
+      }
+    }
+  }
 
   //W
   //W=Usage=
@@ -405,9 +427,11 @@ trait Shape {
   }
   def fill_=(color: Color) { node.setPaint(color) }
   def fill = node.getPaint
+
   def rotate(amount: Double) = {
     Utils.runInSwingThread {
-      node.rotate(amount)
+      val p = node.getFullBounds.getCenter2D
+      node.rotateAboutPoint(amount.toRadians, p)
       node.repaint()
     }
   }
