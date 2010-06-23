@@ -397,11 +397,11 @@ trait Shape {
   def node: PNode
   def hide() {
     node.setVisible(false)
-    Impl.canvas.repaint
+    Impl.canvas.repaint()
   }
   def show() {
     node.setVisible(true)
-    Impl.canvas.repaint
+    Impl.canvas.repaint()
   }
   def fill_=(color: Color) { node.setPaint(color) }
   def fill = node.getPaint
