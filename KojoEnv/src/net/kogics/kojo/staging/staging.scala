@@ -199,6 +199,11 @@ object API {
   def star(p1: Point, p2: Point, p3: Point, points: Int) =
     Star(p1, dist(p1, p2), dist(p1, p3), points)
 
+  def cross(p1: Point, p2: Point, s: Double) = SymmetricCross(p1, p2, s)
+  def crossOutline(p1: Point, p2: Point, s: Double) = SymmetricCrossOutline(p1, p2, s)
+  def nordicCross(p1: Point, p2: Point, s: Double) = NordicCross(p1, p2, s)
+  def nordicCrossOutline(p1: Point, p2: Point, s: Double) = NordicCrossOutline(p1, p2, s)
+  
   //W
   //W==Complex Shapes==
   //W
@@ -678,6 +683,178 @@ object Star {
       else { origin + Point(inner * cos(aa), inner * sin(aa)) }
     }
     Polygon(pts)
+  }
+}
+
+abstract class Cross(val origin: Point, val endpoint: Point) extends SimpleShape {
+  def crossPoints(
+    x: Double, y: Double,
+    len: Double, wid: Double,
+    cantonLength: Double, cantonWidth: Double,
+    crossWidth: Double
+  ) = List(
+    Point(x, y) + Point(0, cantonWidth + crossWidth),
+    Point(x, y) + Point(cantonLength, cantonWidth + crossWidth),
+    Point(x + cantonLength, (y + wid)),
+    Point(x + cantonLength + crossWidth, (y + wid)),
+    Point(x + cantonLength + crossWidth, (y + wid) - cantonWidth),
+    Point((x + len), (y + wid) - cantonWidth),
+    Point((x + len), (y + wid) - (cantonWidth + crossWidth)),
+    Point(x + cantonLength + crossWidth, (y + wid) - (cantonWidth + crossWidth)),
+    Point(x, y) + Point(cantonLength + crossWidth, 0),
+    Point(x, y) + Point(cantonLength, 0),
+    Point(x + cantonLength, (y + wid) - (cantonWidth + crossWidth)),
+    Point(x, y) + Point(0, cantonWidth)
+  )
+}
+
+class SymmetricCross(override val origin: Point,
+                     override val endpoint: Point,
+                     val crossWidth: Double) extends Cross(origin, endpoint) {
+  val (x, y) = (origin.x, origin.y)
+  val cantonWidth = (height - crossWidth) / 2
+  val cantonLength = (width - crossWidth) / 2
+  val points = crossPoints(x, y, width, height, cantonLength, cantonWidth, crossWidth)
+  val path = PPath.createPolyline((points map {
+        case Point(x, y) => new java.awt.geom.Point2D.Double(x, y)
+      }).toArray)
+  path.closePath
+
+  override def toString = "Staging.SymmetricCross(" + origin + "," + endpoint + "," + crossWidth + ")"
+}
+object SymmetricCross {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+    val shape = new SymmetricCross(origin, endpoint, crossWidth)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
+}
+
+class SymmetricCrossOutline(override val origin: Point,
+                     override val endpoint: Point,
+                     val crossWidth: Double) extends Cross(origin, endpoint) {
+  val (x, y) = (origin.x, origin.y)
+  val cantonWidth = (height - crossWidth) / 2
+  val cantonLength = (width - crossWidth) / 2
+  val points = crossPoints(x, y, width, height, cantonLength, cantonWidth, crossWidth)
+    val path = new PPath
+    (points grouped(3) zipWithIndex) foreach {
+      case (Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)), 0) =>
+        path.moveTo(x0.toFloat,     y0.toFloat - 1)
+        path.lineTo(x0.toFloat,     y0.toFloat + 1)
+        path.lineTo(x1.toFloat - 2, y1.toFloat + 1)
+        path.lineTo(x2.toFloat - 2, y2.toFloat)
+        path.lineTo(x2.toFloat + 1, y2.toFloat)
+        path.lineTo(x1.toFloat + 1, y1.toFloat - 1)
+        path.closePath
+      case (Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)), 1) =>
+        path.moveTo(x0.toFloat - 1, y0.toFloat)
+        path.lineTo(x0.toFloat + 2, y0.toFloat)
+        path.lineTo(x1.toFloat + 2, y1.toFloat + 1)
+        path.lineTo(x2.toFloat,     y2.toFloat + 1)
+        path.lineTo(x2.toFloat,     y2.toFloat - 1)
+        path.lineTo(x1.toFloat - 1, y1.toFloat - 1)
+        path.closePath
+      case (Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)), 2) =>
+        path.moveTo(x0.toFloat,     y0.toFloat + 1)
+        path.lineTo(x0.toFloat,     y0.toFloat - 1)
+        path.lineTo(x1.toFloat + 2, y1.toFloat - 1)
+        path.lineTo(x2.toFloat + 2, y2.toFloat)
+        path.lineTo(x2.toFloat - 1, y2.toFloat)
+        path.lineTo(x1.toFloat - 1, y1.toFloat + 1)
+        path.closePath
+      case (Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)), 3) =>
+        path.moveTo(x0.toFloat + 1, y0.toFloat)
+        path.lineTo(x0.toFloat - 2, y0.toFloat)
+        path.lineTo(x1.toFloat - 2, y1.toFloat - 1)
+        path.lineTo(x2.toFloat,     y2.toFloat - 1)
+        path.lineTo(x2.toFloat,     y2.toFloat + 1)
+        path.lineTo(x1.toFloat + 1, y1.toFloat + 1)
+        path.closePath
+    }
+
+  override def toString = "Staging.SymmetricCrossOutline(" + origin + "," + endpoint + "," + crossWidth + ")"
+}
+object SymmetricCrossOutline {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+    val shape = new SymmetricCrossOutline(origin, endpoint, crossWidth)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
+}
+
+class NordicCross(override val origin: Point,
+                     override val endpoint: Point,
+                     val crossWidth: Double) extends Cross(origin, endpoint) {
+  val (x, y) = (origin.x, origin.y)
+  val cantonWidth = (height - crossWidth) / 2
+  val cantonLength = cantonWidth
+  val points = crossPoints(x, y, width, height, cantonLength, cantonWidth, crossWidth)
+  val path = PPath.createPolyline((points map {
+        case Point(x, y) => new java.awt.geom.Point2D.Double(x, y)
+      }).toArray)
+  path.closePath
+
+  override def toString = "Staging.NordicCross(" + origin + "," + endpoint + "," + crossWidth + ")"
+}
+object NordicCross {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+    val shape = new NordicCross(origin, endpoint, crossWidth)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
+}
+
+class NordicCrossOutline(override val origin: Point,
+                     override val endpoint: Point,
+                     val crossWidth: Double) extends Cross(origin, endpoint) {
+  val (x, y) = (origin.x, origin.y)
+  val cantonWidth = (height - crossWidth) / 2
+  val cantonLength = cantonWidth
+  val points = crossPoints(x, y, width, height, cantonLength, cantonWidth, crossWidth)
+    val path = new PPath
+    (points grouped(3) zipWithIndex) foreach {
+      case (Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)), 0) =>
+        path.moveTo(x0.toFloat,     y0.toFloat - 1)
+        path.lineTo(x0.toFloat,     y0.toFloat + 2)
+        path.lineTo(x1.toFloat - 2, y1.toFloat + 2)
+        path.lineTo(x2.toFloat - 2, y2.toFloat)
+        path.lineTo(x2.toFloat + 1, y2.toFloat)
+        path.lineTo(x1.toFloat + 1, y1.toFloat - 1)
+        path.closePath
+      case (Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)), 1) =>
+        path.moveTo(x0.toFloat - 1, y0.toFloat)
+        path.lineTo(x0.toFloat + 2, y0.toFloat)
+        path.lineTo(x1.toFloat + 2, y1.toFloat + 2)
+        path.lineTo(x2.toFloat,     y2.toFloat + 2)
+        path.lineTo(x2.toFloat,     y2.toFloat - 1)
+        path.lineTo(x1.toFloat - 1, y1.toFloat - 1)
+        path.closePath
+      case (Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)), 2) =>
+        path.moveTo(x0.toFloat,     y0.toFloat + 1)
+        path.lineTo(x0.toFloat,     y0.toFloat - 2)
+        path.lineTo(x1.toFloat + 2, y1.toFloat - 2)
+        path.lineTo(x2.toFloat + 2, y2.toFloat)
+        path.lineTo(x2.toFloat - 1, y2.toFloat)
+        path.lineTo(x1.toFloat - 1, y1.toFloat + 1)
+        path.closePath
+      case (Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)), 3) =>
+        path.moveTo(x0.toFloat + 1, y0.toFloat)
+        path.lineTo(x0.toFloat - 2, y0.toFloat)
+        path.lineTo(x1.toFloat - 2, y1.toFloat - 2)
+        path.lineTo(x2.toFloat,     y2.toFloat - 2)
+        path.lineTo(x2.toFloat,     y2.toFloat + 1)
+        path.lineTo(x1.toFloat + 1, y1.toFloat + 1)
+        path.closePath
+    }
+
+  override def toString = "Staging.NordicCrossOutline(" + origin + "," + endpoint + "," + crossWidth + ")"
+}
+object NordicCrossOutline {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+    val shape = new NordicCrossOutline(origin, endpoint, crossWidth)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
