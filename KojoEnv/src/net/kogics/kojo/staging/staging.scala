@@ -360,7 +360,7 @@ object API {
   //W
   def loop(fn: => Unit) = Impl.figure0.refresh(fn)
   def stop = Impl.figure0.stopRefresh()
-  def clear() = Impl.figure0.clear()
+//  def clear() = Impl.figure0.clear()
   def fgClear() = Impl.figure0.fgClear()
 
   def mouseX() = Inputs.stepMousePos.x
