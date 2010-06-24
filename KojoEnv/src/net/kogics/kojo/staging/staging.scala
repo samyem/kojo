@@ -452,7 +452,10 @@ trait Shape {
       node.repaint()
     }
   }
-//  def offset = { val o = node.getOffset ; Point(o.getX, o.getY) }
+  def offset = Utils.runInSwingThreadAndWait {
+    val o = node.getOffset
+    Point(o.getX, o.getY)
+  }
 //  def addActivity(a: PActivity) = Impl.canvas.getRoot.addActivity(a)
 }
 
