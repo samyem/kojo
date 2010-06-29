@@ -199,6 +199,13 @@ object API {
   def star(p1: Point, p2: Point, p3: Point, points: Int) =
     Star(p1, dist(p1, p2), dist(p1, p3), points)
 
+  def cross(p1: Point, p2: Point, s: Double) = SymmetricCross(p1, p2, s)
+  def crossOutline(p1: Point, p2: Point, s: Double) = SymmetricCrossOutline(p1, p2, s)
+  def nordicCross(p1: Point, p2: Point, s: Double) = NordicCross(p1, p2, s)
+  def nordicCrossOutline(p1: Point, p2: Point, s: Double) = NordicCrossOutline(p1, p2, s)
+  def saltire(p1: Point, p2: Point, s: Double) = Saltire(p1, p2, s)
+  def saltireOutline(p1: Point, p2: Point, s: Double) = SaltireOutline(p1, p2, s)
+  
   //W
   //W==Complex Shapes==
   //W
@@ -684,6 +691,250 @@ object Star {
       else { origin + Point(inner * cos(aa), inner * sin(aa)) }
     }
     Polygon(pts)
+  }
+}
+
+trait Cross {
+  def cantonLength: Double
+  def cantonWidth: Double
+  def crossPoints(len: Double, wid: Double, cw: Double) = List(
+    //     2--3
+    //     |  |
+    // 0---1  4---5
+    // |          |
+    // 11-10  7---6
+    //     |  |
+    //     9--8
+    Point(0,                 cantonWidth + cw),
+    Point(cantonLength,      cantonWidth + cw),
+    Point(cantonLength,      wid),
+    Point(cantonLength + cw, wid),
+    Point(cantonLength + cw, cantonWidth + cw),
+    Point(len,               cantonWidth + cw),
+    Point(len,               cantonWidth),
+    Point(cantonLength + cw, cantonWidth),
+    Point(cantonLength + cw, 0),
+    Point(cantonLength,      0),
+    Point(cantonLength,      cantonWidth),
+    Point(0,                 cantonWidth)
+  )
+
+  def outlinePoints(len: Double, wid: Double, cw: Double) = {
+    val cpts = crossPoints(len, wid, cw)
+    val points = List(
+      cpts(0), cpts(0), cpts(1), cpts(2), cpts(2), cpts(1),
+      cpts(3), cpts(3), cpts(4), cpts(5), cpts(5), cpts(4),
+      cpts(6), cpts(6), cpts(7), cpts(8), cpts(8), cpts(7),
+      cpts(9), cpts(9), cpts(10), cpts(11), cpts(11), cpts(10)
+    )
+    // TODO scale outset to crossWidth
+    val outlineAdds = List(
+      Point(+0, -1), Point(+0, +2), Point(-2, +2), Point(-2, +0),
+      Point(+1, +0), Point(+1, -1), Point(-1, +0), Point(+2, +0),
+      Point(+2, +2), Point(+0, +2), Point(+0, -1), Point(-1, -1),
+      Point(+0, +1), Point(+0, -2), Point(+2, -2), Point(+2, +0),
+      Point(-1, +0), Point(-1, +1), Point(+1, +0), Point(-2, +0),
+      Point(-2, -2), Point(+0, -2), Point(+0, +1), Point(+1, +1)
+    )
+    (points zip outlineAdds) map { case (c, o) => c + o }
+  }
+}
+
+class SymmetricCross(val origin: Point,
+                     val endpoint: Point,
+                     val crossWidth: Double) extends SimpleShape with Cross {
+  def cantonWidth = (height - crossWidth) / 2
+  def cantonLength = (width - crossWidth) / 2
+  val points = crossPoints(width, height, crossWidth)
+  val path = PPath.createPolyline((points map { case Point(x, y) =>
+    new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
+  }).toArray)
+  path.closePath
+
+  override def toString = "Staging.SymmetricCross(" + origin + "," + endpoint + "," + crossWidth + ")"
+}
+object SymmetricCross {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+    val shape = new SymmetricCross(origin, endpoint, crossWidth)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
+}
+
+class SymmetricCrossOutline(val origin: Point,
+                            val endpoint: Point,
+                            val crossWidth: Double) extends SimpleShape with Cross {
+  def cantonWidth = (height - crossWidth) / 2
+  def cantonLength = (width - crossWidth) / 2
+  val path = new PPath
+  val points = outlinePoints(width, height, crossWidth)
+  points map { origin + _ } grouped(6) foreach { pts =>
+    path.moveTo(pts.head.x.toFloat, pts.head.y.toFloat)
+    pts.tail foreach { p =>
+      path.lineTo(p.x.toFloat, p.y.toFloat)
+    }
+    path.closePath
+  }
+
+  override def toString = "Staging.SymmetricCrossOutline(" + origin + "," + endpoint + "," + crossWidth + ")"
+}
+object SymmetricCrossOutline {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+    val shape = new SymmetricCrossOutline(origin, endpoint, crossWidth)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
+}
+
+class NordicCross(val origin: Point,
+                  val endpoint: Point,
+                  val crossWidth: Double) extends SimpleShape with Cross {
+  def cantonWidth = (height - crossWidth) / 2
+  def cantonLength = cantonWidth
+  val points = crossPoints(width, height, crossWidth)
+  val path = PPath.createPolyline((points map { case Point(x, y) =>
+    new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
+  }).toArray)
+  path.closePath
+
+  override def toString = "Staging.NordicCross(" + origin + "," + endpoint + "," + crossWidth + ")"
+}
+object NordicCross {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+    val shape = new NordicCross(origin, endpoint, crossWidth)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
+}
+
+class NordicCrossOutline(val origin: Point,
+                         val endpoint: Point,
+                         val crossWidth: Double) extends SimpleShape with Cross {
+  def cantonWidth = (height - crossWidth) / 2
+  def cantonLength = cantonWidth
+  val path = new PPath
+  val points = outlinePoints(width, height, crossWidth)
+  points map { origin + _ } grouped(6) foreach { pts =>
+    path.moveTo(pts.head.x.toFloat, pts.head.y.toFloat)
+    pts.tail foreach { p =>
+      path.lineTo(p.x.toFloat, p.y.toFloat)
+    }
+    path.closePath
+  }
+
+  override def toString = "Staging.NordicCrossOutline(" + origin + "," + endpoint + "," + crossWidth + ")"
+}
+object NordicCrossOutline {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+    val shape = new NordicCrossOutline(origin, endpoint, crossWidth)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
+}
+
+class Saltire(val origin: Point,
+              val endpoint: Point,
+              val crossWidth: Double) extends SimpleShape {
+  val points = Saltire.saltirePoints(width, height, crossWidth)
+  val path = PPath.createPolyline((points map { case Point(x, y) =>
+    new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
+  }).toArray)
+  path.closePath
+
+  override def toString = "Staging.Saltire(" + origin + "," + endpoint + "," + crossWidth + ")"
+}
+object Saltire {
+  def saltirePoints(len: Double, wid: Double, cw: Double) = {
+    val hl  = len / 2
+    val hw  = wid / 2
+    val hcw = cw / 2
+    val my  = cw * 0.36
+    val mx  = cw * 0.83
+    List(
+      // 0-1     3-4
+      // f  \   /  5
+      //  \   V   /
+      //   \  2  /
+      //   >e   6<
+      //   /  a  \
+      //  /   A   \
+      // d  /   \  7
+      // c-b     9-8
+      Point(0,         wid),
+      Point(0 + hcw,   wid),
+      Point(hl,        hw + my),
+      Point(len - hcw, wid),
+      Point(len,       wid),
+      Point(len,       wid - hcw),
+      Point(hl + mx,   hw),
+      Point(len,       hcw),
+      Point(len,       0),
+      Point(len - hcw, 0),
+      Point(hl,        hw - my),
+      Point(hcw,       0),
+      Point(0,         0),
+      Point(0,         hcw),
+      Point(hl - mx,   hw),
+      Point(0,         wid - hcw)
+    )
+  }
+
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+    val shape = new Saltire(origin, endpoint, crossWidth)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
+}
+
+class SaltireOutline(val origin: Point,
+              val endpoint: Point,
+              val crossWidth: Double) extends SimpleShape {
+  val path = new PPath
+
+  // TODO scale outset to crossWidth
+  val points = Saltire.saltirePoints(width, height, crossWidth)
+  (points map (origin + _) grouped(4) zipWithIndex) foreach {
+    case (Seq(_, Point(x0, y0), Point(x1, y1), Point(x2, y2)), 0) =>
+      path.moveTo(x0.toFloat - 1, y0.toFloat)
+      path.lineTo(x0.toFloat + 2, y0.toFloat)
+      path.lineTo(x1.toFloat,     y1.toFloat + 1)
+      path.lineTo(x2.toFloat - 2, y2.toFloat)
+      path.lineTo(x2.toFloat + 1, y2.toFloat)
+      path.lineTo(x1.toFloat,     y1.toFloat - 1)
+      path.closePath
+    case (Seq(_, Point(x0, y0), Point(x1, y1), Point(x2, y2)), 1) =>
+      path.moveTo(x0.toFloat,     y0.toFloat + 2)
+      path.lineTo(x0.toFloat,     y0.toFloat - 1)
+      path.lineTo(x1.toFloat + 4, y1.toFloat)
+      path.lineTo(x2.toFloat,     y2.toFloat + 1)
+      path.lineTo(x2.toFloat,     y2.toFloat - 2)
+      path.lineTo(x1.toFloat - 1, y1.toFloat)
+      path.closePath
+    case (Seq(_, Point(x0, y0), Point(x1, y1), Point(x2, y2)), 2) =>
+      path.moveTo(x0.toFloat + 1, y0.toFloat)
+      path.lineTo(x0.toFloat - 2, y0.toFloat)
+      path.lineTo(x1.toFloat,     y1.toFloat - 1)
+      path.lineTo(x2.toFloat + 2, y2.toFloat)
+      path.lineTo(x2.toFloat - 1, y2.toFloat)
+      path.lineTo(x1.toFloat,     y1.toFloat + 1)
+      path.closePath
+    case (Seq(_, Point(x0, y0), Point(x1, y1), Point(x2, y2)), 3) =>
+      path.moveTo(x0.toFloat,     y0.toFloat - 2)
+      path.lineTo(x0.toFloat,     y0.toFloat + 1)
+      path.lineTo(x1.toFloat - 4, y1.toFloat)
+      path.lineTo(x2.toFloat,     y2.toFloat - 1)
+      path.lineTo(x2.toFloat,     y2.toFloat + 2)
+      path.lineTo(x1.toFloat + 1, y1.toFloat)
+      path.closePath
+  }
+
+  override def toString = "Staging.SaltireOutline(" + origin + "," + endpoint + "," + crossWidth + ")"
+}
+object SaltireOutline {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+    val shape = new SaltireOutline(origin, endpoint, crossWidth)
+    Impl.figure0.pnode(shape.node)
+    shape
   }
 }
 
