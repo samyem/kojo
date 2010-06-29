@@ -73,8 +73,10 @@ object API {
 
   def point(x: Double, y: Double) = Point(x, y)
 
-  implicit def tupleDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
-  implicit def tupleIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
+  implicit def tupleDDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
+  implicit def tupleDIToPoint(tuple: (Double, Int)) = Point(tuple._1, tuple._2)
+  implicit def tupleIDToPoint(tuple: (Int, Double)) = Point(tuple._1, tuple._2)
+  implicit def tupleIIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
   implicit def baseShapeToPoint(b: BaseShape) = b.origin
   implicit def awtPointToPoint(p: java.awt.geom.Point2D) = Point(p.getX, p.getY)
   implicit def awtDimToPoint(d: java.awt.geom.Dimension2D) = Point(d.getWidth, d.getHeight)
