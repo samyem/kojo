@@ -106,7 +106,105 @@ object API {
   def background(bc: Color) = {
     withStyle(bc, null, 1) { rectangle(O, screenExt) }
   }
-  
+
+  class RichPoint(x: Double, y: Double) {
+    val p = Point(x, y)
+    def dot = Dot(p)
+    def square(side: Double) = Rectangle(p, p + Point(side, side))
+    def circle(radius: Double) = Ellipse(p, p + Point(radius, radius))
+    def ellipse(xradius: Double, yradius: Double) = Ellipse(p, p + Point(xradius, xradius))
+    def star(inner: Double, outer: Double, points: Int) =
+      Star(p, inner, outer, points)
+  }
+  implicit def pointToRichPoint(p: Point) = new RichPoint(p.x, p.y)
+
+  class Bounds(val origin: Point, val endpoint: Point) {
+    val diag = dist(origin, endpoint)
+    val xdim = endpoint.x - origin.x
+    val ydim = endpoint.y - origin.y
+    var left = origin.x
+    var bottom = origin.y
+    var right = endpoint.x
+    var top = endpoint.y
+
+    def vshift(amt: Double) {
+      top += amt
+      bottom += amt
+    }
+
+    def hshift(amt: Double) {
+      left -= amt
+      right += amt
+    }
+
+    def extendTop(amt: Double) {
+      top += amt
+    }
+
+    def extendBottom(amt: Double) {
+      bottom -= amt
+    }
+
+    def extendLeft(amt: Double) {
+      left -= amt
+    }
+
+    def extendRight(amt: Double) {
+      right += amt
+    }
+
+    def packTop(height: Double) = {
+      if (top - bottom >= height) {
+        val res = new Bounds((left, top - height), (right, top))
+        top -= height
+        res
+      } else {
+        vfill
+      }
+    }
+
+    def packLeft(width: Double) = {
+      if (right - left >= width) {
+        val res = new Bounds((left, bottom), (left + width, top))
+        left += width
+        res
+      } else {
+        hfill
+      }
+    }
+
+    def vfill = {
+      val res = new Bounds((left, bottom), (right, top))
+      top = bottom
+      res
+    }
+
+    def hfill = {
+      val res = new Bounds((left, bottom), (right, top))
+      left = right
+      res
+    }
+
+    def rectangle = Rectangle(origin, endpoint)
+    def ellipse = Ellipse(origin, endpoint)
+    def circle = Ellipse(origin, origin + (diag, diag))
+    def roundRectangle(xradius: Double, yradius: Double) =
+      RoundRectangle(origin, endpoint, Point(xradius, yradius))
+
+    def hdiv(n: Int) = {
+      val width = xdim / n
+      for (i <- 0 until n ; x = i * width) yield
+        new Bounds(Point(x, origin.y), Point(x + width, endpoint.y))
+    }
+
+    def vdiv(n: Int) = {
+      val height = ydim / n
+      for (i <- 0 until n ; y = i * height) yield
+        new Bounds(Point(origin.x, y), Point(endpoint.x, y + height))
+    }
+  }
+  implicit def pointPairToBounds(pp: (Point, Point)) = new Bounds(pp._1, pp._2)
+
   //W
   //W==Simple shapes and text==
   //W
@@ -432,15 +530,26 @@ object Screen {
 trait Shape {
   def node: PNode
   def hide() {
-    node.setVisible(false)
+    Utils.runInSwingThread {
+      node.setVisible(false)
+    }
     Impl.canvas.repaint()
   }
   def show() {
-    node.setVisible(true)
+    Utils.runInSwingThread {
+      node.setVisible(true)
+    }
     Impl.canvas.repaint()
   }
-  def fill_=(color: Color) { node.setPaint(color) }
-  def fill = node.getPaint
+  def fill_=(color: Color) {
+    Utils.runInSwingThread {
+      node.setPaint(color)
+      node.repaint()
+    }
+  }
+  def fill = Utils.runInSwingThreadAndWait {
+    node.getPaint
+  }
 
   def rotate(amount: Double) = {
     Utils.runInSwingThread {
@@ -482,23 +591,15 @@ trait BaseShape extends Shape {
 trait StrokedShape extends BaseShape {
   val path: PPath
   def node = path
-  var style: java.awt.BasicStroke = Impl.figure0.DefaultStroke
-  def stroke_=(color: Color) = path.setStrokePaint(color)
-  def stroke = path.getStrokePaint
-  def strokeWidth_=(width: Double) {
-    this style =
-      new java.awt.BasicStroke(width.toFloat, style.getEndCap, style.getLineJoin)
-  }
-  def strokeWidth = this.strokeStyle.getLineWidth.toDouble
-  def strokeStyle_=(style: java.awt.BasicStroke) { this.style = style }
-  def strokeStyle = style
 
-  def setPalette {
+  def stroke_=(color: Color) {
     Utils.runInSwingThread {
-      fill = Impl.figure0.fillColor
-      strokeStyle = Impl.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke]
-      stroke = Impl.figure0.lineColor
+      node.setStrokePaint(color)
+      node.repaint()
     }
+  }
+  def stroke = Utils.runInSwingThreadAndWait {
+    node.getStrokePaint
   }
 }
 
@@ -538,10 +639,12 @@ class Text(val text: String, val origin: Point) extends BaseShape {
   val tnode = new edu.umd.cs.piccolo.nodes.PText(text)
   def node = tnode
 
-  tnode.getTransformReference(true).setToScale(1, -1)
-  tnode.setOffset(origin.x, origin.y)
-  val font = new Font(tnode.getFont.getName, Font.PLAIN, 14)
-  tnode.setFont(font)
+  Utils.runInSwingThread {
+    node.getTransformReference(true).setToScale(1, -1)
+    node.setOffset(origin.x, origin.y)
+    val font = new Font(node.getFont.getName, Font.PLAIN, 14)
+    node.setFont(font)
+  }
 
   override def toString = "Staging.Text(" + text + ", " + origin + ")"
 }
@@ -962,7 +1065,9 @@ class Vector(val origin: Point, val endpoint: Point, val length: Double) extends
     if (origin.x < endpoint.x) { math.asin((endpoint.y - origin.y) / vlength) }
   else { math.Pi - math.asin((endpoint.y - origin.y) / vlength) }
 
-  node.rotateAboutPoint(angle, origin.x, origin.y)
+  Utils.runInSwingThread {
+    node.rotateAboutPoint(angle, origin.x, origin.y)
+  }
 
   override def toString = "Staging.Vector(" + origin + ", " + endpoint + ")"
 }
@@ -1138,7 +1243,11 @@ object TriangleFanShape {
 
 class Composite(val shapes: Seq[Shape]) extends Shape {
   val node = new PNode
-  shapes foreach { shape => node.addChild(shape.node) }
+  Utils.runInSwingThread {
+    shapes foreach { shape =>
+      node.addChild(shape.node)
+    }
+  }
 
   override def toString = "Staging.Group(" + shapes.mkString(",") + ")"
 }
