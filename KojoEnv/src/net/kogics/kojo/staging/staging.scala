@@ -90,8 +90,8 @@ object API {
   //W
   //WThe zoom level and axis orientations can be set using `screenSize`.
   //W
-  def screenWidth = Screen.rect.width.toInt
-  def screenHeight = Screen.rect.height.toInt
+  def screenWidth = Screen.width.toInt
+  def screenHeight = Screen.height.toInt
   def screenSize(width: Int, height: Int) = Screen.size(width, height)
 
   /** The middle point of the user screen, or (0, 0) if `screenSize` hasn't
@@ -118,55 +118,50 @@ object API {
   }
   implicit def pointToRichPoint(p: Point) = new RichPoint(p.x, p.y)
 
-  class Bounds(val origin: Point, val endpoint: Point) {
-    val diag = dist(origin, endpoint)
-    val xdim = endpoint.x - origin.x
-    val ydim = endpoint.y - origin.y
-    var left = origin.x
-    var bottom = origin.y
-    var right = endpoint.x
-    var top = endpoint.y
+  class Rect(var cavity: Bounds) {
+    def width = cavity.getWidth
+    def height = cavity.getHeight
 
-    def vshift(amt: Double) {
-      top += amt
-      bottom += amt
+    //def getMidPoint = cavity.getCenter2D
+
+    def diag = dist(cavity.getOrigin, cavity.getSize)
+
+    def shortDim = if (width > height) height else width
+
+    def inset(amt: Double) { cavity.inset(amt, amt) }
+
+    def inset(dx1: Double, dy1: Double, dx2: Double, dy2: Double) {
+      val p1 = cavity.getOrigin
+      val p2 = cavity.getSize
+      cavity = Bounds(p1.x + dx1, p1.y + dy1, p2.x - dx2, p2.y - dy2)
     }
 
-    def hshift(amt: Double) {
-      left -= amt
-      right += amt
+    def outset(amt: Double) {
+      inset(-amt)
     }
 
-    def extendTop(amt: Double) {
-      top += amt
+    def outset(dx1: Double, dy1: Double, dx2: Double, dy2: Double) {
+      inset(-dx1, -dy1, -dx2, -dy2)
     }
 
-    def extendBottom(amt: Double) {
-      bottom -= amt
-    }
-
-    def extendLeft(amt: Double) {
-      left -= amt
-    }
-
-    def extendRight(amt: Double) {
-      right += amt
-    }
-
-    def packTop(height: Double) = {
-      if (top - bottom >= height) {
-        val res = new Bounds((left, top - height), (right, top))
-        top -= height
+    def fitTop(height: Double) = {
+      if (cavity.getHeight >= height) {
+        val p1 = cavity.getOrigin
+        val p2 = cavity.getSize
+        val res = Rect(Point(p1.x, p2.y - height), p2)
+        inset(0, 0, 0, height)
         res
       } else {
         vfill
       }
     }
 
-    def packLeft(width: Double) = {
-      if (right - left >= width) {
-        val res = new Bounds((left, bottom), (left + width, top))
-        left += width
+    def fitLeft(width: Double) = {
+      if (cavity.getWidth >= width) {
+        val p1 = cavity.getOrigin
+        val p2 = cavity.getSize
+        val res = Rect(p1, Point(p1.x + width, p2.y))
+        inset(0, 0, width, 0)
         res
       } else {
         hfill
@@ -174,36 +169,104 @@ object API {
     }
 
     def vfill = {
-      val res = new Bounds((left, bottom), (right, top))
-      top = bottom
+      val res = Rect(cavity.getOrigin, cavity.getSize)
+      inset(0, 0, 0, cavity.getHeight)
       res
     }
 
     def hfill = {
-      val res = new Bounds((left, bottom), (right, top))
-      left = right
+      val res = Rect(cavity.getOrigin, cavity.getSize)
+      inset(0, 0, cavity.getWidth, 0)
       res
     }
 
-    def rectangle = Rectangle(origin, endpoint)
-    def ellipse = Ellipse(origin, endpoint)
-    def circle = Ellipse(origin, origin + (diag, diag))
-    def roundRectangle(xradius: Double, yradius: Double) =
-      RoundRectangle(origin, endpoint, Point(xradius, yradius))
-
     def hdiv(n: Int) = {
-      val width = xdim / n
-      for (i <- 0 until n ; x = i * width) yield
-        new Bounds(Point(x, origin.y), Point(x + width, endpoint.y))
+      val w = width / n
+      val left = cavity.getOrigin.getX
+      val bottom = cavity.getOrigin.getY
+      val top = cavity.getHeight + bottom
+      val res = for (i <- 0 until n ; x = left + i * w) yield
+        Rect(Point(x, bottom), Point(x + w, top))
+      cavity.resetToZero
+      res
     }
 
     def vdiv(n: Int) = {
-      val height = ydim / n
-      for (i <- 0 until n ; y = i * height) yield
-        new Bounds(Point(origin.x, y), Point(endpoint.x, y + height))
+      val h = height / n
+      val left = cavity.getOrigin.getX
+      val bottom = cavity.getOrigin.getY
+      val right = cavity.getWidth + left
+      val res = for (i <- 0 until n ; y = bottom + i * h) yield
+        Rect(Point(left, y), Point(right, y + h))
+      cavity.resetToZero
+      res
+    }
+
+    def rectangle = {
+      val p = cavity.getOrigin
+      Rectangle(p, p + cavity.getSize)
+    }
+    def square = {
+      val side = shortDim
+      val p = cavity.getOrigin
+      Rectangle(p, p + (side, side))
+    }
+    def ellipse = {
+      val p = cavity.getCenter2D
+      Ellipse(p, p + cavity.getSize)
+    }
+    def circle = {
+      val radius = shortDim / 2
+      val p = cavity.getCenter2D
+      Ellipse(p, p + (radius, radius))
+    }
+    def roundRectangle(xradius: Double, yradius: Double) = {
+      val p = cavity.getOrigin
+      RoundRectangle(p, p + cavity.getSize, Point(xradius, yradius))
+    }
+    def star(inner: Double, n: Int) = {
+      val outer = shortDim / 2
+      Star(cavity.getOrigin, inner, outer, n)
+    }
+
+    def cross(s: Double) = {
+      val p = cavity.getOrigin
+      SymmetricCross(p, p + cavity.getSize, s)
+    }
+    def crossOutline(s: Double) = {
+      val p = cavity.getOrigin
+      SymmetricCrossOutline(p, p + cavity.getSize, s)
+    }
+    def nordicCross(s: Double) = {
+      val p = cavity.getOrigin
+      NordicCross(p, p + cavity.getSize, s)
+    }
+    def nordicCrossOutline(s: Double) = {
+      val p = cavity.getOrigin
+      NordicCrossOutline(p, p + cavity.getSize, s)
+    }
+    def saltire(s: Double) = {
+      val p = cavity.getOrigin
+      Saltire(p, p + cavity.getSize, s)
+    }
+    def saltireOutline(s: Double) = {
+      val p = cavity.getOrigin
+      SaltireOutline(p, p + cavity.getSize, s)
     }
   }
-  implicit def pointPairToBounds(pp: (Point, Point)) = new Bounds(pp._1, pp._2)
+  object Rect {
+    def apply(sh: Shape) = {
+      val b = Utils.runInSwingThreadAndWait {
+        sh.node.getBoundsReference
+      }
+      new Rect(Bounds(b))
+    }
+    def apply(x1: Double, y1: Double, x2: Double, y2: Double) =
+      new Rect(Bounds(x1, y1, x2, y2))
+    def apply(p1: Point, p2: Point) =
+      new Rect(Bounds(p1.x, p1.y, p2.x, p2.y))
+  }
+  implicit def pointPairToRect(pp: (Point, Point)) = Rect(pp._1, pp._2)
 
   //W
   //W==Simple shapes and text==
@@ -484,7 +547,7 @@ object API {
   def mousePressed = Inputs.mousePressedFlag
 
   def interpolatePolygon(pts1: Seq[Point], pts2: Seq[Point], n: Int) {
-    require(pts1.size == pts2.size, "The polygons aren't similar")
+    require(pts1.size == pts2.size, "The polygons don't have the same number of points.")
 
     var g0 = polygon(pts1)
     for (i <- 0 to n ; amt = i / n.toFloat) {
@@ -511,7 +574,7 @@ object Point {
 }
 
 object Screen {
-  var rect = new PBounds(0, 0, 0, 0)
+  var rect = Bounds(0, 0, 0, 0)
 
   def size(width: Int, height: Int) = {
     // TODO 560 is a value that works on my system, should be less ad-hoc
@@ -520,9 +583,11 @@ object Screen {
     val yfactor = factor / height
     Impl.canvas.zoomXY(xfactor, yfactor, width / 2, height / 2)
     rect.setRect(0, 0, width.abs, height.abs)
-    (rect.width.toInt, rect.height.toInt)
+    (this.width, this.height)
   }
 
+  def width = rect.getWidth
+  def height = rect.getWidth
   def midpoint = rect.getCenter2D
   def extpoint = rect.getSize
 }
@@ -1740,4 +1805,38 @@ object Inputs {
 
     Impl.canvas.addInputEventListener(iel)
   }
+}
+
+
+class Bounds(x1: Double, y1: Double, x2: Double, y2: Double) {
+  val bounds = Utils.runInSwingThreadAndWait {
+    new PBounds(x1, y1, x2 - x1, y2 - y1)
+  }
+
+  def getWidth = Utils.runInSwingThreadAndWait { bounds.getWidth }
+  def getHeight = Utils.runInSwingThreadAndWait { bounds.getHeight }
+  def getOrigin = Utils.runInSwingThreadAndWait { bounds.getOrigin }
+  def getCenter2D = Utils.runInSwingThreadAndWait { bounds.getCenter2D }
+  def getSize = Utils.runInSwingThreadAndWait { bounds.getSize }
+  def resetToZero = Utils.runInSwingThreadAndWait { bounds.resetToZero }
+  def inset(dx: Double, dy: Double) = Utils.runInSwingThreadAndWait {
+    bounds.inset(dx, dy)
+  }
+  def setRect(x1: Double, y1: Double, x2: Double, y2: Double) {
+    Utils.runInSwingThread {
+      bounds.setRect(x1, y1, x2 - x1, y2 - y1)
+    }
+  }
+//     Utils.runInSwingThread {
+}
+object Bounds {
+  def apply(b: PBounds) = Utils.runInSwingThreadAndWait {
+    val x = b.getX
+    val y = b.getY
+    val w = b.getWidth
+    val h = b.getHeight
+    new Bounds(x, y, x + w, y + h)
+  }
+  def apply(x1: Double, y1: Double, x2: Double, y2: Double) =
+    new Bounds(x1, y1, x2, y2)
 }
