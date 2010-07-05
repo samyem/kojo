@@ -59,8 +59,11 @@ object API {
   //W  * StagingHelloKojoExample
   //W  * StagingArrayExample
   //W  * StagingArrayTwoDeeExample
+  //W  * StagingClockExample
   //W  * StagingColorWheelExample
   //W  * StagingCreatingColorsExample
+  //W  * StagingDifferenceOfTwoSquaresExample
+  //W  * StagingEasingExample
   //W  * StagingHueSaturationBrightnessExample
   //W  * StagingSineOfAnAngleExample
   //W
@@ -78,8 +81,8 @@ object API {
   implicit def tupleIDToPoint(tuple: (Int, Double)) = Point(tuple._1, tuple._2)
   implicit def tupleIIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
   implicit def baseShapeToPoint(b: BaseShape) = b.origin
-  implicit def awtPointToPoint(p: java.awt.geom.Point2D) = Point(p.getX, p.getY)
-  implicit def awtDimToPoint(d: java.awt.geom.Dimension2D) = Point(d.getWidth, d.getHeight)
+  //implicit def awtPointToPoint(p: java.awt.geom.Point2D) = Point(p.getX, p.getY)
+  //implicit def awtDimToPoint(d: java.awt.geom.Dimension2D) = Point(d.getWidth, d.getHeight)
 
   /** The point of origin, located at a corner of the user screen if
    * `screenSize` has been called, or the middle of the screen otherwise. */
@@ -90,183 +93,22 @@ object API {
   //W
   //WThe zoom level and axis orientations can be set using `screenSize`.
   //W
-  def screenWidth = Screen.width.toInt
-  def screenHeight = Screen.height.toInt
+  def screenWidth = Screen.rect.getWidth.toInt
+  def screenHeight = Screen.rect.getHeight.toInt
   def screenSize(width: Int, height: Int) = Screen.size(width, height)
 
   /** The middle point of the user screen, or (0, 0) if `screenSize` hasn't
    * been called. */
-  def screenMid: Point = Screen.midpoint
+  def screenMid = Screen.rect.getCenter2D
 
   /** The extreme point of the user screen (i.e. the opposite corner from
    * the point of origin), or (0, 0) if `screenSize` hasn't been called. */
-  def screenExt: Point = Screen.extpoint
+  def screenExt = Screen.rect.getExt
 
   /** Fills the user screen with the specified color. */
   def background(bc: Color) = {
     withStyle(bc, null, 1) { rectangle(O, screenExt) }
   }
-
-  class RichPoint(x: Double, y: Double) {
-    val p = Point(x, y)
-    def dot = Dot(p)
-    def square(side: Double) = Rectangle(p, p + Point(side, side))
-    def circle(radius: Double) = Ellipse(p, p + Point(radius, radius))
-    def ellipse(xradius: Double, yradius: Double) = Ellipse(p, p + Point(xradius, xradius))
-    def star(inner: Double, outer: Double, points: Int) =
-      Star(p, inner, outer, points)
-  }
-  implicit def pointToRichPoint(p: Point) = new RichPoint(p.x, p.y)
-
-  class Rect(var cavity: Bounds) {
-    def width = cavity.getWidth
-    def height = cavity.getHeight
-
-    //def getMidPoint = cavity.getCenter2D
-
-    def diag = dist(cavity.getOrigin, cavity.getSize)
-
-    def shortDim = if (width > height) height else width
-
-    def inset(amt: Double) { cavity.inset(amt, amt) }
-
-    def inset(dx1: Double, dy1: Double, dx2: Double, dy2: Double) {
-      val p1 = cavity.getOrigin
-      val p2 = cavity.getSize
-      cavity = Bounds(p1.x + dx1, p1.y + dy1, p2.x - dx2, p2.y - dy2)
-    }
-
-    def outset(amt: Double) {
-      inset(-amt)
-    }
-
-    def outset(dx1: Double, dy1: Double, dx2: Double, dy2: Double) {
-      inset(-dx1, -dy1, -dx2, -dy2)
-    }
-
-    def fitTop(height: Double) = {
-      if (cavity.getHeight >= height) {
-        val p1 = cavity.getOrigin
-        val p2 = cavity.getSize
-        val res = Rect(Point(p1.x, p2.y - height), p2)
-        inset(0, 0, 0, height)
-        res
-      } else {
-        vfill
-      }
-    }
-
-    def fitLeft(width: Double) = {
-      if (cavity.getWidth >= width) {
-        val p1 = cavity.getOrigin
-        val p2 = cavity.getSize
-        val res = Rect(p1, Point(p1.x + width, p2.y))
-        inset(0, 0, width, 0)
-        res
-      } else {
-        hfill
-      }
-    }
-
-    def vfill = {
-      val res = Rect(cavity.getOrigin, cavity.getSize)
-      inset(0, 0, 0, cavity.getHeight)
-      res
-    }
-
-    def hfill = {
-      val res = Rect(cavity.getOrigin, cavity.getSize)
-      inset(0, 0, cavity.getWidth, 0)
-      res
-    }
-
-    def hdiv(n: Int) = {
-      val w = width / n
-      val left = cavity.getOrigin.getX
-      val bottom = cavity.getOrigin.getY
-      val top = cavity.getHeight + bottom
-      val res = for (i <- 0 until n ; x = left + i * w) yield
-        Rect(Point(x, bottom), Point(x + w, top))
-      cavity.resetToZero
-      res
-    }
-
-    def vdiv(n: Int) = {
-      val h = height / n
-      val left = cavity.getOrigin.getX
-      val bottom = cavity.getOrigin.getY
-      val right = cavity.getWidth + left
-      val res = for (i <- 0 until n ; y = bottom + i * h) yield
-        Rect(Point(left, y), Point(right, y + h))
-      cavity.resetToZero
-      res
-    }
-
-    def rectangle = {
-      val p = cavity.getOrigin
-      Rectangle(p, p + cavity.getSize)
-    }
-    def square = {
-      val side = shortDim
-      val p = cavity.getOrigin
-      Rectangle(p, p + (side, side))
-    }
-    def ellipse = {
-      val p = cavity.getCenter2D
-      Ellipse(p, p + cavity.getSize)
-    }
-    def circle = {
-      val radius = shortDim / 2
-      val p = cavity.getCenter2D
-      Ellipse(p, p + (radius, radius))
-    }
-    def roundRectangle(xradius: Double, yradius: Double) = {
-      val p = cavity.getOrigin
-      RoundRectangle(p, p + cavity.getSize, Point(xradius, yradius))
-    }
-    def star(inner: Double, n: Int) = {
-      val outer = shortDim / 2
-      Star(cavity.getOrigin, inner, outer, n)
-    }
-
-    def cross(s: Double) = {
-      val p = cavity.getOrigin
-      SymmetricCross(p, p + cavity.getSize, s)
-    }
-    def crossOutline(s: Double) = {
-      val p = cavity.getOrigin
-      SymmetricCrossOutline(p, p + cavity.getSize, s)
-    }
-    def nordicCross(s: Double) = {
-      val p = cavity.getOrigin
-      NordicCross(p, p + cavity.getSize, s)
-    }
-    def nordicCrossOutline(s: Double) = {
-      val p = cavity.getOrigin
-      NordicCrossOutline(p, p + cavity.getSize, s)
-    }
-    def saltire(s: Double) = {
-      val p = cavity.getOrigin
-      Saltire(p, p + cavity.getSize, s)
-    }
-    def saltireOutline(s: Double) = {
-      val p = cavity.getOrigin
-      SaltireOutline(p, p + cavity.getSize, s)
-    }
-  }
-  object Rect {
-    def apply(sh: Shape) = {
-      val b = Utils.runInSwingThreadAndWait {
-        sh.node.getBoundsReference
-      }
-      new Rect(Bounds(b))
-    }
-    def apply(x1: Double, y1: Double, x2: Double, y2: Double) =
-      new Rect(Bounds(x1, y1, x2, y2))
-    def apply(p1: Point, p2: Point) =
-      new Rect(Bounds(p1.x, p1.y, p2.x, p2.y))
-  }
-  implicit def pointPairToRect(pp: (Point, Point)) = Rect(pp._1, pp._2)
 
   //W
   //W==Simple shapes and text==
@@ -362,10 +204,10 @@ object API {
   def star(p1: Point, p2: Point, p3: Point, points: Int) =
     Star(p1, dist(p1, p2), dist(p1, p3), points)
 
-  def cross(p1: Point, p2: Point, s: Double) = SymmetricCross(p1, p2, s)
-  def crossOutline(p1: Point, p2: Point, s: Double) = SymmetricCrossOutline(p1, p2, s)
-  def nordicCross(p1: Point, p2: Point, s: Double) = NordicCross(p1, p2, s)
-  def nordicCrossOutline(p1: Point, p2: Point, s: Double) = NordicCrossOutline(p1, p2, s)
+  def cross(p1: Point, p2: Point, cw: Double, r: Double = 1, greek: Boolean = false) =
+    Cross(p1, p2, cw, r, greek)
+  def crossOutline(p1: Point, p2: Point, cw: Double, r: Double = 1, greek: Boolean = false) =
+    CrossOutline(p1, p2, cw, r, greek)
   def saltire(p1: Point, p2: Point, s: Double) = Saltire(p1, p2, s)
   def saltireOutline(p1: Point, p2: Point, s: Double) = SaltireOutline(p1, p2, s)
   
@@ -383,15 +225,10 @@ object API {
     polygon(Seq(p0, p1, p2, p3))
 
   def linesShape(pts: Seq[Point]) = LinesShape(pts)
-
   def trianglesShape(pts: Seq[Point]) = TrianglesShape(pts)
-
   def triangleStripShape(pts: Seq[Point]) = TriangleStripShape(pts)
-
   def quadsShape(pts: Seq[Point]) = QuadsShape(pts)
-
   def quadStripShape(pts: Seq[Point]) = QuadStripShape(pts)
-
   def triangleFanShape(p0: Point, pts: Seq[Point]) = TriangleFanShape(p0, pts)
 
   //W
@@ -547,7 +384,7 @@ object API {
   def mousePressed = Inputs.mousePressedFlag
 
   def interpolatePolygon(pts1: Seq[Point], pts2: Seq[Point], n: Int) {
-    require(pts1.size == pts2.size, "The polygons don't have the same number of points.")
+    require(pts1.size == pts2.size, "The polygons don't match up.")
 
     var g0 = polygon(pts1)
     for (i <- 0 to n ; amt = i / n.toFloat) {
@@ -573,27 +410,12 @@ object Point {
   def unapply(p: Point) = Some((p.x, p.y))
 }
 
-object Screen {
-  var rect = Bounds(0, 0, 0, 0)
-
-  def size(width: Int, height: Int) = {
-    // TODO 560 is a value that works on my system, should be less ad-hoc
-    val factor = 560
-    val xfactor = factor / (if (width < 0) -(height.abs) else height.abs) // sic!
-    val yfactor = factor / height
-    Impl.canvas.zoomXY(xfactor, yfactor, width / 2, height / 2)
-    rect.setRect(0, 0, width.abs, height.abs)
-    (this.width, this.height)
-  }
-
-  def width = rect.getWidth
-  def height = rect.getWidth
-  def midpoint = rect.getCenter2D
-  def extpoint = rect.getSize
-}
 
 trait Shape {
   def node: PNode
+  var sizeFactor = 1.
+  var orientation = 90.
+
   def hide() {
     Utils.runInSwingThread {
       node.setVisible(false)
@@ -621,14 +443,24 @@ trait Shape {
       val p = node.getFullBounds.getCenter2D
       node.rotateAboutPoint(amount.toRadians, p)
       node.repaint()
+      orientation = (orientation + amount) % 360
     }
   }
+  def rotateTo(angle: Double) = {
+    rotate(angle - orientation)
+  }
+
   def scale(amount: Double) = {
     Utils.runInSwingThread {
       node.scale(amount)
       node.repaint()
+      sizeFactor *= amount
     }
   }
+  def scaleTo(size: Double) = {
+    scale(size / sizeFactor)
+  }
+  
   def translate(p: Point) = {
     Utils.runInSwingThread {
       node.offset(p.x, p.y)
@@ -648,9 +480,9 @@ trait Rounded {
   def radiusY = curvature.y
 }
 
+
 trait BaseShape extends Shape {
   val origin: Point
-  def toLine(p: Point) = Line(origin, p)
 }
 
 trait StrokedShape extends BaseShape {
@@ -672,31 +504,12 @@ trait SimpleShape extends StrokedShape {
   val endpoint: Point
   def width = endpoint.x - origin.x
   def height = endpoint.y - origin.y
-  def toLine: Line = Line(origin, endpoint)
-  def toRect: Rectangle = Rectangle(origin, endpoint)
-  def toRect(p: Point): RoundRectangle = RoundRectangle(origin, endpoint, p)
 }
 
 trait Elliptical extends SimpleShape with Rounded {
   val curvature = endpoint - origin
   override def width = 2 * radiusX
   override def height = 2 * radiusY
-}
-
-class Dot(val origin: Point) extends StrokedShape {
-  val path = PPath.createLine(
-    origin.x.toFloat, origin.y.toFloat,
-    origin.x.toFloat, origin.y.toFloat
-  )
-
-  override def toString = "Staging.Dot(" + origin + ")"
-}
-object Dot {
-  def apply(p: Point) = {
-    val shape = new Dot(p)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
 }
 
 class Text(val text: String, val origin: Point) extends BaseShape {
@@ -721,590 +534,60 @@ object Text {
   }
 }
 
-class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
-  val path =
-    PPath.createLine(origin.x.toFloat, origin.y.toFloat, endpoint.x.toFloat, endpoint.y.toFloat)
-  
-  override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
-}
-object Line {
-  def apply(p1: Point, p2: Point) = {
-    val shape = new Line(p1, p2)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
-  // precondition endpoint > origin
-  require(width > 0 && height > 0)
-  val path =
-    PPath.createRectangle(origin.x.toFloat, origin.y.toFloat, width.toFloat, height.toFloat)
-
-  override def toString = "Staging.Rectangle(" + origin + ", " + endpoint + ")"
-}
-object Rectangle {
-  def apply(p1: Point, p2: Point) = {
-    val shape = new Rectangle(p1, p2)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
 
 trait PolyShape extends BaseShape {
   val points: Seq[Point]
   val origin = points(0)
-  def toPolygon: Polygon = Polygon(points)
-  def toPolyline: Polyline = Polyline(points)
+  //def toPolygon: Polygon = Polygon(points)
+  //def toPolyline: Polyline = Polyline(points)
 }
 
-class RoundRectangle(
-  val origin: Point,
-  val endpoint: Point,
-  val curvature: Point
-) extends SimpleShape with Rounded {
-  // precondition endpoint > origin
-  require(width > 0 && height > 0)
-  val path =
-    PPath.createRoundRectangle(
-      origin.x.toFloat, origin.y.toFloat,
-      width.toFloat, height.toFloat,
-      curvature.x.toFloat, curvature.y.toFloat
-    )
-
-  override def toString =
-    "Staging.RoundRectangle(" + origin + ", " + endpoint + ", " + curvature + ")"
-}
-object RoundRectangle {
-  def apply(p1: Point, p2: Point, p3: Point) = {
-    val shape = new RoundRectangle(p1, p2, p3)
-    Impl.figure0.pnode(shape.node)
-    shape
+trait CrossShape {
+  var xdims = Array.fill(8){0.}
+  var ydims = Array.fill(8){0.}
+  def crossDims(len: Double, wid: Double, cw: Double, r: Double = 1, greek: Boolean = false) = {
+    require(wid / 2 > cw)
+    require(len / 2 > cw)
+    val a = (wid - cw) / 2
+    val b = a / (if (greek) 1 else r)
+    val c = cw / 6
+    val d = c / 2
+    xdims(1) = a - c
+    xdims(2) = a
+    xdims(3) = a + d
+    xdims(4) = a + cw - d
+    xdims(5) = a + cw
+    xdims(6) = a + cw + c
+    xdims(7) = len
+    ydims(1) = b - c
+    ydims(2) = b
+    ydims(3) = b + d
+    ydims(4) = b + cw - d
+    ydims(5) = b + cw
+    ydims(6) = b + cw + c
+    ydims(7) = wid
+    this
   }
-}
-
-class Polyline(val points: Seq[Point]) extends PolyShape with StrokedShape {
-  val path = PPath.createPolyline((points map {
-        case Point(x, y) => new java.awt.geom.Point2D.Double(x, y)
-      }).toArray)
-
-  override def toString = "Staging.Polyline(" + points + ")"
-}
-object Polyline {
-  def apply(pts: Seq[Point]) = {
-    val shape = new Polyline(pts)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class Polygon(val points: Seq[Point]) extends PolyShape with StrokedShape {
-  val path = PPath.createPolyline((points map {
-        case Point(x, y) => new java.awt.geom.Point2D.Double(x, y)
-      }).toArray)
-  path.closePath
-
-  override def toString = "Staging.Polygon(" + points + ")"
-}
-object Polygon {
-  def apply(pts: Seq[Point]) = {
-    val shape = new Polygon(pts)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class Ellipse(val origin: Point, val endpoint: Point) extends Elliptical {
-  val path = PPath.createEllipse(
-    (origin.x - radiusX).toFloat, (origin.y - radiusY).toFloat,
-    width.toFloat, height.toFloat
+  def points() = List(
+    Point(xdims(0), ydims(5)), Point(xdims(2), ydims(5)),
+    Point(xdims(2), ydims(7)), Point(xdims(5), ydims(7)),
+    Point(xdims(5), ydims(5)), Point(xdims(7), ydims(5)),
+    Point(xdims(7), ydims(2)), Point(xdims(5), ydims(2)),
+    Point(xdims(5), ydims(0)), Point(xdims(2), ydims(0)),
+    Point(xdims(2), ydims(2)), Point(xdims(0), ydims(2))
   )
-
-  override def toString = "Staging.Ellipse(" + origin + "," + endpoint + ")"
-}
-object Ellipse {
-  def apply(p1: Point, p2: Point) = {
-    val shape = new Ellipse(p1, p2)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class Arc(
-  val origin: Point, val endpoint: Point,
-  val start: Double, val extent: Double,
-  val kind: Int
-) extends Elliptical {
-  val path = new PPath
-  path.setPathTo(new java.awt.geom.Arc2D.Double(
-      (origin.x - radiusX), (origin.y - radiusY), width, height,
-      -start, -extent, kind
-    ))
-
-  override def toString = "Staging.Arc(" + origin + "," + endpoint + start + "," + extent + ")"
-}
-object Arc {
-  def apply(p1: Point, p2: Point, s: Double, e: Double, k: Int) = {
-    val shape = new Arc(p1, p2, s, e, k)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-object Star {
-  def apply(origin: Point, inner: Double, outer: Double, points: Int) = {
-    val a = math.Pi / points // the angle between outer and inner point
-    val pts = Seq.tabulate(2 * points){ i =>
-      val aa = math.Pi / 2 + a * i
-      if (i % 2 == 0) { origin + Point(outer * cos(aa), outer * sin(aa)) }
-      else { origin + Point(inner * cos(aa), inner * sin(aa)) }
-    }
-    Polygon(pts)
-  }
-}
-
-trait Cross {
-  def cantonLength: Double
-  def cantonWidth: Double
-  def crossPoints(len: Double, wid: Double, cw: Double) = List(
-    //     2--3
-    //     |  |
-    // 0---1  4---5
-    // |          |
-    // 11-10  7---6
-    //     |  |
-    //     9--8
-    Point(0,                 cantonWidth + cw),
-    Point(cantonLength,      cantonWidth + cw),
-    Point(cantonLength,      wid),
-    Point(cantonLength + cw, wid),
-    Point(cantonLength + cw, cantonWidth + cw),
-    Point(len,               cantonWidth + cw),
-    Point(len,               cantonWidth),
-    Point(cantonLength + cw, cantonWidth),
-    Point(cantonLength + cw, 0),
-    Point(cantonLength,      0),
-    Point(cantonLength,      cantonWidth),
-    Point(0,                 cantonWidth)
+  def outlinePoints() = List(
+    Point(xdims(0), ydims(6)), Point(xdims(1), ydims(6)), Point(xdims(1), ydims(7)),
+    Point(xdims(3), ydims(7)), Point(xdims(3), ydims(4)), Point(xdims(0), ydims(4)),
+    Point(xdims(6), ydims(7)), Point(xdims(6), ydims(6)), Point(xdims(7), ydims(6)),
+    Point(xdims(7), ydims(4)), Point(xdims(4), ydims(4)), Point(xdims(4), ydims(7)),
+    Point(xdims(7), ydims(1)), Point(xdims(6), ydims(1)), Point(xdims(6), ydims(0)),
+    Point(xdims(4), ydims(0)), Point(xdims(4), ydims(3)), Point(xdims(7), ydims(3)),
+    Point(xdims(1), ydims(0)), Point(xdims(1), ydims(1)), Point(xdims(0), ydims(1)),
+    Point(xdims(0), ydims(3)), Point(xdims(3), ydims(3)), Point(xdims(3), ydims(0))
   )
-
-  def outlinePoints(len: Double, wid: Double, cw: Double) = {
-    val cpts = crossPoints(len, wid, cw)
-    val points = List(
-      cpts(0), cpts(0), cpts(1), cpts(2), cpts(2), cpts(1),
-      cpts(3), cpts(3), cpts(4), cpts(5), cpts(5), cpts(4),
-      cpts(6), cpts(6), cpts(7), cpts(8), cpts(8), cpts(7),
-      cpts(9), cpts(9), cpts(10), cpts(11), cpts(11), cpts(10)
-    )
-    // TODO scale outset to crossWidth
-    val outlineAdds = List(
-      Point(+0, -1), Point(+0, +2), Point(-2, +2), Point(-2, +0),
-      Point(+1, +0), Point(+1, -1), Point(-1, +0), Point(+2, +0),
-      Point(+2, +2), Point(+0, +2), Point(+0, -1), Point(-1, -1),
-      Point(+0, +1), Point(+0, -2), Point(+2, -2), Point(+2, +0),
-      Point(-1, +0), Point(-1, +1), Point(+1, +0), Point(-2, +0),
-      Point(-2, -2), Point(+0, -2), Point(+0, +1), Point(+1, +1)
-    )
-    (points zip outlineAdds) map { case (c, o) => c + o }
-  }
 }
 
-class SymmetricCross(val origin: Point,
-                     val endpoint: Point,
-                     val crossWidth: Double) extends SimpleShape with Cross {
-  def cantonWidth = (height - crossWidth) / 2
-  def cantonLength = (width - crossWidth) / 2
-  val points = crossPoints(width, height, crossWidth)
-  val path = PPath.createPolyline((points map { case Point(x, y) =>
-    new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
-  }).toArray)
-  path.closePath
-
-  override def toString = "Staging.SymmetricCross(" + origin + "," + endpoint + "," + crossWidth + ")"
-}
-object SymmetricCross {
-  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
-    val shape = new SymmetricCross(origin, endpoint, crossWidth)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class SymmetricCrossOutline(val origin: Point,
-                            val endpoint: Point,
-                            val crossWidth: Double) extends SimpleShape with Cross {
-  def cantonWidth = (height - crossWidth) / 2
-  def cantonLength = (width - crossWidth) / 2
-  val path = new PPath
-  val points = outlinePoints(width, height, crossWidth)
-  points map { origin + _ } grouped(6) foreach { pts =>
-    path.moveTo(pts.head.x.toFloat, pts.head.y.toFloat)
-    pts.tail foreach { p =>
-      path.lineTo(p.x.toFloat, p.y.toFloat)
-    }
-    path.closePath
-  }
-
-  override def toString = "Staging.SymmetricCrossOutline(" + origin + "," + endpoint + "," + crossWidth + ")"
-}
-object SymmetricCrossOutline {
-  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
-    val shape = new SymmetricCrossOutline(origin, endpoint, crossWidth)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class NordicCross(val origin: Point,
-                  val endpoint: Point,
-                  val crossWidth: Double) extends SimpleShape with Cross {
-  def cantonWidth = (height - crossWidth) / 2
-  def cantonLength = cantonWidth
-  val points = crossPoints(width, height, crossWidth)
-  val path = PPath.createPolyline((points map { case Point(x, y) =>
-    new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
-  }).toArray)
-  path.closePath
-
-  override def toString = "Staging.NordicCross(" + origin + "," + endpoint + "," + crossWidth + ")"
-}
-object NordicCross {
-  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
-    val shape = new NordicCross(origin, endpoint, crossWidth)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class NordicCrossOutline(val origin: Point,
-                         val endpoint: Point,
-                         val crossWidth: Double) extends SimpleShape with Cross {
-  def cantonWidth = (height - crossWidth) / 2
-  def cantonLength = cantonWidth
-  val path = new PPath
-  val points = outlinePoints(width, height, crossWidth)
-  points map { origin + _ } grouped(6) foreach { pts =>
-    path.moveTo(pts.head.x.toFloat, pts.head.y.toFloat)
-    pts.tail foreach { p =>
-      path.lineTo(p.x.toFloat, p.y.toFloat)
-    }
-    path.closePath
-  }
-
-  override def toString = "Staging.NordicCrossOutline(" + origin + "," + endpoint + "," + crossWidth + ")"
-}
-object NordicCrossOutline {
-  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
-    val shape = new NordicCrossOutline(origin, endpoint, crossWidth)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class Saltire(val origin: Point,
-              val endpoint: Point,
-              val crossWidth: Double) extends SimpleShape {
-  val points = Saltire.saltirePoints(width, height, crossWidth)
-  val path = PPath.createPolyline((points map { case Point(x, y) =>
-    new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
-  }).toArray)
-  path.closePath
-
-  override def toString = "Staging.Saltire(" + origin + "," + endpoint + "," + crossWidth + ")"
-}
-object Saltire {
-  def saltirePoints(len: Double, wid: Double, cw: Double) = {
-    val hl  = len / 2
-    val hw  = wid / 2
-    val hcw = cw / 2
-    val my  = cw * 0.36
-    val mx  = cw * 0.83
-    List(
-      // 0-1     3-4
-      // f  \   /  5
-      //  \   V   /
-      //   \  2  /
-      //   >e   6<
-      //   /  a  \
-      //  /   A   \
-      // d  /   \  7
-      // c-b     9-8
-      Point(0,         wid),
-      Point(0 + hcw,   wid),
-      Point(hl,        hw + my),
-      Point(len - hcw, wid),
-      Point(len,       wid),
-      Point(len,       wid - hcw),
-      Point(hl + mx,   hw),
-      Point(len,       hcw),
-      Point(len,       0),
-      Point(len - hcw, 0),
-      Point(hl,        hw - my),
-      Point(hcw,       0),
-      Point(0,         0),
-      Point(0,         hcw),
-      Point(hl - mx,   hw),
-      Point(0,         wid - hcw)
-    )
-  }
-
-  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
-    val shape = new Saltire(origin, endpoint, crossWidth)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class SaltireOutline(val origin: Point,
-              val endpoint: Point,
-              val crossWidth: Double) extends SimpleShape {
-  val path = new PPath
-
-  // TODO scale outset to crossWidth
-  val points = Saltire.saltirePoints(width, height, crossWidth)
-  (points map (origin + _) grouped(4) zipWithIndex) foreach {
-    case (Seq(_, Point(x0, y0), Point(x1, y1), Point(x2, y2)), 0) =>
-      path.moveTo(x0.toFloat - 1, y0.toFloat)
-      path.lineTo(x0.toFloat + 2, y0.toFloat)
-      path.lineTo(x1.toFloat,     y1.toFloat + 1)
-      path.lineTo(x2.toFloat - 2, y2.toFloat)
-      path.lineTo(x2.toFloat + 1, y2.toFloat)
-      path.lineTo(x1.toFloat,     y1.toFloat - 1)
-      path.closePath
-    case (Seq(_, Point(x0, y0), Point(x1, y1), Point(x2, y2)), 1) =>
-      path.moveTo(x0.toFloat,     y0.toFloat + 2)
-      path.lineTo(x0.toFloat,     y0.toFloat - 1)
-      path.lineTo(x1.toFloat + 4, y1.toFloat)
-      path.lineTo(x2.toFloat,     y2.toFloat + 1)
-      path.lineTo(x2.toFloat,     y2.toFloat - 2)
-      path.lineTo(x1.toFloat - 1, y1.toFloat)
-      path.closePath
-    case (Seq(_, Point(x0, y0), Point(x1, y1), Point(x2, y2)), 2) =>
-      path.moveTo(x0.toFloat + 1, y0.toFloat)
-      path.lineTo(x0.toFloat - 2, y0.toFloat)
-      path.lineTo(x1.toFloat,     y1.toFloat - 1)
-      path.lineTo(x2.toFloat + 2, y2.toFloat)
-      path.lineTo(x2.toFloat - 1, y2.toFloat)
-      path.lineTo(x1.toFloat,     y1.toFloat + 1)
-      path.closePath
-    case (Seq(_, Point(x0, y0), Point(x1, y1), Point(x2, y2)), 3) =>
-      path.moveTo(x0.toFloat,     y0.toFloat - 2)
-      path.lineTo(x0.toFloat,     y0.toFloat + 1)
-      path.lineTo(x1.toFloat - 4, y1.toFloat)
-      path.lineTo(x2.toFloat,     y2.toFloat - 1)
-      path.lineTo(x2.toFloat,     y2.toFloat + 2)
-      path.lineTo(x1.toFloat + 1, y1.toFloat)
-      path.closePath
-  }
-
-  override def toString = "Staging.SaltireOutline(" + origin + "," + endpoint + "," + crossWidth + ")"
-}
-object SaltireOutline {
-  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
-    val shape = new SaltireOutline(origin, endpoint, crossWidth)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class Vector(val origin: Point, val endpoint: Point, val length: Double) extends SimpleShape {
-  val path = new PPath
-
-  val vlength = API.dist(origin, endpoint)
-  val arrowHalfWidth = length / 3
-
-  def init = {
-    path.moveTo(origin.x.toFloat, origin.y.toFloat)
-    val (x, y) = ((origin.x + vlength).toFloat, origin.y.toFloat)
-    path.lineTo(x, y)
-    path.moveTo(x, y)
-    path.lineTo(x - length.toFloat, y - arrowHalfWidth.toFloat)
-    path.lineTo(x - length.toFloat, y + arrowHalfWidth.toFloat)
-    path.closePath
-  }
-
-  init
-
-  val angle =
-    if (origin.x < endpoint.x) { math.asin((endpoint.y - origin.y) / vlength) }
-  else { math.Pi - math.asin((endpoint.y - origin.y) / vlength) }
-
-  Utils.runInSwingThread {
-    node.rotateAboutPoint(angle, origin.x, origin.y)
-  }
-
-  override def toString = "Staging.Vector(" + origin + ", " + endpoint + ")"
-}
-object Vector {
-  def apply(p1: Point, p2: Point, length: Double) = {
-    val shape = new Vector(p1, p2, length)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class LinesShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
-  val path = new PPath
-
-  def init = {
-    points grouped(2) foreach {
-      case List() =>
-      case Seq(Point(x1, y1), Point(x2, y2)) =>
-        path.moveTo(x1.toFloat, y1.toFloat)
-        path.lineTo(x2.toFloat, y2.toFloat)
-      case p :: Nil =>
-    }
-  }
-
-  init
-
-  override def toString = "Staging.LinesShape(" + points + ")"
-}
-object LinesShape {
-  def apply(pts: Seq[Point]) = {
-    val shape = new LinesShape(pts)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class TrianglesShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
-  val path = new PPath
-
-  def init = {
-    points grouped(3) foreach {
-      case List() =>
-      case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)) =>
-        path.moveTo(x0.toFloat, y0.toFloat)
-        path.lineTo(x1.toFloat, y1.toFloat)
-        path.lineTo(x2.toFloat, y2.toFloat)
-        path.closePath
-      case _ =>
-    }
-  }
-
-  init
-
-  override def toString = "Staging.TrianglesShape(" + points + ")"
-}
-object TrianglesShape {
-  def apply(pts: Seq[Point]) = {
-    val shape = new TrianglesShape(pts)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class TriangleStripShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
-  val path = new PPath
-
-  def init = {
-    points sliding(3) foreach {
-      case List() =>
-      case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)) =>
-        path.moveTo(x0.toFloat, y0.toFloat)
-        path.lineTo(x1.toFloat, y1.toFloat)
-        path.lineTo(x2.toFloat, y2.toFloat)
-        path.closePath
-      case _ =>
-    }
-  }
-
-  init
-
-  override def toString = "Staging.TriangleStripShape(" + points + ")"
-}
-object TriangleStripShape {
-  def apply(pts: Seq[Point]) = {
-    val shape = new TriangleStripShape(pts)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class QuadsShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
-  val path = new PPath
-
-  def init = {
-    points grouped(4) foreach {
-      case List() =>
-      case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
-        path.moveTo(x0.toFloat, y0.toFloat)
-        path.lineTo(x1.toFloat, y1.toFloat)
-        path.lineTo(x2.toFloat, y2.toFloat)
-        path.lineTo(x3.toFloat, y3.toFloat)
-        path.closePath
-      case _ =>
-    }
-  }
-
-  init
-
-  override def toString = "Staging.QuadsShape(" + points + ")"
-}
-object QuadsShape {
-  def apply(pts: Seq[Point]) = {
-    val shape = new QuadsShape(pts)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class QuadStripShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
-  val path = new PPath
-
-  def init = {
-    points sliding(4, 2) foreach {
-      case List() =>
-      case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
-        path.moveTo(x0.toFloat, y0.toFloat)
-        path.lineTo(x1.toFloat, y1.toFloat)
-        path.lineTo(x2.toFloat, y2.toFloat)
-        path.lineTo(x3.toFloat, y3.toFloat)
-        path.closePath
-      case _ =>
-    }
-  }
-
-  init
-
-  override def toString = "Staging.QuadStripShape(" + points + ")"
-}
-object QuadStripShape {
-  def apply(pts: Seq[Point]) = {
-    val shape = new QuadStripShape(pts)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
-
-class TriangleFanShape(override val origin: Point, val points: Seq[Point]) extends PolyShape
-                                                                              with StrokedShape {
-  val path = new PPath
-
-  def init = {
-    points grouped(2) foreach {
-      case List() =>
-      case Seq(Point(x1, y1), Point(x2, y2)) =>
-        path.moveTo(origin.x.toFloat, origin.y.toFloat)
-        path.lineTo(x1.toFloat, y1.toFloat)
-        path.lineTo(x2.toFloat, y2.toFloat)
-      case _ =>
-    }
-  }
-
-  init
-
-  override def toString = "Staging.QuadStripShape(" + origin + "," + points + ")"
-}
-object TriangleFanShape {
-  def apply(p0: Point, pts: Seq[Point]) = {
-    val shape = new TriangleFanShape(p0, pts)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-}
 
 class Composite(val shapes: Seq[Shape]) extends Shape {
   val node = new PNode
@@ -1322,315 +605,6 @@ object Composite {
   }
 }
 
-object SvgShape {
-  def getAttr (ns: scala.xml.Node, s: String): Option[String] = {
-    ns \ ("@" + s) text match {
-      case "" => None
-      case z  => Some(z)
-    }
-  }
-
-  private def matchXY (ns: scala.xml.Node, xn: String = "x", yn: String = "y") = {
-    val x = (getAttr(ns, xn) getOrElse "0").toDouble
-    val y = (getAttr(ns, yn) getOrElse "0").toDouble
-    Point(x, y)
-  }
-
-  private def matchWH (ns: scala.xml.Node) = {
-    val w = (getAttr(ns, "width") getOrElse "0").toDouble
-    val h = (getAttr(ns, "height") getOrElse "0").toDouble
-    require(w >= 0, "Bad width for XML element " + ns)
-    require(h >= 0, "Bad height for XML element " + ns)
-    (w, h)
-  }
-
-  private def matchRXY (ns: scala.xml.Node) = {
-    val x = (getAttr(ns, "rx") getOrElse "0").toDouble
-    val y = (getAttr(ns, "ry") getOrElse "0").toDouble
-    require(x >= 0, "Bad rx for XML element " + ns)
-    require(y >= 0, "Bad ry for XML element " + ns)
-    val rx = if (x != 0) x else y
-    val ry = if (y != 0) y else x
-    Point(rx, ry)
-  }
-
-  private def matchFill(ns: scala.xml.Node) = getAttr(ns, "fill")
-
-  private def matchStroke(ns: scala.xml.Node) = getAttr(ns, "stroke")
-
-  private def matchStrokeWidth(ns: scala.xml.Node) = getAttr(ns, "stroke-width")
-
-  private def matchPoints (ns: scala.xml.Node): Seq[Point] = {
-    val pointsStr = ns \ "@points" text
-    val splitter = "(:?,\\s*|\\s+)".r
-    val pointsItr = (splitter split pointsStr) map (_.toDouble) grouped(2)
-    (pointsItr map { a => Point(a(0), a(1)) }).toList
-  }
-
-  def setStyle(ns: scala.xml.Node) {
-    val fc_? = matchFill(ns)
-    val sc_? = matchStroke(ns)
-    val sw_? = matchStrokeWidth(ns)
-    API.saveStyle
-    fc_? foreach { fc => API.fill(API.color(fc)) }
-    sc_? foreach { sc => API.stroke(API.color(sc)) }
-    sw_? foreach { sw => API.strokeWidth(sw.toDouble) }
-  }
-
-  private def matchRect(ns: scala.xml.Node) = {
-    val p0 = matchXY(ns)
-    val (width, height) = matchWH(ns)
-    val p1 = p0 + Point(width, height)
-    val p2 = matchRXY(ns)
-    setStyle(ns)
-    val res =
-      if (p2.x != 0. || p2.y != 0.) {
-        RoundRectangle(p0, p1, p2)
-      } else {
-        Rectangle(p0, p1)
-      }
-    API.restoreStyle
-    res
-  }
-
-  private def matchCircle(ns: scala.xml.Node) = {
-    val p0 = matchXY(ns, "cx", "cy")
-    val r = (getAttr(ns, "r") getOrElse "0").toDouble
-    val p1 = p0 + Point(r, r)
-    setStyle(ns)
-    val res = Ellipse(p0, p1)
-    API.restoreStyle
-    res
-  }
-
-  private def matchEllipse(ns: scala.xml.Node) = {
-    val p0 = matchXY(ns, "cx", "cy")
-    val p1 = p0 + matchRXY(ns)
-    setStyle(ns)
-    val res = Ellipse(p0, p1)
-    API.restoreStyle
-    res
-  }
-
-  private def matchLine(ns: scala.xml.Node) = {
-    val p1 = matchXY(ns, "x1", "y1")
-    val p2 = matchXY(ns, "x2", "y2")
-    setStyle(ns)
-    val res = Line(p1, p2)
-    API.restoreStyle
-    res
-  }
-
-  private def matchText(ns: scala.xml.Node) = {
-    //TODO hmm not working
-    val p1 = matchXY(ns)
-    // should also support dx/dy, rotate, textLength, lengthAdjust
-    // and font attributes (as far as piccolo/awt can support them)
-    setStyle(ns)
-    val res = Text(ns.text, p1)
-    API.restoreStyle
-    res
-  }
-
-  private def matchPath(ns: scala.xml.Node): Shape = {
-    val d = getAttr(ns, "d")
-    if (d.nonEmpty) SvgPath(d.get)
-    else new Shape { val node = null }
-  }
-
-  def apply(node: scala.xml.Node): Shape = {
-    // should handle some of
-    //   color, fill-rule, stroke, stroke-dasharray, stroke-dashoffset,
-    //   stroke-linecap, stroke-linejoin, stroke-miterlimit, stroke-width,
-    //   color-interpolation, color-rendering
-    // and
-    //   transform-list
-    //
-    node match {
-      case <rect></rect> =>
-        matchRect(node)
-      case <circle></circle> =>
-        matchCircle(node)
-      case <ellipse></ellipse> =>
-        matchEllipse(node)
-      case <line></line> =>
-        matchLine(node)
-      case <text></text> =>
-        matchText(node)
-      case <polyline></polyline> =>
-        setStyle(node)
-        val res = Polyline(matchPoints(node))
-        API.restoreStyle
-        res
-      case <polygon></polygon> =>
-        setStyle(node)
-        val res = Polygon(matchPoints(node))
-        API.restoreStyle
-        res
-      case <path></path> =>
-        matchPath(node)
-      case <g>{ shapes @ _* }</g> =>
-        new Shape { val node = null }
-        //for (s <- shapes) yield SvgShape(s)
-      case <svg>{ shapes @ _* }</svg> =>
-        new Shape { val node = null }
-        //for (s <- shapes) yield SvgShape(s)
-      case _ => // unknown element, ignore
-        new Shape { val node = null }
-    }
-  }
-}
-
-object ColorMode {
-  type Color = java.awt.Color
-  var mode: API.ColorModes = API.RGB(255, 255, 255)
-
-  def apply(cm: API.ColorModes) { mode = cm }
-
-  def color(v: Int) = {
-    require(mode.isInstanceOf[API.GRAY] ||
-            mode.isInstanceOf[API.RGB],
-            "Color mode isn't GRAY or RGB")
-    if (mode.isInstanceOf[API.GRAY]) {
-      val vv = API.norm(v, 0, mode.asInstanceOf[API.GRAY].v).toFloat
-      new Color(vv, vv, vv)
-    } else {
-      new Color(v)
-    }
-  }
-  def color(v: Double) = {
-    require(mode.isInstanceOf[API.GRAY], "Color mode isn't GRAY")
-    val vv = v.toFloat
-    new Color(vv, vv, vv)
-  }
-
-  def color(v: Int, a: Int) = {
-    require(mode.isInstanceOf[API.GRAYA] ||
-            mode.isInstanceOf[API.RGBA],
-            "Color mode isn't GRAYA (gray with alpha) or RGBA")
-    if (mode.isInstanceOf[API.GRAYA]) {
-      val vv = API.norm(v, 0, mode.asInstanceOf[API.GRAYA].v).toFloat
-      val aa = API.norm(a, 0, mode.asInstanceOf[API.GRAYA].a).toFloat
-      new Color(vv, vv, vv, aa)
-    } else {
-      val aa = API.norm(a, 0, mode.asInstanceOf[API.RGBA].a).toFloat
-      new Color(v | Math.lerp(0, 255, aa).toInt << 12, true)
-    }
-  }
-  def color(v: Double, a: Double) = {
-    require(v >= 0 && v <= 1, "Grayscale value off range")
-    require(a >= 0 && a <= 1, "Alpha value off range")
-    val vv = v.toFloat
-    new Color(vv, vv, vv, a.toFloat)
-  }
-
-  def color(v1: Int, v2: Int, v3: Int) = {
-    require(mode.isInstanceOf[API.RGB] ||
-            mode.isInstanceOf[API.HSB],
-            "Color mode isn't RGB or HSB")
-    if (mode.isInstanceOf[API.RGB]) {
-      val r = API.norm(v1, 0, mode.asInstanceOf[API.RGB].r).toFloat
-      val g = API.norm(v2, 0, mode.asInstanceOf[API.RGB].g).toFloat
-      val b = API.norm(v3, 0, mode.asInstanceOf[API.RGB].b).toFloat
-      new Color(r, g, b)
-    } else {
-      val h = API.norm(v1, 0, mode.asInstanceOf[API.HSB].h).toFloat
-      val s = API.norm(v2, 0, mode.asInstanceOf[API.HSB].s).toFloat
-      val b = API.norm(v3, 0, mode.asInstanceOf[API.HSB].b).toFloat
-      java.awt.Color.getHSBColor(h, s, b)
-    }
-  }
-  def color(v1: Int, v2: Int, v3: Int, a: Int) = {
-    require(mode.isInstanceOf[API.RGBA] ||
-            mode.isInstanceOf[API.HSBA],
-            "Color mode isn't RGBA or HSBA")
-    if (mode.isInstanceOf[API.RGBA]) {
-      val r = API.norm(v1, 0, mode.asInstanceOf[API.RGBA].r).toFloat
-      val g = API.norm(v2, 0, mode.asInstanceOf[API.RGBA].g).toFloat
-      val b = API.norm(v3, 0, mode.asInstanceOf[API.RGBA].b).toFloat
-      val aa = API.norm(a, 0, mode.asInstanceOf[API.RGBA].a).toFloat
-      new Color(r, g, b, aa)
-    } else {
-      //TODO transparency not working
-      val h = API.norm(v1, 0, mode.asInstanceOf[API.HSBA].h).toFloat
-      val s = API.norm(v2, 0, mode.asInstanceOf[API.HSBA].s).toFloat
-      val b = API.norm(v3, 0, mode.asInstanceOf[API.HSBA].b).toFloat
-      val aa = API.norm(a, 0, mode.asInstanceOf[API.HSBA].a).toFloat
-      val c = java.awt.Color.getHSBColor(h, s, b)
-      new Color(c.getRGB | Math.lerp(0, 255, aa).toInt << 12, true)
-    }
-  }
-
-  def color(v1: Double, v2: Double, v3: Double) = {
-    require(mode.isInstanceOf[API.RGB] ||
-            mode.isInstanceOf[API.HSB],
-            "Color mode isn't RGB or HSB")
-    if (mode.isInstanceOf[API.RGB]) {
-      val r = v1.toFloat
-      val g = v2.toFloat
-      val b = v3.toFloat
-      new Color(r, g, b)
-    } else {
-      val h = v1.toFloat
-      val s = v2.toFloat
-      val b = v3.toFloat
-      java.awt.Color.getHSBColor(h, s, b)
-    }
-  }
-  def color(v1: Double, v2: Double, v3: Double, a: Double) = {
-    require(mode.isInstanceOf[API.RGBA] ||
-            mode.isInstanceOf[API.HSBA],
-            "Color mode isn't RGBA or HSBA")
-    if (mode.isInstanceOf[API.RGBA]) {
-      val r = v1.toFloat
-      val g = v2.toFloat
-      val b = v3.toFloat
-      val aa = a.toFloat
-      new Color(r, g, b, aa)
-    } else {
-      val h = v1.toFloat
-      val s = v2.toFloat
-      val b = v3.toFloat
-      val aa = a.toFloat
-      val c = java.awt.Color.getHSBColor(h, s, b)
-      new Color(c.getRGB | Math.lerp(0, 255, a).toInt << 12, true)
-    }
-  }
-  def color(s: String): Color = s match {
-    case ColorName(cc) => cc
-    case "none"        => null
-    case z             => java.awt.Color.decode(s)
-  }
-}
-
-class RichColor (val c: java.awt.Color) {
-  type Color = java.awt.Color
-  def alpha = c.getAlpha
-  def red = c.getRed
-  def blue = c.getBlue
-  def green = c.getGreen
-  private def hsb =
-    java.awt.Color.RGBtoHSB(c.getRed, c.getBlue, c.getGreen, null)
-  def hue = {
-    val h = floor(255 * (1 - this.hsb(0))) + 1
-    if (h > 255) 0 else h.toInt
-  }
-  def saturation = (this.hsb(1) * 255).toInt
-  def brightness = (this.hsb(2) * 255).toInt
-  // TODO blendColor
-}
-object RichColor {
-  def apply(c: java.awt.Color) = new RichColor(c)
-
-  def lerpColor(from: RichColor, to: RichColor, amt: Double) = {
-    require(amt >= 0d && amt <= 1d)
-    new java.awt.Color(
-      Math.lerp(from.red, to.red, amt).round.toInt,
-      Math.lerp(from.green, to.green, amt).round.toInt,
-      Math.lerp(from.blue, to.blue, amt).round.toInt
-    )
-  }
-}
 
 object Style {
   val savedStyles =
@@ -1641,7 +615,7 @@ object Style {
     Utils.runInSwingThread {
       savedStyles push Tuple3(f.fillColor, f.lineColor, f.lineStroke)
     }
-    }
+  }
 
   def restore {
     Utils.runInSwingThread {
@@ -1651,8 +625,8 @@ object Style {
         f.setPenColor(sc)
         f.lineStroke = st
       }
-      }
     }
+  }
 
   def apply(fc: Color, sc: Color, sw: Double)(body: => Unit) = {
     save
@@ -1664,149 +638,6 @@ object Style {
   }
 }
 
-object Math {
-  def constrain(value: Double, min: Double, max: Double) = {
-    if (value < min) min
-    else if (value > max) max
-    else value
-  }
-
-  def map(value: Double, low1: Double, high1: Double, low2: Double, high2: Double) = {
-    val range1: Double = high1 - low1
-    val range2: Double = high2 - low2
-    low2 + range2 * (value - low1) / range1
-  }
-
-  def lerp(value1: Double, value2: Double, amt: Double) = {
-    require(amt >= 0d && amt <= 1d)
-    val range: Double = value2 - value1
-    value1 + amt * range
-  }
-}
-
-object Inputs {
-  import edu.umd.cs.piccolo.event._
-  //import java.awt.event.InputEvent
-
-  @volatile
-  var mousePos: Point = API.O
-  @volatile
-  var prevMousePos: Point = API.O
-  @volatile
-  var stepMousePos: Point = API.O
-  @volatile
-  var mouseBtn = 0
-  @volatile
-  var mousePressedFlag = false
-
-  def activityStep() = {
-    prevMousePos = stepMousePos
-    stepMousePos = mousePos
-  }
-
-   def init() {
-    val iel = new PBasicInputEventHandler {
-      // This method is invoked when a node gains the keyboard focus.
-      override def keyboardFocusGained(e: PInputEvent) {
-        e match { case ee => println("keyboardFocusGained: e=" + ee) }
-      }
-      // This method is invoked when a node loses the keyboard focus.
-      override def keyboardFocusLost(e: PInputEvent) {
-        e match { case ee => println("keyboardFocusLost: e=" + ee) }
-      }
-      // Will get called whenever a key has been pressed down.
-      override def keyPressed(e: PInputEvent) {
-        e match { case ee => println("keyPressed: e=" + ee) }
-      }
-      // Will get called whenever a key has been released.
-      override def keyReleased(e: PInputEvent) {
-        e match { case ee => println("keyReleased: e=" + ee) }
-      }
-      // Will be called at the end of a full keystroke (down then up).
-      override def keyTyped(e: PInputEvent) {
-        e match { case ee => println("keyTyped: e=" + ee) }
-      }
-      // Will be called at the end of a full click (mouse pressed followed by mouse released).
-      override def mouseClicked(e: PInputEvent) {
-        super.mouseClicked(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        mouseBtn = e.getButton
-        e match { case ee => println("mouseClicked: e=" + ee) }
-      }
-      // Will be called when a drag is occurring.
-      override def mouseDragged(e: PInputEvent) {
-        super.mouseDragged(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        e match { case ee => println("mouseDragged: e=" + ee) }
-      }
-      // Will be invoked when the mouse enters a specified region.
-      override def mouseEntered(e: PInputEvent) {
-        super.mouseEntered(e)
-        e.pushCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR))
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        //e match { case ee => println("mouseEntered: e=" + ee) }
-      }
-      // Will be invoked when the mouse leaves a specified region.
-      override def mouseExited(e: PInputEvent) {
-        super.mouseExited(e)
-        e.popCursor
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        mousePressedFlag = false
-        //e match { case ee => println("mouseExited: e=" + ee) }
-      }
-      // Will be called when the mouse is moved.
-      override def mouseMoved(e: PInputEvent) {
-        super.mouseMoved(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        //e match { case ee => println("mouseMoved: e=" + ee) }
-      }
-      // Will be called when a mouse button is pressed down.
-      override def mousePressed(e: PInputEvent) {
-        super.mousePressed(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        mouseBtn = e.getButton
-        mousePressedFlag = true
-        //e match { case ee => println("mousePressed: e=" + ee) }
-      }
-      // Will be called when any mouse button is released.
-      override def mouseReleased(e: PInputEvent) {
-        super.mouseReleased(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        mouseBtn = e.getButton
-        mousePressedFlag = false
-        //e match { case ee => println("mouseReleased: e=" + ee) }
-      }
-      // This method is invoked when the mouse wheel is rotated.
-      override def mouseWheelRotated(e: PInputEvent) {
-        super.mouseWheelRotated(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        e match { case ee => println("mouseWheelRotated: e=" + ee) }
-      }
-      // This method is invoked when the mouse wheel is rotated by a block.
-      override def mouseWheelRotatedByBlock(e: PInputEvent) {
-        super.mouseWheelRotatedByBlock(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        e match { case ee => println("mouseWheelRotatedByBlock: e=" + ee) }
-      }
-    }
-    
-    //iel.setEventFilter(new PInputEventFilter(PInputEventFilter.ALL_MODIFIERS_MASK))
-    //InputEvent.
-    //KEY_EVENT_MASK, MOUSE_EVENT_MASK, MOUSE_MOTION_EVENT_MASK, MOUSE_WHEEL_EVENT_MASK,
-
-    Impl.canvas.addInputEventListener(iel)
-  }
-}
-
 
 class Bounds(x1: Double, y1: Double, x2: Double, y2: Double) {
   val bounds = Utils.runInSwingThreadAndWait {
@@ -1815,9 +646,18 @@ class Bounds(x1: Double, y1: Double, x2: Double, y2: Double) {
 
   def getWidth = Utils.runInSwingThreadAndWait { bounds.getWidth }
   def getHeight = Utils.runInSwingThreadAndWait { bounds.getHeight }
-  def getOrigin = Utils.runInSwingThreadAndWait { bounds.getOrigin }
-  def getCenter2D = Utils.runInSwingThreadAndWait { bounds.getCenter2D }
-  def getSize = Utils.runInSwingThreadAndWait { bounds.getSize }
+  def getOrigin = Utils.runInSwingThreadAndWait {
+    val p = bounds.getOrigin
+    Point(p.getX, p.getY)
+  }
+  def getCenter2D = Utils.runInSwingThreadAndWait {
+    val p = bounds.getCenter2D
+    Point(p.getX, p.getY)
+  }
+  def getExt = Utils.runInSwingThreadAndWait {
+    val p = bounds.getOrigin
+    Point(p.getX + bounds.getWidth, p.getY + bounds.getHeight)
+  }
   def resetToZero = Utils.runInSwingThreadAndWait { bounds.resetToZero }
   def inset(dx: Double, dy: Double) = Utils.runInSwingThreadAndWait {
     bounds.inset(dx, dy)
