@@ -73,53 +73,6 @@ class SimpleShapesTest extends StagingTestBase {
     //W
 
     //W
-    //WA line can also be defined from an existing shape:
-    //W
-    //W{{{
-    //WaDot.toLine(p1)
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val aDot = dot(p0)
-             |aDot.toLine(p1)""".stripMargin)
-    assertEquals(
-      "PPath(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
-      makeString(peekPNode)
-    )
-
-    //WaLine.toLine
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val aLine = line(p0, p1)
-             |aLine.toLine""".stripMargin)
-    assertEquals(
-      "PPath(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
-      makeString(peekPNode)
-    )
-
-    //WaRect.toLine
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val aRect = rectangle(p0, p1)
-             |aRect.toLine""".stripMargin)
-    assertEquals(
-      "PPath(15,15 L30.0000,40.0000 M0.00000,0.00000 )",
-      makeString(peekPNode)
-    )
-
-    //WaRoundRectangle.toLine
-    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toLine")
-    assertEquals(
-      "PPath(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
-      makeString(peekPNode)
-    )
-
-    //W}}}
-    //W
-
-    //W
     //W===Rectangles===
     //W
     //WA rectangle is defined the same way as a line, either by
@@ -149,38 +102,6 @@ class SimpleShapesTest extends StagingTestBase {
     assertEquals(
       "PPath(15,15 L40.0000,15.0000 L40.0000,20.0000 L15.0000,20.0000 " +
               "L15.0000,15.0000 z M0.00000,0.00000 )",
-      makeString(peekPNode)
-    )
-
-    //WaLine.toRect
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val aLine = line(p0, p1)
-             |aLine.toRect""".stripMargin)
-    assertEquals(
-      "PPath(15,15 L30.0000,15.0000 L30.0000,40.0000 " +
-              "L15.0000,40.0000 L15.0000,15.0000 z M0.00000,0.00000 )",
-      makeString(peekPNode)
-    )
-
-    //WaRect.toRect
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val aRect = rectangle(p0, p1)
-             |aRect.toRect""".stripMargin)
-    assertEquals(
-      "PPath(15,15 L30.0000,15.0000 L30.0000,40.0000 " +
-              "L15.0000,40.0000 L15.0000,15.0000 z M0.00000,0.00000 )",
-      makeString(peekPNode)
-    )
-
-    //WaRoundRectangle.toRect
-    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toRect")
-    assertEquals(
-      "PPath(15,15 L40.0000,15.0000 L40.0000,20.0000 L15.0000,20.0000 " +
-        "L15.0000,15.0000 z M0.00000,0.00000 )",
       makeString(peekPNode)
     )
 
@@ -237,41 +158,7 @@ class SimpleShapesTest extends StagingTestBase {
       makeString(peekPNode)
     )
 
-    //WaLine.toRect(p)
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val aLine = line(p0, p1)
-             |aLine.toRect((3, 5))""".stripMargin)
-
-    //WaRect.toRect(p)
-    Tester("""import Staging._
-             |val p0 = point(15, 15)
-             |val p1 = point(30, 40)
-             |val p  = point(3, 5)
-             |val aRect = rectangle(p0, p1)
-             |aRect.toRect(p)""".stripMargin)
-
     //W}}}
-    //W
-    //WNote:
-    //W
-    //W{{{
-    //WaRoundRectangle.toRect(point)
-    Tester("import Staging._ ; roundRectangle((15, 15), (40, 20), (3, 5)).toRect(O)")
-    assertEquals(
-      "PPath(15,15 L15.0000,20.0000 C15.0000,20.0000 15.0000,20.0000 15.0000,20.0000 " +
-        "L40.0000,20.0000 C40.0000,20.0000 40.0000,20.0000 40.0000,20.0000 " +
-        "L40.0000,15.0000 C40.0000,15.0000 40.0000,15.0000 40.0000,15.0000 " +
-        "L15.0000,15.0000 C15.0000,15.0000 15.0000,15.0000 15.0000,15.0000 " +
-        "z M0.00000,0.00000 )",
-      makeString(peekPNode)
-    )
-
-    //W}}}
-    //W
-    //Wdraws another instance of {{{RoundRectangle}}} with the same dimensions.
-    //WThe argument to the method isn't used but must be present.
     //W
 
     //W
@@ -345,14 +232,6 @@ class SimpleShapesTest extends StagingTestBase {
 
     //W}}}
     //W
-
-    /*
-  }
-
-  @Test
-  def test3 = {
-    f.clear
-    */
 
     //W
     //W===Elliptical arcs===
@@ -470,7 +349,6 @@ class SimpleShapesTest extends StagingTestBase {
     //W}}}
     //W
 
-//    println(ppathToString(f.dumpChild(n).asInstanceOf[edu.umd.cs.piccolo.nodes.PPath]))
   }
 }
 
