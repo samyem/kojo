@@ -40,12 +40,6 @@ class ComplexShapesTest extends StagingTestBase {
                  "L45.0000,25.0000 L50.0000,10.0000 M0.00000,0.00000 )",
                  makeString(peekPNode))
 
-    //WaPolyline.toPolyline
-    Tester("import Staging._ ; polyline(List((15, 15), (25, 35))).toPolyline")
-
-    //WaPolygon.toPolyline
-    Tester("import Staging._ ; polygon(List((15, 15), (25, 35))).toPolyline")
-    
     //W}}}
     //W
 
@@ -60,16 +54,6 @@ class ComplexShapesTest extends StagingTestBase {
     assertEquals("PPath(15,10 L25.0000,35.0000 L40.0000,20.0000 " +
                  "L45.0000,25.0000 L50.0000,10.0000 z M0.00000,0.00000 )",
                  makeString(peekPNode))
-
-    //WaPolyline.toPolygon
-    Tester("""import Staging._
-             |polyline(List((15, 15), (25, 35),
-             |(40, 20), (45, 25), (50, 10))).toPolygon""".stripMargin)
-
-    //WaPolygon.toPolygon
-    Tester("""import Staging._
-             |polygon(List((15, 15), (25, 35),
-             |(40, 20), (45, 25), (50, 10))).toPolygon""".stripMargin)
 
     //W}}}
     //W

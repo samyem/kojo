@@ -37,6 +37,6 @@ object Screen {
     val yfactor = factor / height
     Impl.canvas.zoomXY(xfactor, yfactor, width / 2, height / 2)
     rect.setRect(0, 0, width.abs, height.abs)
-    (rect.getWidth, rect.getHeight)
+    (rect.getWidth.toInt, rect.getHeight.toInt)
   }
 }
