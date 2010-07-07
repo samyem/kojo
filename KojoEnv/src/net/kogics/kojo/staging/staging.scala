@@ -74,25 +74,28 @@ object API {
   //WStaging uses {{{net.kogics.kojo.core.Point}}} for coordinates.
   //W
 
+  //T PointTest begins
   def point(x: Double, y: Double) = Point(x, y)
 
   implicit def tupleDDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
   implicit def tupleDIToPoint(tuple: (Double, Int)) = Point(tuple._1, tuple._2)
   implicit def tupleIDToPoint(tuple: (Int, Double)) = Point(tuple._1, tuple._2)
   implicit def tupleIIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
-  implicit def baseShapeToPoint(b: BaseShape) = b.origin
+  //implicit def baseShapeToPoint(b: BaseShape) = b.origin
   //implicit def awtPointToPoint(p: java.awt.geom.Point2D) = Point(p.getX, p.getY)
   //implicit def awtDimToPoint(d: java.awt.geom.Dimension2D) = Point(d.getWidth, d.getHeight)
 
   /** The point of origin, located at a corner of the user screen if
    * `screenSize` has been called, or the middle of the screen otherwise. */
   val O = Point(0, 0)
+  //T PointTest ends
 
   //W
   //W==User Screen==
   //W
   //WThe zoom level and axis orientations can be set using `screenSize`.
   //W
+  //T ScreenMethodsTest begins
   def screenWidth = Screen.rect.getWidth.toInt
   def screenHeight = Screen.rect.getHeight.toInt
   def screenSize(width: Int, height: Int) = Screen.size(width, height)
@@ -109,6 +112,7 @@ object API {
   def background(bc: Color) = {
     withStyle(bc, null, 1) { rectangle(O, screenExt) }
   }
+  //T ScreenMethodsTest begins
 
   //W
   //W==Simple shapes and text==
@@ -117,6 +121,7 @@ object API {
   //Wlines, rectangles, ellipses, and elliptic arcs can be drawn.  Texts can
   //Walso be placed in this way.
   //W
+  //T SimpleShapesTest begins
   def dot(x: Double, y: Double) = Dot(Point(x, y))
   def dot(p: Point) = Dot(p)
 
@@ -210,6 +215,7 @@ object API {
     CrossOutline(p1, p2, cw, r, greek)
   def saltire(p1: Point, p2: Point, s: Double) = Saltire(p1, p2, s)
   def saltireOutline(p1: Point, p2: Point, s: Double) = SaltireOutline(p1, p2, s)
+  //T SimpleShapesTest ends
   
   //W
   //W==Complex Shapes==

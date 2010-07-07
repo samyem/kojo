@@ -25,6 +25,52 @@ class SimpleShapesTest extends StagingTestBase {
   val f = SpriteCanvas.instance.figure0
   def peekPNode = f.dumpLastChild
 
+  /* Testing manifest
+   *
+   * def dot(x: Double, y: Double) = Dot(Point(x, y))
+   * def dot(p: Point) = Dot(p)
+   * def line(x1: Double, y1: Double, x2: Double, y2: Double) =
+   * def line(p1: Point, p2: Point) =
+   * def vector(x1: Double, y1: Double, x2: Double, y2: Double, a: Double) =
+   * def vector(p1: Point, p2: Point, a: Double) =
+   * def rectangle(x: Double, y: Double, w: Double, h: Double) =
+   * def rectangle(p: Point, w: Double, h: Double) =
+   * def rectangle(p1: Point, p2: Point) =
+   * def square(x: Double, y: Double, s: Double) =
+   * def square(p: Point, s: Double) =
+   * def roundRectangle(
+   * def roundRectangle(
+   * def roundRectangle(p1: Point, p2: Point, rx: Double, ry: Double) =
+   * def roundRectangle(p1: Point, p2: Point, p3: Point) =
+   * def ellipse(cx: Double, cy: Double, rx: Double, ry: Double) =
+   * def ellipse(p: Point, rx: Double, ry: Double) =
+   * def ellipse(p1: Point, p2: Point) =
+   * def circle(x: Double, y: Double, r: Double) =
+   * def circle(p: Point, r: Double) =
+   * def arc(cx: Double, cy: Double, rx: Double, ry: Double, s: Double, e: Double) =
+   * def arc(p: Point, rx: Double, ry: Double, s: Double, e: Double) =
+   * def arc(p1: Point, p2: Point, s: Double, e: Double) =
+   * def pieslice(cx: Double, cy: Double, rx: Double, ry: Double, s: Double, e: Double) =
+   * def pieslice(p: Point, rx: Double, ry: Double, s: Double, e: Double) =
+   * def pieslice(p1: Point, p2: Point, s: Double, e: Double) =
+   * def openArc(cx: Double, cy: Double, rx: Double, ry: Double, s: Double, e: Double) =
+   * def openArc(p: Point, rx: Double, ry: Double, s: Double, e: Double) =
+   * def openArc(p1: Point, p2: Point, s: Double, e: Double) =
+   * def chord(cx: Double, cy: Double, rx: Double, ry: Double, s: Double, e: Double) =
+   * def chord(p: Point, rx: Double, ry: Double, s: Double, e: Double) =
+   * def chord(p1: Point, p2: Point, s: Double, e: Double) =
+   *  TODO make test for texts
+   *  def text(s: String, x: Double, y: Double) = Text(s, Point(x, y))
+   *  def text(s: String, p: Point) = Text(s, p)
+   * def star(cx: Double, cy: Double, inner: Double, outer: Double, points: Int) =
+   * def star(p: Point, inner: Double, outer: Double, points: Int) =
+   * def star(p1: Point, p2: Point, p3: Point, points: Int) =
+   * def cross(p1: Point, p2: Point, cw: Double, r: Double = 1, greek: Boolean = false) =
+   * def crossOutline(p1: Point, p2: Point, cw: Double, r: Double = 1, greek: Boolean = false) =
+   *  def saltire(p1: Point, p2: Point, s: Double) = Saltire(p1, p2, s)
+   *  def saltireOutline(p1: Point, p2: Point, s: Double) = SaltireOutline(p1, p2, s)
+   */
+
   @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe a leak in the Scala interpreter/compiler
   // subsystem. So we run (mostly) everything in one test
@@ -126,7 +172,6 @@ class SimpleShapesTest extends StagingTestBase {
 
     //W}}}
     //W
-
   }
 
   @Test
@@ -340,14 +385,102 @@ class SimpleShapesTest extends StagingTestBase {
 
     //Wstar(p, inner, outer, n)
     //TODO find out why this test fails, it works in the app:
-    //Tester("import Staging._ ; star((15, 15), 25, 50, 5)")
+    Tester("import Staging._ ; star((15, 15), 25, 50, 5)")
 
     //Wstar(p1, p2, p3, n)
     //TODO find out why this test fails, it works in the app:
-    //Tester("import Staging._ ; star((15, 15), (40, 15), (65, 15), 5)")
+    Tester("import Staging._ ; star((15, 15), (40, 15), (65, 15), 5)")
 
     //W}}}
     //W
+
+    //W
+    //W===Crosses===
+    //W
+    //WA cross is defined by rectangular dimensions (given as two `point`s), a
+    //Wcross width `cw`, a ratio `r`, and a flag `greek` which is false by default.
+    //W
+    //WThe horizontal beam of the cross is `cw` times width of bounds, and the
+    //Wvertical beam is `cw` times height of bounds, _unless_ `greek` is true,
+    //Win which case both beams are `cw` times the shorter dimension of bounds.
+    //W
+    //WThe horizontal beam is centered vertically (and horizontally, which
+    //Wtypically only matters on a greek cross).  The vertical beam is placed
+    //Wsuch that the canton has a vertical side / horizontal side ratio of `r`.
+    //W(A symmetric cross has `r` = height of bounds / width of bounds.)
+    //W
+    //W{{{
+    //Wcross(lowerLeft, upperRight, cw, r, greek)
+    Tester("import Staging._ ; cross((10, 10), (110, 70), 12, 110./70)")
+    assertEquals(
+      "PPath(10,10 L34.0000,37.2727 L34.0000,70.0000 L46.0000,70.0000 " +
+      "L46.0000,37.2727 L110.000,37.2727 L110.000,25.2727 L46.0000,25.2727 " +
+      "L46.0000,10.0000 L34.0000,10.0000 L34.0000,25.2727 L10.0000,25.2727 " +
+      "z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
+
+    //W}}}
+    //W
+    //WA cross outline with a cross width (_cw_) is the graphical difference
+    //Wbetween a cross with a cross width of 4 * _cw_ / 3 and a cross with a
+    //Wcross width of 5 * _cw_ / 6.
+    //W
+    //W{{{
+    //WcrossOutline(lowerLeft, upperRight, cw, r, greek)
+    Tester("import Staging._ ; crossOutline((10, 10), (110, 70), 12, 110./70)")
+    assertEquals(
+      "PPath(10,10 L32.0000,39.2727 L32.0000,70.0000 L35.0000,70.0000 " +
+      "L35.0000,36.2727 L10.0000,36.2727 L48.0000,70.0000 L48.0000,39.2727 " +
+      "L110.000,39.2727 L110.000,36.2727 L45.0000,36.2727 L45.0000,70.0000 " +
+      "L110.000,23.2727 L48.0000,23.2727 L48.0000,10.0000 L45.0000,10.0000 " +
+      "L45.0000,26.2727 L110.000,26.2727 L32.0000,10.0000 L32.0000,23.2727 " +
+      "L10.0000,23.2727 L10.0000,26.2727 L35.0000,26.2727 L35.0000,10.0000 " +
+      "z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
+
+    //W}}}
+    //W
+  }
+
+  @Test
+  def test3 = {
+    f.clear
+
+    //W
+    //WA saltire is similar to a symmetric cross, but the beams follow the
+    //Wdiagonals of the bounds.
+    //W
+    //W{{{
+    //Wsaltire(lowerLeft, upperRight, cw)
+    Tester("import Staging._ ; saltire((10, 10), (110, 70), 12)")
+    println(makeString(peekPNode))
+    assertEquals(
+      "" +
+      "",
+      makeString(peekPNode)
+    )
+
+    //W}}}
+    //W
+    //WA saltireOutline is to a saltire as a crossOutline is to a cross.
+    //W
+    //W{{{
+    //WsaltireOutline(lowerLeft, upperRight, cw)
+    Tester("import Staging._ ; saltireOutline((10, 10), (110, 70), 12)")
+    println(makeString(peekPNode))
+    assertEquals(
+      "" +
+      "",
+      makeString(peekPNode)
+    )
+
+    //W}}}
+    //W
+  /*
+   *  def saltireOutline(p1: Point, p2: Point, s: Double) = SaltireOutline(p1, p2, s)
+   */
 
   }
 }
