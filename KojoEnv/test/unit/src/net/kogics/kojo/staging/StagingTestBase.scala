@@ -27,6 +27,16 @@ import net.kogics.kojo.core.RunContext
 
 import net.kogics.kojo.util._
 
+/* Testing policy
+ *
+ * Every member of the interface shall be tested, preferably for effect but at
+ * least for executability.
+ *
+ * The implementation is tested as needed but is generally considered to be
+ * sufficiently correct if the interface works correctly.
+ *
+ */
+
 // cargo coding off CodePaneTest
 class StagingTestBase extends KojoTestBase {
   val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"

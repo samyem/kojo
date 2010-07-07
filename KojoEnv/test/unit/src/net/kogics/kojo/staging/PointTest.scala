@@ -24,6 +24,15 @@ import net.kogics.kojo.util._
 
 class PointTest extends StagingTestBase {
 
+  /* Testing manifest
+   *
+   * def point(x: Double, y: Double) = Point(x, y)
+   * implicit def tupleDDToPoint(tuple: (Double, Double)) = Point(tuple._1, tuple._2)
+   * implicit def tupleDIToPoint(tuple: (Double, Int)) = Point(tuple._1, tuple._2)
+   * implicit def tupleIDToPoint(tuple: (Int, Double)) = Point(tuple._1, tuple._2)
+   * implicit def tupleIIToPoint(tuple: (Int, Int)) = Point(tuple._1, tuple._2)
+   * val O = Point(0, 0)
+   */
 
   @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe
@@ -82,6 +91,18 @@ class PointTest extends StagingTestBase {
     Tester("""import Staging._
              |var a = Staging.point(0,0)
              |a = (-22, -13)""".stripMargin,
+      Some("$import Staging._" +
+      "a: net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)" +
+      "a: net.kogics.kojo.core.Point = Point\\(-22[,.]00, -13[,.]00\\)"))
+    Tester("""import Staging._
+             |var a = Staging.point(0,0)
+             |a = (-22., -13)""".stripMargin,
+      Some("$import Staging._" +
+      "a: net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)" +
+      "a: net.kogics.kojo.core.Point = Point\\(-22[,.]00, -13[,.]00\\)"))
+    Tester("""import Staging._
+             |var a = Staging.point(0,0)
+             |a = (-22, -13.)""".stripMargin,
       Some("$import Staging._" +
       "a: net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)" +
       "a: net.kogics.kojo.core.Point = Point\\(-22[,.]00, -13[,.]00\\)"))

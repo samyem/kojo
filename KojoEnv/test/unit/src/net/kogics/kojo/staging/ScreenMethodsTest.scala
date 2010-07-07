@@ -22,6 +22,15 @@ import net.kogics.kojo.util._
 
 class ScreenMethodsTest extends StagingTestBase {
 
+  /* Testing manifest
+   *
+   * def screenWidth = Screen.rect.getWidth.toInt
+   * def screenHeight = Screen.rect.getHeight.toInt
+   * def screenSize(width: Int, height: Int) = Screen.size(width, height)
+   * def screenMid = Screen.rect.getCenter2D
+   * def screenExt = Screen.rect.getExt
+   * def background(bc: Color) = {
+   */
   def peekZoom = {
     val a = SpriteCanvas.instance.getCamera.getViewTransformReference
     (
