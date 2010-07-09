@@ -22,6 +22,28 @@ import net.kogics.kojo.util._
 
 class MathTest extends StagingTestBase {
 
+  /* Testing manifest
+   *
+   * def constrain(value: Double, min: Double, max: Double) =
+   * def norm(value: Double, low: Double, high: Double) =
+   * def map(value: Double, low1: Double, high1: Double, low2: Double, high2: Double) =
+   * def lerp(value1: Double, value2: Double, amt: Double) =
+   * def sq(x: Double) = x * x
+   * def dist(x0: Double, y0: Double, x1: Double, y1: Double) =
+   * def dist(p1: Point, p2: Point) =
+   * def mag(x: Double, y: Double) = dist(0, 0, x, y)
+   * def mag(p: Point) = dist(0, 0, p.x, p.y)
+   * val PI = math.Pi
+   * val TWO_PI = 2*PI
+   * val HALF_PI = PI/2
+   * val QUARTER_PI = PI/4
+   * def sin(a: Double) = math.sin(a)
+   * def cos(a: Double) = math.cos(a)
+   * def tan(a: Double) = math.tan(a)
+   * def radians(deg: Double) = deg.toRadians
+   * def degrees(rad: Double) = rad.toDegrees
+   */
+
   @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe
   // a leak in the Scala interpreter/compiler subsystem. So we run (mostly)
@@ -73,10 +95,21 @@ class MathTest extends StagingTestBase {
   //W
   //W{{{
   //Wdist(x0, y0, x1, y1)
+    Tester("Staging.dist(10, 20, 40, 60)", Some("Double = 50.0"))
   //Wdist(p1, p2)
+    Tester("Staging.dist(Staging.point(10, 20), Staging.point(40, 60))", Some("Double = 50.0"))
   //W}}}
   //W
   //WYields the distance between two points.
+  //W
+  //W{{{
+  //Wmag(x, y)
+    Tester("Staging.mag(30, -40)", Some("Double = 50.0"))
+  //Wmag(p)
+    Tester("Staging.mag(Staging.point(30, -40))", Some("Double = 50.0"))
+  //W}}}
+  //W
+  //WYields the distance between the given point and the point of origin.
   //W
   //W{{{
   //Wlerp(low, high, value)

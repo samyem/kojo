@@ -279,15 +279,17 @@ object API {
   def color(v1: Double, v2: Double, v3: Double, a: Double) = ColorMode.color(v1, v2, v3, a)
   def color(s: String) = ColorMode.color(s)
   def fill(c: Color) = Impl.figure0.setFillColor(c)
-  def noFill = Impl.figure0.setFillColor(null)
+  def noFill() = Impl.figure0.setFillColor(null)
   def stroke(c: Color) = Impl.figure0.setPenColor(c)
-  def noStroke = Impl.figure0.setPenColor(null)
+  def noStroke() = Impl.figure0.setPenColor(null)
   def strokeWidth(w: Double) = Impl.figure0.setPenThickness(w)
   def withStyle(fc: Color, sc: Color, sw: Double)(body: => Unit) =
     Style(fc, sc, sw)(body)
   def saveStyle = Style.save
   def restoreStyle = Style.restore
   implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
+  def lerpColor(from: RichColor, to: RichColor, amt: Double) =
+    RichColor.lerpColor(from, to, amt)
   //T ColorTest ends
 
   colorMode(RGB(255, 255, 255))
@@ -300,33 +302,17 @@ object API {
   //W
   //WA number of methods report the current time.
   //W
-  //W
-  //W{{{
-  //Wmillis // milliseconds
-  //T UtilsTest begins
+  //T TimekeepingTest begins
   def millis = System.currentTimeMillis()
 
   import java.util.Calendar
-
-  //Wsecond // second of the minute
   def second = Calendar.getInstance().get(Calendar.SECOND)
-
-  //Wminute // minute of the hour
   def minute = Calendar.getInstance().get(Calendar.MINUTE)
-
-  //Whour   // hour of the day
   def hour   = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-
-  //Wday    // day of the month
   def day    = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-
-  //Wmonth  // month of the year (1..12)
   def month  = Calendar.getInstance().get(Calendar.MONTH) + 1
-
-  //Wyear   // year C.E.
   def year   = Calendar.getInstance().get(Calendar.YEAR)
   //T UtilsTest ends
-  //W}}}
 
   //W
   //W==Math==
@@ -334,9 +320,6 @@ object API {
   //WA number of methods perform number processing tasks.
   //W
   //T MathTest begins
-  def lerpColor(from: RichColor, to: RichColor, amt: Double) =
-    RichColor.lerpColor(from, to, amt)
-
   def constrain(value: Double, min: Double, max: Double) =
     Math.constrain(value, min, max)
 

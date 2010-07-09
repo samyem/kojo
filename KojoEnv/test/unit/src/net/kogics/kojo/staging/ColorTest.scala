@@ -50,6 +50,7 @@ class ColorTest extends StagingTestBase {
    * def saveStyle = Style.save
    * def restoreStyle = Style.restore
    * implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
+   * def lerpColor(from: RichColor, to: RichColor, amt: Double) =
    *
    * (manually added:)
    * def alpha = c.getAlpha
@@ -231,6 +232,27 @@ class ColorTest extends StagingTestBase {
   //W
   //Wreturns the described color regardless of color mode.
   //W
+  //WLinear interpolation between two colors is done using `lerpColor`:
+  //W
+  //W{{{
+  //WlerpColor(colorFrom, colorTo, amount)
+    Tester(
+      """import Staging._ ; println(lerpColor(color("#99ccDD"), color("#003366"), 0))""",
+      Some("java.awt.Color[r=153,g=204,b=221]import Staging._")
+    )
+
+    Tester(
+      """import Staging._ ; println(lerpColor(color("#99ccDD"), color("#003366"), 0.3))""",
+      Some("java.awt.Color[r=107,g=158,b=185]import Staging._")
+    )
+
+    Tester(
+      """import Staging._ ; println(lerpColor(color("#99ccDD"), color("#003366"), 1))""",
+      Some("java.awt.Color[r=0,g=51,b=102]import Staging._")
+    )
+
+  //W}}}
+  //W
   //WWhen drawing figures, the _fill_ color, which is used for the insides, and
   //Wthe _stroke_ color, which is used for the edges, can be set and unset.
   //W
@@ -251,20 +273,17 @@ class ColorTest extends StagingTestBase {
   //W{{{
   //WnoFill
   //Wfill(null)
-    Tester("import Staging._ ; fill(null)", Some("import Staging._"))
+    Tester("""import Staging._ ; fill(color("#99ccDD")) ; noFill""")
     assertNull(SpriteCanvas.instance.figure0.fillColor)
 
-    Tester(
-      """import Staging._ ; fill(color("#99ccDD")) ; noFill""",
-      Some("import Staging._")
-    )
-    assertNull(SpriteCanvas.instance.figure0.fillColor)
-
-  //W}}}
   }
 
   @Test
   def test2 = {
+    Tester("""import Staging._ ; fill(color("#99ccDD")) ; fill(null)""")
+    assertNull(SpriteCanvas.instance.figure0.fillColor)
+
+  //W}}}
   //W
   //WTo set the stroke color, call `stroke`.
   //W
