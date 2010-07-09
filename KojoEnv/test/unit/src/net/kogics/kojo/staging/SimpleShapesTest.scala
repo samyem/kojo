@@ -67,8 +67,8 @@ class SimpleShapesTest extends StagingTestBase {
    * def star(p1: Point, p2: Point, p3: Point, points: Int) =
    * def cross(p1: Point, p2: Point, cw: Double, r: Double = 1, greek: Boolean = false) =
    * def crossOutline(p1: Point, p2: Point, cw: Double, r: Double = 1, greek: Boolean = false) =
-   *  def saltire(p1: Point, p2: Point, s: Double) = Saltire(p1, p2, s)
-   *  def saltireOutline(p1: Point, p2: Point, s: Double) = SaltireOutline(p1, p2, s)
+   * 
+   * (saltire and saltireOutline: see SimpleShapes2Test)
    */
 
   @Test
@@ -442,46 +442,7 @@ class SimpleShapesTest extends StagingTestBase {
 
     //W}}}
     //W
-  }
-
-  @Test
-  def test3 = {
-    f.clear
-
-    //W
-    //WA saltire is similar to a symmetric cross, but the beams follow the
-    //Wdiagonals of the bounds.
-    //W
-    //W{{{
-    //Wsaltire(lowerLeft, upperRight, cw)
-    Tester("import Staging._ ; saltire((10, 10), (110, 70), 12)")
-    println(makeString(peekPNode))
-    assertEquals(
-      "" +
-      "",
-      makeString(peekPNode)
-    )
-
-    //W}}}
-    //W
-    //WA saltireOutline is to a saltire as a crossOutline is to a cross.
-    //W
-    //W{{{
-    //WsaltireOutline(lowerLeft, upperRight, cw)
-    Tester("import Staging._ ; saltireOutline((10, 10), (110, 70), 12)")
-    println(makeString(peekPNode))
-    assertEquals(
-      "" +
-      "",
-      makeString(peekPNode)
-    )
-
-    //W}}}
-    //W
-  /*
-   *  def saltireOutline(p1: Point, p2: Point, s: Double) = SaltireOutline(p1, p2, s)
-   */
-
+    
   }
 }
 
