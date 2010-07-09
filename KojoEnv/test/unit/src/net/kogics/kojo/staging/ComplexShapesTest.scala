@@ -24,6 +24,20 @@ class ComplexShapesTest extends StagingTestBase {
   val f = SpriteCanvas.instance.figure0
   def peekPNode = f.dumpLastChild
 
+  /* Testing manifest
+   *
+   * def polyline(pts: Seq[Point]) = Polyline(pts)
+   * def polygon(pts: Seq[Point]): Polygon = Polygon(pts)
+   * def triangle(p0: Point, p1: Point, p2: Point) = polygon(Seq(p0, p1, p2))
+   * def quad(p0: Point, p1: Point, p2: Point, p3: Point) =
+   * def linesShape(pts: Seq[Point]) = LinesShape(pts)
+   * def trianglesShape(pts: Seq[Point]) = TrianglesShape(pts)
+   * def triangleStripShape(pts: Seq[Point]) = TriangleStripShape(pts)
+   * def quadsShape(pts: Seq[Point]) = QuadsShape(pts)
+   * def quadStripShape(pts: Seq[Point]) = QuadStripShape(pts)
+   * def triangleFanShape(p0: Point, pts: Seq[Point]) = TriangleFanShape(p0, pts)
+   */
+  
   @Test
   // lalit sez: if we have more than five tests, we run out of heap space - maybe a leak in the Scala interpreter/compiler
   // subsystem. So we run (mostly) everything in one test

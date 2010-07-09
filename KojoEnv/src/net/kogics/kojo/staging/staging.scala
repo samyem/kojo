@@ -112,7 +112,7 @@ object API {
   def background(bc: Color) = {
     withStyle(bc, null, 1) { rectangle(O, screenExt) }
   }
-  //T ScreenMethodsTest begins
+  //T ScreenMethodsTest ends
 
   //W
   //W==Simple shapes and text==
@@ -223,6 +223,7 @@ object API {
   //WGiven a sequence of `Point`s, a number of complex shapes can be drawn,
   //Wincluding basic polylines and polygons, and patterns of polylines/polygons.
   //W
+  //T ComplexShapesTest begins
   def polyline(pts: Seq[Point]) = Polyline(pts)
 
   def polygon(pts: Seq[Point]): Polygon = Polygon(pts)
@@ -236,13 +237,16 @@ object API {
   def quadsShape(pts: Seq[Point]) = QuadsShape(pts)
   def quadStripShape(pts: Seq[Point]) = QuadStripShape(pts)
   def triangleFanShape(p0: Point, pts: Seq[Point]) = TriangleFanShape(p0, pts)
+  //T ComplexShapesTest ends
 
   //W
   //W==SVG Shapes==
   //W
   //WGiven an SVG element, the corresponding shape can be drawn.
   //W
+  //T SvgShapesTest begins
   def svgShape(node: scala.xml.Node) = SvgShape(node)
+  //T SvgShapesTest ends
 
   //W
   //W==Color==
@@ -256,6 +260,7 @@ object API {
   //Wwidth temporarily.
   //W
   //W
+  //T ColorTest begins
   abstract class ColorModes
   case class RGB(r: Int, g: Int, b: Int) extends ColorModes
   case class RGBA(r: Int, g: Int, b: Int, a: Int) extends ColorModes
@@ -283,6 +288,7 @@ object API {
   def saveStyle = Style.save
   def restoreStyle = Style.restore
   implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
+  //T ColorTest ends
 
   colorMode(RGB(255, 255, 255))
   Utils.runInSwingThread {
@@ -297,6 +303,7 @@ object API {
   //W
   //W{{{
   //Wmillis // milliseconds
+  //T UtilsTest begins
   def millis = System.currentTimeMillis()
 
   import java.util.Calendar
@@ -318,6 +325,7 @@ object API {
 
   //Wyear   // year C.E.
   def year   = Calendar.getInstance().get(Calendar.YEAR)
+  //T UtilsTest ends
   //W}}}
 
   //W
@@ -325,6 +333,7 @@ object API {
   //W
   //WA number of methods perform number processing tasks.
   //W
+  //T MathTest begins
   def lerpColor(from: RichColor, to: RichColor, amt: Double) =
     RichColor.lerpColor(from, to, amt)
 
@@ -364,6 +373,7 @@ object API {
   def tan(a: Double) = math.tan(a)
   def radians(deg: Double) = deg.toRadians
   def degrees(rad: Double) = rad.toDegrees
+  //T MathTest ends
 
   //W
 
@@ -371,6 +381,7 @@ object API {
   //W
   //WThere are methods for execution control and mouse feedback.
   //W
+  //T ControlTest begins
   def loop(fn: => Unit) = Impl.figure0.refresh(fn)
   def stop = Impl.figure0.stopRefresh()
   def clear() = {
@@ -404,6 +415,7 @@ object API {
       }
     }
   }
+  //T ControlTest ends
 
   //W
   //W=Usage=
@@ -417,6 +429,7 @@ object Point {
 }
 
 
+//T ShapeMethodsTest begins
 trait Shape {
   def node: PNode
   var sizeFactor = 1.
@@ -479,6 +492,7 @@ trait Shape {
   }
 //  def addActivity(a: PActivity) = Impl.canvas.getRoot.addActivity(a)
 }
+//T ShapeMethodsTest ends
 
 trait Rounded {
   val curvature: Point

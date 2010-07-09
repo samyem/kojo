@@ -20,45 +20,10 @@ import org.junit.Assert._
 
 import net.kogics.kojo.util._
 
-class ColorTest extends StagingTestBase {
+class ShapeMethodsTest extends StagingTestBase {
 
   /* Testing manifest
    *
-   * abstract class ColorModes
-   * case class RGB(r: Int, g: Int, b: Int) extends ColorModes
-   * case class RGBA(r: Int, g: Int, b: Int, a: Int) extends ColorModes
-   * case class HSB(h: Int, s: Int, b: Int) extends ColorModes
-   * case class HSBA(h: Int, s: Int, b: Int, a: Int) extends ColorModes
-   * case class GRAY(v: Int) extends ColorModes
-   * case class GRAYA(v: Int, a: Int) extends ColorModes
-   * def colorMode(mode: ColorModes) = ColorMode(mode)
-   * def color(v: Int) = ColorMode.color(v)
-   * def color(v: Int, a: Int) = ColorMode.color(v, a)
-   * def color(v: Double) = ColorMode.color(v)
-   * def color(v: Double, a: Double) = ColorMode.color(v, a)
-   * def color(v1: Int, v2: Int, v3: Int) = ColorMode.color(v1, v2, v3)
-   * def color(v1: Int, v2: Int, v3: Int, a: Int) = ColorMode.color(v1, v2, v3, a)
-   * def color(v1: Double, v2: Double, v3: Double) = ColorMode.color(v1, v2, v3)
-   * def color(v1: Double, v2: Double, v3: Double, a: Double) = ColorMode.color(v1, v2, v3, a)
-   * def color(s: String) = ColorMode.color(s)
-   * def fill(c: Color) = Impl.figure0.setFillColor(c)
-   * def noFill = Impl.figure0.setFillColor(null)
-   * def stroke(c: Color) = Impl.figure0.setPenColor(c)
-   * def noStroke = Impl.figure0.setPenColor(null)
-   * def strokeWidth(w: Double) = Impl.figure0.setPenThickness(w)
-   * def withStyle(fc: Color, sc: Color, sw: Double)(body: => Unit) =
-   * def saveStyle = Style.save
-   * def restoreStyle = Style.restore
-   * implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
-   *
-   * (manually added:)
-   * def alpha = c.getAlpha
-   * def red = c.getRed
-   * def blue = c.getBlue
-   * def green = c.getGreen
-   * def hue = {
-   * def saturation = (this.hsb(1) * 255).toInt
-   * def brightness = (this.hsb(2) * 255).toInt
    */
 
   @Test
@@ -344,79 +309,6 @@ class ColorTest extends StagingTestBase {
     assertEquals("java.awt.Color[r=0,g=255,b=0]", SpriteCanvas.instance.figure0.fillColor.toString)
     assertEquals("java.awt.Color[r=0,g=0,b=0]", SpriteCanvas.instance.figure0.lineColor.toString)
     assertEquals(1.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
-
-  //W}}}
-  //W
-  //WThe Color type is 'pimped' with the following accessors:
-  //W
-  //W{{{
-  //Walpha
-    Tester(
-      """import Staging._
-        |
-        |colorMode(RGBA(255, 255, 255, 255))
-        |println(color(.1, .1, .1, .1).alpha)
-      """.stripMargin,
-      Some("26import Staging._")
-    )
-
-  //Wred
-    Tester(
-      """import Staging._
-        |
-        |colorMode(RGBA(255, 255, 255, 255))
-        |println(color(.1, .1, .1, .1).red)
-      """.stripMargin,
-      Some("26import Staging._")
-    )
-
-  //Wblue
-    Tester(
-      """import Staging._
-        |
-        |colorMode(RGBA(255, 255, 255, 255))
-        |println(color(.1, .1, .1, .1).blue)
-      """.stripMargin,
-      Some("26import Staging._")
-    )
-
-  //Wgreen
-    Tester(
-      """import Staging._
-        |
-        |colorMode(RGBA(255, 255, 255, 255))
-        |println(color(.1, .1, .1, .1).green)
-      """.stripMargin,
-      Some("26import Staging._")
-    )
-
-  //Whue
-    Tester(
-      """import Staging._
-        |
-        |colorMode(HSB(255, 255, 255))
-        |println(color(.1, .1, .1).hue)
-      """.stripMargin,
-      Some("15import Staging._")
-    )
-  //Wsaturation
-    Tester(
-      """import Staging._
-        |
-        |colorMode(HSB(255, 255, 255))
-        |println(color(.1, .1, .1).saturation)
-      """.stripMargin,
-      Some("29import Staging._")
-    )
-  //Wbrightness
-    Tester(
-      """import Staging._
-        |
-        |colorMode(HSB(255, 255, 255))
-        |println(color(.1, .1, .1).brightness)
-      """.stripMargin,
-      Some("26import Staging._")
-    )
 
   //W}}}
   //W
