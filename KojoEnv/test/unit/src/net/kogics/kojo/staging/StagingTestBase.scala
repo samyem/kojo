@@ -85,7 +85,10 @@ class StagingTestBase extends KojoTestBase {
       assertTrue(runCtx.success.get)
       val output = stripCrLfs(runCtx.getCurrentOutput)
       s foreach { ss =>
-        if (ss(0) == '$') {
+        if (ss isEmpty) {
+          // an empty expected string means print output
+          println(output)
+        } else if (ss(0) == '$') {
           val regexp = outputPrefix(cmd) + ss.tail
           assertTrue(output matches regexp)
         } else {
