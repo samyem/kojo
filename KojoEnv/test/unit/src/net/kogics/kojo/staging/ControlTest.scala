@@ -56,7 +56,12 @@ class ControlTest extends StagingTestBase {
     //W
     //W{{{
     //Wstop
-    Tester("import Staging._ ; var a = 10 ; loop { if (a <= 0) stop else a -= 1 }")
+    Tester("""import Staging._
+             |
+             |var a = 2
+             |loop {
+             |  if (a <= 0) stop else a -= 1
+             |}""")
 
     //W}}}
     //W
@@ -68,7 +73,7 @@ class ControlTest extends StagingTestBase {
     Tester("""import Staging._
              |
              |clear
-             |var a = 10
+             |var a = 2
              |loop {
              |  fgClear
              |  if (a <= 0) stop else a -= 1
