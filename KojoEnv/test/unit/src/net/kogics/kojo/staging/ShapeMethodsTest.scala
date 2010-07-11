@@ -60,7 +60,7 @@ class ShapeMethodsTest extends StagingTestBase {
       "val c = a.sizeFactor ; val d = a.orientation ; " +
       "val e = a.fill ; a.fill = color(\"black\")",
       Some("$import Staging._" +
-      "a: net.kogics.kojo.staging.Dot = Staging.Dot\\(Point\\(10,00, 15,00\\)\\)" +
+      "a: net.kogics.kojo.staging.Dot = Staging.Dot\\(Point\\(10[.,]00, 15[.,]00\\)\\)" +
       "b: edu.umd.cs.piccolo.nodes.PPath = edu.umd.cs.piccolo.nodes.PPath@.*" +
       "c: Double = 1.0" +
       "d: Double = 90.0" +

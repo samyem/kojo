@@ -61,7 +61,7 @@ class ControlTest extends StagingTestBase {
              |var a = 2
              |loop {
              |  if (a <= 0) stop else a -= 1
-             |}""")
+             |}""".stripMargin)
 
     //W}}}
     //W
@@ -77,7 +77,7 @@ class ControlTest extends StagingTestBase {
              |loop {
              |  fgClear
              |  if (a <= 0) stop else a -= 1
-             |}""")
+             |}""".stripMargin)
 
     //W}}}
     //W
@@ -87,12 +87,14 @@ class ControlTest extends StagingTestBase {
     //WmouseX
     //WmouseY
     Tester("""import Staging._
-             |var a = 10
+             |
+             |clear
+             |var a = 2
              |loop {
              |  val b = mouseX
              |  val c = mouseY
              |  if (a <= 0) stop else a -= 1
-             |}""")
+             |}""".stripMargin)
 
     //W}}}
     //W
@@ -102,12 +104,14 @@ class ControlTest extends StagingTestBase {
     //WpmouseX
     //WpmouseY
     Tester("""import Staging._
-             |var a = 10
+             |
+             |clear
+             |var a = 2
              |loop {
              |  val b = pmouseX
              |  val c = pmouseY
              |  if (a <= 0) stop else a -= 1
-             |}""")
+             |}""".stripMargin)
 
     //W}}}
     //W
@@ -125,7 +129,9 @@ class ControlTest extends StagingTestBase {
     //W{{{
     //WmousePressed
     Tester("""import Staging._
-             |var a = 10
+             |
+             |clear
+             |var a = 2
              |loop {
              |  if (mousePressed) mouseButton match {
              |    case LEFT   => println("foo")
@@ -133,7 +139,7 @@ class ControlTest extends StagingTestBase {
              |    case RIGHT  => println("baz")
              |  }
              |  if (a <= 0) stop else a -= 1
-             |}""")
+             |}""".stripMargin)
 
     //W}}}
     //W
