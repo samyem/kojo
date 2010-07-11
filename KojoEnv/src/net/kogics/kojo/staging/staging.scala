@@ -445,8 +445,8 @@ trait Shape {
       val p = node.getFullBounds.getCenter2D
       node.rotateAboutPoint(amount.toRadians, p)
       node.repaint()
-      orientation = (orientation + amount) % 360
     }
+    orientation = (orientation + amount + 360) % 360
   }
   def rotateTo(angle: Double) = {
     rotate(angle - orientation)
@@ -456,8 +456,8 @@ trait Shape {
     Utils.runInSwingThread {
       node.scale(amount)
       node.repaint()
-      sizeFactor *= amount
     }
+    sizeFactor *= amount
   }
   def scaleTo(size: Double) = {
     scale(size / sizeFactor)
