@@ -37,6 +37,54 @@ class SimpleShapes2Test extends StagingTestBase {
   def test1 = {
     f.clear
     
+    //W
+    //W===Crosses===
+    //W
+    //WA cross is defined by rectangular dimensions (given as two `point`s), a
+    //Wcross width `cw`, a ratio `r`, and a flag `greek` which is false by default.
+    //W
+    //WThe horizontal beam of the cross is `cw` times width of bounds, and the
+    //Wvertical beam is `cw` times height of bounds, _unless_ `greek` is true,
+    //Win which case both beams are `cw` times the shorter dimension of bounds.
+    //W
+    //WThe horizontal beam is centered vertically (and horizontally, which
+    //Wtypically only matters on a greek cross).  The vertical beam is placed
+    //Wsuch that the canton has a vertical side / horizontal side ratio of `r`.
+    //W(A symmetric cross has `r` = height of bounds / width of bounds.)
+    //W
+    //W{{{
+    //Wcross(lowerLeft, upperRight, cw, r, greek)
+    Tester("import Staging._ ; cross((10, 10), (110, 70), 12, 110./70)")
+    assertEquals(
+      "PPath(10,10 L34.0000,37.2727 L34.0000,70.0000 L46.0000,70.0000 " +
+      "L46.0000,37.2727 L110.000,37.2727 L110.000,25.2727 L46.0000,25.2727 " +
+      "L46.0000,10.0000 L34.0000,10.0000 L34.0000,25.2727 L10.0000,25.2727 " +
+      "z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
+
+    //W}}}
+    //W
+    //WA cross outline with a cross width (_cw_) is the graphical difference
+    //Wbetween a cross with a cross width of 4 * _cw_ / 3 and a cross with a
+    //Wcross width of 5 * _cw_ / 6.
+    //W
+    //W{{{
+    //WcrossOutline(lowerLeft, upperRight, cw, r, greek)
+    Tester("import Staging._ ; crossOutline((10, 10), (110, 70), 12, 110./70)")
+    assertEquals(
+      "PPath(10,10 L32.0000,39.2727 L32.0000,70.0000 L35.0000,70.0000 " +
+      "L35.0000,36.2727 L10.0000,36.2727 L48.0000,70.0000 L48.0000,39.2727 " +
+      "L110.000,39.2727 L110.000,36.2727 L45.0000,36.2727 L45.0000,70.0000 " +
+      "L110.000,23.2727 L48.0000,23.2727 L48.0000,10.0000 L45.0000,10.0000 " +
+      "L45.0000,26.2727 L110.000,26.2727 L32.0000,10.0000 L32.0000,23.2727 " +
+      "L10.0000,23.2727 L10.0000,26.2727 L35.0000,26.2727 L35.0000,10.0000 " +
+      "z M0.00000,0.00000 )",
+      makeString(peekPNode)
+    )
+
+    //W}}}
+    //W
 
     //W
     //WA saltire is similar to a symmetric cross, but the beams follow the

@@ -268,6 +268,10 @@ class ColorTest extends StagingTestBase {
 
   //W}}}
   //W
+  }
+
+  @Test
+  def test2 = {
   //WTo unset the fill color, call `noFill`, or `fill` with a `null` argument.
   //W
   //W{{{
@@ -276,10 +280,6 @@ class ColorTest extends StagingTestBase {
     Tester("""import Staging._ ; fill(color("#99ccDD")) ; noFill""")
     assertNull(SpriteCanvas.instance.figure0.fillColor)
 
-  }
-
-  @Test
-  def test2 = {
     Tester("""import Staging._ ; fill(color("#99ccDD")) ; fill(null)""")
     assertNull(SpriteCanvas.instance.figure0.fillColor)
 
