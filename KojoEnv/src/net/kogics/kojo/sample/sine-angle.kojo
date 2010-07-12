@@ -1,75 +1,129 @@
-// This is an early preview of the Canvas module
-// This stuff is under development and is likely to change
-// Also, code completion for the Canvas API is pretty rough right now
+import Staging._
 
-val darkGray = color(64,64,64)
-def d2r(a: Double) = a * Math.Pi/180
+clear
 
-def sineFn(offset: Int, scale: Double) {
-    for (i <- 0 to 359) {
-        Canvas.point(offset+i, scale * Math.sin(d2r(i)))
-    }
-    Canvas.setPenColor(darkGray)
-    Canvas.setPenThickness(1)
-    Canvas.line(offset, 0, offset+359, 0)
+// Change this value to make the figure bigger or smaller.
+val unit = 100
+
+// Angle values in degrees get converted to radians a lot in
+// this program.  Let's pre-calculate them once and for all.
+val rads = for (a <- 0 to 360) yield math.toRadians(a)
+
+// We need something that will plot a point around a circle...
+object CirclePlotter {
+  def apply(a: Int) =
+    point(unit * math.cos(rads(a)), unit * math.sin(rads(a)))
 }
 
-val radius = 100
-var theta = 0
-clear()
-invisible()
-Canvas.setPenColor(green)
-Canvas.setPenThickness(3)
-Canvas.circle(0, 0, radius)
-sineFn(2*radius, radius)
+// ...and along a sine wave.
+object WavePlotter {
+  def apply(a: Int) =
+    point(2 * unit + a, unit * math.sin(rads(a)))
+}
 
+// We're going to label a few items in the diagram, and we
+// want the labels to appear a little to the right of the
+// place where the item is.
+val labelOffset = point(4, 0)
+// Some labels should also be above the item.
+val labelOffsetAbove = point(4, 18)
 
-Canvas.setPenColor(darkGray)
-Canvas.setPenThickness(2)
-Canvas.line(0, 0, radius, 0)
+// Define a constant for a nice dark gray color.
+colorMode(GRAY(255))
+val darkGray = color(64)
 
+// Make the default stroke a size 1 dark gray line.
+stroke(darkGray)
+strokeWidth(1)
+
+// Now we're going to draw the background figures
+// that don't change.
+
+// Draw a circle and a wave with a thick green line.
+withStyle(null, green, 3) {
+  circle(O, unit)
+  0 to 360 foreach { a => dot(WavePlotter(a)) }
+}
+
+// Using a thin dark gray line, draw...
+withStyle(null, darkGray, 1) {
+  // ...the baseline of the wave...
+  line((2 * unit, 0), (2 * unit + 360, 0))
+  // ...and the base radius of the circle
+  val br = line(O, unit, 0)
+
+  // Label the origin of the base radius "O"
+  text("O", br.origin + labelOffset)
+  // Label the endpoint of the base radius "A"
+  text("A", br.endpoint + labelOffset)
+}
+
+// Print an explanation of what we're going to do.
 val txt = """
 This animation shows how the magnitude of
 an angle and its sine are defined, and how
 they relate to each other.
 
 The angle of interest is AOP. Its magnitude
- is defined (in radians) as the ratio of
+is defined (in radians) as the ratio of
 lengths - AP/OP.
 The sine of this angle is the ratio of
 lengths - MP/OP
 
 If you consider OP to be equal to one unit
 in length, the sine of AOP is equal to MP.
-This magnitude is shown by the red dot on
+This magnitude is shown by P' on
 the curve to the right of the circle.
 """
-Canvas.text(txt, -450, 100)
+text(txt, -450, 120)
 
-Canvas.refresh {
-    Canvas.fgClear()
-    Canvas.setPenColor(red)
-    Canvas.setPenThickness(10)
-    val p1 = Canvas.point(radius * Math.cos(d2r(theta)), radius * Math.sin(d2r(theta)))
-    val p2 = Canvas.point(2*radius + (theta%360), radius * Math.sin(d2r(theta)))
+// This variable holds the value of the angle in question.
+var theta = 0
 
-    Canvas.setPenColor(blue)
-    Canvas.setPenThickness(2)
-    Canvas.line(0, 0, radius * Math.cos(d2r(theta)), radius * Math.sin(d2r(theta)))
-    Canvas.arc(0, 0, radius, 0, theta % 360)
-    Canvas.line(p1.x, p1.y, p1.x, 0)
-    Canvas.setPenColor(darkGray)
-    Canvas.line(0, 0, p1.x, 0)
-    Canvas.line(p1, p2)
+loop {
+  // Erase the figures from the previous iteration.
+  fgClear
 
-    Canvas.setPenThickness(1)
-    Canvas.arc(0, 0, 15, 0, theta % 360)
-//    Canvas.text("Angle = %3d°" format(theta % 360), 0, 0)
-    Canvas.text("O", 0, 0)
-    Canvas.text("A", radius, 0)
-    Canvas.text("P", p1.x + 7, p1.y + 15)
-    Canvas.text("M", p1.x + 4, 18)
-    Canvas.text("Sine of angle AOP = %.2f" format(Math.sin(d2r(theta))), 2*radius, 0)
-    Canvas.text("Angle AOP = %.2f radians = %d degrees" format(d2r(theta % 360), theta % 360), radius+15, -radius/2f)
-    theta += 1
+  // Get plotted points for the current angle.
+  val p1 = CirclePlotter(theta)
+  val p2 = WavePlotter(theta)
+
+  // Draw the plotted points with extra large red dots and label them.
+  withStyle(null, red, 10) {
+    dot(p1)
+    text("P", p1 + labelOffsetAbove)
+    dot(p2)
+    text("P'", p2 + labelOffsetAbove)
+  }
+
+  // Draw the length AP as a thick blue arc.
+  withStyle(null, blue, 3) {
+    arc(O, (unit, unit), 0, theta)
+  }
+
+  // Draw the length MP as a thick red line perpendicular to the x axis.
+  withStyle(null, red, 3) {
+    line(p1, p1.onX)
+    text("M", p1.onX + labelOffsetAbove)
+
+    // Draw the same length on the wave.
+    line(p2, p2.onX)
+  }
+
+  // Complete the triangle OPM by drawing a medium-sized dark gray line.
+  strokeWidth(2)
+  line(O, p1.onX)
+
+  // Use a thin dark gray line to draw the angle symbol and the line
+  // connecting P and P'.
+  strokeWidth(1)
+  arc(O, (15, 15), 0, theta)
+  line(-unit, p1.y, 3 * unit + 360, 0)
+
+  // Show the angle value and the sine of the angle.
+  text("Angle AOP = %.2f radians = %d degrees" format(rads(theta), theta), unit + 15, -unit / 2f)
+  text("Sine of angle AOP = %.2f" format(math.sin(rads(theta))), 2 * unit, 0)
+
+  // Now for the next angle value!
+  theta = if (theta < 360) theta + 1 else 0
 }

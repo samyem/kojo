@@ -42,10 +42,10 @@ object SampleCode {
       case "Parallelogram" => Parallelogram
       case "Parallel/Transversal" => ParTrans
       case "Angles of a Triangle" => TriangleAngles
-      case "Sine of an Angle" => SineAngle
       case "Inspect Object" => InspectObject
       case "Input/Output" => InputOutput
-      case "Shapes" => Shapes
+      case "Sine of an Angle" => SineAngle
+      case "Clock" => Clock
     }
   }
 
@@ -704,45 +704,7 @@ repeat (n) {
 println("The average is: " + sum/n)
 """
 
-  val Shapes = """
-def positionTurtle() {
-    left()
-    penUp()
-    forward(300)
-    right(170)
-    penDown()
-}
-
-clear()
-positionTurtle()
-var pos = position
-Canvas.setPenColor(blue)
-Canvas.setFillColor(green)
-Canvas.line(pos.x-10, pos.y+50, pos.x+20, pos.y-100)
-Canvas.line(pos.x, pos.y, pos.x+50, pos.y+50)
-forward(100)
-pos = position
-Canvas.ellipse(pos, 50, 100)
-forward(100)
-pos = position
-Canvas.setFillColor(yellow)
-Canvas.rectangle(pos.x, pos.y, 50, 100)
-Canvas.arc(pos, 50, -10, -135)
-forward(100)
-pos = position
-Canvas.setFillColor(green)
-Canvas.circle(pos, 25)
-forward(100)
-pos = position
-Canvas.setPenColor(blue)
-Canvas.setPenThickness(20)
-Canvas.point(pos.x, pos.y)
-forward(100)
-pos = position
-Canvas.text("Greetings!", pos)
-invisible
-"""
-
+  val Clock = util.Utils.readFile(getResource("clock.kojo"))
   val SineAngle = util.Utils.readFile(getResource("sine-angle.kojo"))
   val ParTrans = util.Utils.readFile(getResource("par-trans.kojo"))
   val TriangleAngles = util.Utils.readFile(getResource("triangle-angles.kojo"))

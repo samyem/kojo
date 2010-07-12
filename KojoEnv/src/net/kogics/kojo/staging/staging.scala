@@ -626,7 +626,7 @@ object Style {
         val (fc, sc, st) = savedStyles.pop
         f.setFillColor(fc)
         f.setPenColor(sc)
-        f.lineStroke = st
+        f.setLineStroke(st)
       }
     }
   }

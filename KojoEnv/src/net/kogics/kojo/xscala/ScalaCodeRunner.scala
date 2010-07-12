@@ -231,7 +231,6 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
         interp.interpret("val builtins = predef.Builtins")
         interp.interpret("import predef.Builtins._")
         interp.bind("turtle0", "net.kogics.kojo.core.Turtle", tCanvas.turtle0)
-        interp.interpret("val Canvas = predef.CanvasAPI")
         // Interesting fact:
         // If you make an object available via bind, the interface is not type-safe
         // If you make it available via interpret("val ="), its type safe
@@ -410,8 +409,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     def random(upperBound: Int) = Random.nextInt(upperBound)
     def randomDouble(upperBound: Int) = Random.nextDouble * upperBound
     
-    def print(obj: Any): Unit = println(obj.toString)
-    def println(obj: Any): Unit = println(obj.toString)
+    def print(obj: Any): Unit = println(obj)
+    def println(obj: Any): Unit = println(if (obj == null) "null" else obj.toString)
 
     def println(s: String): Unit = {
       // Runs on Actor pool (interpreter) thread
