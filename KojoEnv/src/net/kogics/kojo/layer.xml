@@ -182,6 +182,12 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Samples.DiffSquares.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_DiffSquares"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
@@ -274,8 +280,23 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Rangoli.instance"/>
                 </file>
             </folder>
-            <folder name="Programming ">
+            <folder name="Staging ">
                 <attr name="position" intvalue="4"/>
+                <file name="net-kogics-kojo-Samples.Sine-Angle.shadow">
+                    <attr name="position" intvalue="1"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Sine-Angle.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Samples.Clock.shadow">
+                    <attr name="position" intvalue="2"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Clock.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Samples.DiffSquares.shadow">
+                    <attr name="position" intvalue="3"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.DiffSquares.instance"/>
+                </file>
+            </folder>
+            <folder name="Programming ">
+                <attr name="position" intvalue="5"/>
                 <file name="net-kogics-kojo-Samples.Inspect-Object.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Inspect-Object.instance"/>
@@ -285,18 +306,6 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Input-Output.instance"/>
                 </file>
             </folder>
-            <folder name="Staging ">
-                <attr name="position" intvalue="5"/>
-                <file name="net-kogics-kojo-Samples.Sine-Angle.shadow">
-                    <attr name="position" intvalue="1"/>
-                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Sine-Angle.instance"/>
-                </file>
-                <file name="net-kogics-kojo-Samples.Clock.shadow">
-                    <attr name="position" intvalue="2"/>
-                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Clock.instance"/>
-                </file>
-            </folder>
-
             <folder name="Early Preview ">
                 <attr name="position" intvalue="6"/>
                 <folder name="Math World ">
