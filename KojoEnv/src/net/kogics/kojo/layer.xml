@@ -176,9 +176,9 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
-            <file name="net-kogics-kojo-Samples.Shapes.instance">
+            <file name="net-kogics-kojo-Samples.Clock.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Shapes"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Clock"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
@@ -285,8 +285,20 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Input-Output.instance"/>
                 </file>
             </folder>
-            <folder name="Early Preview ">
+            <folder name="Staging ">
                 <attr name="position" intvalue="5"/>
+                <file name="net-kogics-kojo-Samples.Sine-Angle.shadow">
+                    <attr name="position" intvalue="1"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Sine-Angle.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Samples.Clock.shadow">
+                    <attr name="position" intvalue="2"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Clock.instance"/>
+                </file>
+            </folder>
+
+            <folder name="Early Preview ">
+                <attr name="position" intvalue="6"/>
                 <folder name="Math World ">
                     <attr name="position" intvalue="1"/>
                     <file name="net-kogics-kojo-Samples.Parallel-Transversal.shadow">
@@ -296,17 +308,6 @@
                     <file name="net-kogics-kojo-Samples.Triangle-Angles.shadow">
                         <attr name="position" intvalue="2"/>
                         <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Triangle-Angles.instance"/>
-                    </file>
-                </folder>
-                <folder name="Canvas ">
-                    <attr name="position" intvalue="2"/>
-                    <file name="net-kogics-kojo-Samples.Sine-Angle.shadow">
-                        <attr name="position" intvalue="1"/>
-                        <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Sine-Angle.instance"/>
-                    </file>
-                    <file name="net-kogics-kojo-Samples.Shapes.shadow">
-                        <attr name="position" intvalue="2"/>
-                        <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Shapes.instance"/>
                     </file>
                 </folder>
             </folder>

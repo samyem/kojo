@@ -62,10 +62,10 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   val DefaultStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
   @volatile private var listener: SpriteListener = NoopSpriteListener
 
-  var figAnimation: PActivity = _
-  var lineColor: Color = _
-  var fillColor: Color = _
-  var lineStroke: Stroke = _
+  private var figAnimation: PActivity = _
+  private var _lineColor: Color = _
+  private var _fillColor: Color = _
+  private var _lineStroke: Stroke = _
 
   camera.addLayer(camera.getLayerCount-1, bgLayer)
   camera.addLayer(camera.getLayerCount-1, fgLayer)
@@ -74,9 +74,21 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def init() {
     bgLayer.setOffset(initX, initY)
     fgLayer.setOffset(initX, initY)
-    lineColor = DefaultColor
-    fillColor = DefaultFillColor
-    lineStroke = DefaultStroke
+    _lineColor = DefaultColor
+    _fillColor = DefaultFillColor
+    _lineStroke = DefaultStroke
+  }
+
+  def fillColor = Utils.runInSwingThreadAndWait {
+    _fillColor
+  }
+
+  def lineColor = Utils.runInSwingThreadAndWait {
+    _lineColor
+  }
+
+  def lineStroke = Utils.runInSwingThreadAndWait {
+    _lineStroke
   }
 
   def repaint() {
@@ -109,19 +121,25 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
 
   def setPenColor(color: java.awt.Color) {
     Utils.runInSwingThread {
-      lineColor = color
+      _lineColor = color
     }
   }
 
   def setPenThickness(t: Double) {
     Utils.runInSwingThread {
-      lineStroke = new BasicStroke(t.toFloat, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+      _lineStroke = new BasicStroke(t.toFloat, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+    }
+  }
+
+  def setLineStroke(st: Stroke) {
+    Utils.runInSwingThread {
+      _lineStroke = st
     }
   }
 
   def setFillColor(color: java.awt.Color) {
     Utils.runInSwingThread {
-      fillColor = color
+      _fillColor = color
     }
   }
 
@@ -138,8 +156,8 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def point(x: Double, y: Double): FigPoint = {
     val pt = new FigPoint(canvas, x,y)
     Utils.runInSwingThread {
-      pt.pPoint.setStroke(lineStroke)
-      pt.pPoint.setStrokePaint(lineColor)
+      pt.pPoint.setStroke(_lineStroke)
+      pt.pPoint.setStrokePaint(_lineColor)
       currLayer.addChild(pt.pPoint)
       currLayer.repaint()
     }
@@ -149,8 +167,8 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def line(p1: Point, p2: Point): FigLine = {
     val line = new FigLine(canvas, p1, p2)
     Utils.runInSwingThread {
-      line.pLine.setStroke(lineStroke)
-      line.pLine.setStrokePaint(lineColor)
+      line.pLine.setStroke(_lineStroke)
+      line.pLine.setStrokePaint(_lineColor)
       currLayer.addChild(line.pLine)
       currLayer.repaint()
     }
@@ -162,9 +180,9 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def ellipse(center: Point, w: Double, h: Double): FigEllipse = {
     val ell = new FigEllipse(canvas, center, w, h)
     Utils.runInSwingThread {
-      ell.pEllipse.setStroke(lineStroke)
-      ell.pEllipse.setStrokePaint(lineColor)
-      ell.pEllipse.setPaint(fillColor)
+      ell.pEllipse.setStroke(_lineStroke)
+      ell.pEllipse.setStrokePaint(_lineColor)
+      ell.pEllipse.setPaint(_fillColor)
       currLayer.addChild(ell.pEllipse)
       currLayer.repaint()
     }
@@ -183,9 +201,9 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def arc(onEll: Ellipse, start: Double, extent: Double): FigArc = {
     val arc = new FigArc(canvas, onEll, start, extent)
     Utils.runInSwingThread {
-      arc.pArc.setStroke(lineStroke)
-      arc.pArc.setStrokePaint(lineColor)
-      arc.pArc.setPaint(fillColor)
+      arc.pArc.setStroke(_lineStroke)
+      arc.pArc.setStrokePaint(_lineColor)
+      arc.pArc.setPaint(_fillColor)
       currLayer.addChild(arc.pArc)
       currLayer.repaint()
     }
@@ -209,9 +227,9 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def rectangle(bLeft: Point, tRight: Point): FigRectangle = {
     val rect = new FigRectangle(canvas, bLeft, tRight)
     Utils.runInSwingThread {
-      rect.pRect.setStroke(lineStroke)
-      rect.pRect.setStrokePaint(lineColor)
-      rect.pRect.setPaint(fillColor)
+      rect.pRect.setStroke(_lineStroke)
+      rect.pRect.setStrokePaint(_lineColor)
+      rect.pRect.setPaint(_fillColor)
       currLayer.addChild(rect.pRect)
       currLayer.repaint()
     }
@@ -223,9 +241,9 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def roundRectangle(p1: Point, p2: Point, rx: Double, ry: Double) = {
     val rrect = new FigRoundRectangle(canvas, p1, p2, rx, ry)
     Utils.runInSwingThread {
-      rrect.pRect.setStroke(lineStroke)
-      rrect.pRect.setStrokePaint(lineColor)
-      rrect.pRect.setPaint(fillColor)
+      rrect.pRect.setStroke(_lineStroke)
+      rrect.pRect.setStrokePaint(_lineColor)
+      rrect.pRect.setPaint(_fillColor)
       currLayer.addChild(rrect.pRect)
       currLayer.repaint()
     }
@@ -235,7 +253,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
   def text(content: String, x: Double, y: Double): FigText = {
     val txt = new FigText(canvas, content, x, y)
     Utils.runInSwingThread {
-      txt.pText.setTextPaint(lineColor)
+      txt.pText.setTextPaint(_lineColor)
       currLayer.addChild(txt.pText)
       currLayer.repaint()
     }
@@ -254,9 +272,9 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
       val piccoloNode = pLine
     }
     Utils.runInSwingThread {
-      poly.pLine.setStroke(lineStroke)
-      poly.pLine.setStrokePaint(lineColor)
-      poly.pLine.setPaint(fillColor)
+      poly.pLine.setStroke(_lineStroke)
+      poly.pLine.setStrokePaint(_lineColor)
+      poly.pLine.setPaint(_fillColor)
       currLayer.addChild(poly.pLine)
       currLayer.repaint()
     }
@@ -268,13 +286,13 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     Utils.runInSwingThread {
       if (node.isInstanceOf[PPath]) {
         val p = node.asInstanceOf[PPath]
-        p.setPaint(fillColor)
-        p.setStroke(lineStroke)
-        p.setStrokePaint(lineColor)
+        p.setPaint(_fillColor)
+        p.setStroke(_lineStroke)
+        p.setStrokePaint(_lineColor)
       }
       else if (node.isInstanceOf[PText]) {
         val t = node.asInstanceOf[PText]
-        t.setTextPaint(lineColor)
+        t.setTextPaint(_lineColor)
       }
       currLayer.addChild(node)
       currLayer.repaint
