@@ -2,8 +2,7 @@ val S = Staging
 val center = 200
 val len = 160
 
-clear()
-invisible()
+S.clear
 S.screenSize(400, 400)
 S.background(black)
 S.stroke(color(228, 228, 228))

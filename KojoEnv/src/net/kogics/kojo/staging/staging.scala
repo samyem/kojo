@@ -370,6 +370,7 @@ object API {
   def clear() = {
     Impl.canvas.clear()
     Impl.canvas.turtle0.invisible()
+    colorMode(RGB(255, 255, 255))
   }
   def fgClear() = Impl.figure0.fgClear()
 

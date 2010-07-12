@@ -50,7 +50,7 @@ withStyle(null, darkGray, 1) {
   // ...the baseline of the wave...
   line((2 * unit, 0), (2 * unit + 360, 0))
   // ...and the base radius of the circle
-  val br = line(O, unit, 0)
+  val br = line(O, (unit, 0))
 
   // Label the origin of the base radius "O"
   text("O", br.origin + labelOffset)
@@ -118,7 +118,7 @@ loop {
   // connecting P and P'.
   strokeWidth(1)
   arc(O, (15, 15), 0, theta)
-  line(-unit, p1.y, 3 * unit + 360, 0)
+  line(-unit, p1.y, 2 * unit + 360, p1.y)
 
   // Show the angle value and the sine of the angle.
   text("Angle AOP = %.2f radians = %d degrees" format(rads(theta), theta), unit + 15, -unit / 2f)
