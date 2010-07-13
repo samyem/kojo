@@ -46,6 +46,7 @@ object SampleCode {
       case "Input/Output" => InputOutput
       case "Sine of an Angle" => SineAngle
       case "Clock" => Clock
+      case "Difference of two Squares" => DiffSquares
     }
   }
 
@@ -706,6 +707,7 @@ println("The average is: " + sum/n)
 
   val Clock = util.Utils.readFile(getResource("clock.kojo"))
   val SineAngle = util.Utils.readFile(getResource("sine-angle.kojo"))
+  val DiffSquares = util.Utils.readFile(getResource("diff-squares.kojo"))
   val ParTrans = util.Utils.readFile(getResource("par-trans.kojo"))
   val TriangleAngles = util.Utils.readFile(getResource("triangle-angles.kojo"))
 
