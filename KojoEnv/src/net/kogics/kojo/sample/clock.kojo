@@ -4,12 +4,11 @@ val S = Staging
 val center = 200
 val len = 160
 
-S.clear()
+S.reset
 S.screenSize(400, 400)
 S.background(black)
-S.colorMode(S.GRAY(255))
-S.stroke(color(228))
-S.fill(color(80))
+S.stroke(color(228, 228, 228))
+S.fill(color(80,80,80))
 S.ellipse(center, center, len, len)
 
 S.loop {
