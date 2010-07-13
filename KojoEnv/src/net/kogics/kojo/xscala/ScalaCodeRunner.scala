@@ -431,57 +431,60 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     def help() = {
       println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
 
-Here's a partial list of available commands:
-  forward(numSteps) - Move the turtle forward a given number of steps
-  back(numSteps) - Move the turtle back a given number of steps
-  turn(angle) - Turn the turtle through a specified angle. Angles are positive for counter-clockwise turns
-  right() - Turn the turtle right
-  right(angle) - Turn the turtle right through a specified angle
-  left() - Turn the turtle left
-  left(angle) - Turn the turtle left through a specified angle
-  towards(x, y) - Turn the turtle towards the point (x, y)
-  moveTo(x, y) - Move the turtle to the point (x, y)
-  setHeading(angle) - Set the turtle's heading (the direction in which it is pointing)
-  setPosition(x, y) - Set the turtle's position (without making it draw any lines). The turtle's heading is not changed
-  home() - Move the turtle to its original location, and make it point north
-  write(text) - Make the turtle write the specified text at its current location
-  undo() - Undo the last turtle command
+Here's a partial list of the available commands:
+  forward(numSteps) - Moves the turtle forward a given number of steps
+  back(numSteps) - Moves the turtle back a given number of steps
+  turn(angle) - Turns the turtle through a specified angle. Angles are positive for counter-clockwise turns
+  right() - Turns the turtle right
+  right(angle) - Turns the turtle right through a specified angle
+  left() - Turns the turtle left
+  left(angle) - Turns the turtle left through a specified angle
+  towards(x, y) - Turns the turtle towards the point (x, y)
+  moveTo(x, y) - Moves the turtle to the point (x, y)
+  setHeading(angle) - Sets the turtle's heading (the direction in which it is pointing)
+  setPosition(x, y) - Sets the turtle's position (without making it draw any lines). The turtle's heading is not changed
+  home() - Moves the turtle to its original location, and makes it point north
+  write(text) - Makes the turtle write the specified text at its current location
+  undo() - Undoes the last turtle command
 
-  clear() - Clear the screen. To bring the turtle to the center after this step, just resize the turtle canvas
-  zoom(factor, cx, cy) - Zoom in by the given factor, and position (cx, cy) at the center of the turtle canvas
+  clear() - Clears the screen. To bring the turtle to the center of the window after this command, just resize the turtle canvas
+  zoom(factor, cx, cy) - Zooms in by the given factor, and position (cx, cy) at the center of the turtle canvas
+  setAnimationDelay(delay) - Sets the turtle's speed. The specified delay is the amount of time taken by the turtle to move through a distance of one hundred steps
 
-  penDown() - Make the turtle put its pen down - to draw lines as it moves. The pen is down by default
-  penUp() - Make the turtle not draw lines as it moves
-  setPenColor(color) - Specify the color of the pen that the turtle draws with
-  setPenThickness(thickness) - Specify the thickness (as an number) of the pen that the turtle draws with
-  setFillColor(color) - Specify the fill color of the areas drawn by the turtle
+  penDown() - Makes the turtle put its pen down - to draw lines as it moves. The pen is down by default
+  penUp() - Makes the turtle not draw lines as it moves
+  setPenColor(color) - Specifies the color of the pen that the turtle draws with
+  setPenThickness(thickness) - Specifies the thickness (as an number) of the pen that the turtle draws with
+  setFillColor(color) - Specifies the background color of the figures drawn by the turtle
 
-  listPuzzles() - show the names of the puzzles available in the system
-  loadPuzzle(name) - load the named puzzle
-  clearPuzzlers() - clear out the puzzler turtles and the puzzles from the screen
+  listPuzzles() - shows the names of the puzzles available in the system
+  loadPuzzle(name) - loads the named puzzle
+  clearPuzzlers() - clears out the puzzler turtles and the puzzles from the screen
 
-  gridOn() - Show a grid on the canvas
-  gridOff() - Hide the grid
-  beamsOn() - Show crossbeams centered on the turtle - to help with solving puzzles
-  beamsOff() - Hide the turtle crossbeams
-  invisible() - Hide the turtle
-  visible() - Make the hidden turtle visible again
+  gridOn() - Shows a grid on the canvas
+  gridOff() - Hides the grid
+  beamsOn() - Shows crossbeams centered on the turtle - to help with solving puzzles
+  beamsOff() - Hides the turtle crossbeams
+  invisible() - Hides the turtle
+  visible() - Makes the hidden turtle visible again
 
-  newTurtle(x, y) - Make a new turtle located at the point (x, y)
+  newTurtle(x, y) - Makes a new turtle located at the point (x, y)
   turtle0 - gives you a handle to the original turtle.
 
-  showScriptInOutput() - Display scripts in the output window when they run
-  hideScriptInOutput() - Do not display scripts in the output window
+  showScriptInOutput() - Enables the display of scripts in the output window when they run
+  hideScriptInOutput() - Stops the display of scripts in the output window
+  showVerboseOutput() - Enables the display of the output from the Scala interpreter. By default, output from the interpreter is shown only for single line scripts.
+  hideVerboseOutput() - Stops the display of the output from the Scala interpreter.
 
-  version - Display the version of Scala being used
-  repeat(n) {} - Repeat commands within braces n number of times
-  println(string) - Display the given string in the output window
-  readln(promptString) - Display the given prompt in the output window and read a line that the user enters
-  readInt(promptString) - Display the given prompt in the output window and read an Integer value that the user enters
-  readDouble(promptString) - Display the given prompt in the output window and read a Double-precision Real value that the user enters
-  random(upperBound) - Return a random Integer between 0 (inclusive) and upperBound (exclusive)
-  randomDouble(upperBound) - Return a random Double-precision Real between 0 (inclusive) and upperBound (exclusive)
-  inspect(obj) - explore the internal fields of the given object
+  version - Displays the version of Scala being used
+  repeat(n) {} - Repeats commands within braces n number of times
+  println(string) or print(string) - Displays the given string in the output window
+  readln(promptString) - Displays the given prompt in the output window and reads a line that the user enters
+  readInt(promptString) - Displays the given prompt in the output window and reads an Integer value that the user enters
+  readDouble(promptString) - Displays the given prompt in the output window and reads a Double-precision Real value that the user enters
+  random(upperBound) - Returns a random Integer between 0 (inclusive) and upperBound (exclusive)
+  randomDouble(upperBound) - Returns a random Double-precision Real between 0 (inclusive) and upperBound (exclusive)
+  inspect(obj) - Explores the internal fields of the given object
 """)
     }
 
