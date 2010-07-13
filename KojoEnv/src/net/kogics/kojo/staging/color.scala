@@ -27,124 +27,84 @@ import javax.swing._
 
 import core._
 
-object ColorMode {
-  type Color = java.awt.Color
-  var mode: API.ColorModes = API.RGB(255, 255, 255)
+object ColorMaker {
+  def apply(mode: GRAY)  = new GrayColorMaker(mode)
+  def apply(mode: GRAYA) = new GrayAlphaColorMaker(mode)
+  def apply(mode: RGB)   = new RgbColorMaker(mode)
+  def apply(mode: RGBA)  = new RgbAlphaColorMaker(mode)
+  def apply(mode: HSB)   = new HsbColorMaker(mode)
 
-  def apply(cm: API.ColorModes) { mode = cm }
-
-  def color(v: Int) = {
-    require(mode.isInstanceOf[API.GRAY] ||
-            mode.isInstanceOf[API.RGB],
-            "Color mode isn't GRAY or RGB")
-    if (mode.isInstanceOf[API.GRAY]) {
-      val vv = API.norm(v, 0, mode.asInstanceOf[API.GRAY].v).toFloat
-      new Color(vv, vv, vv)
-    } else {
-      new Color(v)
-    }
-  }
-  def color(v: Double) = {
-    require(mode.isInstanceOf[API.GRAY], "Color mode isn't GRAY")
-    val vv = v.toFloat
-    new Color(vv, vv, vv)
-  }
-
-  def color(v: Int, a: Int) = {
-    require(mode.isInstanceOf[API.GRAYA] ||
-            mode.isInstanceOf[API.RGBA],
-            "Color mode isn't GRAYA (gray with alpha) or RGBA")
-    if (mode.isInstanceOf[API.GRAYA]) {
-      val vv = API.norm(v, 0, mode.asInstanceOf[API.GRAYA].v).toFloat
-      val aa = API.norm(a, 0, mode.asInstanceOf[API.GRAYA].a).toFloat
-      new Color(vv, vv, vv, aa)
-    } else {
-      val aa = API.norm(a, 0, mode.asInstanceOf[API.RGBA].a).toFloat
-      new Color(v | Math.lerp(0, 255, aa).toInt << 12, true)
-    }
-  }
-  def color(v: Double, a: Double) = {
-    require(v >= 0 && v <= 1, "Grayscale value off range")
-    require(a >= 0 && a <= 1, "Alpha value off range")
-    val vv = v.toFloat
-    new Color(vv, vv, vv, a.toFloat)
-  }
-
-  def color(v1: Int, v2: Int, v3: Int) = {
-    require(mode.isInstanceOf[API.RGB] ||
-            mode.isInstanceOf[API.HSB],
-            "Color mode isn't RGB or HSB")
-    if (mode.isInstanceOf[API.RGB]) {
-      val r = API.norm(v1, 0, mode.asInstanceOf[API.RGB].r).toFloat
-      val g = API.norm(v2, 0, mode.asInstanceOf[API.RGB].g).toFloat
-      val b = API.norm(v3, 0, mode.asInstanceOf[API.RGB].b).toFloat
-      new Color(r, g, b)
-    } else {
-      val h = API.norm(v1, 0, mode.asInstanceOf[API.HSB].h).toFloat
-      val s = API.norm(v2, 0, mode.asInstanceOf[API.HSB].s).toFloat
-      val b = API.norm(v3, 0, mode.asInstanceOf[API.HSB].b).toFloat
-      java.awt.Color.getHSBColor(h, s, b)
-    }
-  }
-  def color(v1: Int, v2: Int, v3: Int, a: Int) = {
-    require(mode.isInstanceOf[API.RGBA] ||
-            mode.isInstanceOf[API.HSBA],
-            "Color mode isn't RGBA or HSBA")
-    if (mode.isInstanceOf[API.RGBA]) {
-      val r = API.norm(v1, 0, mode.asInstanceOf[API.RGBA].r).toFloat
-      val g = API.norm(v2, 0, mode.asInstanceOf[API.RGBA].g).toFloat
-      val b = API.norm(v3, 0, mode.asInstanceOf[API.RGBA].b).toFloat
-      val aa = API.norm(a, 0, mode.asInstanceOf[API.RGBA].a).toFloat
-      new Color(r, g, b, aa)
-    } else {
-      //TODO transparency not working
-      val h = API.norm(v1, 0, mode.asInstanceOf[API.HSBA].h).toFloat
-      val s = API.norm(v2, 0, mode.asInstanceOf[API.HSBA].s).toFloat
-      val b = API.norm(v3, 0, mode.asInstanceOf[API.HSBA].b).toFloat
-      val aa = API.norm(a, 0, mode.asInstanceOf[API.HSBA].a).toFloat
-      val c = java.awt.Color.getHSBColor(h, s, b)
-      new Color(c.getRGB | Math.lerp(0, 255, aa).toInt << 12, true)
-    }
-  }
-
-  def color(v1: Double, v2: Double, v3: Double) = {
-    require(mode.isInstanceOf[API.RGB] ||
-            mode.isInstanceOf[API.HSB],
-            "Color mode isn't RGB or HSB")
-    if (mode.isInstanceOf[API.RGB]) {
-      val r = v1.toFloat
-      val g = v2.toFloat
-      val b = v3.toFloat
-      new Color(r, g, b)
-    } else {
-      val h = v1.toFloat
-      val s = v2.toFloat
-      val b = v3.toFloat
-      java.awt.Color.getHSBColor(h, s, b)
-    }
-  }
-  def color(v1: Double, v2: Double, v3: Double, a: Double) = {
-    require(mode.isInstanceOf[API.RGBA] ||
-            mode.isInstanceOf[API.HSBA],
-            "Color mode isn't RGBA or HSBA")
-    if (mode.isInstanceOf[API.RGBA]) {
-      val r = v1.toFloat
-      val g = v2.toFloat
-      val b = v3.toFloat
-      val aa = a.toFloat
-      new Color(r, g, b, aa)
-    } else {
-      val h = v1.toFloat
-      val s = v2.toFloat
-      val b = v3.toFloat
-      val c = java.awt.Color.getHSBColor(h, s, b)
-      new Color(c.getRGB | Math.lerp(0, 255, a).toInt << 12, true)
-    }
-  }
-  def color(s: String): Color = s match {
+  def color(s: String) = s match {
     case ColorName(cc) => cc
     case "none"        => null
     case z             => java.awt.Color.decode(s)
+  }
+}
+
+class ColorMaker {
+  type Color = java.awt.Color
+}
+
+class GrayColorMaker(mode: GRAY) extends ColorMaker {
+  def apply(v: Int) = {
+    val vv = API.norm(v, 0, mode.v).toFloat
+    new Color(vv, vv, vv)
+  }
+  def apply(v: Double) = {
+    val vv = v.toFloat
+    new Color(vv, vv, vv)
+  }
+}
+
+class GrayAlphaColorMaker(mode: GRAYA) extends ColorMaker {
+  def apply(v: Int, a: Int) = {
+    val vv = API.norm(v, 0, mode.v).toFloat
+    val aa = API.norm(a, 0, mode.a).toFloat
+    new Color(vv, vv, vv, aa)
+  }
+  def apply(v: Double, a: Double) = {
+    val vv = v.toFloat
+    new Color(vv, vv, vv, a.toFloat)
+  }
+}
+
+class RgbColorMaker(mode: RGB) extends ColorMaker {
+  def apply(r: Int, g: Int, b: Int) = {
+    val rr = API.norm(r, 0, mode.r).toFloat
+    val gg = API.norm(g, 0, mode.g).toFloat
+    val bb = API.norm(b, 0, mode.b).toFloat
+    new Color(rr, gg, bb)
+  }
+  def apply(r: Double, g: Double, b: Double) = {
+    new Color(r.toFloat, g.toFloat, b.toFloat)
+  }
+}
+
+class RgbAlphaColorMaker(mode: RGBA) extends ColorMaker {
+  def apply(r: Int, g: Int, b: Int, a: Int) = {
+    val rr = API.norm(r, 0, mode.r).toFloat
+    val gg = API.norm(g, 0, mode.g).toFloat
+    val bb = API.norm(b, 0, mode.b).toFloat
+    val aa = API.norm(a, 0, mode.a).toFloat
+    new Color(rr, gg, bb, aa)
+  }
+  def apply(r: Double, g: Double, b: Double, a: Double) = {
+    new Color(r.toFloat, g.toFloat, b.toFloat, a.toFloat)
+  }
+}
+
+class HsbColorMaker(mode: HSB) extends ColorMaker {
+  def apply(h: Int, s: Int, b: Int) = {
+    val hh = API.norm(h, 0, mode.h).toFloat
+    val ss = API.norm(s, 0, mode.s).toFloat
+    val bb = API.norm(b, 0, mode.b).toFloat
+    java.awt.Color.getHSBColor(hh, ss, bb)
+  }
+  def apply(h: Double, s: Double, b: Double) = {
+    val hh = h.toFloat
+    val ss = s.toFloat
+    val bb = b.toFloat
+    java.awt.Color.getHSBColor(hh, ss, bb)
   }
 }
 

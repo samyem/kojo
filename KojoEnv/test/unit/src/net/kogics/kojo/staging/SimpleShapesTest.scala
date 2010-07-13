@@ -98,11 +98,11 @@ class SimpleShapesTest extends StagingTestBase {
     //W===Lines===
     //W
     //WA line is defined either by
-    //W# a coordinate pair, given as _x_, _y_ values or as a `Point`, and a _width_-_height_ pair, or
-    //W# two points.
+    //W  # two coordinate pairs, given as _x_, _y_ values, or
+    //W  # two points.
     //W
     //W{{{
-    //Wline(x, y, width, height)
+    //Wline(x1, y1, x2, y2)
     Tester("import Staging._ ; line(15, 15, 40, 20)")
     assertEquals(
       "PPath(15,15 L40.0000,20.0000 M0.00000,0.00000 )",
@@ -121,10 +121,9 @@ class SimpleShapesTest extends StagingTestBase {
     //W
     //W===Rectangles===
     //W
-    //WA rectangle is defined the same way as a line, either by
-    //W# a coordinate pair for the lower left corner, given as _x_, _y_ values or as a `Point`, and a _width_-_height_ pair, or
-    //W# two points (in lower left / upper right order).
-    //W# from another shape.
+    //WA rectangle is defined either by
+    //W  # a coordinate pair for the lower left corner, given as _x_, _y_ values or as a `Point`, and a _width_-_height_ pair, or
+    //W  # two points (in lower left / upper right order).
     //W
     //W{{{
     //Wrectangle(x, y, width, height)
@@ -351,7 +350,7 @@ class SimpleShapesTest extends StagingTestBase {
     //Wadditional argument specifies the length of the arrowhead.
     //W
     //W{{{
-    //Wvector(x, y, width, height, length)
+    //Wvector(x1, y1, x2, y2, length)
     Tester("import Staging._ ; vector(15, 15, 40, 20, 3)")
     assertEquals(
       "PPath(15,14 L40.4951,15.0000 M40.4951,15.0000 L37.4951,14.0000 " +

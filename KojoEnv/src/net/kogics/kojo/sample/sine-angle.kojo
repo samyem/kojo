@@ -1,6 +1,6 @@
 import Staging._
 
-clear
+reset
 
 // Change this value to make the figure bigger or smaller.
 val unit = 100
@@ -29,8 +29,7 @@ val labelOffset = point(4, 0)
 val labelOffsetAbove = point(4, 18)
 
 // Define a constant for a nice dark gray color.
-colorMode(GRAY(255))
-val darkGray = color(64)
+val darkGray = grayColors(255)(64)
 
 // Make the default stroke a size 1 dark gray line.
 stroke(darkGray)
@@ -82,7 +81,7 @@ var theta = 0
 
 loop {
   // Erase the figures from the previous iteration.
-  fgClear
+  wipe
 
   // Get plotted points for the current angle.
   val p1 = CirclePlotter(theta)

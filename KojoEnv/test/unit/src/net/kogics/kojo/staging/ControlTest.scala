@@ -68,27 +68,28 @@ class ControlTest extends StagingTestBase {
     //WStops a running `loop`.
     //W
     //W{{{
-    //Wclear
-    //WfgClear
+    //Wreset
+    //Wwipe
     Tester("""import Staging._
              |
-             |clear
+             |reset
              |var a = 2
              |loop {
-             |  fgClear
+             |  wipe
              |  if (a <= 0) stop else a -= 1
              |}""".stripMargin)
 
     //W}}}
     //W
-    //WErases all shapes / all shapes drawn within `loop`.
+    //W`reset` erases all shapes and makes the turtle invisible.  `wipe` erases
+    //Wall shapes drawn within `loop`.
     //W
     //W{{{
     //WmouseX
     //WmouseY
     Tester("""import Staging._
              |
-             |clear
+             |reset
              |var a = 2
              |loop {
              |  val b = mouseX
@@ -105,7 +106,7 @@ class ControlTest extends StagingTestBase {
     //WpmouseY
     Tester("""import Staging._
              |
-             |clear
+             |reset
              |var a = 2
              |loop {
              |  val b = pmouseX
@@ -130,7 +131,7 @@ class ControlTest extends StagingTestBase {
     //WmousePressed
     Tester("""import Staging._
              |
-             |clear
+             |reset
              |var a = 2
              |loop {
              |  if (mousePressed) mouseButton match {

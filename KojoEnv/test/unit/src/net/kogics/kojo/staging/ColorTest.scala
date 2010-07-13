@@ -23,24 +23,13 @@ import net.kogics.kojo.util._
 class ColorTest extends StagingTestBase {
 
   /* Testing manifest
-   *
-   * abstract class ColorModes
-   * case class RGB(r: Int, g: Int, b: Int) extends ColorModes
-   * case class RGBA(r: Int, g: Int, b: Int, a: Int) extends ColorModes
-   * case class HSB(h: Int, s: Int, b: Int) extends ColorModes
-   * case class HSBA(h: Int, s: Int, b: Int, a: Int) extends ColorModes
-   * case class GRAY(v: Int) extends ColorModes
-   * case class GRAYA(v: Int, a: Int) extends ColorModes
-   * def colorMode(mode: ColorModes) = ColorMode(mode)
-   * def color(v: Int) = ColorMode.color(v)
-   * def color(v: Int, a: Int) = ColorMode.color(v, a)
-   * def color(v: Double) = ColorMode.color(v)
-   * def color(v: Double, a: Double) = ColorMode.color(v, a)
-   * def color(v1: Int, v2: Int, v3: Int) = ColorMode.color(v1, v2, v3)
-   * def color(v1: Int, v2: Int, v3: Int, a: Int) = ColorMode.color(v1, v2, v3, a)
-   * def color(v1: Double, v2: Double, v3: Double) = ColorMode.color(v1, v2, v3)
-   * def color(v1: Double, v2: Double, v3: Double, a: Double) = ColorMode.color(v1, v2, v3, a)
-   * def color(s: String) = ColorMode.color(s)
+   * 
+   * def grayColors(grayMax: Int) = ColorMaker(GRAY(grayMax))
+   * def grayColorsWithAlpha(grayMax: Int, alphaMax: Int) =
+   * def rgbColors(rMax: Int, gMax: Int, bMax: Int) =
+   * def rgbColorsWithAlpha(rMax: Int, gMax: Int, bMax: Int, alphaMax: Int) =
+   * def hsbColors(hMax: Int, sMax: Int, bMax: Int) =
+   * def color(s: String) = ColorMaker.color(s)
    * def fill(c: Color) = Impl.figure0.setFillColor(c)
    * def noFill = Impl.figure0.setFillColor(null)
    * def stroke(c: Color) = Impl.figure0.setPenColor(c)
@@ -70,185 +59,225 @@ class ColorTest extends StagingTestBase {
   //W
   //W==Color==
   //W
-  //WA color value can be created by calling the method
+  //WA color value can be created by calling one of the methods
   //W
   //W{{{
-  //Wcolor( ... )
+  //Wcolor(red, green, blue)
+  //Wcolor(value)
+  //W}}}
+  //W
+  //Wwhich each yields an instance of `java.awt.Color`.
+  //W
+  //WAnother way to specify color is through a color maker.  For instance, to get
+  //Wa grayscale color, call `grayColors`.  The argument sets a limit to the
+  //Wnumber of colors that can be specified.  E.g. `grayColors(100)` allows 101
+  //Wshades of gray to be specified (0 to 100).  To get one of those colors, call
+  //Wthe color maker with the color number as argument.
+  //W
+  //W{{{
+  //Wval cm = grayColors(lim) ; cm(num)
     Tester(
-      "import Staging._ ; println(color(22, 13, 75))",
-      Some("java.awt.Color[r=22,g=13,b=75]import Staging._")
+      "import Staging._ ; val cm = grayColors(255) ; println(cm(22))",
+      Some("$java.awt.Color\\[r=22,g=22,b=22\\]import Staging._" +
+           "cm: net.kogics.kojo.staging.GrayColorMaker = net.kogics.kojo.staging.GrayColorMaker@.*")
+    )
+  //W}}}
+  //W
+  //Wcreates a grayscale color with a "whiteness" equal to `num` / `lim`.
+  //W
+  //WThe color maker can also take a `Double` as argument, in which case the
+  //Wresulting color has a "whiteness" of `val` (expected to be in the range
+  //W0.0 <= val <= 1.0):
+  //W
+  //W{{{
+  //Wval cm = grayColors(lim) ; cm(val) // where val is a Double
+    Tester(
+      "import Staging._ ; val cm = grayColors(255) ; println(cm(.1))",
+      Some("$java.awt.Color\\[r=26,g=26,b=26\\]import Staging._" +
+           "cm: net.kogics.kojo.staging.GrayColorMaker = net.kogics.kojo.staging.GrayColorMaker@.*")
     )
 
   //W}}}
   //W
-  //Wwhich yields an instance of `java.awt.Color`.  The method accepts different
-  //Wsets of arguments depending on color mode.
+  //WTo get a non-opaque grayscale color maker, call `grayColorsWithAlpha` with
+  //Wtwo limit values, one for the highest shade number and one for the highest
+  //Walpha number.  The color maker takes corresponding numbers for shade and
+  //Walpha.
   //W
   //W{{{
-  //WcolorMode(GRAY(lim))
-  //Wcolor(arg)
+  //Wval cm = grayColorsWithAlpha(grayLim, alphaLim) ; cm(grayNum, alphaNum)
+    val gacm = "net.kogics.kojo.staging.GrayAlphaColorMaker"
     Tester(
-      "import Staging._ ; colorMode(GRAY(255)) ; println(color(22))",
-      Some("java.awt.Color[r=22,g=22,b=22]import Staging._")
+      "import Staging._ ; val cm = grayColorsWithAlpha(255, 255) ; println(cm(22, 22))",
+      Some("$java.awt.Color\\[r=22,g=22,b=22\\]import Staging._" +
+           "cm: " + gacm + " = " + gacm + "@.*")
     )
+  //W}}}
+  //W
+  //Wcreates a grayscale color with a "whiteness" equal to `grayNum` / `grayLim`
+  //Wand a opacity equal to `alphaNum` / `alphaLim`.
+  //W
+  //WThe color maker can also take `Double` arguments, in which case the
+  //Wresulting color has a "whiteness" of `grayVal` and opacity of `alphaVal`
+  //W(both expected to be in the range 0.0 <= val <= 1.0):
+  //W
+  //W{{{
+  //Wval cm = grayColorsWithAlpha(grayLim, alphaLim) ; cm(grayVal, alphaVal)
     Tester(
-      "import Staging._ ; colorMode(GRAY(255)) ; println(color(.1))",
-      Some("java.awt.Color[r=26,g=26,b=26]import Staging._")
+      "import Staging._ ; val cm = grayColorsWithAlpha(255, 255) ; println(cm(.1, .1))",
+      Some("$java.awt.Color\\[r=26,g=26,b=26\\]import Staging._" +
+           "cm: " + gacm + " = " + gacm + "@.*")
     )
 
   //W}}}
   //W
-  //Wcreates a grayscale color with a whiteness value of `arg`.  If `arg` is an
-  //W`Double` value, it is expected to be within the range 0.0 (black) -- 1.0
-  //W(white).  If `arg` is an integer value, it is as if the method were called
-  //Wwith
+  //WTo create a color maker for RGB colors, use `rgbColors` and pass three
+  //Wlimit values to it (for red, green, and blue)
   //W
   //W{{{
-  //Wcolor(norm(arg, 0, lim))
+  //Wval cm = rgbColors(redLim, greenLim, blueLim) ; cm(redNum, greenNum, blueNum)
+    val rcm = "net.kogics.kojo.staging.RgbColorMaker"
     Tester(
-      "import Staging._ ; colorMode(GRAY(255)) ; println(color(norm(22, 0, 255)))",
-      Some("java.awt.Color[r=22,g=22,b=22]import Staging._")
+      "import Staging._ ; val cm = rgbColors(255, 255, 255) ; println(cm(22, 22, 22))",
+      Some("$java.awt.Color\\[r=22,g=22,b=22\\]import Staging._" +
+           "cm: " + rcm + " = " + rcm + "@.*")
+    )
+  //W}}}
+  //W
+  //Wcreates a color with a "redness" equal to `redNum` / `redLim`, etc.
+  //W
+  //WThe color maker can also take `Double` arguments, in which case the
+  //Wresulting color has a "redness" of `redVal`, etc (all expected to be in
+  //Wthe range 0.0 <= val <= 1.0):
+  //W
+  //W{{{
+  //Wval cm = rgbColors(redLim, greenLim, blueLim) ; cm(redVal, greenVal, blueVal)
+    Tester(
+      "import Staging._ ; val cm = rgbColors(255, 255, 255) ; println(cm(.1, .1, .1))",
+      Some("$java.awt.Color\\[r=26,g=26,b=26\\]import Staging._" +
+           "cm: " + rcm + " = " + rcm + "@.*")
     )
 
   //W}}}
   //W
+  //WTo create a color maker for RGB colors with transparency, use
+  //W`rgbColorsWithAlpha` and pass four limit values to it (for red, green, blue,
+  //Wand alpha)
+  //W
   //W{{{
-  //WcolorMode(RGB(lim1, lim2, lim3))
-  //Wcolor(intVal)
+  //Wval cm = rgbColorsWithAlpha(redLim, greenLim, blueLim, alphaLim) ; cm(redNum, greenNum, blueNum, alphaNum)
+    val racm = "net.kogics.kojo.staging.RgbAlphaColorMaker"
     Tester(
-      "import Staging._ ; colorMode(RGB(255, 255, 255)) ; println(color(22))",
-      Some("java.awt.Color[r=0,g=0,b=22]import Staging._")
+      "import Staging._ ; val cm = rgbColorsWithAlpha(255, 255, 255, 255) ; println(cm(22, 22, 22, 22))",
+      Some("$java.awt.Color\\[r=22,g=22,b=22\\]import Staging._" +
+           "cm: " + racm + " = " + racm + "@.*")
+    )
+  //W}}}
+  //W
+  //Wcreates a color with a "redness" equal to `redNum` / `redLim`, etc.
+  //W
+  //WThe color maker can also take `Double` arguments, in which case the
+  //Wresulting color has a "redness" of `redVal`, etc (all expected to be in
+  //Wthe range 0.0 <= val <= 1.0):
+  //W
+  //W{{{
+  //Wval cm = rgbColorsWithAlpha(redLim, greenLim, blueLim, alphaLim) ; cm(redVal, greenVal, blueVal, alphaVal)
+    Tester(
+      "import Staging._ ; val cm = rgbColorsWithAlpha(255, 255, 255, 255) ; println(cm(.1, .1, .1, .1))",
+      Some("$java.awt.Color\\[r=26,g=26,b=26\\]import Staging._" +
+           "cm: " + racm + " = " + racm + "@.*")
     )
 
   //W}}}
   //W
-  //Won the other hand creates a color with this absolute code.
+  //WTo create a color maker for HSB colors, use `hsbColors` and pass three
+  //Wlimit values to it (for hue, saturation, and brightness).
   //W
   //W{{{
-  //WcolorMode(GRAYA(lim1, lim2)) // GRAY + ALPHA
-  //Wcolor(arg1, arg2)
+  //Wval cm = hsbColors(hueLim, saturationLim, brightnessLim) ; cm(hueNum, saturationNum, brightnessNum)
+    val hcm = "net.kogics.kojo.staging.HsbColorMaker"
     Tester(
-      "import Staging._ ; colorMode(GRAYA(255, 255)) ; println(color(22, 22))",
-      Some("java.awt.Color[r=22,g=22,b=22]import Staging._")
+      "import Staging._ ; val cm = hsbColors(255, 255, 255) ; println(cm(22, 22, 22))",
+      Some("$java.awt.Color\\[r=22,g=21,b=20\\]import Staging._" +
+           "cm: " + hcm + " = " + hcm + "@.*")
     )
+  //W}}}
+  //W
+  //Wcreates a color with an effective hue of `hueNum` / `hueLim`, etc.
+  //W
+  //WThe color maker can also take `Double` arguments, in which case the
+  //Wresulting color has an effective hue of `hueVal`, etc (all expected to be in
+  //Wthe range 0.0 <= val <= 1.0):
+  //W
+  //W{{{
+  //Wval cm = hsbColors(hueLim, saturationLim, brightnessLim) ; cm(hueVal, saturationVal, brightnessVal)
     Tester(
-      "import Staging._ ; colorMode(GRAYA(255, 255)) ; println(color(.1, .1))",
-      Some("java.awt.Color[r=26,g=26,b=26]import Staging._")
+      "import Staging._ ; val cm = hsbColors(255, 255, 255) ; println(cm(.1, .1, .1))",
+      Some("$java.awt.Color\\[r=26,g=24,b=23\\]import Staging._" +
+           "cm: " + hcm + " = " + hcm + "@.*")
     )
 
   //W}}}
-  //W
-  //Wcreates a grayscale color with a whiteness value of `arg1` and an opaqueness
-  //Wof `arg2`.
-  //W
-  //W{{{
-  //WcolorMode(RGB(lim1, lim2, lim3)) // RED/GREEN/BLUE
-  //Wcolor(arg1, arg2, arg3)
-    Tester(
-      "import Staging._ ; colorMode(RGB(255, 255, 255)) ; println(color(22, 22, 22))",
-      Some("java.awt.Color[r=22,g=22,b=22]import Staging._")
-    )
-    Tester(
-      "import Staging._ ; colorMode(RGB(255, 255, 255)) ; println(color(.1, .1, .1))",
-      Some("java.awt.Color[r=26,g=26,b=26]import Staging._")
-    )
-
-  //W}}}
-  //W
-  //Wcreates a color with red, green, blue components `arg1`, `arg2`, `arg3`.
-  //W
-  //W{{{
-  //WcolorMode(RGBA(lim1, lim2, lim3, lim4)) // RED/GREEN/BLUE + ALPHA
-  //Wcolor(arg1, arg2, arg3, arg4)
-    Tester(
-      "import Staging._ ; colorMode(RGBA(255, 255, 255, 255)) ; println(color(22, 22, 22, 22))",
-      Some("java.awt.Color[r=22,g=22,b=22]import Staging._")
-    )
-    Tester(
-      "import Staging._ ; colorMode(RGBA(255, 255, 255, 255)) ; println(color(.1, .1, .1, .1))",
-      Some("java.awt.Color[r=26,g=26,b=26]import Staging._")
-    )
-
-  //W}}}
-  //W
-  //Wcreates a color with red, green, blue components `arg1`, `arg2`, `arg3` and
-  //Walpha value `arg4`.
-  //W
-  //W{{{
-  //WcolorMode(HSB(lim1, lim2, lim3)) // HUE/SATURATION/BRIGHTNESS
-  //Wcolor(arg1, arg2, arg3)
-    Tester(
-      "import Staging._ ; colorMode(HSB(255, 255, 255)) ; println(color(22, 22, 22))",
-      Some("java.awt.Color[r=22,g=21,b=20]import Staging._")
-    )
-    Tester(
-      "import Staging._ ; colorMode(HSB(255, 255, 255)) ; println(color(.1, .1, .1))",
-      Some("java.awt.Color[r=26,g=24,b=23]import Staging._")
-    )
-
-  //W}}}
-  //W
-  //Wcreates a color with hue, saturation, brightness components `arg1`, `arg2`,
-  //W`arg3`.
-  //W
-  //W{{{
-  //WcolorMode(HSBA(lim1, lim2, lim3, lim4)) // HUE/SATURATION/BRIGHTNESS + ALPHA
-  //Wcolor(arg1, arg2, arg3, arg4)
-    Tester(
-      "import Staging._ ; colorMode(HSBA(255, 255, 255, 255)) ; println(color(22, 22, 22, 22))",
-      Some("java.awt.Color[r=23,g=117,b=20]import Staging._")
-    )
-    Tester(
-      "import Staging._ ; colorMode(HSBA(255, 255, 255, 255)) ; println(color(.1, .1, .1, .1))",
-      Some("java.awt.Color[r=27,g=152,b=23]import Staging._")
-    )
-
-  //W}}}
-  //W
-  //Wcreates a color with hue, saturation, brightness components `arg1`, `arg2`,
-  //W`arg3` and alpha value `arg4`.
   //W
   //WFinally,
   //W
   //W{{{
-  //Wcolor(s)
+  //WnamedColor(colorName)
     Tester(
-      """import Staging._ ; println(color("#99ccDD"))""",
+      """import Staging._ ; println(namedColor("#99ccDD"))""",
       Some("java.awt.Color[r=153,g=204,b=221]import Staging._")
     )
 
     Tester(
-      """import Staging._ ; println(color("aliceblue"))""",
+      """import Staging._ ; println(namedColor("aliceblue"))""",
       Some("java.awt.Color[r=240,g=248,b=255]import Staging._")
     )
 
   //W}}}
   //W
-  //Wwhere s is either
+  //Wwhere _colorName_ is either
   //W
   //W    * "none",
   //W    * one of the names in this list: http://www.w3.org/TR/SVG/types.html#ColorKeywords, or
   //W    * a string with the format "#rrggbb" (in hexadecimal)
   //W
-  //Wreturns the described color regardless of color mode.
+  //Wreturns the described color.
   //W
   //WLinear interpolation between two colors is done using `lerpColor`:
   //W
   //W{{{
   //WlerpColor(colorFrom, colorTo, amount)
     Tester(
-      """import Staging._ ; println(lerpColor(color("#99ccDD"), color("#003366"), 0))""",
-      Some("java.awt.Color[r=153,g=204,b=221]import Staging._")
+      """import Staging._
+        |
+        |val a = namedColor("#99ccDD")
+        |val b = namedColor("#003366")
+        |println(lerpColor(a, b, 0))""".stripMargin,
+      Some("java.awt.Color[r=153,g=204,b=221]import Staging._" +
+           "a: java.awt.Color = java.awt.Color[r=153,g=204,b=221]" +
+           "b: java.awt.Color = java.awt.Color[r=0,g=51,b=102]")
     )
 
     Tester(
-      """import Staging._ ; println(lerpColor(color("#99ccDD"), color("#003366"), 0.3))""",
-      Some("java.awt.Color[r=107,g=158,b=185]import Staging._")
+      """import Staging._
+        |
+        |val a = namedColor("#99ccDD")
+        |val b = namedColor("#003366")
+        |println(lerpColor(a, b, 0.3))""".stripMargin,
+      Some("java.awt.Color[r=107,g=158,b=185]import Staging._" +
+           "a: java.awt.Color = java.awt.Color[r=153,g=204,b=221]" +
+           "b: java.awt.Color = java.awt.Color[r=0,g=51,b=102]")
     )
 
     Tester(
-      """import Staging._ ; println(lerpColor(color("#99ccDD"), color("#003366"), 1))""",
-      Some("java.awt.Color[r=0,g=51,b=102]import Staging._")
+      """import Staging._
+        |
+        |val a = namedColor("#99ccDD")
+        |val b = namedColor("#003366")
+        |println(lerpColor(a, b, 1))""".stripMargin,
+      Some("java.awt.Color[r=0,g=51,b=102]import Staging._" +
+           "a: java.awt.Color = java.awt.Color[r=153,g=204,b=221]" +
+           "b: java.awt.Color = java.awt.Color[r=0,g=51,b=102]")
     )
 
   //W}}}
@@ -261,8 +290,12 @@ class ColorTest extends StagingTestBase {
   //W{{{
   //Wfill(color)
     Tester(
-      """import Staging._ ; fill(color("#99ccDD"))""",
-      Some("import Staging._")
+      """import Staging._
+        |
+        |val a = namedColor("#99ccDD")
+        |fill(a)""".stripMargin,
+      Some("import Staging._" +
+           "a: java.awt.Color = java.awt.Color[r=153,g=204,b=221]")
     )
     assertEquals("java.awt.Color[r=153,g=204,b=221]", SpriteCanvas.instance.figure0.fillColor.toString)
 
@@ -277,10 +310,10 @@ class ColorTest extends StagingTestBase {
   //W{{{
   //WnoFill
   //Wfill(null)
-    Tester("""import Staging._ ; fill(color("#99ccDD")) ; noFill""")
+    Tester("import Staging._ ; fill(namedColor(\"#99ccDD\")) ; noFill")
     assertNull(SpriteCanvas.instance.figure0.fillColor)
 
-    Tester("""import Staging._ ; fill(color("#99ccDD")) ; fill(null)""")
+    Tester("import Staging._ ; fill(namedColor(\"#99ccDD\")) ; fill(null)")
     assertNull(SpriteCanvas.instance.figure0.fillColor)
 
   //W}}}
@@ -290,7 +323,7 @@ class ColorTest extends StagingTestBase {
   //W{{{
   //Wstroke(color)
     Tester(
-      """import Staging._ ; stroke(color("#99ccDD"))""",
+      """import Staging._ ; stroke(namedColor("#99ccDD"))""",
       Some("import Staging._")
     )
     assertEquals("java.awt.Color[r=153,g=204,b=221]", SpriteCanvas.instance.figure0.lineColor.toString)
@@ -306,7 +339,7 @@ class ColorTest extends StagingTestBase {
     assertNull(SpriteCanvas.instance.figure0.lineColor)
 
     Tester(
-      """import Staging._ ; stroke(color("#99ccDD")) ; noStroke""",
+      """import Staging._ ; stroke(namedColor("#99ccDD")) ; noStroke""",
       Some("import Staging._")
     )
     assertNull(SpriteCanvas.instance.figure0.lineColor)
@@ -342,14 +375,15 @@ class ColorTest extends StagingTestBase {
     assertEquals(1.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
 
   //W}}}
-  //W
-  //WThe fill, stroke, and stroke width can also be saved with `saveStyle` and
-  //Wlater restored with `restoreStyle` (the latter quietly fails if no style
-  //Whas been saved yet).
-  //W
-  //W{{{
-  //WsaveStyle
-  //WrestoreStyle
+  //M
+  //MThe fill, stroke, and stroke width can also be saved with `saveStyle` and
+  //Mlater restored with `restoreStyle` (the latter quietly fails if no style
+  //Mhas been saved yet).
+  //M
+  //M{{{
+  //MsaveStyle
+  //MrestoreStyle
+  /*
     Tester("""import Staging._
              |
              |fill(green)
@@ -363,8 +397,9 @@ class ColorTest extends StagingTestBase {
     assertEquals("java.awt.Color[r=0,g=255,b=0]", SpriteCanvas.instance.figure0.fillColor.toString)
     assertEquals("java.awt.Color[r=0,g=0,b=0]", SpriteCanvas.instance.figure0.lineColor.toString)
     assertEquals(1.0, SpriteCanvas.instance.figure0.lineStroke.asInstanceOf[java.awt.BasicStroke].getLineWidth, 0.01)
+    */
 
-  //W}}}
+  //M}}}
   //W
   //WThe Color type is 'pimped' with the following accessors:
   //W
@@ -373,8 +408,7 @@ class ColorTest extends StagingTestBase {
     Tester(
       """import Staging._
         |
-        |colorMode(RGBA(255, 255, 255, 255))
-        |println(color(.1, .1, .1, .1).alpha)
+        |println(rgbColorsWithAlpha(255, 255, 255, 255)(.1, .1, .1, .1).alpha)
       """.stripMargin,
       Some("26import Staging._")
     )
@@ -383,8 +417,7 @@ class ColorTest extends StagingTestBase {
     Tester(
       """import Staging._
         |
-        |colorMode(RGBA(255, 255, 255, 255))
-        |println(color(.1, .1, .1, .1).red)
+        |println(rgbColors(255, 255, 255)(.1, .1, .1).red)
       """.stripMargin,
       Some("26import Staging._")
     )
@@ -393,8 +426,7 @@ class ColorTest extends StagingTestBase {
     Tester(
       """import Staging._
         |
-        |colorMode(RGBA(255, 255, 255, 255))
-        |println(color(.1, .1, .1, .1).blue)
+        |println(rgbColors(255, 255, 255)(.1, .1, .1).blue)
       """.stripMargin,
       Some("26import Staging._")
     )
@@ -403,8 +435,7 @@ class ColorTest extends StagingTestBase {
     Tester(
       """import Staging._
         |
-        |colorMode(RGBA(255, 255, 255, 255))
-        |println(color(.1, .1, .1, .1).green)
+        |println(rgbColors(255, 255, 255)(.1, .1, .1).green)
       """.stripMargin,
       Some("26import Staging._")
     )
@@ -413,8 +444,7 @@ class ColorTest extends StagingTestBase {
     Tester(
       """import Staging._
         |
-        |colorMode(HSB(255, 255, 255))
-        |println(color(.1, .1, .1).hue)
+        |println(hsbColors(255, 255, 255)(.1, .1, .1).hue)
       """.stripMargin,
       Some("15import Staging._")
     )
@@ -422,8 +452,7 @@ class ColorTest extends StagingTestBase {
     Tester(
       """import Staging._
         |
-        |colorMode(HSB(255, 255, 255))
-        |println(color(.1, .1, .1).saturation)
+        |println(hsbColors(255, 255, 255)(.1, .1, .1).saturation)
       """.stripMargin,
       Some("29import Staging._")
     )
@@ -431,8 +460,7 @@ class ColorTest extends StagingTestBase {
     Tester(
       """import Staging._
         |
-        |colorMode(HSB(255, 255, 255))
-        |println(color(.1, .1, .1).brightness)
+        |println(hsbColors(255, 255, 255)(.1, .1, .1).brightness)
       """.stripMargin,
       Some("26import Staging._")
     )

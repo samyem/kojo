@@ -27,8 +27,9 @@ import java.awt.Color
 import math._
 
 object Impl {
-  val figure0 = SpriteCanvas.instance.figure0
   val canvas = SpriteCanvas.instance
+  val turtle0 = canvas.turtle0
+  val figure0 = canvas.figure0
 }
 
 /** Staging API
@@ -251,8 +252,8 @@ object API {
   //W
   //W==Color==
   //W
-  //WColor values can be created with the method `color`, and the way color
-  //Wis specified can be set with `colorMode`.  The methods `fill`, `noFill`,
+  //WColor values can be created with the method `color`, or using a
+  //W_color-maker_.  The methods `fill`, `noFill`,
   //W`stroke`, and `noStroke` set the colors used to draw the insides and edges
   //Wof figures.  The method `strokeWidth` doesn't actually affect color but is
   //Wtypically used together with the color setting methods.  The method
@@ -261,23 +262,17 @@ object API {
   //W
   //W
   //T ColorTest begins
-  abstract class ColorModes
-  case class RGB(r: Int, g: Int, b: Int) extends ColorModes
-  case class RGBA(r: Int, g: Int, b: Int, a: Int) extends ColorModes
-  case class HSB(h: Int, s: Int, b: Int) extends ColorModes
-  case class HSBA(h: Int, s: Int, b: Int, a: Int) extends ColorModes
-  case class GRAY(v: Int) extends ColorModes
-  case class GRAYA(v: Int, a: Int) extends ColorModes
-  def colorMode(mode: ColorModes) = ColorMode(mode)
-  def color(v: Int) = ColorMode.color(v)
-  def color(v: Int, a: Int) = ColorMode.color(v, a)
-  def color(v: Double) = ColorMode.color(v)
-  def color(v: Double, a: Double) = ColorMode.color(v, a)
-  def color(v1: Int, v2: Int, v3: Int) = ColorMode.color(v1, v2, v3)
-  def color(v1: Int, v2: Int, v3: Int, a: Int) = ColorMode.color(v1, v2, v3, a)
-  def color(v1: Double, v2: Double, v3: Double) = ColorMode.color(v1, v2, v3)
-  def color(v1: Double, v2: Double, v3: Double, a: Double) = ColorMode.color(v1, v2, v3, a)
-  def color(s: String) = ColorMode.color(s)
+  def grayColors(grayMax: Int) =
+    ColorMaker(GRAY(grayMax))
+  def grayColorsWithAlpha(grayMax: Int, alphaMax: Int) =
+    ColorMaker(GRAYA(grayMax, alphaMax))
+  def rgbColors(rMax: Int, gMax: Int, bMax: Int) =
+    ColorMaker(RGB(rMax, gMax, bMax))
+  def rgbColorsWithAlpha(rMax: Int, gMax: Int, bMax: Int, alphaMax: Int) =
+    ColorMaker(RGBA(rMax, gMax, bMax, alphaMax))
+  def hsbColors(hMax: Int, sMax: Int, bMax: Int) =
+    ColorMaker(HSB(hMax, sMax, bMax))
+  def namedColor(s: String) = ColorMaker.color(s)
   def fill(c: Color) = Impl.figure0.setFillColor(c)
   def noFill() = Impl.figure0.setFillColor(null)
   def stroke(c: Color) = Impl.figure0.setPenColor(c)
@@ -285,14 +280,11 @@ object API {
   def strokeWidth(w: Double) = Impl.figure0.setPenThickness(w)
   def withStyle(fc: Color, sc: Color, sw: Double)(body: => Unit) =
     Style(fc, sc, sw)(body)
-  def saveStyle = Style.save
-  def restoreStyle = Style.restore
   implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
   def lerpColor(from: RichColor, to: RichColor, amt: Double) =
     RichColor.lerpColor(from, to, amt)
   //T ColorTest ends
 
-  colorMode(RGB(255, 255, 255))
   Utils.runInSwingThread {
     Inputs.init()
   }
@@ -367,12 +359,11 @@ object API {
   //T ControlTest begins
   def loop(fn: => Unit) = Impl.figure0.refresh(fn)
   def stop = Impl.figure0.stopRefresh()
-  def clear() = {
+  def reset() = {
     Impl.canvas.clear()
     Impl.canvas.turtle0.invisible()
-    colorMode(RGB(255, 255, 255))
   }
-  def fgClear() = Impl.figure0.fgClear()
+  def wipe() = Impl.figure0.fgClear()
 
   def mouseX() = Inputs.stepMousePos.x
   def mouseY() = Inputs.stepMousePos.y
@@ -406,6 +397,13 @@ object API {
   //W
 } // end of API
 
+  abstract class ColorModes
+  case class RGB(r: Int, g: Int, b: Int) extends ColorModes
+  case class RGBA(r: Int, g: Int, b: Int, a: Int) extends ColorModes
+  case class HSB(h: Int, s: Int, b: Int) extends ColorModes
+  case class HSBA(h: Int, s: Int, b: Int, a: Int) extends ColorModes
+  case class GRAY(v: Int) extends ColorModes
+  case class GRAYA(v: Int, a: Int) extends ColorModes
 
 object Point {
   def apply(x: Double, y: Double) = new Point(x, y)
@@ -547,8 +545,8 @@ trait PolyShape extends BaseShape {
 }
 
 trait CrossShape {
-  var xdims = Array.fill(8){0.}
-  var ydims = Array.fill(8){0.}
+  val xdims = Array.fill(8){0.}
+  val ydims = Array.fill(8){0.}
   def crossDims(len: Double, wid: Double, cw: Double, r: Double = 1, greek: Boolean = false) = {
     require(wid / 2 > cw)
     require(len / 2 > cw)

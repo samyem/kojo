@@ -76,9 +76,9 @@ object SvgShape {
     val fc_? = matchFill(ns)
     val sc_? = matchStroke(ns)
     val sw_? = matchStrokeWidth(ns)
-    API.saveStyle
-    fc_? foreach { fc => API.fill(API.color(fc)) }
-    sc_? foreach { sc => API.stroke(API.color(sc)) }
+    Style.save
+    fc_? foreach { fc => API.fill(ColorMaker.color(fc)) }
+    sc_? foreach { sc => API.stroke(ColorMaker.color(sc)) }
     sw_? foreach { sw => API.strokeWidth(sw.toDouble) }
   }
 
@@ -94,7 +94,7 @@ object SvgShape {
       } else {
         Rectangle(p0, p1)
       }
-    API.restoreStyle
+    Style.restore
     res
   }
 
@@ -104,7 +104,7 @@ object SvgShape {
     val p1 = p0 + Point(r, r)
     setStyle(ns)
     val res = Ellipse(p0, p1)
-    API.restoreStyle
+    Style.restore
     res
   }
 
@@ -113,7 +113,7 @@ object SvgShape {
     val p1 = p0 + matchRXY(ns)
     setStyle(ns)
     val res = Ellipse(p0, p1)
-    API.restoreStyle
+    Style.restore
     res
   }
 
@@ -122,7 +122,7 @@ object SvgShape {
     val p2 = matchXY(ns, "x2", "y2")
     setStyle(ns)
     val res = Line(p1, p2)
-    API.restoreStyle
+    Style.restore
     res
   }
 
@@ -133,7 +133,7 @@ object SvgShape {
     // and font attributes (as far as piccolo/awt can support them)
     setStyle(ns)
     val res = Text(ns.text, p1)
-    API.restoreStyle
+    Style.restore
     res
   }
 
@@ -165,12 +165,12 @@ object SvgShape {
       case <polyline></polyline> =>
         setStyle(node)
         val res = Polyline(matchPoints(node))
-        API.restoreStyle
+        Style.restore
         res
       case <polygon></polygon> =>
         setStyle(node)
         val res = Polygon(matchPoints(node))
-        API.restoreStyle
+        Style.restore
         res
       case <path></path> =>
         matchPath(node)
