@@ -7,8 +7,9 @@ val len = 160
 S.reset
 S.screenSize(400, 400)
 S.background(black)
-S.stroke(color(228, 228, 228))
-S.fill(color(80,80,80))
+val grayShade = S.grayColors(255)
+S.stroke(grayShade(228))
+S.fill(grayShade(80))
 S.ellipse(center, center, len, len)
 
 S.loop {
