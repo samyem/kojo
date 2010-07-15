@@ -1,6 +1,9 @@
 // A simple clock. Based on the Processing Clock Example.
 
 val S = Staging
+// To get code completion for Staging, run the above line of code.
+// Then, S followed by a period (S.) will trigger code completion.
+
 val center = 200
 val len = 160
 
