@@ -50,8 +50,8 @@ A8.setColor(color2)
 
 
 // Hide intersection points so angles are clearly visible
-P7.hide
-P8.hide
+P7.hide()
+P8.hide()
 
 
 val t1 = """

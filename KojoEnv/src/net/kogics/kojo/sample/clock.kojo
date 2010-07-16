@@ -7,7 +7,7 @@ val S = Staging
 val center = 200
 val len = 160
 
-S.reset
+S.reset()
 S.screenSize(400, 400)
 S.background(black)
 val grayShade = S.grayColors(255)
@@ -16,7 +16,7 @@ S.fill(grayShade(80))
 S.ellipse(center, center, len, len)
 
 S.loop {
-    S.wipe
+    S.wipe()
     val s = S.map(S.second, 0, 60, 0, S.TWO_PI) - S.HALF_PI
     val m = S.map(S.minute + S.norm(S.second, 0, 60), 0, 60, 0, S.TWO_PI) - S.HALF_PI
     val h = S.map(S.hour + S.norm(S.minute, 0, 60), 0, 24, 0, 2 * S.TWO_PI) - S.HALF_PI
