@@ -39,6 +39,9 @@ object CodeCompletionUtils {
     "left" -> "left(${cursor})",
     "clear" -> "clear()",
     "home" -> "home()",
+    "invisible" -> "invisible()",
+    "penUp" -> "penUp()",
+    "penDown" -> "penDown()",
     "turn" -> "turn(${angleInDegrees})",
     "setHeading" -> "setHeading(${angleInDegrees})",
     "towards" -> "towards(${x}, ${y})",
@@ -57,7 +60,7 @@ object CodeCompletionUtils {
     "text" -> "text(${content}, ${x}, ${y})",
     "circle" -> "circle(${cx}, ${cy}, ${radius})",
     "ellipse" -> "ellipse(${cx}, ${cy}, ${width}, ${height})",
-    "arc" -> "arc(${cx}, ${cy}, ${radius}, ${startDegree}, ${extentDegree})",
+    "arc" -> "arc(${cx}, ${cy}, ${rx}, ${ry}, ${startDegree}, ${extentDegree})",
     "refresh" -> "refresh {\n    ${cursor}\n}",
     "random" -> "random(${upperBound})",
     "randomDouble" -> "randomDouble(${upperBound})",
@@ -100,15 +103,9 @@ object CodeCompletionUtils {
     "mag" -> "mag(${x}, ${y})",
     "lerp" -> "lerp(${low}, ${high}, ${value})",
     "loop" -> "loop {\n    ${cursor}\n}",
-    "stop" -> "stop",
-    "reset" -> "reset",
-    "wipe" -> "wipe",
-    "mouseX" -> "mouseX",
-    "mouseY" -> "mouseY",
-    "pmouseX" -> "pmouseX",
-    "pmouseY" -> "pmouseY",
-    "mouseButton" -> "mouseButton",
-    "mousePressed" -> "mousePressed"
+    "stop" -> "stop()",
+    "reset" -> "reset()",
+    "wipe" -> "wipe()"
   )
   
   val MethodDropFilter = List("turtle0")

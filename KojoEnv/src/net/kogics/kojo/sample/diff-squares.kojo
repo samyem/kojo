@@ -1,11 +1,11 @@
 import Staging._
 
-reset
+reset()
 val a = 280
 val b = 150
 screenSize(a + b + 30, a + 30)
 
-def drawAxes {
+def drawAxes() {
   fill(black)
   stroke(black)
   strokeWidth(1.5)
@@ -35,8 +35,8 @@ def pause(secs: Double) = Thread.sleep((secs * 1000).toLong)
 
 val leading = 40
 
-drawAxes
-noFill
+drawAxes()
+noFill()
 stroke(black)
 strokeWidth(1)
 var column  = -300
@@ -84,10 +84,10 @@ pause(3)
 column  = screenWidth + 30
 topline =                a
 
-reset
+reset()
 stroke(black)
-drawAxes
-noFill
+drawAxes()
+noFill()
 strokeWidth(1)
 
 glide("Now, is a² - b² = (a + b)(a - b)?")

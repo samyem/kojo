@@ -1,6 +1,6 @@
 import Staging._
 
-reset
+reset()
 
 // Change this value to make the figure bigger or smaller.
 val unit = 100

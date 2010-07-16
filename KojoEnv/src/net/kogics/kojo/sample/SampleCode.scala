@@ -38,8 +38,6 @@ object SampleCode {
       case "Snowflake" => Snowflake
       case "Tree" => Tree
       case "Dragon" => Dragon
-      case "Polygon" => Polygon
-      case "Parallelogram" => Parallelogram
       case "Parallel/Transversal" => ParTrans
       case "Angles of a Triangle" => TriangleAngles
       case "Inspect Object" => InspectObject
@@ -51,15 +49,15 @@ object SampleCode {
   }
 
   val Square = """
-clear
+clear()
 repeat(4) {
     forward(100)
-    right
+    right()
 }
 """
 
   val Circle = """
-clear
+clear()
 setAnimationDelay(10)
 setPenThickness(2)
 setPenColor(green)
@@ -81,9 +79,9 @@ def runPattern() {
     def pattern(turtle: Turtle, n: Int): Unit = {
         if (n < 2) return
         turtle.forward(n)
-        turtle.right
+        turtle.right()
         turtle.forward(n)
-        turtle.right
+        turtle.right()
         pattern(turtle, n-5)
     }
 
@@ -114,7 +112,7 @@ runPattern()
 def squareTurn(n:Int){
     repeat(4) {
         forward(n)
-        right
+        right()
     }
     turn(10)
 }
@@ -135,11 +133,11 @@ pattern(100)
 def pattern(n:Int) {
     if (n <= 2) return
     forward(n+100)
-    right
+    right()
     forward(n)
-    right
+    right()
     forward(n)
-    right
+    right()
     pattern(n-2)
 }
 
@@ -180,7 +178,7 @@ setAnimationDelay(10)
 setPenColor(black)
 setFillColor(orange)
 repeat(4){
-    right
+    right()
     repeat(90){
         turn(-2)
         forward(3)
@@ -223,10 +221,10 @@ def flag(t: Turtle, c: Color, a: Double){
     t.turn(a)
     t.forward(150)
     repeat(3){
-        t.right
+        t.right()
         t.forward(50)
     }
-    t.left
+    t.left()
     t.forward(100)
 }
 
@@ -331,11 +329,11 @@ setAnimationDelay(20)
 setPenColor(yellow)
 setFillColor(yellow)
 repeat(18) {
-    right
+    right()
     forward(75)
     turn(180)
     forward(75)
-    right
+    right()
     repeat(10) {
         turn(2)
         forward(2)}
@@ -417,7 +415,7 @@ def post(t: Turtle){
     t.forward(25)
     t.turn(-30)
     t.forward(150)
-    t.right
+    t.right()
     t.forward(25)
 }
 
@@ -472,7 +470,7 @@ rail(t13)
 def border(t: Turtle, a: Double) {
     t.setAnimationDelay(200)
     t.setPenColor(black)
-    t.right
+    t.right()
     t.forward(1200)
     repeat(15){
         t.setFillColor(red)
@@ -496,7 +494,7 @@ def flower(tt:Turtle, c:Color) {
     tt.setPenColor(black)
     tt.setFillColor(c)
     repeat(4){
-        tt.right
+        tt.right()
         repeat(90){
             tt.turn(-2)
             tt.forward(2)
@@ -545,40 +543,40 @@ flower(t8, yellow)
 flower(t9, red)
 flower(t10, purple)
 
-turtle0.invisible
-t1.invisible
-t2.invisible
-t3.invisible
-t4.invisible
-t5.invisible
-t6.invisible
-t7.invisible
-t8.invisible
-t9.invisible
-t10.invisible
+turtle0.invisible()
+t1.invisible()
+t2.invisible()
+t3.invisible()
+t4.invisible()
+t5.invisible()
+t6.invisible()
+t7.invisible()
+t8.invisible()
+t9.invisible()
+t10.invisible()
 """
 
   val Snowflake = """
-def line(count: Int, length: Int) {
+def lines(count: Int, length: Int) {
     if (count == 1) forward(length)
     else {
-        line(count-1, length)
+        lines(count-1, length)
         left(60)
-        line(count-1, length)
+        lines(count-1, length)
         right(120)
-        line(count-1, length)
+        lines(count-1, length)
         left(60)
-        line(count-1, length)
+        lines(count-1, length)
     }
 }
 
 def koch(count: Int, length: Int) {
     right(30)
-    line(count, length)
+    lines(count, length)
     right(120)
-    line(count, length)
+    lines(count, length)
     right(120)
-    line(count, length)
+    lines(count, length)
 }
 
 clear()
@@ -587,12 +585,12 @@ setPenThickness(1)
 setPenColor(color(128, 128, 128))
 setFillColor(color(0xC9C0BB))
 setAnimationDelay(10)
-penUp
+penUp()
 back(100)
-left
+left()
 forward(150)
-right
-penDown
+right()
+penDown()
 koch(5, 5)
   """
 
@@ -612,11 +610,11 @@ def tree(distance: Double) {
 }
 
 clear()
-invisible
+invisible()
 setAnimationDelay(10)
-penUp
+penUp()
 back(200)
-penDown
+penDown()
 tree(90)
   """
 
@@ -646,37 +644,6 @@ setPenColor(color(0x365348))
 dragon (10, 45)
 """
 
-  val Polygon = """
-def regularPoly(n: Int, size: Int) {
-    repeat(n) {
-        forward(size)
-        left(360.0/n)
-    }
-}
-
-clear()
-regularPoly(5, 100)
-invisible
-val p = pathToPolygon()
-p.showAngles()
-jumpTo(100, 75)
-write("Drag the vertices\naround to play\nwith the Shape.")
-  """
-
-  val Parallelogram = """
-clear()
-repeat(4) {
-    forward(200)
-    right()
-}
-invisible
-val p = pathToParallelogram()
-p.showAngles()
-p.showLengths()
-jumpTo(-200, 130)
-write("Drag the vertices\naround to play\nwith the Shape.")
-  """
-
   val InspectObject = """
 class BaseData {
     val baseList = List(1,2,3)
@@ -695,7 +662,7 @@ inspect(data)
   """
 
   val InputOutput = """
-clearOutput
+clearOutput()
 val n = readInt("How many numbers do you want to average?")
 var sum = 0.0
 repeat (n) {

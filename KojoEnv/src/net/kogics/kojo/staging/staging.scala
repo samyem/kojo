@@ -358,7 +358,7 @@ object API {
   //W
   //T ControlTest begins
   def loop(fn: => Unit) = Impl.figure0.refresh(fn)
-  def stop = Impl.figure0.stopRefresh()
+  def stop() = Impl.figure0.stopRefresh()
   def reset() = {
     Impl.canvas.clear()
     Impl.canvas.turtle0.invisible()
