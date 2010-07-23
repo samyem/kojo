@@ -40,6 +40,7 @@ object CodeCompletionUtils {
     "clear" -> "clear()",
     "home" -> "home()",
     "invisible" -> "invisible()",
+    "visible" -> "visible()",
     "penUp" -> "penUp()",
     "penDown" -> "penDown()",
     "turn" -> "turn(${angleInDegrees})",
