@@ -500,6 +500,7 @@ Here's a partial list of the available commands:
     def zoom(factor: Double, cx: Double, cy: Double) = tCanvas.zoom(factor, cx, cy)
     def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double) =
       tCanvas.zoomXY(xfactor, yfactor, cx, cy)
+    def exportImage(fileName: String, thumbnail: Boolean) = tCanvas.exportImage(fileName, thumbnail)
 
     def forward() = println("Please provide the distance to move forward - e.g. forward(100)")
     def back() = println("Please provide the distance to move back - e.g. back(100)")
