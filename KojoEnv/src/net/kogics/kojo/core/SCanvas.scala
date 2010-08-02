@@ -28,5 +28,6 @@ trait SCanvas {
   def zoom(factor: Double, cx: Double, cy: Double)
   def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double)
   def undo(): Unit
-  def exportImage(fileName: String, thumbnail: Boolean = false)
+  def exportImage(filePrefix: String): java.io.File
+  def exportThumbnail(filePrefix: String, height: Int): java.io.File
 }
