@@ -262,6 +262,25 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
         ourCp.append(File.pathSeparatorChar)
       }
 
+      // add all jars in user's kojo lib dir to classpath
+      val userDir = System.getProperty("netbeans.user")
+      val libDir = userDir + File.separatorChar + "lib"
+      val libDirFs = new File(libDir)
+      if (libDirFs.exists) {
+        val jarFiles = libDirFs.list(new FilenameFilter {
+            override def accept(dir: File, name: String) = {
+              name.endsWith(".jar")
+            }
+          })
+
+        jarFiles.foreach {x =>
+          ourCp.append(libDir)
+          ourCp.append(File.separatorChar)
+          ourCp.append(x)
+          ourCp.append(File.pathSeparatorChar)
+        }
+      }
+
       val prefix = Utils.installDir
 
       xs.foreach {x =>
@@ -613,7 +632,7 @@ Here's a partial list of the available commands:
     def ellipse(center: Point, w: Double, h: Double) = zimpl.ellipse(center, w, h)
     def ellipse(cx: Double, cy: Double, w: Double, h: Double) = zimpl.ellipse(cx, cy, w, h)
     def arc(onEll: Ellipse, start: Double, extent: Double) = zimpl.arc(onEll, start, extent)
-    def arc(cx: Double, cy: Double, w: Double, h: Double, 
+    def arc(cx: Double, cy: Double, w: Double, h: Double,
             start: Double, extent: Double) = zimpl.arc(cx, cy, w, h, start, extent)
     def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double) = zimpl.arc(cx, cy, r, start, extent)
     def arc(cp: Point, r: Double, start: Double, extent: Double) = zimpl.arc(cp, r, start, extent)
