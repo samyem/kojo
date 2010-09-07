@@ -160,7 +160,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
     clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, "Clear Output", "Clear the Output")
     val undoButton = makeNavigationButton("/images/undo.png", UndoCommand, "Undo Last Turtle Command", "Undo")
-    val cexButton = makeNavigationButton("/images/clear24.png", UploadCommand, "Upload to CodeExchange", "Upload")
+    val cexButton = makeNavigationButton("/images/upload.png", UploadCommand, "Upload to CodeExchange", "Upload")
 
     toolbar.add(runButton)
 
