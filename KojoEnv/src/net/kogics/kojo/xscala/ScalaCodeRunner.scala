@@ -427,10 +427,12 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
       addCompletion(name, args map ("${%s}" format _) mkString("(", ", ", ")"))
     }
 
-    def addSynopsis(s: String) { synopses.append("\n" + s) }
+    def addSynopsisSeparator() { synopses.append("\n") }
+
+    def addSynopsis(s: String) { synopses.append("\n  " + s) }
 
     def addSynopsis(name: String, args: Seq[String], synopsis: String) {
-      addSynopsis("  " + name + args.mkString("(", ", ", ")") + " - " + synopsis)
+      addSynopsis(name + args.mkString("(", ", ", ")") + " - " + synopsis)
     }
 
     def apply(name: String, args: Seq[String], synopsis: String) = {
@@ -511,7 +513,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
     override def heading: Double = turtle0.heading
     UserCommand.addSynopsis("heading - Queries the turtle's heading (0 is towards the right side of the screen ('east'), 90 is up ('north')).")
-    UserCommand.addSynopsis("\n")
+    UserCommand.addSynopsisSeparator()
 
     override def penDown() = turtle0.penDown()
     UserCommand("penDown", Nil, "Makes the turtle draw lines as it moves (the default setting). ")
@@ -530,7 +532,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     def setFillColor() = println("Please provide the fill color for the areas drawn by the turtle - e.g setFillColor(yellow)")
     override def setFillColor(color: Color) = turtle0.setFillColor(color)
     UserCommand("setFillColor", List("color"), "Specifies the fill color of the figures drawn by the turtle.")
-    UserCommand.addSynopsis("\n")
+    UserCommand.addSynopsisSeparator()
 
     override def beamsOn() = turtle0.beamsOn()
     UserCommand("beamsOn", Nil, "Shows crossbeams centered on the turtle - to help with solving puzzles.")
@@ -543,7 +545,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
     override def visible() = turtle0.visible()
     UserCommand("visible", Nil, "Makes the hidden turtle visible again.")
-    UserCommand.addSynopsis("\n")
+    UserCommand.addSynopsisSeparator()
 
     override def write(obj: Any): Unit = turtle0.write(obj.toString)
     override def write(text: String) = turtle0.write(text)
@@ -554,7 +556,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
     override def animationDelay = turtle0.animationDelay
     UserCommand.addSynopsis("animationDelay - Queries the turtle's delay setting.")
-    UserCommand.addSynopsis("\n")
+    UserCommand.addSynopsisSeparator()
 
     override def undo() = tCanvas.undo()
     UserCommand("undo", Nil, "Undoes the last turtle command.")
@@ -564,7 +566,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
     override def zoom(factor: Double, cx: Double, cy: Double) = tCanvas.zoom(factor, cx, cy)
     UserCommand("zoom", List("factor", "cx", "cy"), "Zooms in by the given factor, and position (cx, cy) at the center of the turtle canvas.")
-    UserCommand.addSynopsis("\n")
+    UserCommand.addSynopsisSeparator()
 
     def listPuzzles = PuzzleLoader.listPuzzles
     UserCommand("listPuzzles", Nil, "shows the names of the puzzles available in the system.")
@@ -596,7 +598,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
     override def clearPuzzlers() = tCanvas.clearPuzzlers()
     UserCommand("clearPuzzlers", Nil, "clears out the puzzler turtles and the puzzles from the screen.")
-    UserCommand.addSynopsis("\n")
+    UserCommand.addSynopsisSeparator()
 
     override def gridOn() = tCanvas.gridOn()
     UserCommand("gridOn", Nil, "Shows a grid on the canvas.")
@@ -609,7 +611,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     UserCommand("newTurtle", List("x", "y"), "Makes a new turtle located at the point (x, y).")
 
     UserCommand.addSynopsis("turtle0 - gives you a handle to the original turtle.")
-    UserCommand.addSynopsis("\n")
+    UserCommand.addSynopsisSeparator()
 
     def showScriptInOutput() = ctx.showScriptInOutput()
     UserCommand("showScriptInOutput", Nil, "Enables the display of scripts in the output window when they run.")
@@ -622,7 +624,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
     def hideVerboseOutput() = ctx.hideVerboseOutput()
     UserCommand("hideVerboseOutput", Nil, "Stops the display of the output from the Scala interpreter..")
-    UserCommand.addSynopsis("\n")
+    UserCommand.addSynopsisSeparator()
 
     def version = println("Scala " + scala.tools.nsc.Properties.versionString)
     UserCommand.addSynopsis("version - Displays the version of Scala being used.")
