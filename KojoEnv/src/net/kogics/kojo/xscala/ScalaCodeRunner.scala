@@ -427,10 +427,10 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
       addCompletion(name, args map ("${%s}" format _) mkString("(", ", ", ")"))
     }
 
-    def addSynopsis(s: String) { synopses.append(s) }
+    def addSynopsis(s: String) { synopses.append("\n" + s) }
 
     def addSynopsis(name: String, args: Seq[String], synopsis: String) {
-      addSynopsis("\n  " + name + args.mkString("(", ", ", ")") + " - " + synopsis)
+      addSynopsis("  " + name + args.mkString("(", ", ", ")") + " - " + synopsis)
     }
 
     def apply(name: String, args: Seq[String], synopsis: String) = {
