@@ -31,7 +31,8 @@ object CodeCompletionUtils {
     "while" -> "while (${condition}) {\n    ${cursor}\n}",
     "if" -> "if (${condition}) {\n    ${cursor}\n}"
   )
-  val MethodTemplates = Map(
+  val MethodTemplates = collection.mutable.Map(
+    /*
     "repeat" -> "repeat (${n}) {\n    ${cursor}\n}",
     "forward" -> "forward(${n})",
     "back" -> "back(${n})",
@@ -55,6 +56,12 @@ object CodeCompletionUtils {
     "setAnimationDelay" -> "setAnimationDelay(${milliseconds})",
     "println" -> "println(${cursor})",
     "inspect" -> "inspect(${cursor})",
+    "random" -> "random(${upperBound})",
+    "randomDouble" -> "randomDouble(${upperBound})",
+    "zoom" -> "zoom(${zoomFactor}, ${centerX}, ${centerY})",
+    "saveStyle" -> "saveStyle()",
+    "restoreStyle" -> "restoreStyle()",
+    */
     "point" -> "point(${x}, ${y})",
     "line" -> "line(${x0}, ${y0}, ${x1}, ${y1})",
     "rectangle" -> "rectangle(${x0}, ${y0}, ${width}, ${height})",
@@ -63,11 +70,6 @@ object CodeCompletionUtils {
     "ellipse" -> "ellipse(${cx}, ${cy}, ${width}, ${height})",
     "arc" -> "arc(${cx}, ${cy}, ${rx}, ${ry}, ${startDegree}, ${extentDegree})",
     "refresh" -> "refresh {\n    ${cursor}\n}",
-    "random" -> "random(${upperBound})",
-    "randomDouble" -> "randomDouble(${upperBound})",
-    "zoom" -> "zoom(${zoomFactor}, ${centerX}, ${centerY})",
-    "saveStyle" -> "saveStyle()",
-    "restoreStyle" -> "restoreStyle()",
     "screenSize" -> "screenSize(${width}, ${height})",
     "background" -> "background(${color})",
     "dot" -> "dot(${x}, ${y})",
