@@ -416,6 +416,29 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     }
   }
 
+  object UserCommand {
+    val synopses = new scala.collection.mutable.StringBuilder
+
+    def addCompletion(name: String, args: String) {
+      CodeCompletionUtils.MethodTemplates(name) = name + args
+    }
+
+    def addCompletion(name: String, args: Seq[String]) {
+      addCompletion(name, args map ("${%s}" format _) mkString("(", ", ", ")"))
+    }
+
+    def addSynopsis(s: String) { synopses.append(s) }
+
+    def addSynopsis(name: String, args: Seq[String], synopsis: String) {
+      addSynopsis("\n  " + name + args.mkString("(", ", ", ")") + " - " + synopsis)
+    }
+
+    def apply(name: String, args: Seq[String], synopsis: String) = {
+      addCompletion(name, args)
+      addSynopsis(name, args, synopsis)
+    }
+  }
+
   object Builtins extends SCanvas with TurtleMover {
     type Turtle = core.Turtle
     type Color = java.awt.Color
@@ -425,114 +448,6 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     val Random = new java.util.Random
     val turtle0 = tCanvas.turtle0
     val figure0 = tCanvas.figure0
-
-    def color(r: Int, g: Int, b: Int) = new Color(r, g, b)
-    def color(rgbHex: Int) = new Color(rgbHex)
-    def random(upperBound: Int) = Random.nextInt(upperBound)
-    def randomDouble(upperBound: Int) = Random.nextDouble * upperBound
-    
-    def print(obj: Any): Unit = println(obj)
-    def println(obj: Any): Unit = println(if (obj == null) "null" else obj.toString)
-
-    def println(s: String): Unit = {
-      // Runs on Actor pool (interpreter) thread
-      ScalaCodeRunner.this.println(s + "\n")
-      Throttler.throttle()
-    }
-
-    def readln(prompt: String): String = ctx.readInput(prompt)
-    def readInt(prompt: String): Int = readln(prompt).toInt
-    def readDouble(prompt: String): Double = readln(prompt).toDouble
-    def showScriptInOutput() = ctx.showScriptInOutput()
-    def hideScriptInOutput() = ctx.hideScriptInOutput()
-    def showVerboseOutput() = ctx.showVerboseOutput()
-    def hideVerboseOutput() = ctx.hideVerboseOutput()
-
-    def version = println("Scala " + scala.tools.nsc.Properties.versionString)
-
-    def help() = {
-      println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
-
-Here's a partial list of the available commands:
-  forward(numSteps) - Moves the turtle forward a given number of steps
-  back(numSteps) - Moves the turtle back a given number of steps
-  turn(angle) - Turns the turtle through a specified angle. Angles are positive for counter-clockwise turns
-  right() - Turns the turtle right
-  right(angle) - Turns the turtle right through a specified angle
-  left() - Turns the turtle left
-  left(angle) - Turns the turtle left through a specified angle
-  towards(x, y) - Turns the turtle towards the point (x, y)
-  moveTo(x, y) - Moves the turtle to the point (x, y)
-  setHeading(angle) - Sets the turtle's heading (the direction in which it is pointing)
-  setPosition(x, y) - Sets the turtle's position (without making it draw any lines). The turtle's heading is not changed
-  home() - Moves the turtle to its original location, and makes it point north
-  write(text) - Makes the turtle write the specified text at its current location
-  undo() - Undoes the last turtle command
-
-  clear() - Clears the screen. To bring the turtle to the center of the window after this command, just resize the turtle canvas
-  zoom(factor, cx, cy) - Zooms in by the given factor, and position (cx, cy) at the center of the turtle canvas
-  setAnimationDelay(delay) - Sets the turtle's speed. The specified delay is the amount of time taken by the turtle to move through a distance of one hundred steps
-
-  penDown() - Makes the turtle put its pen down - to draw lines as it moves. The pen is down by default
-  penUp() - Makes the turtle not draw lines as it moves
-  setPenColor(color) - Specifies the color of the pen that the turtle draws with
-  setPenThickness(thickness) - Specifies the thickness (as an number) of the pen that the turtle draws with
-  setFillColor(color) - Specifies the background color of the figures drawn by the turtle
-
-  listPuzzles() - shows the names of the puzzles available in the system
-  loadPuzzle(name) - loads the named puzzle
-  clearPuzzlers() - clears out the puzzler turtles and the puzzles from the screen
-
-  gridOn() - Shows a grid on the canvas
-  gridOff() - Hides the grid
-  beamsOn() - Shows crossbeams centered on the turtle - to help with solving puzzles
-  beamsOff() - Hides the turtle crossbeams
-  invisible() - Hides the turtle
-  visible() - Makes the hidden turtle visible again
-
-  newTurtle(x, y) - Makes a new turtle located at the point (x, y)
-  turtle0 - gives you a handle to the original turtle.
-
-  showScriptInOutput() - Enables the display of scripts in the output window when they run
-  hideScriptInOutput() - Stops the display of scripts in the output window
-  showVerboseOutput() - Enables the display of the output from the Scala interpreter. By default, output from the interpreter is shown only for single line scripts.
-  hideVerboseOutput() - Stops the display of the output from the Scala interpreter.
-
-  version - Displays the version of Scala being used
-  repeat(n) {} - Repeats commands within braces n number of times
-  println(string) or print(string) - Displays the given string in the output window
-  readln(promptString) - Displays the given prompt in the output window and reads a line that the user enters
-  readInt(promptString) - Displays the given prompt in the output window and reads an Integer value that the user enters
-  readDouble(promptString) - Displays the given prompt in the output window and reads a Double-precision Real value that the user enters
-  random(upperBound) - Returns a random Integer between 0 (inclusive) and upperBound (exclusive)
-  randomDouble(upperBound) - Returns a random Double-precision Real between 0 (inclusive) and upperBound (exclusive)
-  inspect(obj) - Explores the internal fields of the given object
-""")
-    }
-
-    def repeat(n: Int) (fn: => Unit) {
-      for (i <- 1 to n) {
-        fn
-        Throttler.throttle()
-      }
-    }
-
-    def gridOn() = tCanvas.gridOn()
-    def gridOff() = tCanvas.gridOff()
-    def zoom(factor: Double, cx: Double, cy: Double) = tCanvas.zoom(factor, cx, cy)
-    def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double) =
-      tCanvas.zoomXY(xfactor, yfactor, cx, cy)
-    def exportImage(filePrefix: String) = tCanvas.exportImage(filePrefix)
-    def exportThumbnail(filePrefix: String, height: Int) = tCanvas.exportThumbnail(filePrefix, height)
-
-    def forward() = println("Please provide the distance to move forward - e.g. forward(100)")
-    def back() = println("Please provide the distance to move back - e.g. back(100)")
-    def turn() = println("Please provide the angle to turn in degrees - e.g. turn(45)")
-    def towards() = println("Please provide the coordinates of the point that the turtle should turn towards - e.g. towards(100, 100)")
-    def moveTo() = println("Please provide the coordinates of the point that the turtle should move to - e.g. moveTo(100, 100)")
-    def setPenColor() = println("Please provide the color of the pen that the turtle should draw with - e.g setPenColor(blue)")
-    def setPenThickness() = println("Please provide the thickness of the pen that the turtle should draw with - e.g setPenThickness(1)")
-    def setFillColor() = println("Please provide the fill color for the areas drawn by the turtle - e.g setFillColor(yellow)")
 
     val blue = Color.blue
     val red = Color.red
@@ -545,52 +460,114 @@ Here's a partial list of the available commands:
     val black = Color.black
     val white = Color.white
 
+    def forward() = println("Please provide the distance to move forward - e.g. forward(100)")
+    override def forward(n: Double) = turtle0.forward(n)
+    UserCommand("forward", List("numSteps"), "Moves the turtle forward a given number of steps.")
 
-    // I tried implicits to support automatic delegation. That works as expected,
-    // but is not too friendly for the user - they need to say something like
-    // builtins.forward(100) as opposed to forward(100). Also - completion needs extra support
-    // implicit def toSCanvas(builtins: Builtins): SCanvas = builtins.tCanvas
+    def back() = println("Please provide the distance to move back - e.g. back(100)")
+    override def back(n: Double) = turtle0.back(n)
+    UserCommand("back", List("numSteps"), "Moves the turtle back a given number of steps.")
 
-    def forward(n: Double) = turtle0.forward(n)
-    def turn(angle: Double) = turtle0.turn(angle)
-    def clear() = tCanvas.clear()
-    def clearPuzzlers() = tCanvas.clearPuzzlers()
-    def penUp() = turtle0.penUp()
-    def penDown() = turtle0.penDown()
-    def setPenColor(color: Color) = turtle0.setPenColor(color)
-    def setPenThickness(t: Double) = turtle0.setPenThickness(t)
-    def setFillColor(color: Color) = turtle0.setFillColor(color)
-    def saveStyle() = turtle0.saveStyle()
-    def restoreStyle() = turtle0.restoreStyle()
-    def style: Style = turtle0.style
-    def beamsOn() = turtle0.beamsOn()
-    def beamsOff() = turtle0.beamsOff()
-    def write(text: String) = turtle0.write(text)
-    def visible() = turtle0.visible()
-    def invisible() = turtle0.invisible()
+    override def home(): Unit = turtle0.home()
+    UserCommand("home", Nil, "Moves the turtle to its original location, and makes it point north.")
 
-    def towards(x: Double, y: Double) = turtle0.towards(x, y)
-    def position: Point = turtle0.position
-    def heading: Double = turtle0.heading
+    override def jumpTo(p: Point): Unit = turtle0.jumpTo(p.x, p.y)
+    override def jumpTo(x: Double, y: Double) = turtle0.jumpTo(x, y)
+    UserCommand.addCompletion("jumpTo", List("x", "y"))
 
-    def jumpTo(x: Double, y: Double) = turtle0.jumpTo(x, y)
-    def moveTo(x: Double, y: Double) = turtle0.moveTo(x, y)
+    override def setPosition(p: Point): Unit = turtle0.jumpTo(p)
+    override def setPosition(x: Double, y: Double) = turtle0.jumpTo(x, y)
+    UserCommand("setPosition", List("x", "y"), "Sends the turtle to the point (x, y) without drawing a line. The turtle's heading is not changed.")
 
-    def animationDelay = turtle0.animationDelay
-    def setAnimationDelay(d: Long) = turtle0.setAnimationDelay(d)
+    override def position: Point = turtle0.position
+    UserCommand.addSynopsis("position - Queries the turtle's position.")
 
-    def newTurtle() = tCanvas.newTurtle(0, 0)
-    def newTurtle(x: Int, y: Int) = tCanvas.newTurtle(x, y)
+    def moveTo() = println("Please provide the coordinates of the point that the turtle should move to - e.g. moveTo(100, 100)")
+    override def moveTo(x: Double, y: Double) = turtle0.moveTo(x, y)
+    override def moveTo(p: Point): Unit = turtle0.moveTo(p.x, p.y)
+    UserCommand("moveTo", List("x", "y"), "Turns the turtle towards (x, y) and moves the turtle to that point. ")
 
-    def newPuzzler(x: Int, y: Int) = tCanvas.newPuzzler(x, y)
-    def undo() = tCanvas.undo()
+    def turn() = println("Please provide the angle to turn in degrees - e.g. turn(45)")
+    override def turn(angle: Double) = turtle0.turn(angle)
+    UserCommand("turn", List("angle"), "Turns the turtle through a specified angle. Angles are positive for counter-clockwise turns.")
 
-    def inspect(obj: AnyRef) = ctx.inspect(obj)
+    override def right(): Unit = turtle0.turn(-90)
+    UserCommand("right", Nil, "Turns the turtle 90 degrees right (clockwise).")
+    override def right(angle: Double): Unit = turtle0.turn(-angle)
+    UserCommand("right", List("angle"), "Turns the turtle angle degrees right (clockwise).")
+
+    override def left(): Unit = turtle0.turn(90)
+    UserCommand("left", Nil, "Turns the turtle 90 degrees left (counter-clockwise).")
+    override def left(angle: Double): Unit = turtle0.turn(angle)
+    UserCommand("left", List("angle"), "Turns the turtle angle degrees left (counter-clockwise). ")
+
+    def towards() = println("Please provide the coordinates of the point that the turtle should turn towards - e.g. towards(100, 100)")
+    override def towards(p: Point): Unit = turtle0.towards(p.x, p.y)
+    override def towards(x: Double, y: Double) = turtle0.towards(x, y)
+    UserCommand("towards", List("x", "y"), "Turns the turtle towards the point (x, y).")
+
+    override def setHeading(angle: Double) = turtle0.turn(angle - heading)
+    UserCommand("setHeading", List("angle"), "Sets the turtle's heading to angle (0 is towards the right side of the screen ('east'), 90 is up ('north')).")
+
+    override def heading: Double = turtle0.heading
+    UserCommand.addSynopsis("heading - Queries the turtle's heading (0 is towards the right side of the screen ('east'), 90 is up ('north')).")
+    UserCommand.addSynopsis("\n")
+
+    override def penDown() = turtle0.penDown()
+    UserCommand("penDown", Nil, "Makes the turtle draw lines as it moves (the default setting). ")
+
+    override def penUp() = turtle0.penUp()
+    UserCommand("penUp", Nil, "Makes the turtle not draw lines as it moves.")
+
+    def setPenColor() = println("Please provide the color of the pen that the turtle should draw with - e.g setPenColor(blue)")
+    override def setPenColor(color: Color) = turtle0.setPenColor(color)
+    UserCommand("setPenColor", List("color"), "Specifies the color of the pen that the turtle draws with.")
+
+    def setPenThickness() = println("Please provide the thickness of the pen that the turtle should draw with - e.g setPenThickness(1)")
+    override def setPenThickness(t: Double) = turtle0.setPenThickness(t)
+    UserCommand("setPenThickness", List("thickness"), "Specifies the width of the pen that the turtle draws with.")
+
+    def setFillColor() = println("Please provide the fill color for the areas drawn by the turtle - e.g setFillColor(yellow)")
+    override def setFillColor(color: Color) = turtle0.setFillColor(color)
+    UserCommand("setFillColor", List("color"), "Specifies the fill color of the figures drawn by the turtle.")
+    UserCommand.addSynopsis("\n")
+
+    override def beamsOn() = turtle0.beamsOn()
+    UserCommand("beamsOn", Nil, "Shows crossbeams centered on the turtle - to help with solving puzzles.")
+
+    override def beamsOff() = turtle0.beamsOff()
+    UserCommand("beamsOff", Nil, "Hides the turtle crossbeams.")
+
+    override def invisible() = turtle0.invisible()
+    UserCommand("invisible", Nil, "Hides the turtle.")
+
+    override def visible() = turtle0.visible()
+    UserCommand("visible", Nil, "Makes the hidden turtle visible again.")
+    UserCommand.addSynopsis("\n")
+
+    override def write(obj: Any): Unit = turtle0.write(obj.toString)
+    override def write(text: String) = turtle0.write(text)
+    UserCommand("write", List("obj"), "Makes the turtle write the specified object as a string at its current location.")
+
+    override def setAnimationDelay(d: Long) = turtle0.setAnimationDelay(d)
+    UserCommand("setAnimationDelay", List("delay"), "Sets the turtle's speed. The specified delay is the amount of time (in milliseconds) taken by the turtle to move through a distance of one hundred steps.")
+
+    override def animationDelay = turtle0.animationDelay
+    UserCommand.addSynopsis("animationDelay - Queries the turtle's delay setting.")
+    UserCommand.addSynopsis("\n")
+
+    override def undo() = tCanvas.undo()
+    UserCommand("undo", Nil, "Undoes the last turtle command.")
+
+    override def clear() = tCanvas.clear()
+    UserCommand("clear", Nil, "Clears the screen. To bring the turtle to the center of the window after this command, just resize the turtle canvas.")
+
+    override def zoom(factor: Double, cx: Double, cy: Double) = tCanvas.zoom(factor, cx, cy)
+    UserCommand("zoom", List("factor", "cx", "cy"), "Zooms in by the given factor, and position (cx, cy) at the center of the turtle canvas.")
+    UserCommand.addSynopsis("\n")
 
     def listPuzzles = PuzzleLoader.listPuzzles
-    def clearOutput() = ctx.clearOutput()
-
-    def newFigure(x: Int, y: Int) = tCanvas.newFigure(x, y)
+    UserCommand("listPuzzles", Nil, "shows the names of the puzzles available in the system.")
 
     def loadPuzzle(name: String) {
       val oPuzzleFn = PuzzleLoader.readPuzzle(name)
@@ -614,6 +591,105 @@ Here's a partial list of the available commands:
       else {
         println("Puzzle not available: " + name)
       }
+    }
+    UserCommand("loadPuzzle", List("name"), "loads the named puzzle.")
+
+    override def clearPuzzlers() = tCanvas.clearPuzzlers()
+    UserCommand("clearPuzzlers", Nil, "clears out the puzzler turtles and the puzzles from the screen.")
+    UserCommand.addSynopsis("\n")
+
+    override def gridOn() = tCanvas.gridOn()
+    UserCommand("gridOn", Nil, "Shows a grid on the canvas.")
+
+    override def gridOff() = tCanvas.gridOff()
+    UserCommand("gridOff", Nil, "Hides the grid.")
+
+    def newTurtle(): Turtle = newTurtle(0, 0)
+    override def newTurtle(x: Int, y: Int) = tCanvas.newTurtle(x, y)
+    UserCommand("newTurtle", List("x", "y"), "Makes a new turtle located at the point (x, y).")
+
+    UserCommand.addSynopsis("turtle0 - gives you a handle to the original turtle.")
+    UserCommand.addSynopsis("\n")
+
+    def showScriptInOutput() = ctx.showScriptInOutput()
+    UserCommand("showScriptInOutput", Nil, "Enables the display of scripts in the output window when they run.")
+
+    def hideScriptInOutput() = ctx.hideScriptInOutput()
+    UserCommand("hideScriptInOutput", Nil, "Stops the display of scripts in the output window.")
+
+    def showVerboseOutput() = ctx.showVerboseOutput()
+    UserCommand("showVerboseOutput", Nil, "Enables the display of the output from the Scala interpreter. By default, output from the interpreter is shown only for single line scripts..")
+
+    def hideVerboseOutput() = ctx.hideVerboseOutput()
+    UserCommand("hideVerboseOutput", Nil, "Stops the display of the output from the Scala interpreter..")
+    UserCommand.addSynopsis("\n")
+
+    def version = println("Scala " + scala.tools.nsc.Properties.versionString)
+    UserCommand.addSynopsis("version - Displays the version of Scala being used.")
+
+    def repeat(n: Int) (fn: => Unit) {
+      for (i <- 1 to n) {
+        fn
+        Throttler.throttle()
+      }
+    }
+    UserCommand.addCompletion("repeat", " (${n}) {\n    ${cursor}\n}")
+    UserCommand.addSynopsis("repeat(n) {} - Repeats commands within braces n number of times.")
+
+    def print(obj: Any): Unit = println(obj)
+    UserCommand.addCompletion("print", List("obj"))
+
+    def println(obj: Any): Unit = println(if (obj == null) "null" else obj.toString)
+    UserCommand.addCompletion("println", List("obj"))
+    UserCommand.addSynopsis("println(obj) or print(obj) - Displays the given object as a string in the output window.")
+
+    def readln(prompt: String): String = ctx.readInput(prompt)
+    UserCommand("readln", List("promptString"), "Displays the given prompt in the output window and reads a line that the user enters.")
+
+    def readInt(prompt: String): Int = readln(prompt).toInt
+    UserCommand("readInt", List("promptString"), "Displays the given prompt in the output window and reads an Integer value that the user enters.")
+
+    def readDouble(prompt: String): Double = readln(prompt).toDouble
+    UserCommand("readDouble", List("promptString"), "Displays the given prompt in the output window and reads a Double-precision Real value that the user enters.")
+
+    def random(upperBound: Int) = Random.nextInt(upperBound)
+    UserCommand("random", List("upperBound"), "Returns a random Integer between 0 (inclusive) and upperBound (exclusive).")
+
+    def randomDouble(upperBound: Int) = Random.nextDouble * upperBound
+    UserCommand("randomDouble", List("upperBound"), "Returns a random Double-precision Real between 0 (inclusive) and upperBound (exclusive).")
+
+    def inspect(obj: AnyRef) = ctx.inspect(obj)
+    UserCommand("inspect", List("obj"), "Explores the internal fields of the given object.")
+
+    override def saveStyle() = turtle0.saveStyle()
+    UserCommand.addCompletion("saveStyle", Nil)
+
+    override def restoreStyle() = turtle0.restoreStyle()
+    UserCommand.addCompletion("restoreStyle", Nil)
+
+    def help() = {
+      println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
+
+Here's a partial list of the available commands:
+              """ + UserCommand.synopses)
+    }
+
+    // undocumented
+    override def style: Style = turtle0.style
+    def color(r: Int, g: Int, b: Int) = new Color(r, g, b)
+    def color(rgbHex: Int) = new Color(rgbHex)
+    def clearOutput() = ctx.clearOutput()
+    override def exportImage(filePrefix: String) = tCanvas.exportImage(filePrefix)
+    override def exportThumbnail(filePrefix: String, height: Int) = tCanvas.exportThumbnail(filePrefix, height)
+    override def newFigure(x: Int, y: Int) = tCanvas.newFigure(x, y)
+    override def newPuzzler(x: Int, y: Int) = tCanvas.newPuzzler(x, y)
+    override def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double) =
+      tCanvas.zoomXY(xfactor, yfactor, cx, cy)
+
+    def println(s: String): Unit = {
+      // Runs on Actor pool (interpreter) thread
+      ScalaCodeRunner.this.println(s + "\n")
+      Throttler.throttle()
     }
   }
 
