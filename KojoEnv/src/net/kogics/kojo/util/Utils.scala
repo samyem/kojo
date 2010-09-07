@@ -112,4 +112,5 @@ object Utils {
   def deg2radians(angle: Double) = angle * Math.Pi / 180
   def rad2degrees(angle: Double) = angle * 180 / Math.Pi
 
+  def stripCR(str: String) = str.replaceAll("\r\n", "\n")
 }
