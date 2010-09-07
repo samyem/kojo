@@ -28,11 +28,16 @@ class Talker(email: String, password: String, listener: TalkListener) {
   def upload(title: String, code: String, file: java.io.File) {
     val conv = new Conversation
     listener.onEvent(NbBundle.getMessage(classOf[Talker], "Talker.login"))
-    conv.go(server + "/login")
+    try {
+      conv.go(server + "/login")
+    }
+    catch {
+      case t: Throwable => listener.onEvent(t.getMessage); return
+    }
     conv.formField("email", email)
     conv.formField("password", password)
-    conv.formSubmit()
     try {
+      conv.formSubmit()
       conv.find("Login Succeeded")
       listener.onEvent(NbBundle.getMessage(classOf[Talker], "Talker.login.success"))
     }
@@ -52,8 +57,8 @@ class Talker(email: String, password: String, listener: TalkListener) {
     conv.formField("code", code)
     conv.formField("image", file)
     listener.onEvent(NbBundle.getMessage(classOf[Talker], "Talker.upload.start"))
-    conv.formSubmit()
     try {
+      conv.formSubmit()
       conv.find("Code Exchange")
       listener.onEvent(NbBundle.getMessage(classOf[Talker], "Talker.upload.success"))
     }

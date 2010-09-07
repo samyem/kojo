@@ -92,25 +92,25 @@ class PointTest extends StagingTestBase {
              |var a = Staging.point(0,0)
              |a = (-22, -13)""".stripMargin,
       Some("$import Staging._" +
-      "a: net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)" +
+      "a: net.kogics.kojo.core.Point = Point\\(-22[,.]00, -13[,.]00\\)" +
       "a: net.kogics.kojo.core.Point = Point\\(-22[,.]00, -13[,.]00\\)"))
     Tester("""import Staging._
              |var a = Staging.point(0,0)
              |a = (-22., -13)""".stripMargin,
       Some("$import Staging._" +
-      "a: net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)" +
+      "a: net.kogics.kojo.core.Point = Point\\(-22[,.]00, -13[,.]00\\)" +
       "a: net.kogics.kojo.core.Point = Point\\(-22[,.]00, -13[,.]00\\)"))
     Tester("""import Staging._
              |var a = Staging.point(0,0)
              |a = (-22, -13.)""".stripMargin,
       Some("$import Staging._" +
-      "a: net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)" +
+      "a: net.kogics.kojo.core.Point = Point\\(-22[,.]00, -13[,.]00\\)" +
       "a: net.kogics.kojo.core.Point = Point\\(-22[,.]00, -13[,.]00\\)"))
     Tester("""import Staging._
              |var b = Staging.point(0,0)
              |b = (5., .45)""".stripMargin,
       Some("$import Staging._" +
-      "b: net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)" +
+      "b: net.kogics.kojo.core.Point = Point\\(5[,.]00, 0[,.]45\\)" +
       "b: net.kogics.kojo.core.Point = Point\\(5[,.]00, 0[,.]45\\)"))
   //W
   }

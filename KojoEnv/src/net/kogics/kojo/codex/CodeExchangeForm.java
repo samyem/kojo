@@ -197,6 +197,7 @@ public class CodeExchangeForm extends javax.swing.JDialog {
             }
         });
         File image = canvas.exportThumbnail("dogo", 150);
+        talkDetails.setText("");
         t.upload(title.getText(), code, image);
         image.deleteOnExit();
     }//GEN-LAST:event_uploadButtonActionPerformed
@@ -205,6 +206,7 @@ public class CodeExchangeForm extends javax.swing.JDialog {
         cetc.setCodexEmail(email.getText());
         cetc.setCodexPassword(new String(password.getPassword()));
         setVisible(false);
+        cetc.requestActive();
     }//GEN-LAST:event_closeButtonActionPerformed
 
     /**
