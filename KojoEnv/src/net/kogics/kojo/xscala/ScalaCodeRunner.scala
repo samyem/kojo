@@ -321,7 +321,10 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     }
 
     def needsLineByLineInterpretation(code: String): Boolean = {
-      varPattern.matcher(code).find()
+      // the interpreter seems to handle (reassignment of) vars just fine now in batch mode
+      false
+
+      // varPattern.matcher(code).find()
     }
 
     def showIncompleteCodeMsg(code: String) {

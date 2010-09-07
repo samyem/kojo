@@ -56,7 +56,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val findAction = new org.netbeans.editor.ext.ExtKit.FindAction()
   val replaceAction = new org.netbeans.editor.ext.ExtKit.ReplaceAction()
 
-  val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton) = makeToolbar()
+  val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton, cexButton) = makeToolbar()
 
   @volatile var runMonitor: RunMonitor = new NoOpRunMonitor()
   var undoRedoManager: UndoRedo.Manager = _ 
@@ -107,7 +107,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     ret
   }
 
-  def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton, JButton) = {
+  def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton, JButton, JButton) = {
 
     val RunScript = "RunScript"
     val StopScript = "StopScript"
@@ -115,6 +115,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val HistoryPrev = "HistoryPrev"
     val ClearOutput = "ClearOutput"
     val UndoCommand = "UndoCommand"
+    val UploadCommand = "UploadCommand"
 
     var clearButton: JButton = null
 
@@ -133,6 +134,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           clrOutput()
         case UndoCommand =>
           smartUndo()
+        case UploadCommand =>
+          upload()
       }
     }
 
@@ -157,6 +160,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
     clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, "Clear Output", "Clear the Output")
     val undoButton = makeNavigationButton("/images/undo.png", UndoCommand, "Undo Last Turtle Command", "Undo")
+    val cexButton = makeNavigationButton("/images/clear24.png", UploadCommand, "Upload to CodeExchange", "Upload")
 
     toolbar.add(runButton)
 
@@ -175,7 +179,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     undoButton.setEnabled(false)
     toolbar.add(undoButton)
 
-    (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton)
+    toolbar.add(cexButton)
+
+    (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton, cexButton)
   }
 
   def makeCodeRunner(): core.CodeRunner = {
@@ -384,6 +390,13 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     }
   }
 
+  def upload() {
+    val dlg = new codex.CodeExchangeForm(null, true)
+    dlg.setCanvas(tCanvas)
+    dlg.setCode(Utils.stripCR(codePane.getText()))
+    dlg.centerScreen()
+  }
+
   def showFindDialog() {
     findAction.actionPerformed(null, codePane)
     tweakFindReplaceDialog()
@@ -443,7 +456,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     }
     else {
       val errorText = errorText0.trim()
-      val code = stripCR(codePane.getText)
+      val code = Utils.stripCR(codePane.getText)
       val idx = code.indexOf(errorText)
       if (idx == -1) {
         showHelpMessage()
@@ -591,11 +604,10 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       showOutput(OutputDelimiter, promptColor)
   }
 
-  def stripCR(str: String) = str.replaceAll("\r\n", "\n")
   def codeFragment(caretOffset: Int) = {
     val cpt = codePane.getText
     if (caretOffset > cpt.length) ""
-    else stripCR(cpt).substring(0, caretOffset)
+    else Utils.stripCR(cpt).substring(0, caretOffset)
   }
   def methodCompletions(caretOffset: Int) = codeRunner.methodCompletions(codeFragment(caretOffset))
   def varCompletions(caretOffset: Int) = codeRunner.varCompletions(codeFragment(caretOffset))

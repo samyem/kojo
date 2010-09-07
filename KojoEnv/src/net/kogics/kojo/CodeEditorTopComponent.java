@@ -94,6 +94,8 @@ public final class CodeEditorTopComponent extends CloneableEditor {
     final Action pasteAction = new DefaultEditorKit.PasteAction();
 
     private String lastLoadStoreDir = "";
+    private String codexEmail = "";
+    private String codexPassword = "";
 
     public String getLastLoadStoreDir() {
         return lastLoadStoreDir;
@@ -101,6 +103,22 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 
     public void setLastLoadStoreDir(String lastLoadStoreDir) {
         this.lastLoadStoreDir = lastLoadStoreDir;
+    }
+
+    public String getCodexEmail() {
+        return codexEmail;
+    }
+
+    public void setCodexEmail(String codexEmail) {
+        this.codexEmail = codexEmail;
+    }
+
+    public String getCodexPassword() {
+        return codexPassword;
+    }
+
+    public void setCodexPassword(String codexPassword) {
+        this.codexPassword = codexPassword;
     }
 
     public CodeEditorTopComponent() {
@@ -192,6 +210,8 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
         p.setProperty("storeDir", lastLoadStoreDir == null ? "" : lastLoadStoreDir);
+        p.setProperty("codexEmail", codexEmail == null ? "" : codexEmail);
+        p.setProperty("codexPassword", codexPassword == null ? "" : codexPassword);
     }
 
     Object readProperties(java.util.Properties p) {
@@ -205,6 +225,8 @@ public final class CodeEditorTopComponent extends CloneableEditor {
     private void readPropertiesImpl(java.util.Properties p) {
         String version = p.getProperty("version");
         lastLoadStoreDir = p.getProperty("storeDir");
+        codexEmail = p.getProperty("codexEmail");
+        codexPassword = p.getProperty("codexPassword");
     }
 
     @Override

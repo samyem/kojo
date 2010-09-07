@@ -228,14 +228,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
-  def exportImage(fileName: String, thumbnail: Boolean) {
-    val (width, height) = if (thumbnail) ((getWidth.toFloat/getHeight * 200).toInt, 200) else (getWidth, getHeight)
-    val image = getCamera.toImage(width, height, java.awt.Color.white)
-    val outfile = new java.io.File(fileName + ".png")
-    javax.imageio.ImageIO.write(image.asInstanceOf[java.awt.image.BufferedImage], "png", outfile)
-    this.outputFn("Turtle Canvas exported to: " + outfile.getCanonicalPath)
-  }
-
   private def exportImageHelper(filePrefix: String, width: Int, height: Int): java.io.File = {
     val image = getCamera.toImage(width, height, java.awt.Color.white)
     val outfile = java.io.File.createTempFile(filePrefix + "-", ".png")
