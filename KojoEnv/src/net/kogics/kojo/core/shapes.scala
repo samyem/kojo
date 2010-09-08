@@ -31,7 +31,6 @@ trait Labelled extends VisualElement {
   def showLabel()
 }
 
-// TODO define equality
 class Point(val x: Double, val y: Double) {
   def +(that: Point) = new Point(this.x + that.x, this.y + that.y)
   def -(that: Point) = new Point(this.x - that.x, this.y - that.y)
@@ -39,6 +38,15 @@ class Point(val x: Double, val y: Double) {
   def onX() = new Point(x, 0)
   def onY() = new Point(0, y)
   override def toString = "Point(%.2f, %.2f)" format(x, y)
+  // Martin says (Programming in Scala, 1st ed, ch 28):
+  override def hashCode: Int = 41 * (41 + x.hashCode) + y.hashCode
+  override def equals(other: Any) = other match {
+    case that: Point =>
+      (that canEqual this) && (this.x == that.x) && (this.y == that.y)
+    case _ =>
+      false
+  }
+  def canEqual(other: Any) = other.isInstanceOf[Point]
 }
 class Line(val p1: Point, val p2: Point)
 class LineSegment(p1: Point, p2: Point) extends Line(p1, p2)
