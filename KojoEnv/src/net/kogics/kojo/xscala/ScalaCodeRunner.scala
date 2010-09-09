@@ -493,14 +493,14 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     override def turn(angle: Double) = turtle0.turn(angle)
     UserCommand("turn", List("angle"), "Turns the turtle through a specified angle. Angles are positive for counter-clockwise turns.")
 
-    override def right(): Unit = turtle0.turn(-90)
+    override def right(): Unit = turtle0.right()
     UserCommand("right", Nil, "Turns the turtle 90 degrees right (clockwise).")
-    override def right(angle: Double): Unit = turtle0.turn(-angle)
+    override def right(angle: Double): Unit = turtle0.right(angle)
     UserCommand("right", List("angle"), "Turns the turtle angle degrees right (clockwise).")
 
-    override def left(): Unit = turtle0.turn(90)
+    override def left(): Unit = turtle0.left()
     UserCommand("left", Nil, "Turns the turtle 90 degrees left (counter-clockwise).")
-    override def left(angle: Double): Unit = turtle0.turn(angle)
+    override def left(angle: Double): Unit = turtle0.left(angle)
     UserCommand("left", List("angle"), "Turns the turtle angle degrees left (counter-clockwise). ")
 
     def towards() = println("Please provide the coordinates of the point that the turtle should turn towards - e.g. towards(100, 100)")
@@ -508,7 +508,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     override def towards(x: Double, y: Double) = turtle0.towards(x, y)
     UserCommand("towards", List("x", "y"), "Turns the turtle towards the point (x, y).")
 
-    override def setHeading(angle: Double) = turtle0.turn(angle - heading)
+    override def setHeading(angle: Double) = turtle0.setHeading(angle)
     UserCommand("setHeading", List("angle"), "Sets the turtle's heading to angle (0 is towards the right side of the screen ('east'), 90 is up ('north')).")
 
     override def heading: Double = turtle0.heading
@@ -525,14 +525,20 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     override def setPenColor(color: Color) = turtle0.setPenColor(color)
     UserCommand("setPenColor", List("color"), "Specifies the color of the pen that the turtle draws with.")
 
-    def setPenThickness() = println("Please provide the thickness of the pen that the turtle should draw with - e.g setPenThickness(1)")
-    override def setPenThickness(t: Double) = turtle0.setPenThickness(t)
-    UserCommand("setPenThickness", List("thickness"), "Specifies the width of the pen that the turtle draws with.")
-
     def setFillColor() = println("Please provide the fill color for the areas drawn by the turtle - e.g setFillColor(yellow)")
     override def setFillColor(color: Color) = turtle0.setFillColor(color)
     UserCommand("setFillColor", List("color"), "Specifies the fill color of the figures drawn by the turtle.")
     UserCommand.addSynopsisSeparator()
+
+    def setPenThickness() = println("Please provide the thickness of the pen that the turtle should draw with - e.g setPenThickness(1)")
+    override def setPenThickness(t: Double) = turtle0.setPenThickness(t)
+    UserCommand("setPenThickness", List("thickness"), "Specifies the width of the pen that the turtle draws with.")
+
+    override def saveStyle() = turtle0.saveStyle()
+    UserCommand.addCompletion("saveStyle", Nil)
+
+    override def restoreStyle() = turtle0.restoreStyle()
+    UserCommand.addCompletion("restoreStyle", Nil)
 
     override def beamsOn() = turtle0.beamsOn()
     UserCommand("beamsOn", Nil, "Shows crossbeams centered on the turtle - to help with solving puzzles.")
@@ -547,7 +553,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     UserCommand("visible", Nil, "Makes the hidden turtle visible again.")
     UserCommand.addSynopsisSeparator()
 
-    override def write(obj: Any): Unit = turtle0.write(obj.toString)
+    override def write(obj: Any): Unit = turtle0.write(obj)
     override def write(text: String) = turtle0.write(text)
     UserCommand("write", List("obj"), "Makes the turtle write the specified object as a string at its current location.")
 
@@ -662,12 +668,6 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
 
     def inspect(obj: AnyRef) = ctx.inspect(obj)
     UserCommand("inspect", List("obj"), "Explores the internal fields of the given object.")
-
-    override def saveStyle() = turtle0.saveStyle()
-    UserCommand.addCompletion("saveStyle", Nil)
-
-    override def restoreStyle() = turtle0.restoreStyle()
-    UserCommand.addCompletion("restoreStyle", Nil)
 
     def help() = {
       println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
