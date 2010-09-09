@@ -302,6 +302,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
 //    turtle.waitFor
     clearHistory()
+    zoom(1, 0, 0)
   }
 
   def clearPuzzlers() {

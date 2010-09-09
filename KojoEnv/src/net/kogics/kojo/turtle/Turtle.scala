@@ -42,7 +42,7 @@ import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 object Turtle {
   val handleLayer = new PLayer
-  val writeFont = new Font(new PText().getFont.getName, Font.PLAIN, 15)
+  val writeFont = new Font(new PText().getFont.getName, Font.PLAIN, 18)
 }
 
 class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
@@ -602,6 +602,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     ptext.getTransformReference(true).setToScale(1, -1)
     ptext.setOffset(_position.x, _position.y)
     ptext.setFont(Turtle.writeFont)
+    ptext.setTextPaint(pen.getColor)
     layer.addChild(layer.getChildrenCount-1, ptext)
     ptext.repaint()
     turtle.repaint()
