@@ -10,11 +10,15 @@
  */
 package net.kogics.kojo.codex;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import net.kogics.kojo.CodeEditorTopComponent;
 import net.kogics.kojo.core.SCanvas;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -74,6 +78,8 @@ public class CodeExchangeForm extends javax.swing.JDialog {
         jLabel2 = new javax.swing.JLabel();
         password = new javax.swing.JPasswordField();
         email = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        registerLink = new javax.swing.JLabel();
         closeButton = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
 
@@ -104,6 +110,16 @@ public class CodeExchangeForm extends javax.swing.JDialog {
 
         email.setText(org.openide.util.NbBundle.getMessage(CodeExchangeForm.class, "CodeExchangeForm.email.text")); // NOI18N
 
+        jLabel5.setText(org.openide.util.NbBundle.getMessage(CodeExchangeForm.class, "CodeExchangeForm.jLabel5.text")); // NOI18N
+
+        registerLink.setText(org.openide.util.NbBundle.getMessage(CodeExchangeForm.class, "CodeExchangeForm.registerLink.text")); // NOI18N
+        registerLink.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        registerLink.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                registerLinkMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -111,12 +127,18 @@ public class CodeExchangeForm extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(password)
-                    .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(password)
+                            .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(registerLink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(33, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -130,6 +152,10 @@ public class CodeExchangeForm extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(registerLink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -182,7 +208,7 @@ public class CodeExchangeForm extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(41, 41, 41))
+                .addGap(65, 65, 65))
         );
 
         pack();
@@ -209,6 +235,14 @@ public class CodeExchangeForm extends javax.swing.JDialog {
         cetc.requestActive();
     }//GEN-LAST:event_closeButtonActionPerformed
 
+    private void registerLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_registerLinkMouseClicked
+        try {
+            Desktop.getDesktop().browse(new URI("http://localhost/register"));
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }//GEN-LAST:event_registerLinkMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -234,9 +268,11 @@ public class CodeExchangeForm extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPasswordField password;
+    private javax.swing.JLabel registerLink;
     private javax.swing.JTextArea talkDetails;
     private javax.swing.JTextField title;
     private javax.swing.JButton uploadButton;
