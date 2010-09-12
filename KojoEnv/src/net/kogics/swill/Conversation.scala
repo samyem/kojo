@@ -20,22 +20,33 @@ import scala.util.matching.Regex
 
 object Conversation {
   HttpUnitOptions.setScriptingEnabled(false)
-  val tid = new ThreadLocal[Int]()
+  val tid = new ThreadLocal[Int]() {
+    override def initialValue = 1
+  }
+  @volatile var _server: String = _ // server host and port e.g. http://localhost:8081
+
+  def server_=(s: String ) = synchronized {
+    if (_server == null) {
+      _server = s
+    }
+  }
+
+  def server = _server
 }
 
 class Conversation {
   import Conversation._
-  tid.set(1)
-  
   val wc = new WebConversation
   var response: WebResponse = _
   val rg = new java.util.Random()
 
-  def setProxyServer(host: String, port: Int) {
-    wc.setProxyServer(host, port)
-  }
+//  does not seem to work
+//  def setProxyServer(host: String, port: Int) {
+//    wc.setProxyServer(host, port)
+//  }
 
-  def go(url: String) {
+  def go(relativeUrl: String) {
+    val url = server + relativeUrl
     println("[Thread %d] Going to page - %s" format(tid.get, url))
     response = wc.getResponse(url);
   }

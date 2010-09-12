@@ -232,9 +232,21 @@ public class CodeExchangeForm extends javax.swing.JDialog {
     private void uploadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uploadButtonActionPerformed
         Talker t = new Talker(email.getText(), new String(password.getPassword()), new TalkListener() {
 
+            public void onStart() {
+                uploadButton.setEnabled(false);
+                closeButton.setEnabled(false);
+            }
+
             public void onEvent(String msg) {
                 talkDetails.append(msg);
                 talkDetails.append("\n");
+            }
+
+            public void onFinish(boolean success) {
+                if (!success) {
+                    uploadButton.setEnabled(true);
+                }
+                closeButton.setEnabled(true);
             }
         });
 //        File image = canvas.exportThumbnail("dogo", 150);
