@@ -28,6 +28,7 @@ trait TalkListener {
 object Talker {
 //  val server = "http://localhost"
   val server = "http://www.kogics.net"
+  Conversation.server = server
 }
 
 class Talker(email: String, password: String, listener: TalkListener) {
@@ -59,7 +60,12 @@ class Talker(email: String, password: String, listener: TalkListener) {
     val uploadRunner = new Runnable {
       def run {
         fireStart()
-        Conversation.server = Talker.server
+
+        if (title == null || title.trim == "") {
+          fireProblem("Please provide a Title (above) before uploading your sketch.")
+          return
+        }
+        
         val conv = new Conversation
         fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.login"))
         try {
