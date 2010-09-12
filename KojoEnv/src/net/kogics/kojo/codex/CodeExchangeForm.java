@@ -99,6 +99,7 @@ public class CodeExchangeForm extends javax.swing.JDialog {
         });
 
         talkDetails.setColumns(20);
+        talkDetails.setEditable(false);
         talkDetails.setRows(5);
         jScrollPane1.setViewportView(talkDetails);
 

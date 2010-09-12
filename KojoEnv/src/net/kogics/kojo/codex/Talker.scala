@@ -26,12 +26,14 @@ trait TalkListener {
 }
 
 object Talker {
+  private val envS = System.getenv("CODEX_SERVER")
+  val server = if (envS != null) envS else "http://www.kogics.net"
 //  val server = "http://localhost"
-  val server = "http://www.kogics.net"
-  Conversation.server = server
 }
 
 class Talker(email: String, password: String, listener: TalkListener) {
+  
+  Conversation.server = Talker.server
 
   def fireEvent(msg: String) {
     Utils.runInSwingThread {
