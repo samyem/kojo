@@ -29,6 +29,7 @@ object Talker {
   private val envS = System.getenv("CODEX_SERVER")
   val server = if (envS != null) envS else "http://www.kogics.net"
 //  val server = "http://localhost"
+  val Competition = "Competition"
 }
 
 class Talker(email: String, password: String, listener: TalkListener) {
@@ -58,13 +59,18 @@ class Talker(email: String, password: String, listener: TalkListener) {
     fireFinish(false)
   }
 
-  def upload(title: String, code: String, file: java.io.File) {
+  def upload(title: String, category: String, catData: String, code: String, file: java.io.File) {
     val uploadRunner = new Runnable {
       def run {
         fireStart()
 
         if (title == null || title.trim == "") {
           fireProblem("Please provide a Title (above) before uploading your sketch.")
+          return
+        }
+
+        if (Talker.Competition == category && (catData == null || catData.trim == "")) {
+          fireProblem("Please provide a Competition Number (above) before uploading your sketch.")
           return
         }
         
@@ -98,6 +104,7 @@ class Talker(email: String, password: String, listener: TalkListener) {
         }
         conv.formField("title", title)
         conv.formField("code", code)
+        conv.formField("category", category + "-" + catData)
         conv.formField("image", file)
         fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.upload.start"))
         try {
