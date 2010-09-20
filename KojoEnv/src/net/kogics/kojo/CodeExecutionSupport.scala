@@ -87,23 +87,21 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     addCodePaneShortcuts()
     statusStrip.linkToPane()
     codePane.getDocument.addDocumentListener(new DocumentListener {
-        def insertUpdate(e: DocumentEvent) = onDocChange()
-        def removeUpdate(e: DocumentEvent) = onDocChange()
+        def insertUpdate(e: DocumentEvent) {
+          // runButton.setEnabled(true)
+          clearSButton.setEnabled(true)
+          // cexButton.setEnabled(true)
+
+        }
+        def removeUpdate(e: DocumentEvent) {
+          if (codePane.getDocument.getLength == 0) {
+            // runButton.setEnabled(false) // interferes with enabling/disabling of run button with interpreter start/stop
+            clearSButton.setEnabled(false)
+            // cexButton.setEnabled(false) // makes the icon look horrible
+          }
+        }
         def changedUpdate(e: DocumentEvent) {}
       })
-  }
-
-  def onDocChange() {
-    if (codePane.getDocument.getLength == 0) {
-//      runButton.setEnabled(false) // interferes with enabling/disabling of run button with interpreter start/stop
-      clearSButton.setEnabled(false)
-//      cexButton.setEnabled(false) // makes the icon look horrible
-    }
-    else {
-//      runButton.setEnabled(true)
-      clearSButton.setEnabled(true)
-//      cexButton.setEnabled(true)
-    }
   }
 
   def doWelcome() = {
