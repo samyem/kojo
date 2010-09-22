@@ -1,13 +1,18 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2010 Lalit Pant <pant.lalit@gmail.com>
+ *
+ * The contents of this file are subject to the GNU General Public License
+ * Version 3 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.gnu.org/copyleft/gpl.html
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ *
  */
 
-/*
- * CodeExchangeForm.java
- *
- * Created on Sep 6, 2010, 8:19:41 AM
- */
 package net.kogics.kojo.codex;
 
 import java.awt.Desktop;
@@ -30,6 +35,7 @@ public class CodeExchangeForm extends javax.swing.JDialog {
     private SCanvas canvas;
     private String code;
     private CodeEditorTopComponent cetc = CodeEditorTopComponent.findInstance();
+    private Talker talker;
 
     /** Creates new form CodeExchangeForm */
     public CodeExchangeForm(java.awt.Frame parent, boolean modal) {
@@ -38,6 +44,7 @@ public class CodeExchangeForm extends javax.swing.JDialog {
         initLoginInfo(cetc.getCodexEmail(), cetc.getCodexPassword());
         catLabel.setVisible(false);
         catData.setVisible(false);
+        cancelButton.setEnabled(false);
     }
 
     public void centerScreen() {
@@ -62,6 +69,7 @@ public class CodeExchangeForm extends javax.swing.JDialog {
         this.code = code;
         if (code == null || code.trim().equals("")) {
             uploadButton.setEnabled(false);
+            uploadButton1.setEnabled(false);
             talkDetails.setText("There's no code in the Script Editor, so there's nothing to Upload!");
         }
     }
@@ -95,6 +103,8 @@ public class CodeExchangeForm extends javax.swing.JDialog {
         category = new javax.swing.JComboBox();
         catData = new javax.swing.JTextField();
         catLabel = new javax.swing.JLabel();
+        cancelButton = new javax.swing.JButton();
+        uploadButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -208,6 +218,20 @@ public class CodeExchangeForm extends javax.swing.JDialog {
 
         catLabel.setText(org.openide.util.NbBundle.getMessage(CodeExchangeForm.class, "CodeExchangeForm.catLabel.text")); // NOI18N
 
+        cancelButton.setText(org.openide.util.NbBundle.getMessage(CodeExchangeForm.class, "CodeExchangeForm.cancelButton.text")); // NOI18N
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
+
+        uploadButton1.setText(org.openide.util.NbBundle.getMessage(CodeExchangeForm.class, "CodeExchangeForm.uploadButton1.text")); // NOI18N
+        uploadButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                uploadButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -221,10 +245,7 @@ public class CodeExchangeForm extends javax.swing.JDialog {
                         .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 161, Short.MAX_VALUE)
                         .addComponent(uploadButton))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(closeButton))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE)
                     .addComponent(jLabel4)
                     .addGroup(layout.createSequentialGroup()
@@ -237,7 +258,13 @@ public class CodeExchangeForm extends javax.swing.JDialog {
                         .addGap(18, 18, 18)
                         .addComponent(catLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(catData, javax.swing.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)))
+                        .addComponent(catData, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(uploadButton1)
+                        .addGap(18, 18, 18)
+                        .addComponent(cancelButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(closeButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -261,21 +288,26 @@ public class CodeExchangeForm extends javax.swing.JDialog {
                 .addGap(10, 10, 10)
                 .addComponent(codexLink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(closeButton))
-                .addGap(40, 40, 40))
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(closeButton)
+                    .addComponent(cancelButton)
+                    .addComponent(uploadButton1))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void uploadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uploadButtonActionPerformed
-        Talker t = new Talker(email.getText(), new String(password.getPassword()), new TalkListener() {
+        talker = new Talker(email.getText(), new String(password.getPassword()), new TalkListener() {
 
             public void onStart() {
                 uploadButton.setEnabled(false);
+                uploadButton1.setEnabled(false);
                 closeButton.setEnabled(false);
+                cancelButton.setEnabled(true);
             }
 
             public void onEvent(String msg) {
@@ -286,14 +318,16 @@ public class CodeExchangeForm extends javax.swing.JDialog {
             public void onFinish(boolean success) {
                 if (!success) {
                     uploadButton.setEnabled(true);
+                    uploadButton1.setEnabled(true);
                 }
                 closeButton.setEnabled(true);
+                cancelButton.setEnabled(false);
             }
         });
 //        File image = canvas.exportThumbnail("dogo", 150);
         File image = canvas.exportImage("codex");
         talkDetails.setText("");
-        t.upload(title.getText(), (String) category.getSelectedItem(), catData.getText(), code, image);
+        talker.upload(title.getText(), (String) category.getSelectedItem(), catData.getText(), code, image);
         image.deleteOnExit();
     }//GEN-LAST:event_uploadButtonActionPerformed
 
@@ -331,6 +365,14 @@ public class CodeExchangeForm extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_categoryActionPerformed
 
+    private void uploadButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uploadButton1ActionPerformed
+        uploadButtonActionPerformed(evt);
+    }//GEN-LAST:event_uploadButton1ActionPerformed
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        talker.cancel();
+    }//GEN-LAST:event_cancelButtonActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -350,6 +392,7 @@ public class CodeExchangeForm extends javax.swing.JDialog {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton cancelButton;
     private javax.swing.JTextField catData;
     private javax.swing.JLabel catLabel;
     private javax.swing.JComboBox category;
@@ -370,5 +413,6 @@ public class CodeExchangeForm extends javax.swing.JDialog {
     private javax.swing.JTextArea talkDetails;
     private javax.swing.JTextField title;
     private javax.swing.JButton uploadButton;
+    private javax.swing.JButton uploadButton1;
     // End of variables declaration//GEN-END:variables
 }
