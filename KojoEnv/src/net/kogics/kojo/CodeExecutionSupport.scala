@@ -56,7 +56,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val findAction = new org.netbeans.editor.ext.ExtKit.FindAction()
   val replaceAction = new org.netbeans.editor.ext.ExtKit.ReplaceAction()
 
-  val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton, cexButton) = makeToolbar()
+  val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearSButton, clearButton, undoButton, cexButton) = makeToolbar()
 
   @volatile var runMonitor: RunMonitor = new NoOpRunMonitor()
   var undoRedoManager: UndoRedo.Manager = _ 
@@ -86,6 +86,22 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     codePane = cp;
     addCodePaneShortcuts()
     statusStrip.linkToPane()
+    codePane.getDocument.addDocumentListener(new DocumentListener {
+        def insertUpdate(e: DocumentEvent) {
+          // runButton.setEnabled(true)
+          clearSButton.setEnabled(true)
+          // cexButton.setEnabled(true)
+
+        }
+        def removeUpdate(e: DocumentEvent) {
+          if (codePane.getDocument.getLength == 0) {
+            // runButton.setEnabled(false) // interferes with enabling/disabling of run button with interpreter start/stop
+            clearSButton.setEnabled(false)
+            // cexButton.setEnabled(false) // makes the icon look horrible
+          }
+        }
+        def changedUpdate(e: DocumentEvent) {}
+      })
   }
 
   def doWelcome() = {
@@ -107,17 +123,15 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     ret
   }
 
-  def makeToolbar(): (JToolBar, JButton, JButton, JButton, JButton, JButton, JButton, JButton) = {
-
+  def makeToolbar() = {
     val RunScript = "RunScript"
     val StopScript = "StopScript"
     val HistoryNext = "HistoryNext"
     val HistoryPrev = "HistoryPrev"
+    val ClearEditor = "ClearEditor"
     val ClearOutput = "ClearOutput"
     val UndoCommand = "UndoCommand"
     val UploadCommand = "UploadCommand"
-
-    var clearButton: JButton = null
 
     val actionListener = new ActionListener {
       def actionPerformed(e: ActionEvent) = e.getActionCommand match {
@@ -130,6 +144,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           loadCodeFromHistoryNext()
         case HistoryPrev =>
           loadCodeFromHistoryPrev()
+        case ClearEditor =>
+          clrEditor()
         case ClearOutput =>
           clrOutput()
         case UndoCommand =>
@@ -158,7 +174,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val stopButton = makeNavigationButton("/images/stop24.png", StopScript, "Stop Script/Animation", "Stop the Code")
     val hNextButton = makeNavigationButton("/images/history-next.png", HistoryNext, "Go to Next Script in History (Ctrl + Down Arrow)", "Next in History")
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
-    clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, "Clear Output", "Clear the Output")
+    val clearSButton = makeNavigationButton("/images/clears.png", ClearEditor, "Clear Editor", "Clear the Editor")
+    val clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, "Clear Output", "Clear the Output")
     val undoButton = makeNavigationButton("/images/undo.png", UndoCommand, "Undo Last Turtle Command", "Undo")
     val cexButton = makeNavigationButton("/images/upload.png", UploadCommand, "Upload to CodeExchange", "Upload")
 
@@ -173,6 +190,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     hNextButton.setEnabled(false)
     toolbar.add(hNextButton)
 
+    clearSButton.setEnabled(false)
+    toolbar.add(clearSButton)
+
     clearButton.setEnabled(false)
     toolbar.add(clearButton)
 
@@ -181,7 +201,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
     toolbar.add(cexButton)
 
-    (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearButton, undoButton, cexButton)
+    (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearSButton, clearButton, undoButton, cexButton)
   }
 
   def makeCodeRunner(): core.CodeRunner = {
@@ -481,8 +501,17 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     Utils.runInSwingThread {
       IO.getOut().reset()
       clearButton.setEnabled(false)
+      codePane.requestFocusInWindow
     }
     lastOutput = ""
+  }
+
+  def clrEditor() {
+    Utils.runInSwingThread {
+      this.codePane.setText(null)
+      clearSButton.setEnabled(false)
+      codePane.requestFocusInWindow
+    }
   }
 
   val listener = new OutputListener() {

@@ -35,6 +35,7 @@ object Talker {
 class Talker(email: String, password: String, listener: TalkListener) {
   
   Conversation.server = Talker.server
+  @volatile var _cancel = false
 
   def fireEvent(msg: String) {
     Utils.runInSwingThread {
@@ -55,70 +56,93 @@ class Talker(email: String, password: String, listener: TalkListener) {
   }
 
   def fireProblem(msg: String) {
-    fireEvent(msg);
-    fireFinish(false)
+    throw new IllegalStateException(msg)
+  }
+
+  def checkCancel() {
+    if (_cancel) {
+      throw new IllegalStateException("Upload Cancelled.")
+    }
+  }
+
+  def cancel() {
+    _cancel = true
   }
 
   def upload(title: String, category: String, catData: String, code: String, file: java.io.File) {
     val uploadRunner = new Runnable {
       def run {
-        fireStart()
+        try {
+          fireStart()
 
-        if (title == null || title.trim == "") {
-          fireProblem("Please provide a Title (above) before uploading your sketch.")
-          return
-        }
+          if (title == null || title.trim == "") {
+            fireProblem("Please provide a Title (above) before uploading your sketch.")
+          }
 
-        if (Talker.Competition == category && (catData == null || catData.trim == "")) {
-          fireProblem("Please provide a Competition Number (above) before uploading your sketch.")
-          return
-        }
+          if (Talker.Competition == category && (catData == null || catData.trim == "")) {
+            fireProblem("Please provide a Competition Number (above) before uploading your sketch.")
+          }
         
-        val conv = new Conversation
-        fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.login"))
-        try {
-          conv.go("/login")
-        }
-        catch {
-          case t: Throwable => fireProblem(t.getMessage); return
-        }
-        conv.formField("email", email)
-        conv.formField("password", password)
-        try {
-          conv.formSubmit()
-          // redirects to code exchange page after login
-          conv.title("Code Exchange")
-          fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.login.success"))
-        }
-        catch {
-          case ex: RuntimeException => fireProblem(NbBundle.getMessage(classOf[Talker], "Talker.login.error")); return
-          case t: Throwable => fireProblem(t.getMessage); return
-        }
+          val conv = new Conversation
+          fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.login", Talker.server))
+          try {
+            conv.go("/login")
+          }
+          catch {
+            case t: Throwable => fireProblem(t.getMessage)
+          }
 
-        fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.upload.init"))
-        try {
-          conv.go("/codeupload")
+          checkCancel()
+
+          conv.formField("email", email)
+          conv.formField("password", password)
+          try {
+            conv.formSubmit()
+            // redirects to code exchange page after login
+            conv.title("Code Exchange")
+            fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.login.success"))
+          }
+          catch {
+            case ex: RuntimeException => fireProblem(NbBundle.getMessage(classOf[Talker], "Talker.login.error"))
+            case t: Throwable => fireProblem(t.getMessage)
+          }
+
+          checkCancel()
+
+          fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.upload.init"))
+          try {
+            conv.go("/codeupload")
+          }
+          catch {
+            case t: Throwable => fireProblem(t.getMessage)
+          }
+
+          checkCancel()
+
+          conv.formField("title", title)
+          conv.formField("code", code)
+          conv.formField("category", category + "-" + catData)
+          conv.formField("image", file)
+          fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.upload.start"))
+          try {
+            conv.formSubmit()
+            conv.title("Code Exchange")
+            fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.upload.success"))
+            fireFinish(true)
+          }
+          catch {
+            case ex: RuntimeException => fireProblem(NbBundle.getMessage(classOf[Talker], "Talker.upload.error"))
+            case t: Throwable => fireProblem(t.getMessage)
+          }
         }
         catch {
-          case t: Throwable => fireProblem(t.getMessage); return
-        }
-        conv.formField("title", title)
-        conv.formField("code", code)
-        conv.formField("category", category + "-" + catData)
-        conv.formField("image", file)
-        fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.upload.start"))
-        try {
-          conv.formSubmit()
-          conv.title("Code Exchange")
-          fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.upload.success"))
-          fireFinish(true)
-        }
-        catch {
-          case ex: RuntimeException => fireProblem(NbBundle.getMessage(classOf[Talker], "Talker.upload.error")); return
-          case t: Throwable => fireProblem(t.getMessage); return
+          case t: Throwable =>
+            fireEvent(t.getMessage)
+            fireFinish(false)
         }
       }
     }
+
     new Thread(uploadRunner).start()
   }
 }
