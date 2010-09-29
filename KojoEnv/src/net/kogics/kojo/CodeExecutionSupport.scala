@@ -308,7 +308,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
             stopButton.setEnabled(false)
           }
 
-          Utils.runInSwingThread {
+          Utils.schedule(0.2) {
             OutputTopComponent.findInstance().scrollToEnd()
           }
 
