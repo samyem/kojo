@@ -121,7 +121,12 @@ class Talker(email: String, password: String, listener: TalkListener) {
 
           conv.formField("title", title)
           conv.formField("code", code)
-          conv.formField("category", category + "-" + catData)
+          if (catData == null || catData.trim == "") {
+            conv.formField("category", category)
+          }
+          else {
+            conv.formField("category", category + "-" + catData)
+          }
           conv.formField("image", file)
           fireEvent(NbBundle.getMessage(classOf[Talker], "Talker.upload.start"))
           try {
