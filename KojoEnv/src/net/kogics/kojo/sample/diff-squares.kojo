@@ -68,7 +68,7 @@ interpolatePolygon(
   List((b, a - b), (b, a), (a, a), (a, 0)),
   20
 )
-glide("Flip one of parts over like this...")
+glide("Flip one of the parts over like this...")
 
 fill(namedColor("silver"))
 square((0, a - b), b)
@@ -85,6 +85,7 @@ column  = screenWidth + 30
 topline =                a
 
 reset()
+screenSize(a + b + 30, a + 30)
 stroke(black)
 drawAxes()
 noFill()
