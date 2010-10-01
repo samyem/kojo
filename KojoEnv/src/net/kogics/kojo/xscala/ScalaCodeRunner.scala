@@ -571,11 +571,11 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     UserCommand("clear", Nil, "Clears the screen. To bring the turtle to the center of the window after this command, just resize the turtle canvas.")
 
     override def zoom(factor: Double, cx: Double, cy: Double) = tCanvas.zoom(factor, cx, cy)
-    UserCommand("zoom", List("factor", "cx", "cy"), "Zooms in by the given factor, and position (cx, cy) at the center of the turtle canvas.")
+    UserCommand("zoom", List("factor", "cx", "cy"), "Zooms in by the given factor, and positions (cx, cy) at the center of the turtle canvas.")
     UserCommand.addSynopsisSeparator()
 
     def listPuzzles = PuzzleLoader.listPuzzles
-    UserCommand("listPuzzles", Nil, "shows the names of the puzzles available in the system.")
+    UserCommand("listPuzzles", Nil, "Shows the names of the puzzles available in the system.")
 
     def loadPuzzle(name: String) {
       val oPuzzleFn = PuzzleLoader.readPuzzle(name)
@@ -600,10 +600,10 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
         println("Puzzle not available: " + name)
       }
     }
-    UserCommand("loadPuzzle", List("name"), "loads the named puzzle.")
+    UserCommand("loadPuzzle", List("name"), "Loads the named puzzle.")
 
     override def clearPuzzlers() = tCanvas.clearPuzzlers()
-    UserCommand("clearPuzzlers", Nil, "clears out the puzzler turtles and the puzzles from the screen.")
+    UserCommand("clearPuzzlers", Nil, "Clears out the puzzler turtles and the puzzles from the screen.")
     UserCommand.addSynopsisSeparator()
 
     override def gridOn() = tCanvas.gridOn()
@@ -616,7 +616,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     override def newTurtle(x: Int, y: Int) = tCanvas.newTurtle(x, y)
     UserCommand("newTurtle", List("x", "y"), "Makes a new turtle located at the point (x, y).")
 
-    UserCommand.addSynopsis("turtle0 - gives you a handle to the original turtle.")
+    UserCommand.addSynopsis("turtle0 - Gives you a handle to the default turtle.")
     UserCommand.addSynopsisSeparator()
 
     def showScriptInOutput() = ctx.showScriptInOutput()
@@ -626,10 +626,10 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     UserCommand("hideScriptInOutput", Nil, "Stops the display of scripts in the output window.")
 
     def showVerboseOutput() = ctx.showVerboseOutput()
-    UserCommand("showVerboseOutput", Nil, "Enables the display of the output from the Scala interpreter. By default, output from the interpreter is shown only for single line scripts..")
+    UserCommand("showVerboseOutput", Nil, "Enables the display of output from the Scala interpreter. By default, output from the interpreter is shown only for single line scripts.")
 
     def hideVerboseOutput() = ctx.hideVerboseOutput()
-    UserCommand("hideVerboseOutput", Nil, "Stops the display of the output from the Scala interpreter..")
+    UserCommand("hideVerboseOutput", Nil, "Stops the display of output from the Scala interpreter.")
     UserCommand.addSynopsisSeparator()
 
     def version = println("Scala " + scala.tools.nsc.Properties.versionString)
@@ -642,7 +642,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
       }
     }
     UserCommand.addCompletion("repeat", " (${n}) {\n    ${cursor}\n}")
-    UserCommand.addSynopsis("repeat(n) {} - Repeats commands within braces n number of times.")
+    UserCommand.addSynopsis("repeat(n) {} - Repeats the commands within braces n number of times.")
 
     def print(obj: Any): Unit = println(obj)
     UserCommand.addCompletion("print", List("obj"))
