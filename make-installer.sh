@@ -30,6 +30,23 @@ cp kojo/etc/kojo.conf installer/etc
 mkdir installer/icons/
 cp kojo/icons/* installer/icons/
 
+# remove test jars from install
+# rm installer/kojo/modules/ext/cglib-nodep-2.1_3.jar
+# rm installer/kojo/modules/ext/hamcrest-core-1.1.jar
+# rm installer/kojo/modules/ext/hamcrest-library-1.1.jar
+# rm installer/kojo/modules/ext/jmock-2.5.1.jar
+# rm installer/kojo/modules/ext/jmock-junit4-2.5.1.jar
+# rm installer/kojo/modules/ext/jmock-legacy-2.5.1.jar
+# rm installer/kojo/modules/ext/objenesis-1.0.jar
+# rm installer/kojo/modules/ext/Scalacheck-1.7-SNAPSHOT.jar
+
+# remove test jar license files from install
+rm installer/licenses/cglib-license.txt
+rm installer/licenses/hamcrest-license.txt
+rm installer/licenses/jmock-license.txt
+rm installer/licenses/objenesis-license.txt
+rm installer/licenses/scalacheck-license.txt
+
 # run IzPack to create installer
 cd installer
 compile install.xml

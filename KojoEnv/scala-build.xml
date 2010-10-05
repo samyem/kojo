@@ -81,7 +81,7 @@
         <depend srcdir="${src.dir}" destdir="${build.classes.dir}" cache="build/depcache">
             <classpath refid="scalac.cp"/>
         </depend>
-        
+
         <!-- scalac -->
         <antcall target="-do-scalac"/>
 
@@ -99,18 +99,29 @@
         -->
     </target>
 
-    <property name="test.unit.run.cp.extra" value="C:/Users/lalit/work/main-golden/nbbuild/build/testdist/unit/ide12/org-netbeans-modules-csl-api/tests.jar;C:/Users/lalit/work/main-golden/nbbuild/build/testdist/unit/platform11/org-netbeans-modules-editor-mimelookup/tests.jar" />
+    <!-- A hack to get tests to compile, without making the KojoEnv module dependent on the
+                 test modules (which makes the test jars get bundled in the distribution).
+    -->
+    <path id="kojo.test.jars">
+        <fileset dir="../JMock 2.5.1/release/modules/ext">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="../ScalaCheck/release/modules/ext">
+            <include name="**/*.jar"/>
+        </fileset>
+        <pathelement location="${nb-jars}/csl-api-tests.jar"/>
+        <pathelement location="${nb-jars}/editor-mimelookup-tests.jar"/>
+    </path>
+
+    <property name="kojo.test.jars" refid="kojo.test.jars"/>
+    <property name="test.unit.run.cp.extra" value="${kojo.test.jars}"/>
 
     <target name="do-test-build" depends="init, test-init, test-up-to-date,projectized-common.do-test-build" unless="is.test.jar.uptodate">
 
         <path id="test.unit.custom.cp">
-        <path refid="test.unit.cp"/>
-            <pathelement location="${nb-jars}/csl-api-tests.jar"/>
-            <pathelement location="${nb-jars}/editor-mimelookup-tests.jar"/>
+            <path refid="test.unit.cp"/>
+            <path refid="kojo.test.jars"/>
         </path>
-
-        <property name="xx" refid="test.unit.run.cp"/>
-        <echo message="Test run cp: ${xx}"/>
 
         <scalac srcdir="${test.unit.src.dir}" destdir="${build.test.unit.classes.dir}" excludes="${test.excludes}"
                 encoding="UTF-8">
