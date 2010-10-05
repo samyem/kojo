@@ -6,9 +6,9 @@
     <description>Builds, tests, and runs the project net.kogics.kojo.</description>
     <import file="nbproject/build-impl.xml"/>
 
+    <property name="nb-jars" value="../nbjars"/>
     <import file="scala-build.xml"/>
 
-    <property name="nb-jars" value="../nbjars"/>
 
     <!-- special jar target for csl -->
     <target name="jar" depends="init,compile,jar-prep" unless="is.jar.uptodate">
