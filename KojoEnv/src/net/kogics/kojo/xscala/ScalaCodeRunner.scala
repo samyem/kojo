@@ -612,6 +612,12 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     override def gridOff() = tCanvas.gridOff()
     UserCommand("gridOff", Nil, "Hides the grid.")
 
+    override def axesOn() = tCanvas.axesOn()
+    UserCommand("axesOn", Nil, "Shows the X and Y axes on the canvas.")
+
+    override def axesOff() = tCanvas.axesOff()
+    UserCommand("axesOff", Nil, "Hides the X and Y axes.")
+
     def newTurtle(): Turtle = newTurtle(0, 0)
     override def newTurtle(x: Int, y: Int) = tCanvas.newTurtle(x, y)
     UserCommand("newTurtle", List("x", "y"), "Makes a new turtle located at the point (x, y).")

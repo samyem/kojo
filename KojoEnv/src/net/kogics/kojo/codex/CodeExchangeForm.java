@@ -107,6 +107,7 @@ public class CodeExchangeForm extends javax.swing.JDialog {
         uploadButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(CodeExchangeForm.class, "CodeExchangeForm.title")); // NOI18N
 
         uploadButton.setText(org.openide.util.NbBundle.getMessage(CodeExchangeForm.class, "CodeExchangeForm.uploadButton.text")); // NOI18N
         uploadButton.addActionListener(new java.awt.event.ActionListener() {
