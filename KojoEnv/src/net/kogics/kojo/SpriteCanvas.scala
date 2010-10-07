@@ -57,6 +57,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val defLayer = getLayer
   val AxesColor = new Color(100, 100, 100)
   val GridColor = new Color(200, 200, 200)
+  val TickColor = new Color(150, 150, 150)
+  val TickLabelColor = new Color(50, 50, 50)
 
   var outputFn: String => Unit = { msg =>
     Log.info(msg)
@@ -68,13 +70,18 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   setAnimatingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING)
   setInteractingRenderQuality(PPaintContext.HIGH_QUALITY_RENDERING)
 
+//  edu.umd.cs.piccolo.util.PDebug.debugBounds = true
+//  edu.umd.cs.piccolo.util.PDebug.debugFullBounds = true
+//  edu.umd.cs.piccolo.util.PDebug.debugPaintCalls = true
+
   var turtles: List[Turtle] = Nil
   var puzzlers: List[Turtle] = Nil
   var figures: List[Figure] = Nil
 
   getCamera.addLayer(Turtle.handleLayer)
 
-  var grid = new PNode()
+  val grid = new PNode()
+  val axes = new PNode()
   initCamera()
 
   val history = new mutable.Stack[Turtle]()
@@ -93,6 +100,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       super.pan(event)
       Utils.schedule(0.05) {
         updateGrid()
+        updateAxes()
       }
     }
     
@@ -100,6 +108,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       super.dragActivityStep(event)
       Utils.schedule(0.05) {
         updateGrid()
+        updateAxes()
       }
     }
   }
@@ -109,6 +118,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       super.dragActivityStep(event)
       Utils.schedule(0.05) {
         updateGrid()
+        updateAxes()
       }
     }
   }
@@ -135,6 +145,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     getCamera.getViewTransformReference.setToScale(1, -1)
     getCamera.setViewOffset(size.getWidth/2f, size.getHeight/2f)
     updateGrid()
+    updateAxes()
   }
 
   def updateGrid() {
@@ -205,12 +216,132 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
+  def updateAxes() {
+
+    def delta(d: Double, scale: Double) = {
+      val d0 = d/scale
+      if (d0 > 1) {
+        Math.ceil(d0)
+      }
+      else {
+        1.0/Math.floor(1/d0)
+      }
+    }
+
+    if (!getCamera.getChildrenReference.contains(axes))
+      return
+
+    val viewBounds = getCamera.getViewBounds()
+    val width = viewBounds.width.toFloat
+    val height = viewBounds.height.toFloat
+    val vbx = viewBounds.x.toFloat
+    val vby = viewBounds.y.toFloat
+
+    import java.awt.geom._
+    val screenCenter = new Point2D.Double(vbx + width/2, vby + height/2)
+
+    axes.removeAllChildren()
+
+    var pt1 = getCamera.viewToLocal(new Point2D.Double(screenCenter.x-width/2, 0))
+    var pt2 = getCamera.viewToLocal(new Point2D.Double(screenCenter.x+width/2, 0))
+    val xAxis = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
+    xAxis.setStrokePaint(AxesColor)
+    axes.addChild(xAxis)
+
+    pt1 = getCamera.viewToLocal(new Point2D.Double(0, screenCenter.y-width/2))
+    pt2 = getCamera.viewToLocal(new Point2D.Double(0, screenCenter.y+width/2))
+    val yAxis = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
+    yAxis.setStrokePaint(AxesColor)
+    axes.addChild(yAxis)
+
+    val scale = getCamera.getViewScale
+    val deltap = new Point2D.Double(delta(50, scale), delta(50, scale))
+    val numxTicks = Math.ceil(width / deltap.getY).toInt + 4
+    val numyTicks = Math.ceil(height / deltap.getX).toInt + 4
+
+    val xStart = {
+      val x = viewBounds.x
+      if (x < 0) Math.floor(x/deltap.getX) * deltap.getX
+      else Math.ceil(x/deltap.getX) * deltap.getX
+    } - 2*deltap.getX
+
+    val yStart = {
+      val y = viewBounds.y
+      if (y < 0) Math.floor(y/deltap.getY) * deltap.getY
+      else Math.ceil(y/deltap.getY) * deltap.getY
+    } - 2*deltap.getY
+
+
+    val prec0 = Math.round(scale) - 50
+    val prec = prec0 match {
+      case p if p < 0 => 0
+      case p if p < 50 => 2
+      case p if p < 100 => 4
+      case p if p < 150 => 6
+      case p if p < 200 => 8
+      case _ => 10
+    }
+    val labelText = "%%.%df" format(prec)
+
+    // ticks on y axis
+    for (i <- 0 until numyTicks) {
+      pt1 = getCamera.viewToLocal(new Point2D.Double(-3/scale, yStart + i * deltap.getY))
+      pt2 = getCamera.viewToLocal(new Point2D.Double(3/scale, yStart + i * deltap.getY))
+      val tick = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
+      tick.setStrokePaint(TickColor)
+      axes.addChild(tick)
+      val label = new PText(labelText format(yStart + deltap.getY*i))
+      label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
+      label.setTextPaint(TickLabelColor)
+      axes.addChild(label)
+    }
+
+    // ticks on x axis
+    for (i <- 0 until numxTicks) {
+      pt1 = getCamera.viewToLocal(new Point2D.Double(xStart + i * deltap.getX, 3/scale))
+      pt2 = getCamera.viewToLocal(new Point2D.Double(xStart + i * deltap.getX, -3/scale))
+      val tick = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
+      tick.setStrokePaint(TickColor)
+      axes.addChild(tick)
+      val label = new PText(labelText format(xStart + deltap.getX*i))
+      label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
+      label.setTextPaint(TickLabelColor)
+      if (prec > 2) {
+        label.rotateInPlace(45.toRadians)
+      }
+      axes.addChild(label)
+    }
+
+    outputFn("\nScale: %f\n" format(getCamera.getViewScale))
+    outputFn("Deltap: %s\n" format(deltap.toString))
+  }
+
+  def axesOn() {
+    Utils.runInSwingThread {
+      if (!getCamera.getChildrenReference.contains(axes)) {
+        getCamera.addChild(axes)
+        updateAxes()
+        repaint()
+      }
+    }
+  }
+
+  def axesOff() {
+    Utils.runInSwingThread {
+      if (getCamera.getChildrenReference.contains(axes)) {
+        getCamera.removeChild(axes)
+        repaint()
+      }
+    }
+  }
+
   def zoom(factor: Double, cx: Double, cy: Double) {
     Utils.runInSwingThread {
       val size = getSize(null)
       getCamera.getViewTransformReference.setToScale(factor, -factor)
       getCamera.getViewTransformReference.setOffset(size.getWidth/2d - cx*factor, size.getHeight/2d + cy*factor)
       updateGrid()
+      updateAxes()
       repaint()
     }
   }
@@ -224,6 +355,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         size.getHeight / 2d + cy * yfactor.abs
       )
       updateGrid()
+      updateAxes()
       repaint()
     }
   }

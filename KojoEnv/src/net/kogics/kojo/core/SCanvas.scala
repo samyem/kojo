@@ -22,6 +22,8 @@ trait SCanvas {
   def clearPuzzlers(): Unit
   def newTurtle(x: Int, y: Int): Turtle
   def newPuzzler(x: Int, y: Int): Turtle
+  def axesOn(): Unit
+  def axesOff(): Unit
   def gridOn(): Unit
   def gridOff(): Unit
   def newFigure(x: Int, y: Int): Figure
