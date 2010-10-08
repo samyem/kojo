@@ -60,6 +60,9 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val TickColor = new Color(150, 150, 150)
   val TickLabelColor = new Color(50, 50, 50)
 
+  var showAxes = false
+  var showGrid = false
+
   var outputFn: String => Unit = { msg =>
     Log.info(msg)
   }
@@ -82,6 +85,9 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   val grid = new PNode()
   val axes = new PNode()
+  getCamera.addChild(grid)
+  getCamera.addChild(axes)
+
   initCamera()
 
   val history = new mutable.Stack[Turtle]()
@@ -99,16 +105,14 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     override def pan(event: PInputEvent) {
       super.pan(event)
       Utils.schedule(0.05) {
-        updateGrid()
-        updateAxes()
+        updateAxesAndGrid()
       }
     }
     
     override def dragActivityStep(event: PInputEvent) {
       super.dragActivityStep(event)
       Utils.schedule(0.05) {
-        updateGrid()
-        updateAxes()
+        updateAxesAndGrid()
       }
     }
   }
@@ -117,8 +121,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     override def dragActivityStep(event: PInputEvent) {
       super.dragActivityStep(event)
       Utils.schedule(0.05) {
-        updateGrid()
-        updateAxes()
+        updateAxesAndGrid()
       }
     }
   }
@@ -144,64 +147,14 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     val size = getSize(null)
     getCamera.getViewTransformReference.setToScale(1, -1)
     getCamera.setViewOffset(size.getWidth/2f, size.getHeight/2f)
-    updateGrid()
-    updateAxes()
-  }
-
-  def updateGrid() {
-    if (!defLayer.getChildrenReference.contains(grid))
-      return
-    
-    val viewBounds = getCamera.getViewBounds()
-    val width = viewBounds.width.toFloat
-    val height = viewBounds.height.toFloat
-    val vbx = viewBounds.x.toFloat
-    val vby = viewBounds.y.toFloat
-
-    val screenCenter = new java.awt.geom.Point2D.Float(vbx + width/2, vby + height/2)
-
-    val numxGridlines = Math.ceil(height / 100).toInt + 4
-    val numyGridlines = Math.ceil(width / 100).toInt + 4
-
-    val yStart = {
-      val y = viewBounds.y
-      if (y < 0) Math.floor(y/100) * 100
-      else Math.ceil(y/100) * 100
-    } - 200
-
-    val xStart = {
-      val x = viewBounds.x
-      if (x < 0) Math.floor(x/100) * 100
-      else Math.ceil(x/100) * 100
-    } - 200
-
-    grid.removeAllChildren()
-
-    for (i <- 0 until numxGridlines) {
-      val gridline = PPath.createLine(screenCenter.x-width/2, (yStart + 100*i).toFloat, screenCenter.x+width/2, (yStart + 100*i).toFloat)
-      gridline.setStrokePaint(GridColor)
-      grid.addChild(gridline)
-    }
-
-    for (i <- 0 until numyGridlines) {
-      val gridline = PPath.createLine((xStart + 100*i).toFloat, screenCenter.y+height/2, (xStart + 100*i).toFloat, screenCenter.y-height/2)
-      gridline.setStrokePaint(GridColor)
-      grid.addChild(gridline)
-    }
-
-    val xAxis = PPath.createLine(screenCenter.x-width/2, 0, screenCenter.x+width/2, 0)
-    xAxis.setStrokePaint(AxesColor)
-    val yAxis = PPath.createLine(0, screenCenter.y+height/2, 0, screenCenter.y-height/2)
-    yAxis.setStrokePaint(AxesColor)
-    grid.addChild(xAxis)
-    grid.addChild(yAxis)
+    updateAxesAndGrid()
   }
 
   def gridOn() {
     Utils.runInSwingThread {
-      if (!defLayer.getChildrenReference.contains(grid)) {
-        defLayer.addChild(grid)
-        updateGrid()
+      if (!showGrid) {
+        showGrid = true
+        updateAxesAndGrid()
         repaint()
       }
     }
@@ -209,27 +162,68 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   def gridOff() {
     Utils.runInSwingThread {
-      if (defLayer.getChildrenReference.contains(grid)) {
-        defLayer.removeChild(grid)
+      if (showGrid) {
+        showGrid = false
+        grid.removeAllChildren()
         repaint()
       }
     }
   }
 
-  def updateAxes() {
-
-    def delta(d: Double, scale: Double) = {
-      val d0 = d/scale
-      if (d0 > 1) {
-        Math.ceil(d0)
-      }
-      else {
-        1.0/Math.floor(1/d0)
+  def axesOn() {
+    Utils.runInSwingThread {
+      if (!showAxes) {
+        showAxes = true
+        updateAxesAndGrid()
+        repaint()
       }
     }
+  }
 
-    if (!getCamera.getChildrenReference.contains(axes))
+  def axesOff() {
+    Utils.runInSwingThread {
+      if (showAxes) {
+        showAxes = false
+        axes.removeAllChildren()
+        repaint()
+      }
+    }
+  }
+
+  def updateAxesAndGrid() {
+
+    if (!(showGrid || showAxes))
       return
+    
+    val scale = getCamera.getViewScale
+    val prec0 = Math.round(scale) - 50
+    val prec = prec0 match {
+      case p if p < 0 => 0
+      case p if p < 50 => 2
+      case p if p < 100 => 4
+      case p if p < 150 => 6
+      case p if p < 200 => 8
+      case _ => 10
+    }
+
+    val labelText = "%%.%df" format(prec)
+    
+    val delta = {
+      val d = 50
+      val d0 = d/scale
+      if (d0 > 10) {
+        math.round(d0/10) * 10
+      }
+      else {
+        val d1 = 1.0/(math.round(10/d0)/10.0)
+        if (d1 < 1) {
+          labelText.format(d1).toDouble
+        }
+        else {
+          d1
+        }
+      }
+    }
 
     val viewBounds = getCamera.getViewBounds()
     val width = viewBounds.width.toFloat
@@ -240,22 +234,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     import java.awt.geom._
     val screenCenter = new Point2D.Double(vbx + width/2, vby + height/2)
 
-    axes.removeAllChildren()
-
-    var pt1 = getCamera.viewToLocal(new Point2D.Double(screenCenter.x-width/2, 0))
-    var pt2 = getCamera.viewToLocal(new Point2D.Double(screenCenter.x+width/2, 0))
-    val xAxis = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
-    xAxis.setStrokePaint(AxesColor)
-    axes.addChild(xAxis)
-
-    pt1 = getCamera.viewToLocal(new Point2D.Double(0, screenCenter.y-width/2))
-    pt2 = getCamera.viewToLocal(new Point2D.Double(0, screenCenter.y+width/2))
-    val yAxis = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
-    yAxis.setStrokePaint(AxesColor)
-    axes.addChild(yAxis)
-
-    val scale = getCamera.getViewScale
-    val deltap = new Point2D.Double(delta(50, scale), delta(50, scale))
+    val deltap = new Point2D.Double(delta, delta)
     val numxTicks = Math.ceil(width / deltap.getY).toInt + 4
     val numyTicks = Math.ceil(height / deltap.getX).toInt + 4
 
@@ -271,68 +250,81 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       else Math.ceil(y/deltap.getY) * deltap.getY
     } - 2*deltap.getY
 
+    grid.removeAllChildren()
+    axes.removeAllChildren()
 
-    val prec0 = Math.round(scale) - 50
-    val prec = prec0 match {
-      case p if p < 0 => 0
-      case p if p < 50 => 2
-      case p if p < 100 => 4
-      case p if p < 150 => 6
-      case p if p < 200 => 8
-      case _ => 10
+    val xmin = xStart - deltap.getX
+    val xmax = xStart + (numxTicks+1) * deltap.getX
+    
+    val ymin = yStart - deltap.getY
+    val ymax = yStart + (numyTicks+1) * deltap.getY
+
+    if (showAxes) {
+      val xa1 = getCamera.viewToLocal(new Point2D.Double(xmin, 0))
+      var xa2 = getCamera.viewToLocal(new Point2D.Double(xmax, 0))
+      val xAxis = PPath.createLine(xa1.getX.toFloat, xa1.getY.toFloat, xa2.getX.toFloat, xa2.getY.toFloat)
+      xAxis.setStrokePaint(AxesColor)
+      axes.addChild(xAxis)
+
+      val ya1 = getCamera.viewToLocal(new Point2D.Double(0, ymin))
+      val ya2 = getCamera.viewToLocal(new Point2D.Double(0, ymax))
+      val yAxis = PPath.createLine(ya1.getX.toFloat, ya1.getY.toFloat, ya2.getX.toFloat, ya2.getY.toFloat)
+      yAxis.setStrokePaint(AxesColor)
+      axes.addChild(yAxis)
     }
-    val labelText = "%%.%df" format(prec)
 
     // ticks on y axis
     for (i <- 0 until numyTicks) {
-      pt1 = getCamera.viewToLocal(new Point2D.Double(-3/scale, yStart + i * deltap.getY))
-      pt2 = getCamera.viewToLocal(new Point2D.Double(3/scale, yStart + i * deltap.getY))
-      val tick = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
-      tick.setStrokePaint(TickColor)
-      axes.addChild(tick)
-      val label = new PText(labelText format(yStart + deltap.getY*i))
-      label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
-      label.setTextPaint(TickLabelColor)
-      axes.addChild(label)
+      val ycoord = yStart + i * deltap.getY
+      if (showGrid) {
+        // gridOn
+        val pt1 = getCamera.viewToLocal(new Point2D.Double(xmin, ycoord))
+        val pt2 = getCamera.viewToLocal(new Point2D.Double(xmax, ycoord))
+        val gridline = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
+        gridline.setStrokePaint(GridColor)
+        grid.addChild(gridline)
+      }
+      if (showAxes) {
+        val pt1 = getCamera.viewToLocal(new Point2D.Double(-3/scale, ycoord))
+        val pt2 = getCamera.viewToLocal(new Point2D.Double(3/scale, ycoord))
+        val tick = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
+        tick.setStrokePaint(TickColor)
+        axes.addChild(tick)
+        val label = new PText(labelText format(yStart + deltap.getY*i))
+        label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
+        label.setTextPaint(TickLabelColor)
+        axes.addChild(label)
+      }
     }
 
     // ticks on x axis
     for (i <- 0 until numxTicks) {
-      pt1 = getCamera.viewToLocal(new Point2D.Double(xStart + i * deltap.getX, 3/scale))
-      pt2 = getCamera.viewToLocal(new Point2D.Double(xStart + i * deltap.getX, -3/scale))
-      val tick = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
-      tick.setStrokePaint(TickColor)
-      axes.addChild(tick)
-      val label = new PText(labelText format(xStart + deltap.getX*i))
-      label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
-      label.setTextPaint(TickLabelColor)
-      if (prec > 2) {
-        label.rotateInPlace(45.toRadians)
+      val xcoord = xStart + i * deltap.getX
+      if (showGrid) {
+        val pt1 = getCamera.viewToLocal(new Point2D.Double(xcoord, ymax))
+        val pt2 = getCamera.viewToLocal(new Point2D.Double(xcoord, ymin))
+        val gridline = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
+        gridline.setStrokePaint(GridColor)
+        grid.addChild(gridline)
       }
-      axes.addChild(label)
+      if (showAxes) {
+        val pt1 = getCamera.viewToLocal(new Point2D.Double(xcoord, 3/scale))
+        val pt2 = getCamera.viewToLocal(new Point2D.Double(xcoord, -3/scale))
+        val tick = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
+        tick.setStrokePaint(TickColor)
+        axes.addChild(tick)
+        val label = new PText(labelText format(xStart + deltap.getX*i))
+        label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
+        label.setTextPaint(TickLabelColor)
+        if (label.getText.length > 5) {
+          label.rotateInPlace(45.toRadians)
+        }
+        axes.addChild(label)
+      }
     }
 
     outputFn("\nScale: %f\n" format(getCamera.getViewScale))
     outputFn("Deltap: %s\n" format(deltap.toString))
-  }
-
-  def axesOn() {
-    Utils.runInSwingThread {
-      if (!getCamera.getChildrenReference.contains(axes)) {
-        getCamera.addChild(axes)
-        updateAxes()
-        repaint()
-      }
-    }
-  }
-
-  def axesOff() {
-    Utils.runInSwingThread {
-      if (getCamera.getChildrenReference.contains(axes)) {
-        getCamera.removeChild(axes)
-        repaint()
-      }
-    }
   }
 
   def zoom(factor: Double, cx: Double, cy: Double) {
@@ -340,8 +332,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       val size = getSize(null)
       getCamera.getViewTransformReference.setToScale(factor, -factor)
       getCamera.getViewTransformReference.setOffset(size.getWidth/2d - cx*factor, size.getHeight/2d + cy*factor)
-      updateGrid()
-      updateAxes()
+      updateAxesAndGrid()
       repaint()
     }
   }
@@ -354,8 +345,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         size.getWidth / 2d - cx * xfactor.abs,
         size.getHeight / 2d + cy * yfactor.abs
       )
-      updateGrid()
-      updateAxes()
+      updateAxesAndGrid()
       repaint()
     }
   }
