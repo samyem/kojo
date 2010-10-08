@@ -60,9 +60,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val TickColor = new Color(150, 150, 150)
   val TickLabelColor = new Color(50, 50, 50)
 
-  var showAxes = false
-  var showGrid = false
-
   var outputFn: String => Unit = { msg =>
     Log.info(msg)
   }
@@ -82,6 +79,9 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   var figures: List[Figure] = Nil
 
   getCamera.addLayer(Turtle.handleLayer)
+
+  var showAxes = false
+  var showGrid = false
 
   val grid = new PNode()
   val axes = new PNode()
@@ -323,8 +323,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       }
     }
 
-    outputFn("\nScale: %f\n" format(getCamera.getViewScale))
-    outputFn("Deltap: %s\n" format(deltap.toString))
+//    outputFn("\nScale: %f\n" format(scale))
+//    outputFn("Deltap: %s\n" format(deltap.toString))
   }
 
   def zoom(factor: Double, cx: Double, cy: Double) {
