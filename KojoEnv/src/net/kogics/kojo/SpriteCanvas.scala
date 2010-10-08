@@ -290,10 +290,13 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         val tick = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
         tick.setStrokePaint(TickColor)
         axes.addChild(tick)
-        val label = new PText(labelText format(yStart + deltap.getY*i))
-        label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
-        label.setTextPaint(TickLabelColor)
-        axes.addChild(label)
+        
+        if (!Utils.doublesEqual(ycoord, 0, 1/math.pow(10, prec+1))) {
+          val label = new PText(labelText format(ycoord))
+          label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
+          label.setTextPaint(TickLabelColor)
+          axes.addChild(label)
+        }
       }
     }
 
@@ -313,13 +316,22 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         val tick = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
         tick.setStrokePaint(TickColor)
         axes.addChild(tick)
-        val label = new PText(labelText format(xStart + deltap.getX*i))
-        label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
-        label.setTextPaint(TickLabelColor)
-        if (label.getText.length > 5) {
-          label.rotateInPlace(45.toRadians)
+
+        if (Utils.doublesEqual(xcoord, 0, 1/math.pow(10, prec+1))) {
+          val label = new PText("0")
+          label.setOffset(pt2.getX.toFloat+2, pt2.getY.toFloat)
+          label.setTextPaint(TickLabelColor)
+          axes.addChild(label)
         }
-        axes.addChild(label)
+        else {
+          val label = new PText(labelText format(xcoord))
+          label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
+          label.setTextPaint(TickLabelColor)
+          if (label.getText.length > 5) {
+            label.rotateInPlace(45.toRadians)
+          }
+          axes.addChild(label)
+        }
       }
     }
 
