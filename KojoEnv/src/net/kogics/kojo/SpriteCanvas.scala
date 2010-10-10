@@ -196,17 +196,19 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       return
     
     val scale = getCamera.getViewScale
-    val prec0 = Math.round(scale) - 50
+    val MaxPrec = 10
+    val prec0 = Math.round(scale)
     val prec = prec0 match {
-      case p if p < 0 => 0
+      case p if p < 10 => 0
       case p if p < 50 => 2
       case p if p < 100 => 4
       case p if p < 150 => 6
       case p if p < 200 => 8
-      case _ => 10
+      case _ => MaxPrec
     }
 
     val labelText = "%%.%df" format(prec)
+    val labelText2 = "%%.%df" format(if (prec == 0) prec else prec-1)
     
     val delta = {
       val d = 50
@@ -215,13 +217,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         math.round(d0/10) * 10
       }
       else {
-        val d1 = 1.0/(math.round(10/d0)/10.0)
-        if (d1 < 1) {
-          labelText.format(d1).toDouble
-        }
-        else {
-          d1
-        }
+        val d2 = labelText2.format(d0).toDouble
+        if (d2.compare(0) != 0) d2 else 0.0000000005 // MaxPrec-1 zeroes
       }
     }
 
