@@ -207,8 +207,10 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       case _ => MaxPrec
     }
 
-    val labelText = "%%.%df" format(prec)
-    val labelText2 = "%%.%df" format(if (prec == 0) prec else prec-1)
+    val labelPrec = if (scale % 50 == 0) math.log10(scale/50).toInt else prec
+
+    val labelText = "%%.%df" format(labelPrec)
+    val deltaFinder = "%%.%df" format(if (prec == 0) prec else prec-1)
     
     val delta = {
       val d = 50
@@ -217,7 +219,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         math.round(d0/10) * 10
       }
       else {
-        val d2 = labelText2.format(d0).toDouble
+        val d2 = deltaFinder.format(d0).toDouble
         if (d2.compare(0) != 0) d2 else 0.0000000005 // MaxPrec-1 zeroes
       }
     }
