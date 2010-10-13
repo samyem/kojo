@@ -151,7 +151,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def gridOn() {
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       if (!showGrid) {
         showGrid = true
         updateAxesAndGrid()
@@ -161,7 +161,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def gridOff() {
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       if (showGrid) {
         showGrid = false
         grid.removeAllChildren()
@@ -171,7 +171,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def axesOn() {
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       if (!showAxes) {
         showAxes = true
         updateAxesAndGrid()
@@ -181,7 +181,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def axesOff() {
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       if (showAxes) {
         showAxes = false
         axes.removeAllChildren()
@@ -339,7 +339,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def zoom(factor: Double, cx: Double, cy: Double) {
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       val size = getSize(null)
       getCamera.getViewTransformReference.setToScale(factor, -factor)
       getCamera.getViewTransformReference.setOffset(size.getWidth/2d - cx*factor, size.getHeight/2d + cy*factor)
@@ -349,7 +349,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double) {
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       val size = getSize(null)
       getCamera.getViewTransformReference.setToScale(xfactor, -yfactor)
       getCamera.getViewTransformReference.setOffset(
