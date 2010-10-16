@@ -48,6 +48,12 @@
                 <attr name="iconBase" stringvalue="net/kogics/kojo/turtle16.png"/>
                 <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
             </file>
+            <file name="net-kogics-kojo-story-StoryTellerAction.instance">
+                <attr name="component" methodvalue="net.kogics.kojo.story.StoryTellerTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.story.Bundle#CTL_StoryTellerAction"/>
+                <attr name="iconBase" stringvalue="images/storyteller.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+            </file>
         </folder>
         <folder name="Samples">
             <file name="net-kogics-kojo-Samples.Square.instance">
@@ -338,8 +344,12 @@
                 <attr name="position" intvalue="4"/>
                 <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-GeoGebraAction.instance"/>
             </file>
-            <file name="OutputAction.shadow">
+            <file name="StoryTellerAction.shadow">
                 <attr name="position" intvalue="5"/>
+                <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-story-StoryTellerAction.instance"/>
+            </file>
+            <file name="OutputAction.shadow">
+                <attr name="position" intvalue="6"/>
                 <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-OutputAction.instance"/>
             </file>
         </folder>
@@ -374,6 +384,7 @@
             <file name="HistoryTopComponent.settings" url="HistoryTopComponentSettings.xml"/>
             <file name="OutputTopComponent.settings" url="OutputTopComponentSettings.xml"/>
             <file name="SCanvasTopComponent.settings" url="SCanvasTopComponentSettings.xml"/>
+            <file name="StoryTellerTopComponent.settings" url="StoryTellerTopComponentSettings.xml"/>
         </folder>
         <folder name="Modes">
             <folder name="anonymousMode_1">
@@ -389,6 +400,9 @@
             </folder>
             <folder name="output">
                 <file name="OutputTopComponent.wstcref" url="OutputTopComponentWstcref.xml"/>
+            </folder>
+            <folder name="rightSlidingSide">
+                <file name="StoryTellerTopComponent.wstcref" url="StoryTellerTopComponentWstcref.xml"/>
             </folder>
         </folder>
     </folder>
