@@ -16,6 +16,7 @@ package net.kogics.kojo;
 
 import javax.swing.SwingUtilities;
 import net.kogics.kojo.geogebra.GeoGebraCanvas;
+import net.kogics.kojo.story.StoryTeller;
 import org.openide.modules.ModuleInstall;
 
 /**
@@ -35,6 +36,7 @@ public class Installer extends ModuleInstall {
                 public void run() {
                     GeoGebraCanvas.initedInstance((KojoCtx) KojoCtx.instance());
                     SpriteCanvas.initedInstance((KojoCtx) KojoCtx.instance());
+                    StoryTeller.initedInstance((KojoCtx) KojoCtx.instance());
                 }
             });
         } catch (Exception ex) {

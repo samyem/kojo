@@ -675,6 +675,28 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     def inspect(obj: AnyRef) = ctx.inspect(obj)
     UserCommand("inspect", List("obj"), "Explores the internal fields of the given object.")
 
+    def stClear() {
+      story.StoryTeller.instance().clear()
+    }
+
+    def stShow(html: xml.Node) {
+      story.StoryTeller.instance().setContent(html)
+    }
+
+    def stAppend(html: xml.Node) {
+      story.StoryTeller.instance().appendContent(html)
+    }
+
+    def stShowContinueButton() {
+      story.StoryTeller.instance().showContinueButton()
+    }
+
+    def stFormula(latex: String) = <img src={xml.Unparsed(story.CustomHtmlEditorKit.latexPrefix + latex)}/>
+
+    def stPlay(mp3File: String) {
+      story.StoryTeller.instance().play(mp3File)
+    }
+
     def help() = {
       println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
 
