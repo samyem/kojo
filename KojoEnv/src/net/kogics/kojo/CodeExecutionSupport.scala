@@ -50,6 +50,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   tCanvas.outputFn = showOutput _
 
   val geomCanvas = geogebra.GeoGebraCanvas.instance.geomCanvas
+  val storyTeller = story.StoryTeller.instance()
   val commandHistory = CommandHistory.instance
   val historyManager = new HistoryManager()
   @volatile var pendingCommands = false
@@ -312,6 +313,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
             OutputTopComponent.findInstance().scrollToEnd()
           }
 
+          CodeExecutionSupport.this.storyTeller.done()
           runMonitor.onRunEnd()
         }
 
@@ -344,7 +346,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           }
         }
 
-      }, tCanvas, geomCanvas)
+      }, tCanvas, geomCanvas, storyTeller)
     codeRunner
   }
 

@@ -41,6 +41,7 @@ class StoryTeller extends JPanel {
   @volatile var kojoCtx: core.KojoCtx = _
   @volatile var content: xml.Node = NoText
   @volatile var mp3Player: Player = _
+  val pageFields = new collection.mutable.HashMap[String, JTextField]()
 
   this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
 
@@ -52,8 +53,13 @@ class StoryTeller extends JPanel {
   ep.setEditable(false)
   add(ep)
 
+  val uc = new JPanel
+  uc.setBackground(Color.white)
+  add(uc)
+
   val cp = new JPanel
   cp.setBackground(Color.white)
+  cp.setBorder(BorderFactory.createEtchedBorder())
   add(cp)
 
   def ensureVisible() {
@@ -70,14 +76,37 @@ class StoryTeller extends JPanel {
     }
   }
 
+  private def clearHelper() {
+    // needs to run on GUI thread
+    newPage()
+    setContent(NoText)
+  }
+
+  private def newPage() {
+    // needs to run on GUI thread
+    cp.removeAll()
+    cp.setBorder(BorderFactory.createEmptyBorder())
+
+    uc.removeAll()
+    uc.setBorder(BorderFactory.createEmptyBorder())
+    
+    pageFields.clear()
+    repaint()
+    stopMp3Player()
+  }
+
   def clear() {
     Utils.runInSwingThread {
+      clearHelper()
       ensureVisible()
-      cp.removeAll()
       val doc = ep.getDocument.asInstanceOf[HTMLDocument]
       doc.setBase(new java.net.URL("file:///" + baseDir))
-      setContent(NoText)
-      repaint()
+    }
+  }
+
+  def done() {
+    Utils.runInSwingThread {
+      clearHelper()
     }
   }
 
@@ -92,6 +121,30 @@ class StoryTeller extends JPanel {
     setContent(xml.Group(Array(content, html)))
   }
 
+  def addField(label: String) {
+    val l = new JLabel(label)
+    val tf = new JTextField("", 6)
+
+    Utils.runInSwingThread {
+      uc.add(l)
+      uc.add(tf)
+      uc.setBorder(BorderFactory.createEtchedBorder())
+      pageFields += (label -> tf)
+    }
+  }
+
+  def fieldValue(label: String): String = {
+    Utils.runInSwingThreadAndWait {
+      val tf = pageFields.get(label)
+      if (tf.isDefined) {
+        tf.get.getText
+      }
+      else {
+        throw new IllegalArgumentException("Field with label - %s is not defined" format(label))
+      }
+    }
+  }
+
   def addButton(label: String)(fn: => Unit) {
     val but = new JButton(label)
     but.addActionListener(new ActionListener {
@@ -101,7 +154,8 @@ class StoryTeller extends JPanel {
       })
     
     Utils.runInSwingThread {
-      add(but)
+      uc.add(but)
+      uc.setBorder(BorderFactory.createEtchedBorder())
     }
   }
 
@@ -111,17 +165,16 @@ class StoryTeller extends JPanel {
     val latch = new CountDownLatch(1)
     but.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
-          cp.remove(but)
+          newPage()
           latch.countDown()
         }
       })
 
     Utils.runInSwingThread {
       cp.add(but)
+      cp.setBorder(BorderFactory.createEtchedBorder())
     }
     latch.await()
-    stopMp3Player()
-    repaint()
   }
 
   def play(mp3File: String) {

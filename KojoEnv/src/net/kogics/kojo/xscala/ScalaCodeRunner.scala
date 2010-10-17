@@ -27,7 +27,7 @@ import net.kogics.kojo.core._
 
 import org.openide.ErrorManager;
 
-class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas) extends CodeRunner {
+class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas, storyTeller: story.StoryTeller) extends CodeRunner {
   val Log = Logger.getLogger(getClass.getName)
   val outputHandler = new InterpOutputHandler(ctx)
   val codeRunner = startCodeRunner()
@@ -676,26 +676,49 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas)
     UserCommand("inspect", List("obj"), "Explores the internal fields of the given object.")
 
     def stClear() {
-      story.StoryTeller.instance().clear()
+      storyTeller.clear()
     }
+    UserCommand.addSynopsisSeparator()
+    UserCommand("stClear", Nil, "Clears the Story Teller Window.")
 
     def stShow(html: xml.Node) {
-      story.StoryTeller.instance().setContent(html)
+      storyTeller.setContent(html)
     }
+    UserCommand("stShow", List("html"), "Shows the supplied html within the Story Teller Window.")
 
     def stAppend(html: xml.Node) {
-      story.StoryTeller.instance().appendContent(html)
+      storyTeller.appendContent(html)
     }
+    UserCommand("stAppend", List("html"), "Appends the supplied html to the Story Teller Window.")
 
     def stShowContinueButton() {
-      story.StoryTeller.instance().showContinueButton()
+      storyTeller.showContinueButton()
     }
+    UserCommand("stShowContinueButton", Nil, "Shows a Continue button at the bottom of the Story Teller Window. The user clicks on this button to continue on to the next page of the story.")
 
     def stFormula(latex: String) = <img src={xml.Unparsed(story.CustomHtmlEditorKit.latexPrefix + latex)}/>
+    UserCommand("stFormula", List("latex"), "Converts the supplied latex string into html that can be displayed in the Story Teller Window.")
 
-    def stPlay(mp3File: String) {
-      story.StoryTeller.instance().play(mp3File)
+    def playMp3(mp3File: String) {
+      storyTeller.play(mp3File)
     }
+    UserCommand("playMp3", List("fileName"), "Plays the specified MP3 file.")
+
+    def stAddButton(label: String)(fn: => Unit) {
+      storyTeller.addButton(label)(fn)
+    }
+    UserCommand.addCompletion("stAddButton", " (${label}) {\n    ${cursor}\n}")
+    UserCommand.addSynopsis("stAddButton(label) {code} - Adds a button with the given label to the Story Teller Window, and runs the supplied code when the button is clicked.")
+
+    def stAddField(label: String) {
+      storyTeller.addField(label)
+    }
+    UserCommand("stAddField", List("label"), "Adds an input field to the Story Teller Window.")
+
+    def stFieldValue(label: String): String = {
+      storyTeller.fieldValue(label)
+    }
+    UserCommand("stFieldValue", List("label"), "Gets the value of the specified field.")
 
     def help() = {
       println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
