@@ -49,6 +49,14 @@ class KojoCtx extends core.KojoCtx {
     activateCodeEditor()
   }
 
+  def makeStoryTellerVisible() {
+    Utils.runInSwingThread {
+      val tc = story.StoryTellerTopComponent.findInstance()
+      activate(tc)
+    }
+    activateCodeEditor()
+  }
+
   def activateCodeEditor() {
     Utils.runInSwingThread {
       val tc = CodeEditorTopComponent.findInstance()

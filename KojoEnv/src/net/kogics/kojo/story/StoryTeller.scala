@@ -38,7 +38,7 @@ object StoryTeller extends InitedSingleton[StoryTeller] {
 
 class StoryTeller extends JPanel {
   val NoText = <span/>
-  @volatile var kojoCtx: KojoCtx = _
+  @volatile var kojoCtx: core.KojoCtx = _
   @volatile var content: xml.Node = NoText
   @volatile var mp3Player: Player = _
 
@@ -56,6 +56,10 @@ class StoryTeller extends JPanel {
   cp.setBackground(Color.white)
   add(cp)
 
+  def ensureVisible() {
+    kojoCtx.makeStoryTellerVisible()
+  }
+
   def baseDir = Utils.runInSwingThreadAndWait {
     CodeEditorTopComponent.findInstance().getLastLoadStoreDir() + "/"
   }
@@ -68,6 +72,7 @@ class StoryTeller extends JPanel {
 
   def clear() {
     Utils.runInSwingThread {
+      ensureVisible()
       cp.removeAll()
       val doc = ep.getDocument.asInstanceOf[HTMLDocument]
       doc.setBase(new java.net.URL("file:///" + baseDir))
