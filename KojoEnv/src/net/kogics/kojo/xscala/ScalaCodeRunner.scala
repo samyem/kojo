@@ -129,7 +129,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
   class InterpActor extends Actor {
     
     var interp: Interpreter = _
-    val varPattern = java.util.regex.Pattern.compile("\\bvar\\b")
+//    val varPattern = java.util.regex.Pattern.compile("\\bvar\\b")
+    val storyPattern = java.util.regex.Pattern.compile("\\bstClear()\\b")
 
     def safeProcess(fn: => Unit) {
       try {
@@ -321,10 +322,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
     }
 
     def needsLineByLineInterpretation(code: String): Boolean = {
-      // the interpreter seems to handle (reassignment of) vars just fine now in batch mode
-      false
-
-      // varPattern.matcher(code).find()
+       storyPattern.matcher(code).find()
     }
 
     def showIncompleteCodeMsg(code: String) {

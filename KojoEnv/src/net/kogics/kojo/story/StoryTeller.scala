@@ -191,5 +191,8 @@ class StoryTeller extends JPanel {
           }
         }).start
     }
+    else {
+        throw new IllegalArgumentException("MP3 file - %s does not exist" format(mp3File))
+    }
   }
 }
