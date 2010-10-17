@@ -18,4 +18,5 @@ package net.kogics.kojo.core
 trait KojoCtx {
   def makeCanvasVisible()
   def makeMathWorldVisible()
+  def makeStoryTellerVisible()
 }

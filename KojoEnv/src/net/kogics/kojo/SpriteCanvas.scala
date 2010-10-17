@@ -52,7 +52,7 @@ object SpriteCanvas extends InitedSingleton[SpriteCanvas] {
 
 class SpriteCanvas private extends PCanvas with SCanvas {
   val Log = Logger.getLogger(getClass.getName);
-  @volatile var kojoCtx: KojoCtx = _
+  @volatile var kojoCtx: core.KojoCtx = _
 
   val defLayer = getLayer
   val AxesColor = new Color(100, 100, 100)

@@ -401,7 +401,7 @@
             <folder name="output">
                 <file name="OutputTopComponent.wstcref" url="OutputTopComponentWstcref.xml"/>
             </folder>
-            <folder name="rightSlidingSide">
+            <folder name="navigator">
                 <file name="StoryTellerTopComponent.wstcref" url="StoryTellerTopComponentWstcref.xml"/>
             </folder>
         </folder>
