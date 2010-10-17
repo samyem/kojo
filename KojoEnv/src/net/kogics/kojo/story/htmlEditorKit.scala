@@ -87,7 +87,7 @@ class LatexView(elem: Element) extends View(elem) {
   override def getMaximumSpan(axis: Int) = getPreferredSpan(axis)
 
   override def viewToModel(x: Float, y: Float, a: Shape, biasReturn: Array[Position.Bias]): Int = {
-    println("viewToModel(%f, %f, %s, %s)" format(x, y, a.toString, biasReturn.toString))
+//    println("viewToModel(%f, %f, %s, %s)" format(x, y, a.toString, biasReturn.toString))
     val alloc = a.asInstanceOf[Rectangle];
     if (x < alloc.x + alloc.width) {
       biasReturn(0) = Position.Bias.Forward
@@ -100,7 +100,7 @@ class LatexView(elem: Element) extends View(elem) {
   }
 
   override def modelToView(pos: Int, a: Shape, b: Position.Bias): Shape = {
-    println("modelToView(%d, %s, %s)" format(pos, a.toString, b.toString))
+//    println("modelToView(%d, %s, %s)" format(pos, a.toString, b.toString))
     new Rectangle(0, 0, icon.getIconWidth, icon.getIconHeight)
   }
 
