@@ -28,3 +28,5 @@ nsis
 ^installer/scratch/
 ^installer/Kojo-license.txt
 ^installer/install.jar
+private.xml
+genfiles.properties
