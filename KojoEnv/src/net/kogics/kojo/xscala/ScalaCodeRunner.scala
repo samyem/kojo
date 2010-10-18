@@ -322,7 +322,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
     }
 
     def needsLineByLineInterpretation(code: String): Boolean = {
-       storyPattern.matcher(code).find()
+      storyPattern.matcher(code).find()
     }
 
     def showIncompleteCodeMsg(code: String) {
@@ -713,8 +713,12 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
     }
     UserCommand("stAddField", List("label"), "Adds an input field to the Story Teller Window.")
 
-    def stFieldValue(label: String): String = {
-      storyTeller.fieldValue(label)
+    implicit val StringNoS = util.NoS.StringNoS
+    implicit val DoubleNoS = util.NoS.DoubleNoS
+    implicit val IntNoS = util.NoS.IntNoS
+    import util.NumberOrString
+    def stFieldValue[T](label: String, default: T)(implicit nos: NumberOrString[T]): T = {
+      storyTeller.fieldValue(label, default)
     }
     UserCommand("stFieldValue", List("label"), "Gets the value of the specified field.")
 
