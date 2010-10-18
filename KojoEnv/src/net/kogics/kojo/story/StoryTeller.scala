@@ -20,6 +20,8 @@ import java.awt._
 import java.awt.event._
 import javax.swing._
 import util.Utils
+import util.NumberOrString
+import util.NoS._
 import javazoom.jl.player.Player
 import java.io._
 import javax.swing.text.html.HTMLDocument
@@ -34,7 +36,6 @@ object StoryTeller extends InitedSingleton[StoryTeller] {
 
   protected def newInstance = new StoryTeller
 }
-
 
 class StoryTeller extends JPanel {
   val NoText = <span/>
@@ -59,8 +60,11 @@ class StoryTeller extends JPanel {
 
   val cp = new JPanel
   cp.setBackground(Color.white)
-  cp.setBorder(BorderFactory.createEtchedBorder())
   add(cp)
+
+  val statusBar = new JLabel()
+  statusBar.setPreferredSize(new Dimension(100, 16))
+  add(statusBar)
 
   def ensureVisible() {
     kojoCtx.makeStoryTellerVisible()
@@ -91,6 +95,8 @@ class StoryTeller extends JPanel {
     uc.setBorder(BorderFactory.createEmptyBorder())
     
     pageFields.clear()
+    showStatusMsg("")
+    
     repaint()
     stopMp3Player()
   }
@@ -121,7 +127,7 @@ class StoryTeller extends JPanel {
     setContent(xml.Group(Array(content, html)))
   }
 
-  def addField(label: String) {
+  def addField(label: String): JTextField = {
     val l = new JLabel(label)
     val tf = new JTextField("", 6)
 
@@ -131,15 +137,31 @@ class StoryTeller extends JPanel {
       uc.setBorder(BorderFactory.createEtchedBorder())
       pageFields += (label -> tf)
     }
+    tf
   }
 
-  def fieldValue(label: String): String = {
+  def fieldValue[T](label: String, default: T)(implicit nos: NumberOrString[T]): T = {
     Utils.runInSwingThreadAndWait {
       val tf = pageFields.get(label)
       if (tf.isDefined) {
-        tf.get.getText
+        val svalue = tf.get.getText
+        if (svalue != null && svalue.trim != "") {
+          try {
+            nos.value(svalue)
+          }
+          catch {
+            case ex: Exception =>
+              showStatusError("Unable to convert value - %s - to required type %s" format(svalue, nos.typeName))
+              throw ex
+          }
+        }
+        else {
+          tf.get.setText(default.toString)
+          default
+        }
       }
       else {
+        showStatusError("Field with label - %s is not defined" format(label))
         throw new IllegalArgumentException("Field with label - %s is not defined" format(label))
       }
     }
@@ -149,6 +171,7 @@ class StoryTeller extends JPanel {
     val but = new JButton(label)
     but.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
+          showStatusMsg("")
           fn
         }
       })
@@ -177,6 +200,16 @@ class StoryTeller extends JPanel {
     latch.await()
   }
 
+  def showStatusMsg(msg: String) {
+    statusBar.setForeground(Color.black)
+    statusBar.setText(msg)
+  }
+
+  def showStatusError(msg: String) {
+    statusBar.setForeground(Color.red)
+    statusBar.setText(msg)
+  }
+
   def play(mp3File: String) {
     val f = new File(mp3File)
     val f2 = if (f.exists) f else new File(baseDir + mp3File)
@@ -192,7 +225,7 @@ class StoryTeller extends JPanel {
         }).start
     }
     else {
-        throw new IllegalArgumentException("MP3 file - %s does not exist" format(mp3File))
+      throw new IllegalArgumentException("MP3 file - %s does not exist" format(mp3File))
     }
   }
 }
