@@ -182,7 +182,7 @@ class StoryTeller extends JPanel {
     }
   }
 
-  def showContinueButton() {
+  def waitForUser() {
     val but = new JButton("Continue")
     import java.util.concurrent.CountDownLatch
     val latch = new CountDownLatch(1)
