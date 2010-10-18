@@ -689,10 +689,10 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
     }
     UserCommand("stAppend", List("html"), "Appends the supplied html to the Story Teller Window.")
 
-    def stShowContinueButton() {
-      storyTeller.showContinueButton()
+    def stWaitForUser() {
+      storyTeller.waitForUser()
     }
-    UserCommand("stShowContinueButton", Nil, "Shows a Continue button at the bottom of the Story Teller Window. The user clicks on this button to continue on to the next page of the story.")
+    UserCommand("stWaitForUser", Nil, "Shows a Continue button at the bottom of the Story Teller Window, and waits till the user clicks on this button to continue with the story.")
 
     def stFormula(latex: String) = <img src={xml.Unparsed(story.CustomHtmlEditorKit.latexPrefix + latex)}/>
     UserCommand("stFormula", List("latex"), "Converts the supplied latex string into html that can be displayed in the Story Teller Window.")
@@ -720,7 +720,17 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
     def stFieldValue[T](label: String, default: T)(implicit nos: NumberOrString[T]): T = {
       storyTeller.fieldValue(label, default)
     }
-    UserCommand("stFieldValue", List("label"), "Gets the value of the specified field.")
+    UserCommand("stFieldValue", List("label", "default"), "Gets the value of the specified field.")
+
+    def stShowStatusMsg(msg: String) {
+      storyTeller.showStatusMsg(msg)
+    }
+    UserCommand("stShowStatusMsg", List("msg"), "Shows the specified message in the Story Teller status bar.")
+
+    def stShowStatusError(msg: String) {
+      storyTeller.showStatusError(msg)
+    }
+    UserCommand("stShowStatusError", List("msg"), "Shows the specified error message in the Story Teller status bar.")
 
     def help() = {
       println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
