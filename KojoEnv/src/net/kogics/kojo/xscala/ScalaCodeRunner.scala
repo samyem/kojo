@@ -681,6 +681,7 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
 
     def stShow(html: xml.Node) {
       storyTeller.setContent(html)
+      storyTeller.waitForUser()
     }
     UserCommand("stShow", List("html"), "Shows the supplied html within the Story Teller Window.")
 

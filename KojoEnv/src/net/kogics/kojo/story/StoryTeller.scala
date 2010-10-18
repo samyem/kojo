@@ -44,7 +44,8 @@ class StoryTeller extends JPanel {
   @volatile var mp3Player: Player = _
   val pageFields = new collection.mutable.HashMap[String, JTextField]()
 
-  this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
+//  setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
+  setLayout(new BorderLayout())
 
   val ep = new JEditorPane()
   ep.setEditorKit(new CustomHtmlEditorKit())
@@ -52,19 +53,29 @@ class StoryTeller extends JPanel {
   ep.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
   ep.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20))
   ep.setEditable(false)
-  add(ep)
+  val sp = new JScrollPane(ep)
+  sp.setBorder(BorderFactory.createEmptyBorder())
+  add(sp, BorderLayout.CENTER)
+
+  val holder = new JPanel()
+  holder.setBackground(Color.white)
+  holder.setLayout(new BoxLayout(holder, BoxLayout.Y_AXIS))
 
   val uc = new JPanel
   uc.setBackground(Color.white)
-  add(uc)
+  holder.add(uc)
 
   val cp = new JPanel
   cp.setBackground(Color.white)
-  add(cp)
+  holder.add(cp)
 
   val statusBar = new JLabel()
   statusBar.setPreferredSize(new Dimension(100, 16))
-  add(statusBar)
+  val sHolder = new JPanel()
+  sHolder.setLayout(new FlowLayout(FlowLayout.CENTER, 1, 1))
+  sHolder.add(statusBar)
+  holder.add(sHolder)
+  add(holder, BorderLayout.SOUTH)
 
   def ensureVisible() {
     kojoCtx.makeStoryTellerVisible()
