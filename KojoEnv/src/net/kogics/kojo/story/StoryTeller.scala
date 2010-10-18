@@ -42,6 +42,7 @@ class StoryTeller extends JPanel {
   @volatile var kojoCtx: core.KojoCtx = _
   @volatile var content: xml.Node = NoText
   @volatile var mp3Player: Player = _
+  @volatile var bgmp3Player: Player = _
   val pageFields = new collection.mutable.HashMap[String, JTextField]()
 
 //  setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
@@ -70,7 +71,7 @@ class StoryTeller extends JPanel {
   holder.add(cp)
 
   val statusBar = new JLabel()
-  statusBar.setPreferredSize(new Dimension(100, 16))
+//  statusBar.setPreferredSize(new Dimension(100, 16))
   val sHolder = new JPanel()
   sHolder.setLayout(new FlowLayout(FlowLayout.CENTER, 1, 1))
   sHolder.add(statusBar)
@@ -88,6 +89,12 @@ class StoryTeller extends JPanel {
   def stopMp3Player() {
     if (mp3Player != null && !mp3Player.isComplete) {
       mp3Player.close()
+    }
+  }
+
+  def stopBgMp3Player() {
+    if (bgmp3Player != null && !bgmp3Player.isComplete) {
+      bgmp3Player.close()
     }
   }
 
@@ -124,6 +131,7 @@ class StoryTeller extends JPanel {
   def done() {
     Utils.runInSwingThread {
       clearHelper()
+      stopBgMp3Player()
     }
   }
 
@@ -186,9 +194,13 @@ class StoryTeller extends JPanel {
           fn
         }
       })
-    
+
+    addUiComponent(but)
+  }
+
+  def addUiComponent(c: JComponent) {
     Utils.runInSwingThread {
-      uc.add(but)
+      uc.add(c)
       uc.setBorder(BorderFactory.createEtchedBorder())
     }
   }
@@ -214,29 +226,42 @@ class StoryTeller extends JPanel {
   def showStatusMsg(msg: String) {
     statusBar.setForeground(Color.black)
     statusBar.setText(msg)
+    statusBar.setPreferredSize(new Dimension(getSize().width, 16))
   }
 
   def showStatusError(msg: String) {
     statusBar.setForeground(Color.red)
     statusBar.setText(msg)
+    statusBar.setPreferredSize(new Dimension(getSize().width, 16))
   }
 
-  def play(mp3File: String) {
+  private def playHelper(mp3File: String, bg: Boolean) {
     val f = new File(mp3File)
     val f2 = if (f.exists) f else new File(baseDir + mp3File)
 
     if (f2.exists) {
-      stopMp3Player()
       val is = new FileInputStream(f2)
-      mp3Player = new Player(is)
+      val player = if (bg) {
+        stopBgMp3Player()
+        bgmp3Player = new Player(is)
+        bgmp3Player
+      }
+      else {
+        stopMp3Player()
+        mp3Player = new Player(is)
+        mp3Player
+      }
       new Thread(new Runnable {
           def run {
-            mp3Player.play
+            player.play
           }
         }).start
     }
     else {
-      throw new IllegalArgumentException("MP3 file - %s does not exist" format(mp3File))
+      showStatusError("MP3 file - %s does not exist" format(mp3File))
     }
   }
+
+  def play(mp3File: String) = playHelper(mp3File, false)
+  def playInBg(mp3File: String) = playHelper(mp3File, true)
 }

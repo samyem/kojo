@@ -703,6 +703,11 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
     }
     UserCommand("playMp3", List("fileName"), "Plays the specified MP3 file.")
 
+    def playMp3InBg(mp3File: String) {
+      storyTeller.playInBg(mp3File)
+    }
+    UserCommand("playMp3InBg", List("fileName"), "Plays the specified MP3 file in the background.")
+
     def stAddButton(label: String)(fn: => Unit) {
       storyTeller.addButton(label)(fn)
     }
