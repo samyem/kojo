@@ -33,6 +33,14 @@ object Utils {
 
   def inSwingThread = EventQueue.isDispatchThread
 
+  def runAsync(fn: => Unit) {
+    new Thread(new Runnable {
+        def run {
+          fn
+        }
+      }).start
+  }
+
   def runInSwingThread(fn: => Unit) {
     if(inSwingThread) {
       fn
