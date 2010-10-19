@@ -43,6 +43,8 @@ class StoryTeller extends JPanel {
   @volatile var content: xml.Node = NoText
   @volatile var mp3Player: Player = _
   @volatile var bgmp3Player: Player = _
+  @volatile var running = false
+  
   val pageFields = new collection.mutable.HashMap[String, JTextField]()
 
 //  setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
@@ -120,6 +122,7 @@ class StoryTeller extends JPanel {
   }
 
   def clear() {
+    running = true
     Utils.runInSwingThread {
       clearHelper()
       ensureVisible()
@@ -129,6 +132,7 @@ class StoryTeller extends JPanel {
   }
 
   def done() {
+    running = false
     Utils.runInSwingThread {
       clearHelper()
       stopBgMp3Player()
@@ -223,45 +227,57 @@ class StoryTeller extends JPanel {
     latch.await()
   }
 
+  addComponentListener(new ComponentAdapter {
+      override def componentResized(e: ComponentEvent) {
+        statusBar.setPreferredSize(new Dimension(getSize().width-6, 16))
+      }
+    })
+
   def showStatusMsg(msg: String) {
     statusBar.setForeground(Color.black)
     statusBar.setText(msg)
-    statusBar.setPreferredSize(new Dimension(getSize().width, 16))
   }
 
   def showStatusError(msg: String) {
     statusBar.setForeground(Color.red)
     statusBar.setText(msg)
-    statusBar.setPreferredSize(new Dimension(getSize().width, 16))
   }
 
-  private def playHelper(mp3File: String, bg: Boolean) {
+
+  private def playHelper(mp3File: String)(fn: (FileInputStream) => Unit) {
     val f = new File(mp3File)
     val f2 = if (f.exists) f else new File(baseDir + mp3File)
 
     if (f2.exists) {
       val is = new FileInputStream(f2)
-      val player = if (bg) {
-        stopBgMp3Player()
-        bgmp3Player = new Player(is)
-        bgmp3Player
-      }
-      else {
-        stopMp3Player()
-        mp3Player = new Player(is)
-        mp3Player
-      }
-      new Thread(new Runnable {
-          def run {
-            player.play
-          }
-        }).start
+      fn(is)
+//      is.close() - player closes the stream
     }
     else {
-      showStatusError("MP3 file - %s does not exist" format(mp3File))
+      Utils.runInSwingThread {
+        showStatusError("MP3 file - %s does not exist" format(mp3File))
+      }
     }
   }
 
-  def play(mp3File: String) = playHelper(mp3File, false)
-  def playInBg(mp3File: String) = playHelper(mp3File, true)
+
+  def play(mp3File: String) = playHelper(mp3File) {is =>
+    stopMp3Player()
+    Utils.runAsync {
+      mp3Player = new Player(is)
+      mp3Player.play
+    }
+  }
+  
+  def playInBg(mp3File: String): Unit = playHelper(mp3File) {is =>
+    stopBgMp3Player()
+    Utils.runAsync {
+      bgmp3Player = new Player(is)
+      bgmp3Player.play
+      if (running) {
+        // loop bg music
+        playInBg(mp3File)
+      }
+    }
+  }
 }
