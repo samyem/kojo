@@ -107,6 +107,7 @@ object Utils {
       sb.append(buf, 0, nbytes)
       nbytes = reader.read(buf)
     }
+    reader.close()
     sb.toString
   }
 
