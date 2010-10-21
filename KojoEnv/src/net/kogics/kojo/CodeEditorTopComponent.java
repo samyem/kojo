@@ -323,6 +323,11 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         KeyStroke ctrlR = Utilities.stringToKey("D-R"); // tight coupling with layer shortcut entry here. Bad!
         ce.getInputMap().put(ctrlR, replaceKey);
         ce.getActionMap().put(replaceKey, replaceAction);
+
+        KeyStroke ctrlL = Utilities.stringToKey("D-L");
+        Object clearKey = new Object();
+        ce.getInputMap().put(ctrlL, clearKey);
+        ce.getActionMap().put(clearKey, new ClearCodeEditor());
     }
 
     static class KojoEditorSupport extends CloneableEditorSupport {
@@ -470,6 +475,11 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             add(new JSeparator());
             addPopupPresenterActionMenuItem(configRoot, "Editors/Actions/toggle-line-numbers.instance");
             addFontMenuItem();
+            JMenuItem clr = new JMenuItem(new ClearCodeEditor());
+            clr.setText("Clear");
+            clr.setAccelerator(Utilities.stringToKey("D-L")); // shows ctrl-l in menu; functionality added in tweakActions
+            add(clr);
+
         }
 
         private void addPopupPresenterActionMenuItem(FileObject configRoot, String action) {

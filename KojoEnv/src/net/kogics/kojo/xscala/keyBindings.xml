@@ -4,4 +4,5 @@
 <bindings>
     <bind actionName="format" key="SD-F"/>
     <bind actionName="match-brace" key="D-CLOSE_BRACKET"/>
+    <bind actionName="remove-line" key="D-D"/>
 </bindings>

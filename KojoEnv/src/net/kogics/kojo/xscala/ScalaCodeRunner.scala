@@ -322,7 +322,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
     }
 
     def needsLineByLineInterpretation(code: String): Boolean = {
-      storyPattern.matcher(code).find()
+      false
+//      storyPattern.matcher(code).find()
     }
 
     def showIncompleteCodeMsg(code: String) {
@@ -679,21 +680,34 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
     UserCommand.addSynopsisSeparator()
     UserCommand("stClear", Nil, "Clears the Story Teller Window.")
 
-    def stShow(html: xml.Node) {
-      storyTeller.setContent(html)
-      storyTeller.waitForUser()
-    }
-    UserCommand("stShow", List("html"), "Shows the supplied html within the Story Teller Window.")
+    type Para = story.Para
+    val Para = story.Para
+    type StaticPage = story.StaticPage
+    val StaticPage = story.StaticPage
+    type DynamicPage = story.DynamicPage
+    val DynamicPage = story.DynamicPage
+    type Story = story.Story
+    val Story = story.Story
 
-    def stAppend(html: xml.Node) {
-      storyTeller.appendContent(html)
+    def stPlayStory(st: story.Story) {
+      storyTeller.playStory(st)
     }
-    UserCommand("stAppend", List("html"), "Appends the supplied html to the Story Teller Window.")
 
-    def stWaitForUser() {
-      storyTeller.waitForUser()
-    }
-    UserCommand("stWaitForUser", Nil, "Shows a Continue button at the bottom of the Story Teller Window, and waits till the user clicks on this button to continue with the story.")
+//    def stShow(html: xml.Node) {
+//      storyTeller.setContent(html)
+//      storyTeller.waitForUser()
+//    }
+//    UserCommand("stShow", List("html"), "Shows the supplied html within the Story Teller Window.")
+//
+//    def stAppend(html: xml.Node) {
+//      storyTeller.appendContent(html)
+//    }
+//    UserCommand("stAppend", List("html"), "Appends the supplied html to the Story Teller Window.")
+//
+//    def stWaitForUser() {
+//      storyTeller.waitForUser()
+//    }
+//    UserCommand("stWaitForUser", Nil, "Shows a Continue button at the bottom of the Story Teller Window, and waits till the user clicks on this button to continue with the story.")
 
     def stFormula(latex: String) = <img src={xml.Unparsed(story.CustomHtmlEditorKit.latexPrefix + latex)}/>
     UserCommand("stFormula", List("latex"), "Converts the supplied latex string into html that can be displayed in the Story Teller Window.")
