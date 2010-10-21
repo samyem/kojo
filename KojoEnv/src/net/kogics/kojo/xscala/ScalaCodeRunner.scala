@@ -682,10 +682,10 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
 
     type Para = story.Para
     val Para = story.Para
-    type StaticPage = story.StaticPage
-    val StaticPage = story.StaticPage
-    type DynamicPage = story.DynamicPage
-    val DynamicPage = story.DynamicPage
+    type Page = story.Page
+    val Page = story.Page
+    type IncrPage = story.IncrPage
+    val IncrPage = story.IncrPage
     type Story = story.Story
     val Story = story.Story
 
