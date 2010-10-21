@@ -44,6 +44,7 @@ class StoryTeller extends JPanel {
   @volatile var mp3Player: Player = _
   @volatile var bgmp3Player: Player = _
   @volatile var running = false
+  @volatile var story: Story = _
   
   val pageFields = new collection.mutable.HashMap[String, JTextField]()
 
@@ -68,8 +69,7 @@ class StoryTeller extends JPanel {
   uc.setBackground(Color.white)
   holder.add(uc)
 
-  val cp = new JPanel
-  cp.setBackground(Color.white)
+  val (cp, prevButton, nextButton) = makeControlPanel()
   holder.add(cp)
 
   val statusBar = new JLabel()
@@ -79,6 +79,39 @@ class StoryTeller extends JPanel {
   sHolder.add(statusBar)
   holder.add(sHolder)
   add(holder, BorderLayout.SOUTH)
+
+  def makeControlPanel(): (JPanel, JButton, JButton) = {
+    val cp = new JPanel
+    cp.setBackground(Color.white)
+    cp.setBorder(BorderFactory.createEtchedBorder())
+
+    val prevBut = new JButton("Prev")
+    prevBut.addActionListener(new ActionListener {
+        def actionPerformed(e: ActionEvent) {
+          prevPage()
+        }
+      })
+    cp.add(prevBut)
+
+    val stopBut = new JButton("Stop")
+    stopBut.addActionListener(new ActionListener {
+        def actionPerformed(e: ActionEvent) {
+          done()
+        }
+      })
+    cp.add(stopBut)
+
+    val nextBut = new JButton("Next")
+    nextBut.addActionListener(new ActionListener {
+        def actionPerformed(e: ActionEvent) {
+          nextPage()
+        }
+      })
+    cp.add(nextBut)
+
+    cp.setVisible(false)
+    (cp, prevBut, nextBut)
+  }
 
   def ensureVisible() {
     kojoCtx.makeStoryTellerVisible()
@@ -100,23 +133,73 @@ class StoryTeller extends JPanel {
     }
   }
 
+  def updateCp() {
+    if (story.hasPrevView) {
+      prevButton.setEnabled(true)
+    }
+    else {
+      prevButton.setEnabled(false)
+    }
+
+    if (story.hasNextView) {
+      nextButton.setEnabled(true)
+    }
+    else {
+      nextButton.setEnabled(false)
+    }
+  }
+
   private def clearHelper() {
     // needs to run on GUI thread
     newPage()
     setContent(NoText)
   }
 
+  def startPage() {
+    Utils.runInSwingThread {
+      newPage()
+      displayContent(story.view)
+      updateCp()
+    }
+  }
+
+  private def prevPage() {
+    Utils.runInSwingThread {
+      newPage()
+      if (story.hasPrevView) {
+        story.back()
+        displayContent(story.view)
+        updateCp()
+      }
+      else {
+        done()
+      }
+    }
+  }
+
+  private def nextPage() {
+    Utils.runInSwingThread {
+      newPage()
+
+      if (story.hasNextView) {
+        story.forward()
+        displayContent(story.view)
+        updateCp()
+      }
+      else {
+        done()
+      }
+    }
+  }
+
   private def newPage() {
     // needs to run on GUI thread
-    cp.removeAll()
-    cp.setBorder(BorderFactory.createEmptyBorder())
-
     uc.removeAll()
     uc.setBorder(BorderFactory.createEmptyBorder())
     
     pageFields.clear()
     showStatusMsg("")
-    
+
     repaint()
     stopMp3Player()
   }
@@ -126,6 +209,7 @@ class StoryTeller extends JPanel {
     Utils.runInSwingThread {
       clearHelper()
       ensureVisible()
+      cp.setVisible(true)
       val doc = ep.getDocument.asInstanceOf[HTMLDocument]
       doc.setBase(new java.net.URL("file:///" + baseDir))
     }
@@ -134,20 +218,21 @@ class StoryTeller extends JPanel {
   def done() {
     running = false
     Utils.runInSwingThread {
-      clearHelper()
+//      clearHelper()
       stopBgMp3Player()
+      cp.setVisible(false)
     }
   }
 
-  def setContent(html: xml.Node) {
+  private def displayContent(html: xml.Node) {
+    setContent(html)
+  }
+
+  private def setContent(html: xml.Node) {
     Utils.runInSwingThread {
       content = html
       ep.setText(html.toString)
     }
-  }
-
-  def appendContent(html: xml.Node) {
-    setContent(xml.Group(Array(content, html)))
   }
 
   def addField(label: String): JTextField = {
@@ -209,24 +294,6 @@ class StoryTeller extends JPanel {
     }
   }
 
-  def waitForUser() {
-    val but = new JButton("Continue")
-    import java.util.concurrent.CountDownLatch
-    val latch = new CountDownLatch(1)
-    but.addActionListener(new ActionListener {
-        def actionPerformed(e: ActionEvent) {
-          newPage()
-          latch.countDown()
-        }
-      })
-
-    Utils.runInSwingThread {
-      cp.add(but)
-      cp.setBorder(BorderFactory.createEtchedBorder())
-    }
-    latch.await()
-  }
-
   addComponentListener(new ComponentAdapter {
       override def componentResized(e: ComponentEvent) {
         statusBar.setPreferredSize(new Dimension(getSize().width-6, 16))
@@ -280,4 +347,12 @@ class StoryTeller extends JPanel {
       }
     }
   }
+
+  def playStory(story: Story) {
+    Utils.runAsync {
+      this.story = story
+      startPage()
+    }
+  }
+  
 }

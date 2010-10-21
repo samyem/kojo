@@ -194,13 +194,13 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     clearSButton.setEnabled(false)
     toolbar.add(clearSButton)
 
-    clearButton.setEnabled(false)
-    toolbar.add(clearButton)
-
     undoButton.setEnabled(false)
     toolbar.add(undoButton)
 
     toolbar.add(cexButton)
+
+    clearButton.setEnabled(false)
+    toolbar.add(clearButton)
 
     (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearSButton, clearButton, undoButton, cexButton)
   }
@@ -313,7 +313,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
             OutputTopComponent.findInstance().scrollToEnd()
           }
 
-          CodeExecutionSupport.this.storyTeller.done()
           runMonitor.onRunEnd()
         }
 
