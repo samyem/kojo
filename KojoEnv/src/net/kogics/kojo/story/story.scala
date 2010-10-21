@@ -22,10 +22,17 @@ trait Viewable {
   def back(): Unit
 }
 
-case class StaticPage(body: xml.Node) extends Viewable {
+object Page {
+  def apply(body: xml.Node, code: => Unit = {}) = new Page(body, code)
+}
+
+class Page(body: xml.Node, code: => Unit) extends Viewable {
   def hasNextView = false
   def hasPrevView = false
-  def view = body
+  def view = {
+    code
+    body
+  }
   def forward() = new IllegalStateException("Can't go forward on a Static page")
   def back() = new IllegalStateException("Can't go back on a Static page")
 }
@@ -36,7 +43,8 @@ object Para {
 class Para(val html: xml.Node, code0: => Unit) {
   def code = code0
 }
-case class DynamicPage(style: String, body: Para*) extends Viewable {
+
+case class IncrPage(style: String, body: Para*) extends Viewable {
   @volatile var currPara = 1
   def paras = body.size
 

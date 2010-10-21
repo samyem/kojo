@@ -43,8 +43,10 @@ class StoryTeller extends JPanel {
   @volatile var content: xml.Node = NoText
   @volatile var mp3Player: Player = _
   @volatile var bgmp3Player: Player = _
-  @volatile var running = false
-  @volatile var story: Story = _
+  @volatile var currStory: Option[Story] = None
+  @volatile var savedStory: Option[Story] = None
+  def running = currStory.isDefined
+  def story = currStory.get
   
   val pageFields = new collection.mutable.HashMap[String, JTextField]()
 
@@ -155,7 +157,7 @@ class StoryTeller extends JPanel {
     setContent(NoText)
   }
 
-  def startPage() {
+  def showCurrStory() {
     Utils.runInSwingThread {
       newPage()
       displayContent(story.view)
@@ -205,22 +207,29 @@ class StoryTeller extends JPanel {
   }
 
   def clear() {
-    running = true
     Utils.runInSwingThread {
       clearHelper()
       ensureVisible()
       cp.setVisible(true)
+      uc.setVisible(true)
       val doc = ep.getDocument.asInstanceOf[HTMLDocument]
       doc.setBase(new java.net.URL("file:///" + baseDir))
     }
   }
 
   def done() {
-    running = false
     Utils.runInSwingThread {
-//      clearHelper()
-      stopBgMp3Player()
-      cp.setVisible(false)
+      if (savedStory.isDefined) {
+        currStory = savedStory
+        savedStory = None
+        showCurrStory()
+      }
+      else {
+        currStory = None
+        stopBgMp3Player()
+        uc.setVisible(false)
+        cp.setVisible(false)
+      }
     }
   }
 
@@ -349,10 +358,17 @@ class StoryTeller extends JPanel {
   }
 
   def playStory(story: Story) {
+    if (savedStory.isDefined) {
+      showCurrStory()
+      throw new IllegalArgumentException("Can't run more than two stories")
+    }
+
     Utils.runAsync {
-      this.story = story
-      startPage()
+      if (currStory.isDefined) {
+        savedStory = currStory
+      }
+      currStory = Some(story)
+      showCurrStory()
     }
   }
-  
 }

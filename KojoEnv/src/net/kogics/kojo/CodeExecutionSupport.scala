@@ -194,11 +194,14 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     clearSButton.setEnabled(false)
     toolbar.add(clearSButton)
 
+    toolbar.addSeparator()
     undoButton.setEnabled(false)
     toolbar.add(undoButton)
 
+    toolbar.addSeparator()
     toolbar.add(cexButton)
 
+    toolbar.addSeparator()
     clearButton.setEnabled(false)
     toolbar.add(clearButton)
 
