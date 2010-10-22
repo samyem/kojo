@@ -198,7 +198,7 @@
         <folder name="Stories">
             <file name="net-kogics-kojo-Stories.HowTo.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_HowTo"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_KojoOverview"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>

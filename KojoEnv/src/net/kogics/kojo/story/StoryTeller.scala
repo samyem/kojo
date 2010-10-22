@@ -49,6 +49,19 @@ class StoryTeller extends JPanel {
   def story = currStory.get
   
   val pageFields = new collection.mutable.HashMap[String, JTextField]()
+  val defaultMsg =
+    <div style="text-align:center;color:#808080;font-size:15px">
+      {for (idx <- 1 to 6) yield {
+          <br/>
+        }}
+      <p>
+        Run a story by loading/writing your story script within the <em>Script Editor</em>, and
+        then clicking the <em>Run</em> button.
+      </p>
+      <p>
+        You can control a running story via buttons that appear at the bottom of this pane.
+      </p>
+    </div>
 
 //  setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
   setLayout(new BorderLayout())
@@ -81,6 +94,7 @@ class StoryTeller extends JPanel {
   sHolder.add(statusBar)
   holder.add(sHolder)
   add(holder, BorderLayout.SOUTH)
+  displayContent(defaultMsg)
 
   def makeControlPanel(): (JPanel, JButton, JButton) = {
     val cp = new JPanel
@@ -157,7 +171,7 @@ class StoryTeller extends JPanel {
   private def clearHelper() {
     // needs to run on GUI thread
     newPage()
-    setContent(NoText)
+    displayContent(NoText)
   }
 
   def showCurrStory() {
@@ -214,7 +228,6 @@ class StoryTeller extends JPanel {
       clearHelper()
       ensureVisible()
       cp.setVisible(true)
-      uc.setVisible(true)
       val doc = ep.getDocument.asInstanceOf[HTMLDocument]
       doc.setBase(new java.net.URL("file:///" + baseDir))
     }
@@ -229,18 +242,15 @@ class StoryTeller extends JPanel {
       }
       else {
         currStory = None
+        clearHelper()
         stopBgMp3Player()
-        uc.setVisible(false)
         cp.setVisible(false)
+        displayContent(defaultMsg)
       }
     }
   }
 
   private def displayContent(html: xml.Node) {
-    setContent(html)
-  }
-
-  private def setContent(html: xml.Node) {
     Utils.runInSwingThread {
       content = html
       ep.setText(html.toString)
@@ -314,14 +324,15 @@ class StoryTeller extends JPanel {
 
   def showStatusMsg(msg: String) {
     statusBar.setForeground(Color.black)
-    statusBar.setText(msg)
+    val prefix = if (savedStory.isDefined) "II | " else ""
+    statusBar.setText(prefix + msg)
   }
 
   def showStatusError(msg: String) {
     statusBar.setForeground(Color.red)
-    statusBar.setText(msg)
+    val prefix = if (savedStory.isDefined) "II | " else ""
+    statusBar.setText(prefix + msg)
   }
-
 
   private def playHelper(mp3File: String)(fn: (FileInputStream) => Unit) {
     val f = new File(mp3File)
@@ -349,6 +360,12 @@ class StoryTeller extends JPanel {
   }
   
   def playInBg(mp3File: String): Unit = playHelper(mp3File) {is =>
+    if (running) {
+      showStatusError("Can't play background mp3 in second story")
+      Thread.sleep(2500)
+      return
+    }
+
     stopBgMp3Player()
     Utils.runAsync {
       bgmp3Player = new Player(is)

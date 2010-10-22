@@ -326,6 +326,12 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
         def clearOutput() = clrOutput()
 
+        def setScript(code: String) {
+          Utils.runInSwingThread {
+            codePane.setText(code)
+          }
+        }
+
         val inspecteePattern = java.util.regex.Pattern.compile("""inspect\s*\(\s*(.*)\s*\)""")
 
         def inspect(obj: AnyRef) {

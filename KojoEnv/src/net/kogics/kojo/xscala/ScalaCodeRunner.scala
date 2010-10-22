@@ -747,6 +747,9 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
     }
     UserCommand("stShowStatusMsg", List("msg"), "Shows the specified message in the Story Teller status bar.")
 
+    def stSetScript(code: String) = ctx.setScript(code)
+    UserCommand("stSetScript", List("code"), "Copies the supplied code to the script editor.")
+
     def stShowStatusError(msg: String) {
       storyTeller.showStatusError(msg)
     }

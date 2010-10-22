@@ -30,13 +30,12 @@ class Stories extends ActionListener {
 
   def getCode(e: ActionEvent) = {
     e.getActionCommand match {
-      case "Creating Stories" => util.Utils.readFile(storyStream("creating-stories.kojo"))
+      case "Kojo Overview" => util.Utils.readFile(storyStream("kojo-overview.kojo"))
     }
   }
 
   def storyStream(fname: String) = {
     val installDir = System.getProperty("user.dir")
-//    println("***** user dir: " + installDir)
     val base = installDir + File.separator + "stories"
     CodeEditorTopComponent.findInstance().setLastLoadStoreDir(base)
     new FileInputStream(base + File.separator + fname)

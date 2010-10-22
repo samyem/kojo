@@ -40,6 +40,7 @@ class TestRunContext(val base: StagingTestBase) extends RunContext {
 
   def onInterpreterStart(code: String) {}
   def clearOutput {currOutput.clear}
+  def setScript(code: String) {}
   def getCurrentOutput: String  = currOutput.toString
 
   def onRunError() {
