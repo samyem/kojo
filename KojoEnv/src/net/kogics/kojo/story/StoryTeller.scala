@@ -87,7 +87,8 @@ class StoryTeller extends JPanel {
     cp.setBackground(Color.white)
     cp.setBorder(BorderFactory.createEtchedBorder())
 
-    val prevBut = new JButton("Prev")
+    val prevBut = new JButton()
+    prevBut.setIcon(Utils.loadIcon("/images/back.png"))
     prevBut.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
           prevPage()
@@ -95,7 +96,8 @@ class StoryTeller extends JPanel {
       })
     cp.add(prevBut)
 
-    val stopBut = new JButton("Stop")
+    val stopBut = new JButton()
+    stopBut.setIcon(Utils.loadIcon("/images/stop.png"))
     stopBut.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
           done()
@@ -103,7 +105,8 @@ class StoryTeller extends JPanel {
       })
     cp.add(stopBut)
 
-    val nextBut = new JButton("Next")
+    val nextBut = new JButton()
+    nextBut.setIcon(Utils.loadIcon("/images/forward.png"))
     nextBut.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
           nextPage()
