@@ -359,8 +359,8 @@ class StoryTeller extends JPanel {
     }
   }
   
-  def playInBg(mp3File: String): Unit = playHelper(mp3File) {is =>
-    if (running) {
+  def playInBg(mp3File: String, looping: Boolean = false): Unit = playHelper(mp3File) {is =>
+    if (running && !looping) {
       showStatusError("Can't play background mp3 in second story")
       Thread.sleep(2500)
       return
@@ -372,7 +372,7 @@ class StoryTeller extends JPanel {
       bgmp3Player.play
       if (running) {
         // loop bg music
-        playInBg(mp3File)
+        playInBg(mp3File, true)
       }
     }
   }
