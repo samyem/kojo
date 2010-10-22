@@ -44,6 +44,7 @@ trait RunContext {
   def showVerboseOutput(): Unit
   def hideVerboseOutput(): Unit
   def clearOutput(): Unit
+  def setScript(code: String): Unit
 
   def inspect(obj: AnyRef): Unit
 }
