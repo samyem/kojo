@@ -175,7 +175,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val stopButton = makeNavigationButton("/images/stop24.png", StopScript, "Stop Script/Animation", "Stop the Code")
     val hNextButton = makeNavigationButton("/images/history-next.png", HistoryNext, "Go to Next Script in History (Ctrl + Down Arrow)", "Next in History")
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
-    val clearSButton = makeNavigationButton("/images/clears.png", ClearEditor, "Clear Editor", "Clear the Editor")
+    val clearSButton = makeNavigationButton("/images/clears.png", ClearEditor, "Clear Editor (Ctrl + L)", "Clear the Editor")
     val clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, "Clear Output", "Clear the Output")
     val undoButton = makeNavigationButton("/images/undo.png", UndoCommand, "Undo Last Turtle Command", "Undo")
     val cexButton = makeNavigationButton("/images/upload.png", UploadCommand, "Upload to CodeExchange", "Upload")
@@ -195,13 +195,12 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     toolbar.add(clearSButton)
 
     toolbar.addSeparator()
+
+    toolbar.add(cexButton)
+
     undoButton.setEnabled(false)
     toolbar.add(undoButton)
 
-    toolbar.addSeparator()
-    toolbar.add(cexButton)
-
-    toolbar.addSeparator()
     clearButton.setEnabled(false)
     toolbar.add(clearButton)
 
