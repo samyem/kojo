@@ -29,6 +29,8 @@ cp kojo/puzzles/puzzles.jar installer/puzzles/
 cp kojo/etc/kojo.conf installer/etc
 mkdir installer/icons/
 cp kojo/icons/* installer/icons/
+mkdir installer/stories/
+cp kojo/stories/* installer/stories/
 
 # remove test jars from install
 # rm installer/kojo/modules/ext/cglib-nodep-2.1_3.jar

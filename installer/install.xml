@@ -86,6 +86,7 @@
             <file src="platform11" targetdir="$INSTALL_PATH"/>
             <file src="puzzles" targetdir="$INSTALL_PATH"/>
             <file src="icons" targetdir="$INSTALL_PATH"/>
+            <file src="stories" targetdir="$INSTALL_PATH"/>
         </pack>
     </packs>
 
