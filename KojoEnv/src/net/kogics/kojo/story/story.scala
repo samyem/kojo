@@ -20,6 +20,7 @@ trait Viewable {
   def view: xml.Node
   def hasPrevView: Boolean
   def back(): Unit
+  def numViews: Int
 }
 
 object Page {
@@ -35,6 +36,7 @@ class Page(body: xml.Node, code: => Unit) extends Viewable {
   }
   def forward() = new IllegalStateException("Can't go forward on a Static page")
   def back() = new IllegalStateException("Can't go back on a Static page")
+  def numViews = 1
 }
 
 object Para {
@@ -75,6 +77,8 @@ case class IncrPage(style: String, body: Para*) extends Viewable {
     runCode(currPara)
     viewParas(currPara)
   }
+
+  def numViews = paras
 }
 
 case class Story(pages: Viewable*) extends Viewable {
@@ -131,4 +135,54 @@ case class Story(pages: Viewable*) extends Viewable {
   def view = {
     pages(currPage).view
   }
+
+  def hasView(pg: Int, para: Int) = {
+    if (pg <= pages.size && para <= pages(pg-1).numViews) {
+      true
+    }
+    else {
+      false
+    }
+  }
+
+  def goto(pg: Int, para: Int) {
+    // currpage - 0 based
+    // pg - 1 based
+    val targetPage = pg - 1
+    if (currPage < targetPage) {
+      while (currPage != targetPage) {
+        while(pages(currPage).hasNextView) {
+          pages(currPage).forward()
+        }
+        currPage += 1
+      }
+      for (idx <- 1 until para) {
+        forward()
+      }
+    }
+    else if(currPage > targetPage) {
+      while (currPage != targetPage) {
+        while(pages(currPage).hasPrevView) {
+          pages(currPage).back()
+        }
+        currPage -= 1
+      }
+      for (idx <- 1 until pages(currPage).numViews - para) {
+        back()
+      }
+    }
+    else {
+      // currPage == targetPage
+      while(pages(currPage).hasPrevView) {
+        pages(currPage).back()
+      }
+      for (idx <- 1 until para) {
+        forward()
+      }
+    }
+  }
+
+  def location = (currPage+1).toString
+
+  def numViews = throw new UnsupportedOperationException
 }

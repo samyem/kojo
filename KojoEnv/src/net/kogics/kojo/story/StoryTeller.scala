@@ -78,6 +78,7 @@ class StoryTeller extends JPanel {
   ep.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
   ep.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20))
   ep.setEditable(false)
+  ep.addHyperlinkListener(new LinkListener(this))
   val sp = new JScrollPane(ep)
   sp.setBorder(BorderFactory.createEmptyBorder())
   add(sp, BorderLayout.CENTER)
@@ -211,7 +212,7 @@ class StoryTeller extends JPanel {
     uc.setBorder(BorderFactory.createEmptyBorder())
     
     pageFields.clear()
-    clearStatusBar()
+//    clearStatusBar()
 
     repaint()
     stopMp3Player()
@@ -224,6 +225,19 @@ class StoryTeller extends JPanel {
       cp.setVisible(true)
       val doc = ep.getDocument.asInstanceOf[HTMLDocument]
       doc.setBase(new java.net.URL("file:///" + baseDir))
+    }
+  }
+
+  def viewPage(page: String, para: String) {
+    val pnum = page.toInt
+    val paranum = if (para == null) 1 else para.toInt
+    if (story.hasView(pnum, paranum)) {
+      story.goto(pnum, paranum)
+      displayContent(story.view)
+      updateCp()
+    }
+    else {
+      showStatusError("Invalid page#para - %d#%d" format(pnum, paranum))
     }
   }
 
@@ -247,6 +261,7 @@ class StoryTeller extends JPanel {
   private def displayContent(html: xml.Node) {
     Utils.runInSwingThread {
       content = html
+      clearStatusBar()
       ep.setText(html.toString)
     }
   }
@@ -319,25 +334,42 @@ class StoryTeller extends JPanel {
   def clearStatusBar() {
     Utils.runInSwingThread {
       statusBar.setForeground(Color.black)
-      val empty = if (savedStory.isDefined) "II" else ""
-      statusBar.setText(empty)
+      statusBar.setText(emptyStatus)
     }
   }
 
-  def showStatusMsg(msg: String) {
+  def statusPrefix = {
+    if (currStory.isDefined) {
+      if (savedStory.isDefined) "Pg II/%s | " format(story.location) else "Pg %s | " format(story.location)
+    }
+    else {
+      ""
+    }
+  }
+
+  def emptyStatus = {
+    if (currStory.isDefined) {
+      if (savedStory.isDefined) "Pg II/%s" format(story.location) else "Pg %s" format(story.location)
+    }
+    else {
+      ""
+    }
+  }
+
+  def showStatusMsg(msg: String, output: Boolean = true) {
     Utils.runInSwingThread {
       statusBar.setForeground(Color.black)
-      val prefix = if (savedStory.isDefined) "II | " else ""
-      statusBar.setText(prefix + msg)
+      statusBar.setText(statusPrefix + msg)
     }
-    outputFn("[Storyteller] %s\n" format(msg))
+    if (output) {
+      outputFn("[Storyteller] %s\n" format(msg))
+    }
   }
 
   def showStatusError(msg: String) {
     Utils.runInSwingThread {
       statusBar.setForeground(Color.red)
-      val prefix = if (savedStory.isDefined) "II | " else ""
-      statusBar.setText(prefix + msg)
+      statusBar.setText(statusPrefix + msg)
     }
     outputFn("[Storyteller] %s\n" format(msg))
   }
