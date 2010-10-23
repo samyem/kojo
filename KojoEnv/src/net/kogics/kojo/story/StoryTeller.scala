@@ -25,6 +25,7 @@ import util.NoS._
 import javazoom.jl.player.Player
 import java.io._
 import javax.swing.text.html.HTMLDocument
+import java.util.logging._
 
 object StoryTeller extends InitedSingleton[StoryTeller] {
   def initedInstance(kojoCtx: KojoCtx) = synchronized {
@@ -38,6 +39,7 @@ object StoryTeller extends InitedSingleton[StoryTeller] {
 }
 
 class StoryTeller extends JPanel {
+  val Log = Logger.getLogger(getClass.getName);
   val NoText = <span/>
   @volatile var kojoCtx: core.KojoCtx = _
   @volatile var content: xml.Node = NoText
@@ -47,7 +49,11 @@ class StoryTeller extends JPanel {
   @volatile var savedStory: Option[Story] = None
   def running = currStory.isDefined
   def story = currStory.get
-  
+
+  var outputFn: String => Unit = { msg =>
+    Log.info(msg)
+  }
+
   val pageFields = new collection.mutable.HashMap[String, JTextField]()
   val defaultMsg =
     <div style="text-align:center;color:#808080;font-size:15px">
@@ -205,7 +211,7 @@ class StoryTeller extends JPanel {
     uc.setBorder(BorderFactory.createEmptyBorder())
     
     pageFields.clear()
-    showStatusMsg("")
+    clearStatusBar()
 
     repaint()
     stopMp3Player()
@@ -289,7 +295,7 @@ class StoryTeller extends JPanel {
     val but = new JButton(label)
     but.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
-          showStatusMsg("")
+          clearStatusBar()
           fn
         }
       })
@@ -310,16 +316,30 @@ class StoryTeller extends JPanel {
       }
     })
 
+  def clearStatusBar() {
+    Utils.runInSwingThread {
+      statusBar.setForeground(Color.black)
+      val empty = if (savedStory.isDefined) "II" else ""
+      statusBar.setText(empty)
+    }
+  }
+
   def showStatusMsg(msg: String) {
-    statusBar.setForeground(Color.black)
-    val prefix = if (savedStory.isDefined) "II | " else ""
-    statusBar.setText(prefix + msg)
+    Utils.runInSwingThread {
+      statusBar.setForeground(Color.black)
+      val prefix = if (savedStory.isDefined) "II | " else ""
+      statusBar.setText(prefix + msg)
+    }
+    outputFn("[Storyteller] %s\n" format(msg))
   }
 
   def showStatusError(msg: String) {
-    statusBar.setForeground(Color.red)
-    val prefix = if (savedStory.isDefined) "II | " else ""
-    statusBar.setText(prefix + msg)
+    Utils.runInSwingThread {
+      statusBar.setForeground(Color.red)
+      val prefix = if (savedStory.isDefined) "II | " else ""
+      statusBar.setText(prefix + msg)
+    }
+    outputFn("[Storyteller] %s\n" format(msg))
   }
 
   private def playHelper(mp3File: String)(fn: (FileInputStream) => Unit) {
@@ -332,9 +352,7 @@ class StoryTeller extends JPanel {
 //      is.close() - player closes the stream
     }
     else {
-      Utils.runInSwingThread {
-        showStatusError("MP3 file - %s does not exist" format(mp3File))
-      }
+      showStatusError("MP3 file - %s does not exist" format(mp3File))
     }
   }
 
@@ -350,7 +368,6 @@ class StoryTeller extends JPanel {
   def playInBg(mp3File: String): Unit = playHelper(mp3File) {is =>
     if (bgmp3Player.isDefined && !bgmp3Player.get.isComplete) {
       showStatusError("Can't play second background mp3")
-      Thread.sleep(2500)
       return
     }
 
