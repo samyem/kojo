@@ -19,6 +19,7 @@ package stories
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.io._
+import util.Utils
 
 class Stories extends ActionListener {
   def actionPerformed(e: ActionEvent) {
@@ -30,13 +31,12 @@ class Stories extends ActionListener {
 
   def getCode(e: ActionEvent) = {
     e.getActionCommand match {
-      case "Kojo Overview" => util.Utils.readFile(storyStream("kojo-overview.kojo"))
+      case "Kojo Overview" => Utils.readFile(storyStream("kojo-overview.kojo"))
     }
   }
 
   def storyStream(fname: String) = {
-    val installDir = System.getProperty("user.dir")
-    val base = installDir + File.separator + "stories"
+    val base = Utils.installDir + File.separator + "../stories"
     CodeEditorTopComponent.findInstance().setLastLoadStoreDir(base)
     new FileInputStream(base + File.separator + fname)
   }
