@@ -91,10 +91,11 @@ object Utils {
     else println("Good")
   }
 
+  // actually - the dir with the jars, one level under the actual install dir
   def installDir = {
     val dirs = System.getProperty("netbeans.dirs")
     dirs.split(File.pathSeparator).find {n =>
-      (n.contains("Kojo") || n.contains("kojo")) && !n.contains("platform")
+      new File(n, "modules/ext/scala-library.jar").exists
     }.getOrElse {throw new IllegalStateException("Unknown Install Dir")}
   }
 

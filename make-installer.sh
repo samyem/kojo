@@ -10,6 +10,7 @@ rm -rf installer/licenses/
 rm -rf installer/platform11/
 rm -rf installer/puzzles/
 rm -rf installer/icons/
+rm -rf installer/stories/
 rm installer/install.jar
 
 # do a clean build

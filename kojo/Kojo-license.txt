@@ -13,8 +13,8 @@ Kojo makes use of the following third-party software:
 - Piccolo2D (http://www.piccolo2d.org) for 2D Graphics
 - GeoGebra (http://www.geogebra.org) for Interactive Geometry and Algebra
 - HttpUnit (http://httpunit.sourceforge.net/) for HTTP communication
-- JLaTeXMath (http://forge.scilab.org/index.php/p/jlatexmath/) - To displays LaTeX commands
-- JLayer (http://www.javazoom.net/javalayer/javalayer.html) - to play MP3 files
+- JLaTeXMath (http://forge.scilab.org/index.php/p/jlatexmath/) to display LaTeX commands
+- JLayer (http://www.javazoom.net/javalayer/javalayer.html) to play MP3 files
 
 Kojo also makes use of the following third-party software for unit testing:
 - JMock (this includes the CGLib, Hamcrest, and Objenesis libraries)
