@@ -41,8 +41,8 @@ class StoryTeller extends JPanel {
   val NoText = <span/>
   @volatile var kojoCtx: core.KojoCtx = _
   @volatile var content: xml.Node = NoText
-  @volatile var mp3Player: Player = _
-  @volatile var bgmp3Player: Player = _
+  @volatile var mp3Player: Option[Player] = None
+  @volatile var bgmp3Player: Option[Player] = None
   @volatile var currStory: Option[Story] = None
   @volatile var savedStory: Option[Story] = None
   def running = currStory.isDefined
@@ -138,18 +138,6 @@ class StoryTeller extends JPanel {
 
   def baseDir = Utils.runInSwingThreadAndWait {
     CodeEditorTopComponent.findInstance().getLastLoadStoreDir() + "/"
-  }
-
-  def stopMp3Player() {
-    if (mp3Player != null && !mp3Player.isComplete) {
-      mp3Player.close()
-    }
-  }
-
-  def stopBgMp3Player() {
-    if (bgmp3Player != null && !bgmp3Player.isComplete) {
-      bgmp3Player.close()
-    }
   }
 
   def updateCp() {
@@ -354,25 +342,24 @@ class StoryTeller extends JPanel {
   def play(mp3File: String) = playHelper(mp3File) {is =>
     stopMp3Player()
     Utils.runAsync {
-      mp3Player = new Player(is)
-      mp3Player.play
+      mp3Player = Some(new Player(is))
+      mp3Player.get.play
     }
   }
   
-  def playInBg(mp3File: String, looping: Boolean = false): Unit = playHelper(mp3File) {is =>
-    if (running && !looping) {
-      showStatusError("Can't play background mp3 in second story")
+  def playInBg(mp3File: String): Unit = playHelper(mp3File) {is =>
+    if (bgmp3Player.isDefined && !bgmp3Player.get.isComplete) {
+      showStatusError("Can't play second background mp3")
       Thread.sleep(2500)
       return
     }
 
-    stopBgMp3Player()
     Utils.runAsync {
-      bgmp3Player = new Player(is)
-      bgmp3Player.play
+      bgmp3Player = Some(new Player(is))
+      bgmp3Player.get.play
       if (running) {
         // loop bg music
-        playInBg(mp3File, true)
+        playInBg(mp3File)
       }
     }
   }
@@ -389,6 +376,20 @@ class StoryTeller extends JPanel {
       }
       currStory = Some(story)
       showCurrStory()
+    }
+  }
+
+  def stopMp3Player() {
+    if (mp3Player.isDefined && !mp3Player.get.isComplete) {
+      mp3Player.get.close()
+      mp3Player = None
+    }
+  }
+
+  def stopBgMp3Player() {
+    if (bgmp3Player.isDefined && !bgmp3Player.get.isComplete) {
+      bgmp3Player.get.close()
+      bgmp3Player = None
     }
   }
 }
