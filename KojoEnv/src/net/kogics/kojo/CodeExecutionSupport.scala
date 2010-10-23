@@ -50,7 +50,10 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   tCanvas.outputFn = showOutput _
 
   val geomCanvas = geogebra.GeoGebraCanvas.instance.geomCanvas
+
   val storyTeller = story.StoryTeller.instance()
+  storyTeller.outputFn = showOutput _
+
   val commandHistory = CommandHistory.instance
   val historyManager = new HistoryManager()
   @volatile var pendingCommands = false
