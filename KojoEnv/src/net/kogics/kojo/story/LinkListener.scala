@@ -20,14 +20,37 @@ import javax.swing._
 import javax.swing.event._
 
 class LinkListener(st: StoryTeller) extends HyperlinkListener {
+  val linkRegex = """(?i)http://localpage/(\d+)#?(\d*)""".r
+
+  def location(url: String): (Int, Int) = {
+    url match {
+      case linkRegex(page, para) =>
+        (page.toInt, if (para=="") 1 else para.toInt)
+      case _ =>
+        throw new IllegalArgumentException()
+    }
+  }
+
   def hyperlinkUpdate(e: HyperlinkEvent) {
     if (e.getEventType == HyperlinkEvent.EventType.ACTIVATED) {
       val url = e.getURL
-      if (url.getHost == "localpage") {
-        st.viewPage(url.getPath.substring(1), url.getRef)
+      if (url.getProtocol == "http") {
+        if (url.getHost.toLowerCase == "localpage") {
+          try {
+            val loc = location(url.toString)
+            st.viewPage(loc._1, loc._2)
+          }
+          catch {
+            case ex: IllegalArgumentException =>
+              st.showStatusError("Invalid page/view in Link - " + url.toString)
+          }
+        }
+        else {
+          Desktop.getDesktop().browse(url.toURI)
+        }
       }
       else {
-        Desktop.getDesktop().browse(url.toURI)
+        st.showStatusError("Trying to use link with unsupported protocol - " + url.getProtocol)
       }
     }
     else if (e.getEventType == HyperlinkEvent.EventType.ENTERED) {

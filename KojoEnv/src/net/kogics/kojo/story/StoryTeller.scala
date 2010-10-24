@@ -232,16 +232,14 @@ class StoryTeller extends JPanel {
     }
   }
 
-  def viewPage(page: String, para: String) {
-    val pnum = page.toInt
-    val paranum = if (para == null) 1 else para.toInt
-    if (story.hasView(pnum, paranum)) {
-      story.goto(pnum, paranum)
+  def viewPage(page: Int, view: Int) {
+    if (story.hasView(page, view)) {
+      story.goto(page, view)
       displayContent(story.view)
       updateCp()
     }
     else {
-      showStatusError("Invalid page#para - %d#%d" format(pnum, paranum))
+      showStatusError("Nonexistent page#view - %d#%d" format(page, view))
     }
   }
 
