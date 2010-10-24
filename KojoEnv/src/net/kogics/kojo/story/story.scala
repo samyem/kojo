@@ -21,6 +21,7 @@ trait Viewable {
   def hasPrevView: Boolean
   def back(): Unit
   def numViews: Int
+  def currView: Int // 1 based
 }
 
 object Page {
@@ -37,6 +38,7 @@ class Page(body: xml.Node, code: => Unit) extends Viewable {
   def forward() = new IllegalStateException("Can't go forward on a Static page")
   def back() = new IllegalStateException("Can't go back on a Static page")
   def numViews = 1
+  def currView = 1
 }
 
 object Para {
@@ -79,6 +81,7 @@ case class IncrPage(style: String, body: Para*) extends Viewable {
   }
 
   def numViews = paras
+  def currView = currPara
 }
 
 case class Story(pages: Viewable*) extends Viewable {
@@ -90,12 +93,7 @@ case class Story(pages: Viewable*) extends Viewable {
       true
     }
     else {
-      if (currPage + 1 < pages.size) {
-        true
-      }
-      else {
-        false
-      }
+      if (currPage + 1 < pages.size) true else false
     }
   }
 
@@ -105,12 +103,7 @@ case class Story(pages: Viewable*) extends Viewable {
       true
     }
     else {
-      if (currPage > 0) {
-        true
-      }
-      else {
-        false
-      }
+      if (currPage > 0) true else false
     }
   }
 
@@ -137,12 +130,10 @@ case class Story(pages: Viewable*) extends Viewable {
   }
 
   def hasView(pg: Int, para: Int) = {
-    if (pg <= pages.size && para <= pages(pg-1).numViews) {
+    if (pg > 0 && pg <= pages.size && para > 0 && para <= pages(pg-1).numViews) 
       true
-    }
-    else {
+    else 
       false
-    }
   }
 
   def goto(pg: Int, para: Int) {
@@ -182,7 +173,8 @@ case class Story(pages: Viewable*) extends Viewable {
     }
   }
 
-  def location = (currPage+1).toString
+  def location = (currPage+1, pages(currPage).currView)
 
   def numViews = throw new UnsupportedOperationException
+  def currView = throw new UnsupportedOperationException
 }
