@@ -95,10 +95,14 @@ class StoryTeller extends JPanel {
   holder.add(cp)
 
   val statusBar = new JLabel()
+  val pageNumBar = new JLabel()
+  pageNumBar.setBorder(BorderFactory.createEtchedBorder())
 //  statusBar.setPreferredSize(new Dimension(100, 16))
   val sHolder = new JPanel()
-  sHolder.setLayout(new FlowLayout(FlowLayout.CENTER, 1, 1))
-  sHolder.add(statusBar)
+  sHolder.setLayout(new BorderLayout())
+  sHolder.add(statusBar, BorderLayout.CENTER)
+  sHolder.add(pageNumBar, BorderLayout.EAST)
+
   holder.add(sHolder)
   add(holder, BorderLayout.SOUTH)
   displayContent(defaultMsg)
@@ -334,32 +338,22 @@ class StoryTeller extends JPanel {
   def clearStatusBar() {
     Utils.runInSwingThread {
       statusBar.setForeground(Color.black)
-      statusBar.setText(emptyStatus)
+      statusBar.setText("")
+      pageNumBar.setText(storyLocation)
     }
   }
 
-  def statusPrefix = {
-    if (currStory.isDefined) {
-      if (savedStory.isDefined) "Pg II/%s | " format(story.location) else "Pg %s | " format(story.location)
-    }
-    else {
+  def storyLocation = {
+    if (currStory.isDefined)
+      "Pg %d#%d" format(story.location._1, story.location._2)
+    else 
       ""
-    }
-  }
-
-  def emptyStatus = {
-    if (currStory.isDefined) {
-      if (savedStory.isDefined) "Pg II/%s" format(story.location) else "Pg %s" format(story.location)
-    }
-    else {
-      ""
-    }
   }
 
   def showStatusMsg(msg: String, output: Boolean = true) {
     Utils.runInSwingThread {
       statusBar.setForeground(Color.black)
-      statusBar.setText(statusPrefix + msg)
+      statusBar.setText(msg)
     }
     if (output) {
       outputFn("[Storyteller] %s\n" format(msg))
@@ -369,7 +363,7 @@ class StoryTeller extends JPanel {
   def showStatusError(msg: String) {
     Utils.runInSwingThread {
       statusBar.setForeground(Color.red)
-      statusBar.setText(statusPrefix + msg)
+      statusBar.setText(msg)
     }
     outputFn("[Storyteller] %s\n" format(msg))
   }

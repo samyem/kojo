@@ -33,6 +33,7 @@ class StoryTest extends KojoTestBase {
     assertFalse(story.hasNextView)
     assertFalse(story.hasPrevView)
     assertEquals(html1, story.view)
+    assertEquals((1, 1), story.location)
   }
 
   @Test
@@ -59,6 +60,7 @@ class StoryTest extends KojoTestBase {
 
     val pp = new xml.PrettyPrinter(2, 2)
     assertEquals(pp.format(html1), pp.format(story.view))
+    assertEquals((1, 1), story.location)
   }
 
   @Test
@@ -92,8 +94,10 @@ class StoryTest extends KojoTestBase {
 
     val pp = new xml.PrettyPrinter(2, 2)
     assertEquals(pp.format(html1), pp.format(story.view))
+    assertEquals((1, 1), story.location)
 
     story.forward()
+    assertEquals((1, 2), story.location)
 
     val html2 =
       <div style="color:green">
@@ -105,6 +109,7 @@ class StoryTest extends KojoTestBase {
     assertEquals(pp.format(html2), pp.format(story.view))
 
     story.back()
+    assertEquals((1, 1), story.location)
     assertTrue(story.hasNextView)
     assertFalse(story.hasPrevView)
     assertEquals(pp.format(html1), pp.format(story.view))
@@ -147,8 +152,10 @@ class StoryTest extends KojoTestBase {
 
     val pp = new xml.PrettyPrinter(2, 2)
     assertEquals(pp.format(html1), pp.format(story.view))
+    assertEquals((1, 1), story.location)
 
     story.forward()
+    assertEquals((1, 2), story.location)
 
     val html2 =
       <div style="color:green">
@@ -160,18 +167,97 @@ class StoryTest extends KojoTestBase {
     assertEquals(pp.format(html2), pp.format(story.view))
 
     story.forward()
+    assertEquals((2, 1), story.location)
     assertFalse(story.hasNextView)
     assertTrue(story.hasPrevView)
     assertEquals(pp.format(pgHhtml), pp.format(story.view))
 
     story.back()
+    assertEquals((1, 2), story.location)
     assertTrue(story.hasNextView)
     assertTrue(story.hasPrevView)
     assertEquals(pp.format(html2), pp.format(story.view))
 
     story.back()
+    assertEquals((1, 1), story.location)
     assertTrue(story.hasNextView)
     assertFalse(story.hasPrevView)
     assertEquals(pp.format(html1), pp.format(story.view))
+  }
+
+  @Test
+  def testLocation {
+    val para1_1 =
+      <p >
+        Para 1
+      </p>
+
+    val para1_2 =
+      <p >
+        Para 2
+      </p>
+
+    val para2_1 =
+      <p >
+        Para 1
+      </p>
+
+
+    val pg1 = IncrPage(
+      style="color:green",
+      Para(para1_1),
+      Para(para1_2)
+    )
+
+    val pg3 = IncrPage(
+      style="color:green",
+      Para(para2_1)
+    )
+
+    val pg2Hhtml =
+      <div style="color:green; font-size=18px">
+        Page 1
+      </div>
+    val pg4Hhtml =
+      <div style="color:green; font-size=18px">
+        Page 2
+      </div>
+    val pg2 = Page(pg2Hhtml)
+    val pg4 = Page(pg4Hhtml)
+
+    val story = Story(pg1, pg2, pg3, pg4)
+
+    assertFalse(story.hasView(0, 1))
+    assertTrue(story.hasView(1, 1))
+    assertTrue(story.hasView(1, 2))
+    assertFalse(story.hasView(1, 3))
+    assertFalse(story.hasView(1, 0))
+    assertTrue(story.hasView(2, 1))
+    assertFalse(story.hasView(2, 0))
+    assertFalse(story.hasView(2, 2))
+    assertTrue(story.hasView(3, 1))
+    assertFalse(story.hasView(3, 0))
+    assertFalse(story.hasView(3, 2))
+    assertTrue(story.hasView(4, 1))
+    assertFalse(story.hasView(4, 0))
+    assertFalse(story.hasView(4, 2))
+
+    assertEquals((1,1), story.location)
+    story.forward()
+    assertEquals((1,2), story.location)
+    story.forward()
+    assertEquals((2,1), story.location)
+    story.forward()
+    assertEquals((3,1), story.location)
+    story.forward()
+    assertEquals((4,1), story.location)
+    story.back()
+    assertEquals((3,1), story.location)
+    story.back()
+    assertEquals((2,1), story.location)
+    story.back()
+    assertEquals((1,2), story.location)
+    story.back()
+    assertEquals((1,1), story.location)
   }
 }
