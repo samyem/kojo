@@ -219,6 +219,7 @@ class StoryTeller extends JPanel {
     pageFields.clear()
 //    clearStatusBar()
 
+    stopCallback()
     repaint()
     stopMp3Player()
   }
