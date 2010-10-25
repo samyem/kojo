@@ -16,21 +16,27 @@ package net.kogics.kojo.util
 
 object Throttler {
   val systemThrottler = new Throttler(1)
-  
+
   def throttle() = systemThrottler.throttle()
 }
 
 class Throttler(size: Int) {
 
-  // Throttling is always supposed to happen on the Interp
-  // thread. So - there's no volatile or synchronized stuff in this class
-
   val MaxDelay = 1000 // ms
   val ThrottleThreshold = 10 // ms
   val MaxUninterruptibleCalls = 10
-  var lastCallTime: Long = System.currentTimeMillis
-  var avgDelay = 1000f
-  var uninterruptibleCalls = 0
+
+  val lastCallTime = new ThreadLocal[Long] {
+    override def initialValue = System.currentTimeMillis
+  }
+
+  val avgDelay = new ThreadLocal[Float] {
+    override def initialValue = 1000f
+  }
+
+  val uninterruptibleCalls = new ThreadLocal[Int] {
+    override def initialValue = 0
+  }
 
   /**
    * Slow things down if stuff is happening too quickly
@@ -39,29 +45,28 @@ class Throttler(size: Int) {
    */
   def throttle() {
     val currTime = System.currentTimeMillis
-    val delta =  currTime - lastCallTime
-    lastCallTime = currTime
+    val delta =  currTime - lastCallTime.get
+    lastCallTime.set(currTime)
 
-    avgDelay = (avgDelay + delta) / 2
+    avgDelay.set((avgDelay.get + delta) / 2)
 
-    if (avgDelay < ThrottleThreshold) {
+    if (avgDelay.get < ThrottleThreshold) {
       allowInterruption()
     }
     else {
-      uninterruptibleCalls += 1
-      if (avgDelay > MaxDelay) {
-        avgDelay = MaxDelay
+      uninterruptibleCalls.set(uninterruptibleCalls.get + 1)
+      if (avgDelay.get > MaxDelay) {
+        avgDelay.set(MaxDelay)
       }
     }
 
-    if (uninterruptibleCalls > MaxUninterruptibleCalls) {
+    if (uninterruptibleCalls.get > MaxUninterruptibleCalls) {
       allowInterruption()
     }
   }
 
   def allowInterruption() {
-    uninterruptibleCalls = 0
+    uninterruptibleCalls.set(0)
     Thread.sleep(size) // Throws interrupted exception if the thread has been interrupted
   }
 }
-

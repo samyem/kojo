@@ -143,6 +143,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           runCode()
         case StopScript =>
           codeRunner.interruptInterpreter()
+          storyTeller.stopCallback()
           tCanvas.stop()
         case HistoryNext =>
           loadCodeFromHistoryNext()

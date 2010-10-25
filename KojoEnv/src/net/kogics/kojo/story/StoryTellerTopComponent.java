@@ -4,8 +4,12 @@
  */
 package net.kogics.kojo.story;
 
-import java.awt.BorderLayout;
 import java.util.logging.Logger;
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.text.DefaultEditorKit;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -27,9 +31,30 @@ public final class StoryTellerTopComponent extends TopComponent {
     public StoryTellerTopComponent() {
         initComponents();
 
-        StoryTeller st = (StoryTeller)StoryTeller.instance();
+        StoryTeller st = (StoryTeller) StoryTeller.instance();
         st.setPreferredSize(this.getPreferredSize());
         add(st);
+
+        final Action copyAction = new DefaultEditorKit.CopyAction();
+        copyAction.setEnabled(false);
+        ActionMap actionMap = getActionMap();
+        actionMap.put(DefaultEditorKit.copyAction, copyAction);
+
+        st.ep().addCaretListener(new CaretListener() {
+
+            public void caretUpdate(CaretEvent e) {
+                int dot = e.getDot();
+                int mark = e.getMark();
+                if (dot == mark) {
+                    // no selection
+                    copyAction.setEnabled(false);
+                } else {
+                    copyAction.setEnabled(true);
+                }
+            }
+        });
+
+
 
         setName(NbBundle.getMessage(StoryTellerTopComponent.class, "CTL_StoryTellerTopComponent"));
         setToolTipText(NbBundle.getMessage(StoryTellerTopComponent.class, "HINT_StoryTellerTopComponent"));
