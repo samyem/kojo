@@ -186,31 +186,29 @@ class StoryTeller extends JPanel {
   }
 
   private def prevPage() {
-    Utils.runInSwingThread {
-      newPage()
-      if (story.hasPrevView) {
-        story.back()
-        displayContent(story.view)
-        updateCp()
-      }
-      else {
-        done()
-      }
+    // needs to run on GUI thread
+    newPage()
+    if (story.hasPrevView) {
+      story.back()
+      displayContent(story.view)
+      updateCp()
+    }
+    else {
+      done()
     }
   }
 
   private def nextPage() {
-    Utils.runInSwingThread {
-      newPage()
+    // needs to run on GUI thread
+    newPage()
 
-      if (story.hasNextView) {
-        story.forward()
-        displayContent(story.view)
-        updateCp()
-      }
-      else {
-        done()
-      }
+    if (story.hasNextView) {
+      story.forward()
+      displayContent(story.view)
+      updateCp()
+    }
+    else {
+      done()
     }
   }
 
@@ -439,13 +437,11 @@ class StoryTeller extends JPanel {
       throw new IllegalArgumentException("Can't run more than two stories")
     }
 
-    Utils.runAsync {
-      if (currStory.isDefined) {
-        savedStory = currStory
-      }
-      currStory = Some(story)
-      showCurrStory()
+    if (currStory.isDefined) {
+      savedStory = currStory
     }
+    currStory = Some(story)
+    showCurrStory()
   }
 
   def stopMp3Player() {
