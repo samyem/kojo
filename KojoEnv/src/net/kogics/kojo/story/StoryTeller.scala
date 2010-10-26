@@ -115,6 +115,7 @@ class StoryTeller extends JPanel {
 
     val prevBut = new JButton()
     prevBut.setIcon(Utils.loadIcon("/images/back.png"))
+    prevBut.setToolTipText("Previous View")
     prevBut.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
           prevPage()
@@ -124,6 +125,7 @@ class StoryTeller extends JPanel {
 
     val stopBut = new JButton()
     stopBut.setIcon(Utils.loadIcon("/images/stop.png"))
+    stopBut.setToolTipText("Stop Story")
     stopBut.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
           done()
@@ -133,6 +135,7 @@ class StoryTeller extends JPanel {
 
     val nextBut = new JButton()
     nextBut.setIcon(Utils.loadIcon("/images/forward.png"))
+    nextBut.setToolTipText("Next View")
     nextBut.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
           nextPage()
@@ -270,9 +273,10 @@ class StoryTeller extends JPanel {
     }
   }
 
-  def addField(label: String): JTextField = {
+  def addField(label: String, deflt: Any): JTextField = {
     val l = new JLabel(label)
-    val tf = new JTextField("", 6)
+    val default = deflt.toString
+    val tf = new JTextField(default, if (default.length < 6) 6 else default.length)
 
     Utils.runInSwingThread {
       uc.add(l)
@@ -323,7 +327,9 @@ class StoryTeller extends JPanel {
             catch {
               case stopper: InterruptedException =>
                 showStatusMsg("Story code stopped.")
-              case t: Throwable => 
+              case swingThreadException: java.lang.reflect.InvocationTargetException =>
+                // should already be logged e.g. within fieldValue()
+              case t: Throwable =>
                 showStatusError(t.getMessage)
             }
             finally {

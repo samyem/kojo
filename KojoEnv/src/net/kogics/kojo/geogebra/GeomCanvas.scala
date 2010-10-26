@@ -74,4 +74,27 @@ class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
     val txt = MwText(ggbApi, content, x, y)
     txt
   }
+
+  // quick and dirty stuff for now
+  import geogebra.kernel._
+
+  def variable(name: String, value: Double, min: Double, max: Double, increment: Double, x: Int, y: Int) {
+    Utils. runInSwingThread {
+      val number = new GeoNumeric(ggbApi.getConstruction)
+      number.setEuclidianVisible(true)
+      number.setSliderLocation(x, y)
+      number.setAbsoluteScreenLocActive(true)
+      number.setValue(1)
+      number.setLabel(name)
+      number.setLabelMode(GeoElement.LABEL_NAME_VALUE)
+      number.setLabelVisible(true)
+      number.update()
+    }
+  }
+
+  def evaluate(cmd: String) {
+    Utils. runInSwingThread {
+      ggbApi.evalCommand(cmd)
+    }
+  }
 }

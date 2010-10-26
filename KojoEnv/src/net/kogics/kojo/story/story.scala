@@ -53,9 +53,9 @@ case class IncrPage(style: String, body: Para*) extends Viewable {
   def paras = body.size
 
   private def viewParas(n: Int) = {
-    <div style={style}>
+    <body style={style}>
       {body.take(n).map {para => para.html}}
-    </div>
+    </body>
   }
   
   private def runCode(n: Int) {
