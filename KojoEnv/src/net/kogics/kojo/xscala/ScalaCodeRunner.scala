@@ -728,10 +728,10 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
     UserCommand.addCompletion("stAddButton", " (${label}) {\n    ${cursor}\n}")
     UserCommand.addSynopsis("stAddButton(label) {code} - Adds a button with the given label to the Story Teller Window, and runs the supplied code when the button is clicked.")
 
-    def stAddField(label: String) {
-      storyTeller.addField(label)
+    def stAddField(label: String, default: Any) {
+      storyTeller.addField(label, default)
     }
-    UserCommand("stAddField", List("label"), "Adds an input field to the Story Teller Window.")
+    UserCommand("stAddField", List("label", "default"), "Adds an input field with the supplied label and default value to the Story Teller Window.")
 
     implicit val StringNoS = util.NoS.StringNoS
     implicit val DoubleNoS = util.NoS.DoubleNoS

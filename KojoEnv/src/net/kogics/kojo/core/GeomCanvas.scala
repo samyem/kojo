@@ -33,4 +33,7 @@ trait GeomCanvas {
   def intersect(label: String, l1: GLine, l2: GLine): GPoint
   def angle(label: String, p1: GPoint, p2: GPoint, p3: GPoint): GAngle
   def text(content: String, x: Double, y: Double): GText
+  def variable(name: String, value: Double, min: Double, max: Double,
+               increment: Double, x: Int, y: Int): Unit
+  def evaluate(cmd: String): Unit
 }
