@@ -1,27 +1,54 @@
+// Click the Run button in the toolbar above to start the story
+// 
+// =================================================================
+// 
+// The source for the story is provided below
+
 val pageStyle = "color:#1e1e1e; margin:20px;"
 val centerStyle = "text-align:center;"
 val headerStyle = "text-align:center;font-size:110%;color:maroon;"
 val codeStyle = "font-size:90%;"
+val smallNoteStyle = "color:gray;font-size:95%;"
 
-val tbcPara =
-    Para(
-        <p>
-            To be continued...
-        </p>
-    )
+def pgHeader(hdr: String) = 
+    <p style={headerStyle}>
+        {new xml.Unparsed(hdr)}
+        <hr/>
+    </p>
+    
 
-val pg1 = Page(
-    <div style={pageStyle+centerStyle}>
+var pages = new collection.mutable.ListBuffer[StoryPage]
+var pg: StoryPage = _
+var header: xml.Node = _
+
+pg = Page(
+    <body style={pageStyle+centerStyle}>
         { for (i <- 1 to 5) yield {
                 <br/>
             }
         }
         <h1>An Overview of Kojo</h1>
-    </div>
+        <em>For teachers and parents</em>
+        { for (i <- 1 to 7) yield {
+                <br/>
+            }
+        }
+        <p style={smallNoteStyle}>
+            Please resize this window to about half your screen width, by dragging 
+            its right border. Also make sure that the Turtle Canvas is nice and visible.
+        </p>
+    </body>
 )
 
-val pg2 = IncrPage(
+pages += pg
+
+header = pgHeader("What is Kojo?")
+
+pg = IncrPage(
     style=pageStyle,
+    Para(
+        {header}
+    ),
     Para(
         <p>
             So what exactly is Kojo?
@@ -30,27 +57,96 @@ val pg2 = IncrPage(
     Para(
         <p>
             Kojo is a <em>Learning Environment</em>. It has many different features
-            that help with the teaching and learning of concepts in:
-            <ul>
-                <li><a href="http://localpage/3">Computer programming and Critical thinking</a></li>
-                <li><a href="http://localpage/7">Math</a></li>
-                <li>Science</li>
-                <li>Art and Creative thinking</li>
-            </ul>
+            - that help with the learning and teaching of concepts in the areas of:
+        </p>
+    ),
+    Para(
+        <ul>
+            <li>Computer Programming and Critical Thinking.</li>
+        </ul>
+    ),
+    Para(
+        <ul>
+            <li>Art and Creative Thinking.</li>
+        </ul>
+    ),
+    Para(
+        <ul>
+            <li>Math and Science.</li>
+        </ul>
+    ),
+    Para(
+        <ul>
+            <li>Computer and Internet Literacy.</li>
+        </ul>
+    )
+)
+
+pages += pg
+
+pg = IncrPage(
+    style=pageStyle,
+    Para(
+        {header}
+    ),
+    Para(
+        <p>
+            You can think of Kojo as:
+        </p>
+    ),
+    Para(
+        <ul>
+            <li>A gym, where children can exercise their brains.</li>
+        </ul>
+    ),
+    Para(
+        <ul>
+            <li>A studio, where they can create computer sketches, and 
+                stories/presentations (like this one!).</li>
+        </ul>
+    ),
+    Para(
+        <ul>
+            <li>A Lab, where they can experiment with mathematical and scientific ideas.</li>
+        </ul>
+    )
+)
+
+pages += pg
+
+header = pgHeader("Kojo and Computer Programming")
+
+pg = IncrPage(
+    style=pageStyle,
+    Para(
+        {header}
+    ),
+    Para(
+        <p>
+            Computer programming is a very useful skill for children to learn,
+            and a very beneficial activity for them to carry out.
         </p>
     ),
     Para(
         <p>
-            Let's look at some of these features...
+            It teaches them how to think systematically.
+        </p>
+    ),
+    Para(
+        <p>
+            And helps them to develop the kinds of thinking skills needed by Math and Science.
+        </p>
+    ),
+    Para(
+        <p>
+            Computer programming is the basis of most things that children do 
+            within Kojo, so let us spend a little time looking at how it is 
+            supported within Kojo.
         </p>
     )
 )
 
-val headerKcp =
-    <span style={headerStyle}>
-        Kojo and computer programming
-        <hr/>
-    </span>
+pages += pg
 
 val squareSample = """
     clear()
@@ -60,13 +156,16 @@ val squareSample = """
     }
 """
 
-val pg3 = IncrPage(
+
+
+pg = IncrPage(
     style=pageStyle,
     Para(
+        {header}
+    ),
+    Para(
         <p>
-            {headerKcp}
-            <br/>
-            You get started with computer programming within Kojo by writing
+            Children get started with computer programming within Kojo by writing
             simple programs that direct a turtle to make shapes on the screen.
         </p>
     ),
@@ -80,10 +179,15 @@ val pg3 = IncrPage(
     ),
     Para(
         <p>
-            Click the <em>Run Program</em> button below to run the program.
+            Click the <em>Make Square</em> button below to run the program.
+            <p style={smallNoteStyle}>
+                You will see the output of the program within the Turtle Canvas.
+            </p>
         </p>,
         code = {
-            stAddButton ("Run Program") {
+            axesOff()
+            gridOff()
+            stAddButton ("Make Square") {
                 clear()
                 repeat (4) {
                     forward(100)
@@ -94,12 +198,15 @@ val pg3 = IncrPage(
     )
 )
 
-val pg4 = IncrPage(
+pages += pg
+
+pg = IncrPage(
     style=pageStyle,
     Para(
+        {header}
+    ),
+    Para(
         <p>
-            {headerKcp}
-            <br/>
             How about playing a little with the program that you just ran?
             Copy the program to the <em>Script Editor</em>
             - by clicking the <em>Copy Program</em> button below.
@@ -125,23 +232,26 @@ val pg4 = IncrPage(
         </p>
     ))
 
-val pg5 = IncrPage(
+pages += pg
+
+pg = IncrPage(
     style=pageStyle,
     Para(
+        {header}
+    ),
+    Para(
         <p>
-            {headerKcp}
-            <br/>
             Done?
             <br/>
             <br/>
             What is the length of the square that you just made?
             <br/>
             <br/>
-            Input your answer below and click the <em>Check Answer</em> button
-            (<em>watch for a response in the status bar right at the bottom</em>).
+            Input your answer below and click the <em>Check Answer</em> button.
+            <div style={smallNoteStyle}>Watch for a response in the status bar right at the bottom</div>
         </p>,
         code = {
-            stAddField("Length")
+            stAddField("Length", "")
             stAddButton ("Check Answer") {
                 val num = stFieldValue("Length", 0)
                 if (num == 100) {
@@ -164,8 +274,17 @@ val pg5 = IncrPage(
         <p>
             Are you starting to see what simple programming in Kojo is about?
         </p>
+    ),
+    Para(
+        <p>
+            And the kind of interactivity that is available within Kojo stories
+            (which children get to both read and author, as they work with Kojo).
+        </p>
     )
+
 )
+
+pages += pg
 
 val treeSample = """
 def tree(distance: Double) {
@@ -192,12 +311,13 @@ penDown()
 tree(90)
 """
 
-val pg6 = IncrPage(
+pg = IncrPage(
     style=pageStyle,
     Para(
+        {header}
+    ),
+    Para(
         <p>
-            {headerKcp}
-            <br/>
             Let's look at a program that makes a much richer figure.
         </p>
     ),
@@ -206,7 +326,7 @@ val pg6 = IncrPage(
             <pre style={codeStyle}>
                 {xml.Unparsed(treeSample)}
             </pre>
-            Click on the <em>Run Program</em> button below to run
+            Click on the <em>Make Tree</em> button below to run
             this program.
         </p>,
         code = {
@@ -224,26 +344,127 @@ val pg6 = IncrPage(
                 }
             }
             
-            stAddButton ("Run Program") {
-                print("Running tree code")
+            stAddButton ("Make Tree") {
                 clear()
                 invisible()
                 setAnimationDelay(10)
                 penUp()
                 back(200)
                 penDown()
-                print("Drawing tree")
                 tree(90)
             }
         }
     ),
     Para(
         <p>
-            Don't worry if you don't fully understand the program above.
-            You will, after you work with Kojo for a little bit...
+            That was meant to show you the richness of figures that can be 
+            drawn, with the help of small computer programs, within Kojo.
         </p>
     )
 )
+
+pages += pg
+
+val headerCriticalT =
+    <span style={headerStyle}>
+        Kojo and Critical Thinking
+        <hr/>
+    </span>
+
+
+pg = IncrPage(
+    style=pageStyle,
+    Para(
+        <p>
+            {headerCriticalT} 
+            <br/>
+            Kojo gives children a lot of practice in Critical and Logical thinking.
+        </p>
+    ),
+    Para(
+        <p>
+            Writing any computer program involves Critical and Logical thinking.
+            So, children are exposed to these modes of thought with anything that 
+            they do within Kojo.
+        </p>
+    ),
+    Para(
+        <p>
+            They also get to specifically do Critical/Logical thinking exercises.
+        </p>
+    ),
+    Para(
+        <p>
+            For example, take a look at the two figures within the Turtle Canvas.
+            Children are shown a computer program that draws the figure on the left,
+            and then asked to slightly modify this program to draw the figure on the right.
+        </p>,
+        code = {
+            clear()
+            setAnimationDelay(100)
+            setPosition(-200, 0)
+
+            setPenColor(green)
+            setPenThickness(4)
+            setFillColor(yellow)
+            repeat (4) {
+                forward(200)
+                right()
+            }
+            setPenColor(blue)
+            setPenThickness(2)
+            setFillColor(red)
+            repeat (4) {
+                repeat (4) {
+                    forward(50)
+                    right()
+                }
+                penUp()
+                forward(50)
+                right()
+                forward(50)
+                left()
+                penDown()
+            }
+            
+            
+            setPosition(100, 0)
+            setPenColor(green)
+            setPenThickness(4)
+            setFillColor(purple)
+            repeat (4) {
+                forward(200)
+                right()
+            }
+            setPenColor(blue)
+            setPenThickness(2)
+            setFillColor(orange)
+            repeat (3) {
+                repeat (4) {
+                    forward(100)
+                    right()
+                }
+                penUp
+                forward(50)
+                right()
+                forward(50)
+                left()
+                penDown
+            }            
+        }
+    ),
+    Para(
+        <p>
+            By doing this, they learn important ideas related to computer 
+            programming - by studying an existing program. They then get 
+            to test their knowledge and apply some clear and precise thinking
+            to solve the problem given to them.
+        </p>
+    )
+
+)
+
+pages += pg
 
 val headerMath =
     <span style={headerStyle}>
@@ -251,27 +472,29 @@ val headerMath =
         <hr/>
     </span>
 
-val pg7 = IncrPage(
+pg = IncrPage(
     style=pageStyle,
     Para(
         <p>
             {headerMath}
             <br/>
-            You can use Kojo to play with interesting ideas in Math.
+            Children can use Kojo to play with interesting ideas in Math.
         </p>
     ),
     Para(
         <p>
-            Let's look at a couple:
+            Let's look at a couple of examples:
             <ul>
-                <li>Linear Equations in two variables</li>
-                <li>Some Geometry proof</li>
+                <li>Linear equations in two variables</li>
+                <li>The angle sum property of triangles</li>
             </ul>
         </p>
     )
 )
 
-val pg8 = IncrPage(
+pages += pg
+
+pg = IncrPage(
     style=pageStyle,
     Para(
         <p>
@@ -283,9 +506,21 @@ val pg8 = IncrPage(
     ),
     Para(
         <p>
-            Let's visualize this equation to see the role of m and c. Fill in 
-            values for <em>m</em> and <em>c</em> below, and then Click the 
-            <em>Plot</em> button.
+            As you might well know, any equation in two variables can be
+            visualized using (2-D) coordinate geometry.
+        </p>
+    ),
+    Para(
+        <p>
+            Let's visualize this particular equation to see the role of 
+            <em>m</em> and <em>c</em>. 
+        </p>
+    ),
+    Para(
+        <p>
+            Put in different values for <em>m</em> and <em>c</em> below, and 
+            then Click the <em>Plot</em> button to see what the equation looks 
+            like for these different values (of <em>m</em> and <em>c</em>).
         </p>,
         code = {
             def init() {
@@ -295,8 +530,8 @@ val pg8 = IncrPage(
                 zoom(0.7, 0, 0)
             }
             init()
-            stAddField("m")
-            stAddField("c")
+            stAddField("m", 1)
+            stAddField("c", 70)
             stAddButton ("Plot") {
                 val m = stFieldValue("m", 1.0)
                 val c = stFieldValue("c", 70.0)
@@ -319,7 +554,46 @@ val pg8 = IncrPage(
 
 )
 
-val story = Story(pg1, pg2, pg3, pg4, pg5, pg6, pg7, pg8)
+pages += pg
+
+pg = IncrPage(
+    style=pageStyle,
+    Para(
+        <p>
+            {headerMath}
+            <br/>
+            Kojo has a virtual laboratory called <em>Math World</em> - where children
+            can <em>experiment</em> with Math.
+        </p>
+    ),
+    Para(
+        <p>
+            Let's see what an experiment with linear equations might look like 
+            within <em>Math World</em>.
+        </p>
+    ),
+    Para(
+        <p>
+            Click on the <em>Linear Equation Experiment</em> button below to bring up <em>Math World</em>.
+            You will see a linear equation represented as a straight line within <em>Math World</em>.
+            You will also see two sliders representing <em>m</em> and <em>c</em>. 
+            Play with the sliders to see, in real time, how the values of <em>m</em>
+            and <em>c</em> affect the equation.
+        </p>,
+        code = {
+            stAddButton ("Linear Equation Experiment") {
+                Mw.clear()
+                Mw.variable("m", 1, -5, 5, 0.1, 500, 100)
+                Mw.variable("c", 0, -2, 2, 0.1, 500, 130)
+                Mw.evaluate("y = m x + c")
+            }
+        }
+    )
+)
+
+pages += pg
+
+val story = Story(pages: _*)
 stClear()
 playMp3InBg("bg1.mp3")
 stPlayStory(story)
