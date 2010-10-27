@@ -51,9 +51,9 @@ class StoryTest extends KojoTestBase {
     val story = Story(pg1)
 
     val html1 =
-      <div style="">
+      <body style="">
         {para1}
-      </div>
+      </body>
 
     assertFalse(story.hasNextView)
     assertFalse(story.hasPrevView)
@@ -85,9 +85,9 @@ class StoryTest extends KojoTestBase {
     val story = Story(pg1)
 
     val html1 =
-      <div style="color:green">
+      <body style="color:green">
         {para1}
-      </div>
+      </body>
 
     assertTrue(story.hasNextView)
     assertFalse(story.hasPrevView)
@@ -100,9 +100,9 @@ class StoryTest extends KojoTestBase {
     assertEquals((1, 2), story.location)
 
     val html2 =
-      <div style="color:green">
+      <body style="color:green">
         {para1}{para2}
-      </div>
+      </body>
 
     assertFalse(story.hasNextView)
     assertTrue(story.hasPrevView)
@@ -143,9 +143,9 @@ class StoryTest extends KojoTestBase {
     val story = Story(pg1, pg2)
 
     val html1 =
-      <div style="color:green">
+      <body style="color:green">
         {para1}
-      </div>
+      </body>
 
     assertTrue(story.hasNextView)
     assertFalse(story.hasPrevView)
@@ -158,9 +158,9 @@ class StoryTest extends KojoTestBase {
     assertEquals((1, 2), story.location)
 
     val html2 =
-      <div style="color:green">
+      <body style="color:green">
         {para1}{para2}
-      </div>
+      </body>
 
     assertTrue(story.hasNextView)
     assertTrue(story.hasPrevView)
