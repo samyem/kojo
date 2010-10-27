@@ -688,26 +688,11 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
     val IncrPage = story.IncrPage
     type Story = story.Story
     val Story = story.Story
+    type StoryPage = story.Viewable
 
     def stPlayStory(st: story.Story) {
       storyTeller.playStory(st)
     }
-
-//    def stShow(html: xml.Node) {
-//      storyTeller.setContent(html)
-//      storyTeller.waitForUser()
-//    }
-//    UserCommand("stShow", List("html"), "Shows the supplied html within the Story Teller Window.")
-//
-//    def stAppend(html: xml.Node) {
-//      storyTeller.appendContent(html)
-//    }
-//    UserCommand("stAppend", List("html"), "Appends the supplied html to the Story Teller Window.")
-//
-//    def stWaitForUser() {
-//      storyTeller.waitForUser()
-//    }
-//    UserCommand("stWaitForUser", Nil, "Shows a Continue button at the bottom of the Story Teller Window, and waits till the user clicks on this button to continue with the story.")
 
     def stFormula(latex: String) = <img src={xml.Unparsed(story.CustomHtmlEditorKit.latexPrefix + latex)}/>
     UserCommand("stFormula", List("latex"), "Converts the supplied latex string into html that can be displayed in the Story Teller Window.")

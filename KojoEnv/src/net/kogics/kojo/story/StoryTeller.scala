@@ -368,10 +368,18 @@ class StoryTeller extends JPanel {
   }
 
   def storyLocation = {
-    if (currStory.isDefined)
-      "Pg %d#%d" format(story.location._1, story.location._2)
-    else 
+    if (currStory.isDefined) {
+      if (savedStory.isDefined) {
+        "St 2, Pg %d#%d" format(story.location._1, story.location._2)
+
+      }
+      else {
+        "Pg %d#%d" format(story.location._1, story.location._2)
+      }
+    }
+    else {
       ""
+    }
   }
 
   def showStatusMsg(msg: String, output: Boolean = true) {
