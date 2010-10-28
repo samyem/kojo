@@ -231,6 +231,8 @@ class StoryTeller extends JPanel {
     }
   }
 
+  def pageNumber(name: String): Option[Int] = story.pageNumber(name)
+
   def viewPage(page: Int, view: Int) {
     if (story.hasView(page, view)) {
       story.goto(page, view)

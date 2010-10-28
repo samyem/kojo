@@ -21,11 +21,18 @@ import javax.swing.event._
 
 class LinkListener(st: StoryTeller) extends HyperlinkListener {
   val linkRegex = """(?i)http://localpage/(\d+)#?(\d*)""".r
+  val linkPnameRegex = """(?i)http://localpage/([\w-]+)#?(\d*)""".r
 
   def location(url: String): (Int, Int) = {
     url match {
       case linkRegex(page, para) =>
         (page.toInt, if (para=="") 1 else para.toInt)
+      case linkPnameRegex(pageName, para) =>
+        val pageNum = st.pageNumber(pageName)
+        if (pageNum.isDefined)
+          (pageNum.get, if (para=="") 1 else para.toInt)
+        else
+          throw new IllegalArgumentException()
       case _ =>
         throw new IllegalArgumentException()
     }
