@@ -142,7 +142,7 @@ class StoryTest extends KojoTestBase {
       <div style="color:green; font-size=18px">
         Page 1
       </div>
-    val pg2 = Page(pgHhtml)
+    val pg2 = Page(body = pgHhtml)
 
 
     val story = Story(pg1, pg2)
@@ -231,8 +231,8 @@ class StoryTest extends KojoTestBase {
       <div style="color:green; font-size=18px">
         Page 2
       </div>
-    val pg2 = Page(pg2Hhtml)
-    val pg4 = Page(pg4Hhtml)
+    val pg2 = Page(body = pg2Hhtml)
+    val pg4 = Page(body = pg4Hhtml)
 
     val story = Story(pg1, pg2, pg3, pg4)
 
