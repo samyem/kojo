@@ -27,7 +27,7 @@ class StoryTest extends KojoTestBase {
       <div style="color:green; font-size=18px">
         Page 1
       </div>
-    val pg1 = Page(html1)
+    val pg1 = Page(body = html1)
 
     val story = Story(pg1)
     assertFalse(story.hasNextView)
@@ -44,8 +44,9 @@ class StoryTest extends KojoTestBase {
       </p>
 
     val pg1 = IncrPage(
-      style="",
-      Para(para1)
+      body = List(
+        Para(para1)
+      )
     )
 
     val story = Story(pg1)
@@ -77,8 +78,10 @@ class StoryTest extends KojoTestBase {
 
     val pg1 = IncrPage(
       style="color:green",
-      Para(para1),
-      Para(para2)
+      body = List(
+        Para(para1),
+        Para(para2)
+      )
     )
 
 
@@ -129,8 +132,10 @@ class StoryTest extends KojoTestBase {
 
     val pg1 = IncrPage(
       style="color:green",
-      Para(para1),
-      Para(para2)
+      body = List(
+        Para(para1),
+        Para(para2)
+      )
     )
 
     val pgHhtml =
@@ -205,13 +210,17 @@ class StoryTest extends KojoTestBase {
 
     val pg1 = IncrPage(
       style="color:green",
-      Para(para1_1),
-      Para(para1_2)
+      body = List(
+        Para(para1_1),
+        Para(para1_2)
+      )
     )
 
     val pg3 = IncrPage(
       style="color:green",
-      Para(para2_1)
+      body = List(
+        Para(para2_1)
+      )
     )
 
     val pg2Hhtml =

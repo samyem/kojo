@@ -22,13 +22,14 @@ trait Viewable {
   def back(): Unit
   def numViews: Int
   def currView: Int // 1 based
+  val name: String
 }
 
 object Page {
-  def apply(body: xml.Node, code: => Unit = {}) = new Page(body, code)
+  def apply(name: String = "", body: xml.Node, code: => Unit = {}) = new Page(name, body, code)
 }
 
-class Page(body: xml.Node, code: => Unit) extends Viewable {
+class Page(val name: String, body: xml.Node, code: => Unit) extends Viewable {
   def hasNextView = false
   def hasPrevView = false
   def view = {
@@ -48,7 +49,11 @@ class Para(val html: xml.Node, code0: => Unit) {
   def code = code0
 }
 
-case class IncrPage(style: String, body: Para*) extends Viewable {
+object IncrPage {
+  def apply(name: String = "", style: String = "", body: List[Para]) = new IncrPage(name, style, body)
+}
+
+class IncrPage(val name: String, style: String, body: List[Para]) extends Viewable {
   @volatile var currPara = 1
   def paras = body.size
 
@@ -175,6 +180,12 @@ case class Story(pages: Viewable*) extends Viewable {
 
   def location = (currPage+1, pages(currPage).currView)
 
+  def pageNumber(name: String): Option[Int] = {
+    val idx = pages.findIndexOf {e => name == e.name}
+    if (idx == -1) None else Some(idx+1)
+  }
+
   def numViews = throw new UnsupportedOperationException
   def currView = throw new UnsupportedOperationException
+  val name = ""
 }
