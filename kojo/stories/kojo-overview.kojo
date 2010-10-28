@@ -4,7 +4,7 @@
 // 
 // The source for the story is provided below
 
-val pageStyle = "color:#1e1e1e; margin:20px;"
+val pageStyle = "color:#1e1e1e; margin:15px;"
 val centerStyle = "text-align:center;"
 val headerStyle = "text-align:center;font-size:110%;color:maroon;"
 val codeStyle = "font-size:90%;"
@@ -322,13 +322,13 @@ pg = IncrPage(
         </p>
     ),
     Para(
-        <p>
+        <span>
             <pre style={codeStyle}>
                 {xml.Unparsed(treeSample)}
             </pre>
             Click on the <em>Make Tree</em> button below to run
             this program.
-        </p>,
+        </span>,
         code = {
             def tree(distance: Double) {
                 if (distance > 4) {
@@ -365,19 +365,50 @@ pg = IncrPage(
 
 pages += pg
 
-val headerCriticalT =
-    <span style={headerStyle}>
-        Kojo and Critical Thinking
-        <hr/>
-    </span>
+pg = IncrPage(
+    style=pageStyle,
+    Para(
+        {header}
+    ),
+    Para(
+        <p>
+            To program within Kojo, children use:
+        </p>
+    ),
+    Para(
+        <ul>
+            <li>Scala, arguably the 21st century successor to Java.</li>
+            <div style={smallNoteStyle}>
+                This <a href="http://macstrac.blogspot.com/2009/04/scala-as-long-term-replacement-for.html">page on the web</a> 
+                has a detailed discussion of the subject, including links to endorsements for Scala by creators of other
+                languages like Java, JRuby, and Groovy.
+            </div>
+        </ul>
+    ),
+    Para(
+        <ul>
+            <li>Html, the core language of the World-wide-web.</li>
+        </ul>
+    ),
+    Para(
+        <p>
+            This gives children good exposure to modern, widely used, software
+            technology.
+        </p>
+    )
+)
 
+pages += pg
+
+header = pgHeader("Kojo and Critical Thinking")
 
 pg = IncrPage(
     style=pageStyle,
     Para(
+        {header}
+    ),
+    Para(
         <p>
-            {headerCriticalT} 
-            <br/>
             Kojo gives children a lot of practice in Critical and Logical thinking.
         </p>
     ),
@@ -466,18 +497,15 @@ pg = IncrPage(
 
 pages += pg
 
-val headerMath =
-    <span style={headerStyle}>
-        Kojo and Math
-        <hr/>
-    </span>
+header = pgHeader("Kojo and Math")
 
 pg = IncrPage(
     style=pageStyle,
     Para(
+        {header}
+    ),
+    Para(
         <p>
-            {headerMath}
-            <br/>
             Children can use Kojo to play with interesting ideas in Math.
         </p>
     ),
@@ -497,9 +525,10 @@ pages += pg
 pg = IncrPage(
     style=pageStyle,
     Para(
+        {header}
+    ),
+    Para(
         <p>
-            {headerMath}
-            <br/>
             A linear equation in two variables has the form:
             {stFormula("""\text{y = mx + c}""")}
         </p>
@@ -559,6 +588,37 @@ pages += pg
 pg = IncrPage(
     style=pageStyle,
     Para(
+        {header}
+    ),
+    Para(
+        <p>
+            It's important to note that Children, in their work with Kojo, 
+            <em>get to actually <strong>make</strong> interactive screens </em>
+            like the one that you just saw, instead of just viewing (or interacting
+            with) them.
+        </p>
+    ),
+    Para(
+        <p>
+            This kind of activity is perfect for school projects that supplement
+            the prescribed syllabus.
+        </p>
+    ),
+    Para(
+        <p style={smallNoteStyle}>
+            Viewing pre-made content and interacting with it is, of course, an 
+            important learning activity that is available to children within Kojo.<br/>
+            But children can go much further within Kojo - by authoring their own 
+            interactive, animated content.
+        </p>
+    )
+)
+
+pages += pg
+
+pg = IncrPage(
+    style=pageStyle,
+    Para(
         <p>
             {headerMath}
             <br/>
@@ -583,8 +643,8 @@ pg = IncrPage(
         code = {
             stAddButton ("Linear Equation Experiment") {
                 Mw.clear()
-                Mw.variable("m", 1, -5, 5, 0.1, 500, 100)
-                Mw.variable("c", 0, -2, 2, 0.1, 500, 130)
+                Mw.variable("m", 1, -5, 5, 0.1, 50, 50)
+                Mw.variable("c", 0, -2, 2, 0.1, 50, 80)
                 Mw.evaluate("y = m x + c")
             }
         }
