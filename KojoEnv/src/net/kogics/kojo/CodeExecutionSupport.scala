@@ -142,9 +142,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         case RunScript =>
           runCode()
         case StopScript =>
-          codeRunner.interruptInterpreter()
-          storyTeller.stopCallback()
-          tCanvas.stop()
+          stopScript()
         case HistoryNext =>
           loadCodeFromHistoryNext()
         case HistoryPrev =>
@@ -594,6 +592,16 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val nc = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
     codePane.setCursor(nc);
     tCanvas.setCursor(nc)
+  }
+
+  def stopScript() {
+    codeRunner.interruptInterpreter()
+    stopAnimation()
+  }
+
+  def stopAnimation() {
+    storyTeller.stopCallback()
+    tCanvas.stop()
   }
 
   def runCode() {

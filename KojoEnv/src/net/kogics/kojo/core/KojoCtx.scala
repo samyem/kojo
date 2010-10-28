@@ -19,4 +19,6 @@ trait KojoCtx {
   def makeCanvasVisible()
   def makeMathWorldVisible()
   def makeStoryTellerVisible()
+  def baseDir: String
+  def stopAnimation(): Unit
 }

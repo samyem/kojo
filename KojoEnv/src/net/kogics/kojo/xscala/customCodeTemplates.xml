@@ -13,6 +13,9 @@
     <codetemplate abbreviation="strong" xml:space="preserve">
         <code><![CDATA[<strong>${cursor}</strong>]]></code>
     </codetemplate>
+    <codetemplate abbreviation="a" xml:space="preserve">
+        <code><![CDATA[<a href="${cursor}"></a>]]></code>
+    </codetemplate>
     <codetemplate abbreviation="div" xml:space="preserve">
         <code><![CDATA[<div>
     ${cursor}
@@ -44,5 +47,8 @@
     </p>
 )
 ]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="span" xml:space="preserve">
+        <code><![CDATA[<span>${cursor}</span>]]></code>
     </codetemplate>
 </codetemplates>
