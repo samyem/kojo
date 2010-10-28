@@ -151,10 +151,6 @@ class StoryTeller extends JPanel {
     kojoCtx.makeStoryTellerVisible()
   }
 
-  def baseDir = Utils.runInSwingThreadAndWait {
-    CodeEditorTopComponent.findInstance().getLastLoadStoreDir() + "/"
-  }
-
   def updateCp() {
     if (story.hasPrevView) {
       prevButton.setEnabled(true)
@@ -220,7 +216,7 @@ class StoryTeller extends JPanel {
     pageFields.clear()
 //    clearStatusBar()
 
-    stopCallback()
+    kojoCtx.stopAnimation()
     repaint()
     stopMp3Player()
   }
@@ -231,7 +227,7 @@ class StoryTeller extends JPanel {
       ensureVisible()
       cp.setVisible(true)
       val doc = ep.getDocument.asInstanceOf[HTMLDocument]
-      doc.setBase(new java.net.URL("file:///" + baseDir))
+      doc.setBase(new java.net.URL("file:///" + kojoCtx.baseDir))
     }
   }
 
@@ -402,7 +398,7 @@ class StoryTeller extends JPanel {
 
   private def playHelper(mp3File: String)(fn: (FileInputStream) => Unit) {
     val f = new File(mp3File)
-    val f2 = if (f.exists) f else new File(baseDir + mp3File)
+    val f2 = if (f.exists) f else new File(kojoCtx.baseDir + mp3File)
 
     if (f2.exists) {
       val is = new FileInputStream(f2)
