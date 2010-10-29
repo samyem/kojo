@@ -13,6 +13,15 @@
     <codetemplate abbreviation="strong" xml:space="preserve">
         <code><![CDATA[<strong>${cursor}</strong>]]></code>
     </codetemplate>
+    <codetemplate abbreviation="Page" xml:space="preserve">
+        <code><![CDATA[Page(
+    name = "",
+    body =
+        <body>
+        </body>,
+    code = {}
+)]]></code>
+    </codetemplate>
     <codetemplate abbreviation="a" xml:space="preserve">
         <code><![CDATA[<a href="${cursor}"></a>]]></code>
     </codetemplate>
@@ -23,11 +32,19 @@
     </codetemplate>
     <codetemplate abbreviation="Incr" xml:space="preserve">
         <code><![CDATA[IncrPage(
-    style=pageStyle,
-    Para(
-        <p>
-            ${cursor}
-        </p>
+    name = "",
+    style = "",
+    body = List(
+        Para(
+            <p>
+                ${cursor}
+            </p>
+        ),
+        Para(
+            <p>
+                ${cursor}
+            </p>
+        )
     )
 )]]></code>
     </codetemplate>
@@ -44,7 +61,8 @@
         <code><![CDATA[Para(
     <p>
         ${cursor}
-    </p>
+    </p>,
+    code = {}
 )
 ]]></code>
     </codetemplate>
