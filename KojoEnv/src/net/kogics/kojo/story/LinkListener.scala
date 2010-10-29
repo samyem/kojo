@@ -67,4 +67,9 @@ class LinkListener(st: StoryTeller) extends HyperlinkListener {
       st.clearStatusBar()
     }
   }
+
+  // for tests
+  private [story] def setStory(story: Story) {
+    st.currStory = Some(story)
+  }
 }

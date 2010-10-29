@@ -38,22 +38,83 @@ class LinkListenerTest extends KojoTestBase {
     assertEquals((12,11), ll.location("http://localpage/12#11"))
   }
 
-//  @Test
-//  def test4 {
-//    try {
-//      ll.location("http://localpage/a#11")
-//      fail("Invalid location not detected")
-//    }
-//    catch {
-//      case ex: IllegalArgumentException =>
-//        assertTrue(true)
-//    }
-//  }
+  @Test
+  def test4 {
+    val pg = Page(
+      name = "",
+      body =
+        <body>
+        </body>,
+      code = {}
+    )
+
+    ll.setStory(Story(pg))
+    try {
+      ll.location("http://localpage/a#11")
+      fail("Invalid location not detected")
+    }
+    catch {
+      case ex: IllegalArgumentException =>
+        assertTrue(true)
+    }
+  }
 
   @Test
   def test5 {
     try {
       ll.location("http://localpage/5#x")
+      fail("Invalid location not detected")
+    }
+    catch {
+      case ex: IllegalArgumentException =>
+        assertTrue(true)
+    }
+  }
+
+  @Test
+  def test6 {
+    val story = Story(
+      Page(
+        name = "pg1",
+        body = 
+          <body>
+          </body>,
+        code = {}
+      ),
+      IncrPage(
+        name = "pg2",
+        style = "",
+        body = List(
+          Para(
+            <p>
+                Para1
+            </p>
+          ),
+          Para(
+            <p>
+                Para2
+            </p>
+          )
+        )
+      ),      
+      Page(
+        name = "pg3",
+        body = 
+          <body>
+          </body>,
+        code = {}
+      )
+    )
+    
+    ll.setStory(story)
+    assertEquals((1,1), ll.location("http://localpage/pg1"))
+    assertEquals((2,1), ll.location("http://localpage/pg2"))
+    assertEquals((2,1), ll.location("http://localpage/pg2#1"))
+    assertEquals((2,2), ll.location("http://localpage/pg2#2"))
+    assertEquals((3,1), ll.location("http://localpage/pg3#1"))
+
+    try {
+      ll.location("http://localpage/nopage")
       fail("Invalid location not detected")
     }
     catch {

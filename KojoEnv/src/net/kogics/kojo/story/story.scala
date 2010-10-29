@@ -12,7 +12,9 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.story
+package net.kogics.kojo
+package story
+import util.Utils
 
 trait Viewable {
   def hasNextView: Boolean
@@ -33,7 +35,9 @@ class Page(val name: String, body: xml.Node, code: => Unit) extends Viewable {
   def hasNextView = false
   def hasPrevView = false
   def view = {
-    code
+    Utils.runAsync {
+      code
+    }
     body
   }
   def forward() = new IllegalStateException("Can't go forward on a Static page")
@@ -43,9 +47,9 @@ class Page(val name: String, body: xml.Node, code: => Unit) extends Viewable {
 }
 
 object Para {
-  def apply(html: xml.Node, code: => Unit = {}) = new Para(html, code)
+  def apply(body: xml.Node, code: => Unit = {}) = new Para(body, code)
 }
-class Para(val html: xml.Node, code0: => Unit) {
+class Para(val body: xml.Node, code0: => Unit) {
   def code = code0
 }
 
@@ -59,12 +63,14 @@ class IncrPage(val name: String, style: String, body: List[Para]) extends Viewab
 
   private def viewParas(n: Int) = {
     <body style={style}>
-      {body.take(n).map {para => para.html}}
+      {body.take(n).map {para => para.body}}
     </body>
   }
   
   private def runCode(n: Int) {
-    body(n-1).code
+    Utils.runAsync {
+      body(n-1).code
+    }
   }
 
   def hasNextView = currPara < paras
