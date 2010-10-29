@@ -282,7 +282,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           }
         }
 
-        def onRunInterpError() = interpreterDone()
+        def onRunInterpError() = {
+          showErrorMsg("Kojo is unable to process your script. Please modify your code and try again.\n")
+          showOutput("More information about the problem - can be viewed - by clicking the red icon at the bottom right of the Kojo screen.\n")
+          onRunError()
+        }
 
         def println(outText: String) {
           showOutput(outText)
