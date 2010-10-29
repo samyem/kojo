@@ -9,6 +9,7 @@ val centerStyle = "text-align:center;"
 val headerStyle = "text-align:center;font-size:110%;color:maroon;"
 val codeStyle = "font-size:90%;"
 val smallNoteStyle = "color:gray;font-size:95%;"
+val sublistStyle = "margin-left:60px;"
 
 def pgHeader(hdr: String) = 
     <p style={headerStyle}>
@@ -22,6 +23,7 @@ var pg: StoryPage = _
 var header: xml.Node = _
 
 def link(page: String) = "http://localpage/%s" format(page)
+val homeLink = <div style={smallNoteStyle+centerStyle}><a href={link("home#7")}>Start Page</a></div>
 
 pg = Page(
     body = 
@@ -43,12 +45,12 @@ pg = Page(
         </body>
 )
 
-
 pages += pg
 
 header = pgHeader("What is Kojo?")
 
 pg = IncrPage(
+    name = "home",
     style=pageStyle,
     body = List(
         Para(
@@ -72,17 +74,17 @@ pg = IncrPage(
         ),
         Para(
             <ul>
-                <li><a href={link("math")}>Math </a>and Science.</li>
+                <li><a href={link("math")}>Math</a> and <a href={link("science")}>Science</a>.</li>
             </ul>
         ),
         Para(
             <ul>
-                <li>Art and Creative Thinking.</li>
+                <li><a href={link("creative")}>Art and Creative Thinking</a>.</li>
             </ul>
         ),
         Para(
             <ul>
-                <li>Computer and Internet Literacy.</li>
+                <li><a href={link("literacy")}>Computer and Internet Literacy</a>.</li>
             </ul>
         )
     )
@@ -130,7 +132,10 @@ pg = IncrPage(
     style=pageStyle,
     body = List(
         Para(
-            {header}
+            <span>
+                {header}
+                {homeLink}
+            </span>
         ),
         Para(
             <p>
@@ -298,7 +303,8 @@ pg = IncrPage(
         Para(
             <p>
                 And the kind of interactivity that is available within Kojo stories
-                (which children get to both read and author, as they work with Kojo).
+                (like this one!) - which children get to both read and author, 
+                as they work with Kojo.
             </p>
         )
     )
@@ -404,20 +410,26 @@ pg = IncrPage(
                 <li>Scala, arguably the 21st century successor to Java.</li>
                 <div style={smallNoteStyle+"margin-left:40px;"}>
                     <a href="http://macstrac.blogspot.com/2009/04/scala-as-long-term-replacement-for.html">This page on the web</a> 
-                    has a detailed discussion of the subject, including links to endorsements for Scala by creators of other
+                    has a detailed discussion of the merits of Scala, including links to endorsements for Scala by creators of other
                     languages like Java, JRuby, and Groovy.
                 </div>
             </ul>
         ),
         Para(
             <ul>
-                <li>Html, the core language of the World-wide-web</li>
+                <li>HTML, the core language of the World-wide-web.</li>
             </ul>
         ),
         Para(
             <p>
                 This gives children good exposure to modern, widely used, software
                 technology.
+            </p>
+        ),
+        Para(
+            <p style={smallNoteStyle}>
+                This story itself has been written (right within Kojo) using 
+                Scala and HTML!
             </p>
         )
     )
@@ -518,9 +530,9 @@ pg = IncrPage(
         Para(
             <p>
                 By doing this, they learn important ideas related to computer 
-                programming - by studying an existing program. They then get 
-                to test their knowledge and apply some clear and precise thinking
-                to solve the problem given to them.
+                programming - by studying an existing program.<br/>
+                Then they get to test their knowledge and apply some clear and 
+                precise thinking to solve the problem given to them.
             </p>
         )
     )
@@ -535,7 +547,10 @@ pg = IncrPage(
     style = pageStyle,
     body = List(
         Para(
-            {header}
+            <span>
+                {header}
+                {homeLink}
+            </span>
         ),
         Para(
             <p>
@@ -646,7 +661,7 @@ pg = IncrPage(
             <p style={smallNoteStyle}>
                 Viewing pre-made content and interacting with it is, of course, an 
                 important learning activity that is available to children within Kojo.<br/>
-                But children can go much further within Kojo - by authoring their own 
+                But children can go much further with Kojo - by authoring their own 
                 interactive, animated content.
             </p>
         )
@@ -676,14 +691,15 @@ pg = IncrPage(
         Para(
             <p>
                 Click on the <em>Linear Equation Experiment</em> button below to bring up <em>Math World</em>.
-                You will see a linear equation represented as a straight line within <em>Math World</em>.
-                You will also see two sliders representing <em>m</em> and <em>c</em>. 
-                Play with the sliders to see, in real time, how the values of <em>m</em>
+                Within <em>Math World</em>, you should see a linear equation represented as a straight line.
+                You should also see two sliders representing <em>m</em> and <em>c</em>. 
+                Play with these sliders to visualize, in real time, how the values of <em>m</em>
                 and <em>c</em> affect the equation.
             </p>,
             code = {
                 stAddButton ("Linear Equation Experiment") {
                     Mw.clear()
+                    Mw.showAxes()
                     Mw.variable("m", 1, -5, 5, 0.1, 50, 50)
                     Mw.variable("c", 0, -2, 2, 0.1, 50, 80)
                     Mw.evaluate("y = m x + c")
@@ -696,6 +712,7 @@ pg = IncrPage(
 pages += pg
 
 pg = IncrPage(
+    name = "",
     style = pageStyle,
     body = List(
         Para(
@@ -720,17 +737,289 @@ pg = IncrPage(
         Para(
             <p>
                 But first, let's look at an important property of two parallel lines
-                that are cut by a trasnsversal.
+                that are cut by a transversal. Click on the <em>Show Lines</em>
+                button below to bring up a figure - which will help us in 
+                understanding this property.
+            </p>,
+            code = {
+                stAddButton ("Show Lines") {
+                    Mw.clear()
+                    Mw.hideAxes()
+                    // Make first line
+                    val P1 = Mw.point("P1", -10,3)
+                    val P2 = Mw.point("P2", 20,3)
+                    val L1 = Mw.line("L1", P1,P2)
+
+                    // Make second line, parallel to first 
+                    val P3 = Mw.point("P3", -10,1)
+                    val P4 = Mw.point("P4", 20,1)
+                    val L2 = Mw.line("L2", P3,P4)
+
+                    // Make transversal
+                    val P5 = Mw.point("P5", 1,0)
+                    val P6 = Mw.point("P6", 4,4)
+                    val L3 = Mw.line("L3", P5,P6)
+
+                    // Find intersection points of transversal with lines
+                    val P7 = Mw.intersect("P7", L1, L3)
+                    val P8 = Mw.intersect("P8", L2, L3)
+
+                    // Show Angles that transversal makes with lines
+                    val color1 = color(0, 102, 0)
+
+                    val A1 = Mw.angle("A1", P1,P7,P5)
+                    A1.setColor(color1)
+
+                    val A3 = Mw.angle("A3", P4,P8,P6)
+                    A3.setColor(color1)
+
+                    // Hide intersection points so angles are clearly visible
+                    P7.hide()
+                    P8.hide()
+                }
+            }
+        ),
+        Para(
+            <p>
+                The property of interest is - <em>when two parallel lines are cut
+                    by a transversal, the alternate angles are equal</em>. 
+                A pair of alternate angles are marked on the figure. Play with 
+                the two marked points on the transversal (by dragging them around) to 
+                get a feel for the truth of this property.
+            </p>
+        )    
+    )
+)
+
+pages += pg
+
+pg = IncrPage(
+    name = "",
+    style = pageStyle,
+    body = List(
+        Para(
+            {header}
+        ),
+        Para(
+            <p>
+                Now, let's look at the angle sum property of triangles. Click on
+                the <em>Show Triangle</em> button below to bring up a figure that
+                helps us to see the truth of this property.
+            </p>,
+            code = {
+                stAddButton ("Show Triangle") {
+                    Mw.clear()
+                    Mw.hideAxes()
+                    // Make first line
+                    val P1 = Mw.point("P1", -10,3)
+                    val P2 = Mw.point("P2", 20,3)
+                    val L1 = Mw.line("L1", P1,P2)
+
+                    // Make second line, parallel to first 
+                    val P3 = Mw.point("P3", -10,1)
+                    val P4 = Mw.point("P4", 20,1)
+                    val L2 = Mw.line("L2", P3,P4)
+
+                    // Make Triangle
+
+                    // Make first vertex on the first line
+                    val A = Mw.point("A", L1, 2, 3)
+                    A.hideLabel()
+                    // Make other two vertices on the second line
+                    val B = Mw.point("B", L2, 1, 1)
+                    B.hideLabel()
+                    val C = Mw.point("C", L2, 4, 1)
+                    C.hideLabel()
+
+                    val c = Mw.lineSegment("c",A,B)
+                    c.hideLabel()
+                    val a = Mw.lineSegment("a",B,C)
+                    a.hideLabel()
+                    val b = Mw.lineSegment("b",C,A)
+                    b.hideLabel()
+
+                    val color1 = color(0, 0, 102)
+                    val color2 = color(153, 0, 0)
+
+                    val X = Mw.angle("X", B,A,C)
+                    X.showNameInLabel()
+                    val Y = Mw.angle("Y", C,B,A)
+                    Y.setColor(color1)
+                    Y.showNameInLabel()
+                    val Z = Mw.angle("Z", A,C,B)
+                    Z.setColor(color2)
+                    Z.showNameInLabel()
+
+                    val Yp = Mw.angle("Y'", P1,A,B)
+                    Yp.setColor(color1)
+                    Yp.showNameInLabel()
+                    val Zp = Mw.angle("Z'", C,A,P2)
+                    Zp.setColor(color2)
+                    Zp.showNameInLabel()
+                }
+            }
+        ),
+        Para(
+            <p>
+                Play with the vertices of the triangle.
             </p>
         ),
         Para(
             <p>
-                Take a look at the figure to the right and convince yourself that 
-                the so called alternate angles are always equal.
-            </p>,
-            code = {
-            
-            }
+                Can you spot the alternate angles in the figure?
+            </p>
+        ),
+        Para(
+            <p>
+                Do you see why the the sum of the angles of a triangle is 180°?
+                <div style={smallNoteStyle+"margin-left:30px;margin-right:30px"}>
+                    You should know that the sum of the angles that lie on a 
+                    straight line is 180°<br/>
+                </div>
+            </p>
+        )
+    )
+)
+
+pages += pg
+
+header = pgHeader("Kojo and Science")
+
+pg = IncrPage(
+    name = "science",
+    style = pageStyle,
+    body = List(
+        Para(
+            <span>
+                {header}
+                {homeLink}
+            </span>
+        ),
+        Para(
+            <p>
+                Playing with Newton's <em>second law of motion</em>.
+            </p>
+        ),
+        Para(
+            <p>
+                Coming soon...
+            </p>
+        )
+    )
+)
+
+pages += pg
+
+pg = IncrPage(
+    name = "creative",
+    style = pageStyle,
+    body = List(
+        Para(
+            <span>
+                {pgHeader("Kojo and Creative Play")}
+                {homeLink}
+            </span>
+        ),
+        Para(
+            <p>
+                Kojo provides children a rich playground for creative play. Some
+                of the things that children can do within Kojo include:
+            </p>
+        ),
+        Para(
+            <ul>
+                <li>Making pretty computer sketches and paintings.</li>
+            </ul>
+        ),
+        Para(
+            <ul>
+                <li>Making stories about interesting mathematical and scientific 
+                    facts. This involves:</li>
+            </ul>
+        ),
+        Para(
+            <ul style={sublistStyle}>
+                <li>Doing research and indentifying a concept of interest.</li>
+            </ul>
+        ),
+        Para(
+            <ul style={sublistStyle}>
+                <li>Digging deeper and better understanding the concept.</li>
+            </ul>
+        ),
+        Para(
+            <ul style={sublistStyle}>
+                <li>Writing programs to demonstrate different aspects of the concept.</li>
+            </ul>
+        ),
+        Para(
+            <ul style={sublistStyle}>
+                <li>Tying the programs together within a story, along with 
+                    text, images, sound, and music.</li>
+            </ul>
+        ),
+        Para(
+            <p>
+                Imagine the creative possibilities this opens up!
+            </p>
+        )
+    )
+)
+
+pages += pg
+
+pg = IncrPage(
+    name = "literacy",
+    style = pageStyle,
+    body = List(
+        Para(
+            <span>
+                {pgHeader("Kojo and Computer Literacy")}
+                {homeLink}
+            </span>
+        ),
+        Para(
+            <p>
+                [Todo]
+            </p>
+        )
+    )
+)
+
+pages += pg
+
+pg = IncrPage(
+    name = "",
+    style = pageStyle,
+    body = List(
+        Para(
+            <span>
+                {pgHeader("Conclusion")}
+                {homeLink}
+            </span>
+        ),
+        Para(
+            <p>
+                Hopefully, this story has given you an idea of what children
+                can do with Kojo.
+            </p>
+        ),
+        Para(
+            <p>
+                Actually, we have barely scratched the surface of what is 
+                possible with Kojo.
+            </p>
+        ),
+        Para(
+            <p>
+                You, and the children around you,
+                are in for some interesting times as you play with Kojo.
+            </p>
+        ),
+        Para(
+            <p>
+                Welcome to the world of Kojo!
+            </p>
         )
     )
 )
