@@ -207,6 +207,8 @@ pg = IncrPage(
                 gridOff()
                 stAddButton ("Make Square") {
                     clear()
+                    axesOff()
+                    gridOff()
                     repeat (4) {
                         forward(100)
                         right()
@@ -374,6 +376,8 @@ pg = IncrPage(
             
                 stAddButton ("Make Tree") {
                     clear()
+                    axesOff()
+                    gridOff()
                     invisible()
                     setAnimationDelay(10)
                     penUp()
@@ -607,6 +611,7 @@ pg = IncrPage(
                 def init() {
                     clear()
                     axesOn()
+                    gridOn()
                     setAnimationDelay(10)
                     zoom(0.7, 0, 0)
                 }
@@ -646,9 +651,9 @@ pg = IncrPage(
         Para(
             <p>
                 It's important to note that Children, in their work with Kojo, 
-                <em>get to actually <strong>make</strong> interactive screens </em>
-                like the one that you just saw, instead of just viewing (or interacting
-                with) them.
+                <em>get to actually write computer programs to <strong>make</strong> 
+                    interactive screens </em> like the one that you just saw, instead 
+                of just viewing (or interacting with) them.
             </p>
         ),
         Para(
@@ -918,6 +923,8 @@ pg = IncrPage(
             </p>,
             code = {
                 val S = Staging
+                axesOff()
+                gridOff()
                 
                 def setup() = {
                     S.reset()
@@ -969,8 +976,9 @@ pg = IncrPage(
         ),
         Para(
             <p style={smallNoteStyle}>
-                Children can create interactive animation like this one within 
-                Kojo - to gain a deeper understanding of scientific concepts.
+                Children can write computer programs to create interactive animations 
+                like this one within Kojo - to gain a deeper understanding of 
+                scientific concepts.
             </p>
         )
     )
