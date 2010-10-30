@@ -350,6 +350,14 @@ class StoryTeller extends JPanel {
     Utils.runInSwingThread {
       uc.add(c)
       uc.setBorder(BorderFactory.createEtchedBorder())
+      val numC = uc.getComponentCount
+      if (numC > 4) {
+        // hack to allow second row of components
+        val spacing = 5
+        val rowHeight = uc.getComponent(0).getHeight + spacing
+        uc.setPreferredSize(new Dimension(20, math.round(rowHeight * (numC/4 + 1) + spacing).toInt))
+        uc.revalidate()
+      }
       uc.repaint()
     }
   }
