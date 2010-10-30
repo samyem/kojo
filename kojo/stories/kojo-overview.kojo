@@ -897,12 +897,80 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                Playing with Newton's <em>second law of motion</em>.
+                Let's play with Newton's <em>second law of motion</em>.
             </p>
         ),
         Para(
             <p>
-                Coming soon...
+                Newton's second law relates the acceleration experienced by a body
+                to its mass, and the force applied to it, according to the following
+                equation:
+                {stFormula("""\text{F = m a}""")}
+            </p>
+        ),
+        Para(
+            <p>
+                The figure on the right shows two bodies. You can specify their
+                mass, and the force applied to them, via fields at the bottom 
+                of this page. You can then animate the bodies by Clicking on the 
+                <em>Apply Newton's Law</em> button - to see how the bodies 
+                behave - as per the second law.
+            </p>,
+            code = {
+                val S = Staging
+                
+                def setup() = {
+                    S.reset()
+                    S.line(-225, 100, -225, -200)
+                    val body1 = S.circle(-200, -100, 25)
+                    body1.fill = green
+
+                    val body2 = S.circle(-200, 0, 25)
+                    body2.fill = blue
+                    (body1, body2)
+                }
+                
+                def currTime = System.currentTimeMillis
+                def moveBodyTo(x: Double, shape: S.Shape) {
+                    val pos = shape.offset
+                    shape.translate(S.point(x - pos.x, 0))
+                }
+
+                setup()
+
+                stAddField("m1", 5)
+                stAddField("m2", 10)
+                stAddField("F1", 100)
+                stAddField("F2", 100)
+                stAddButton ("Apply Newton's Law") {
+                    val force1 = stFieldValue("F1", 100)
+                    val force2 = stFieldValue("F2", 100)
+
+                    val mass1 = stFieldValue("m1", 5)
+                    val mass2 = stFieldValue("m2", 10)
+
+                    val acc1 = force1/mass1
+                    val acc2 = force2/mass2
+
+                    val (body1, body2) = setup()
+                    val t0 = currTime
+
+                    S.loop {
+                        // s = 1/2 * a * t^2
+                        val t = (currTime - t0)/1000.0
+                        val s1 = 0.5 * acc1 * t * t 
+                        val s2 = 0.5 * acc2 * t * t 
+    
+                        moveBodyTo(s1, body1)
+                        moveBodyTo(s2, body2)
+                    }
+                }
+            }
+        ),
+        Para(
+            <p style={smallNoteStyle}>
+                Children can create interactive animation like this one within 
+                Kojo - to gain a deeper understanding of scientific concepts.
             </p>
         )
     )
