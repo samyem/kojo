@@ -392,6 +392,9 @@ object API {
   }
   //T ControlTest ends
 
+  // expose some types in the API
+  type Shape = staging.Shape
+
   //W
   //W=Usage=
   //W
