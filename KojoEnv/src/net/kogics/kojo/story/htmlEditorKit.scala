@@ -25,6 +25,11 @@ import org.scilab.forge.jlatexmath._
 
 object CustomHtmlEditorKit {
   val latexPrefix = "latex://"
+  util.Utils.runAsync {
+    // warm up latex subsystem
+    val formula = new TeXFormula("\text{y = m x + c}")
+    formula.createTeXIcon(TeXConstants.STYLE_DISPLAY, 18)
+  }
 }
 
 class CustomHtmlEditorKit extends HTMLEditorKit {

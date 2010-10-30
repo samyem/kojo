@@ -228,7 +228,7 @@ class StoryTeller extends JPanel {
       cp.setVisible(true)
       val doc = ep.getDocument.asInstanceOf[HTMLDocument]
       doc.setBase(new java.net.URL("file:///" + kojoCtx.baseDir))
-      setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR))
+      ep.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR))
     }
   }
 
@@ -477,6 +477,6 @@ class StoryTeller extends JPanel {
 
   def storyComing() {
     ensureVisible()
-    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR))
+    ep.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR))
   }
 }
