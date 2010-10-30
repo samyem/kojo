@@ -694,7 +694,10 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
       storyTeller.playStory(st)
     }
 
-    def stFormula(latex: String) = <img src={xml.Unparsed(story.CustomHtmlEditorKit.latexPrefix + latex)}/>
+    def stFormula(latex: String) =
+      <div style={"text-align:center;margin:6px;"}>
+        <img src={xml.Unparsed(story.CustomHtmlEditorKit.latexPrefix + latex)}/>
+      </div>
     UserCommand("stFormula", List("latex"), "Converts the supplied latex string into html that can be displayed in the Story Teller Window.")
 
     def playMp3(mp3File: String) {

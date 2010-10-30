@@ -354,8 +354,8 @@ class StoryTeller extends JPanel {
       if (numC > 4) {
         // hack to allow second row of components
         val spacing = 5
-        val rowHeight = uc.getComponent(0).getHeight + spacing
-        uc.setPreferredSize(new Dimension(20, math.round(rowHeight * (numC/4 + 1) + spacing).toInt))
+        val rowHeight = 20
+        uc.setPreferredSize(new Dimension(20, rowHeight * (numC/4 + 1) + spacing))
         uc.revalidate()
       }
       uc.repaint()

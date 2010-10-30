@@ -65,17 +65,6 @@ class LatexView(elem: Element) extends View(elem) {
   val jl = new JLabel();
   jl.setForeground(new Color(30, 30, 30));
   
-//  override def getImage() = {
-//    val image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB)
-//    val g2 = image.createGraphics();
-//    g2.setColor(Color.white);
-//    g2.fillRect(0,0,icon.getIconWidth(),icon.getIconHeight());
-//    val jl = new JLabel();
-//    jl.setForeground(new Color(0, 0, 0));
-//    icon.paintIcon(jl, g2, 0, 0);
-//    image
-//  }
-
   override def getPreferredSpan(axis: Int) = {
     axis match {
       case View.X_AXIS => icon.getIconWidth
@@ -105,6 +94,6 @@ class LatexView(elem: Element) extends View(elem) {
   }
 
   override def paint(g: Graphics, a: Shape) {
-    icon.paintIcon(jl, g, a.getBounds.x, a.getBounds.y-3);
+    icon.paintIcon(jl, g, a.getBounds.x, a.getBounds.y);
   }
 }
