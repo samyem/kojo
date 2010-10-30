@@ -228,6 +228,7 @@ class StoryTeller extends JPanel {
       cp.setVisible(true)
       val doc = ep.getDocument.asInstanceOf[HTMLDocument]
       doc.setBase(new java.net.URL("file:///" + kojoCtx.baseDir))
+      setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR))
     }
   }
 
@@ -278,6 +279,7 @@ class StoryTeller extends JPanel {
       uc.add(l)
       uc.add(tf)
       uc.setBorder(BorderFactory.createEtchedBorder())
+      uc.repaint()
       pageFields += (label -> tf)
     }
     tf
@@ -348,6 +350,7 @@ class StoryTeller extends JPanel {
     Utils.runInSwingThread {
       uc.add(c)
       uc.setBorder(BorderFactory.createEtchedBorder())
+      uc.repaint()
     }
   }
 
@@ -462,5 +465,10 @@ class StoryTeller extends JPanel {
       bgmp3Player.get.close()
       bgmp3Player = None
     }
+  }
+
+  def storyComing() {
+    ensureVisible()
+    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR))
   }
 }

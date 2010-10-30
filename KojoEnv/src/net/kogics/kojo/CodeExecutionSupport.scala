@@ -633,6 +633,12 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val selectedCode = codePane.getSelectedText
     val codeToRun = if (selectedCode == null) code else selectedCode
 
+    if (codeToRun.indexOf("stClear") != -1) {
+      // a stroy
+      storyTeller.storyComing()
+    }
+
+
     try {
       // always add full code to history
       historyManager.codeRun(code, (selectedCode != null) || !isSingleLine(code), (selStart, selEnd))
