@@ -69,4 +69,9 @@
     <codetemplate abbreviation="span" xml:space="preserve">
         <code><![CDATA[<span>${cursor}</span>]]></code>
     </codetemplate>
+    <codetemplate abbreviation="p" xml:space="preserve">
+        <code><![CDATA[<p>
+    ${cursor}
+</p>]]></code>
+    </codetemplate>
 </codetemplates>
