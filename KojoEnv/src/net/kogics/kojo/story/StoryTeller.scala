@@ -262,6 +262,13 @@ class StoryTeller extends JPanel {
     }
   }
 
+  private def scrollToEnd() {
+    Utils.schedule(0.3) {
+      val sb = sp.getVerticalScrollBar
+      sb.setValue(sb.getMaximum)
+    }
+  }
+
   private def displayContent(html: xml.Node) {
     Utils.runInSwingThread {
       content = html
@@ -281,6 +288,7 @@ class StoryTeller extends JPanel {
       uc.setBorder(BorderFactory.createEtchedBorder())
       uc.repaint()
       pageFields += (label -> tf)
+      scrollToEnd()
     }
     tf
   }
@@ -359,6 +367,7 @@ class StoryTeller extends JPanel {
         uc.revalidate()
       }
       uc.repaint()
+      scrollToEnd()
     }
   }
 
