@@ -32,6 +32,7 @@ class Stories extends ActionListener {
   def getCode(e: ActionEvent) = {
     e.getActionCommand match {
       case "Kojo Overview" => Utils.readFile(storyStream("kojo-overview.kojo"))
+      case "Simple Story" => Utils.readFile(storyStream("simple-story.kojo"))
     }
   }
 

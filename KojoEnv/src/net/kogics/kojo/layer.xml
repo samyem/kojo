@@ -196,9 +196,15 @@
             </file>
         </folder>
         <folder name="Stories">
-            <file name="net-kogics-kojo-Stories.HowTo.instance">
+            <file name="net-kogics-kojo-Stories.Overview.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
                 <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_KojoOverview"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+            <file name="net-kogics-kojo-Stories.Simple.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_Simple"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
@@ -337,9 +343,13 @@
         </folder>
         <folder name="S&amp;tories">
             <attr name="position" intvalue="1260"/>
-            <file name="net-kogics-kojo-Stories.HowTo.shadow">
+            <file name="net-kogics-kojo-Stories.Overview.shadow">
                 <attr name="position" intvalue="1"/>
-                <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.HowTo.instance"/>
+                <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Overview.instance"/>
+            </file>
+            <file name="net-kogics-kojo-Stories.Simple.shadow">
+                <attr name="position" intvalue="2"/>
+                <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Simple.instance"/>
             </file>
         </folder>
         <folder name="Window">
