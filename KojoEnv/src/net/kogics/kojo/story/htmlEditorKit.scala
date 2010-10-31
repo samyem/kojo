@@ -64,7 +64,13 @@ class CustomHtmlFactory extends HTMLEditorKit.HTMLFactory {
 class LatexView(elem: Element) extends View(elem) {
   val srcAttr = elem.getAttributes().getAttribute(HTML.Attribute.SRC).asInstanceOf[String]
   val latex = srcAttr.substring(CustomHtmlEditorKit.latexPrefix.length, srcAttr.length) // strip off latex prefix
-  val formula = new TeXFormula(latex)
+  val formula = try {
+    new TeXFormula(latex)
+  }
+  catch {
+    case pe: ParseException =>
+      new TeXFormula("\\text{Incorrect Formula. Problem: %s}" format(pe.getMessage))
+  }
   val icon = formula.createTeXIcon(TeXConstants.STYLE_DISPLAY, 18)
   icon.setInsets(new Insets(2, 2, 2, 2))
   val jl = new JLabel();
