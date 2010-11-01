@@ -118,7 +118,8 @@ public final class StoryTellerTopComponent extends TopComponent {
 
     @Override
     public void componentClosed() {
-        // TODO add custom code on component closing
+        StoryTeller st = (StoryTeller) StoryTeller.instance();
+        st.done();
     }
 
     void writeProperties(java.util.Properties p) {

@@ -208,6 +208,12 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Stories.Learn.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_Learn"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
@@ -347,8 +353,12 @@
                 <attr name="position" intvalue="1"/>
                 <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Overview.instance"/>
             </file>
-            <file name="net-kogics-kojo-Stories.Simple.shadow">
+            <file name="net-kogics-kojo-Stories.Learn.shadow">
                 <attr name="position" intvalue="2"/>
+                <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Learn.instance"/>
+            </file>
+            <file name="net-kogics-kojo-Stories.Simple.shadow">
+                <attr name="position" intvalue="3"/>
                 <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Simple.instance"/>
             </file>
         </folder>
