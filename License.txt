@@ -29,6 +29,10 @@ specified above.
 The image of the turtle within Kojo has been obtained from the PythonTurtle
 project under the MIT License.
 
+Kojo redistributes some MP3 files from the Scratch project (http://scratch.mit.edu).
+These files are located under the stories/music-loops folder within the Kojo
+distribution.
+
 The source code for Kojo is available at:
 http://code.google.com/p/kojo
 

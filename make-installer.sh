@@ -32,6 +32,8 @@ mkdir installer/icons/
 cp kojo/icons/* installer/icons/
 mkdir installer/stories/
 cp kojo/stories/* installer/stories/
+mkdir installer/stories/music-loops/
+cp kojo/stories/music-loops/* installer/stories/music-loops/
 
 # remove test jars from install
 # rm installer/kojo/modules/ext/cglib-nodep-2.1_3.jar
