@@ -882,6 +882,44 @@ pg = IncrPage(
                     straight line is 180°<br/>
                 </div>
             </p>
+        ),
+        Para(
+            <p style={smallNoteStyle}>
+                Children can write computer programs within Kojo to play with,
+                and demonstrate their understanding of, geometric theorems and 
+                proofs.
+            </p>
+        )
+    )
+)
+
+pages += pg
+
+pg = IncrPage(
+    name = "",
+    style = pageStyle,
+    body = List(
+        Para(
+            {header}
+        ),
+        Para(
+            <p>
+                Kojo has great support for mathematical notation.
+            </p>
+        ),
+        Para(
+            <p>
+                Here are some examples:
+                {stFormula("""ax^2 + bx + c""")}
+                {stFormula("""a_1 = a_2^2""")}
+                {stFormula("""x = \frac{y-c}{m}""")}
+                {stFormula("""\sqrt[n]{x}""")}
+                {stFormula("""\displaystyle\sum_{i=1}^{\infty}\frac{1}{i}""")}
+                {stFormula("""\binom{n-1}{r-1}""")}
+                {stFormula("""\displaystyle\lim_{x\to\infty}\frac{1}{x}""")}
+                {stFormula("""\frac{d}{dx}(x^2) = 2x""")}
+                {stFormula("""\int 2x\,dx = x^2+C""")}
+            </p>
         )
     )
 )
@@ -920,6 +958,9 @@ pg = IncrPage(
                 of this page. You can then animate the bodies by Clicking on the 
                 <em>Apply Newton's Law</em> button - to see how the bodies 
                 behave - as per the second law.
+                <div style={smallNoteStyle + "margin-left:30px;"}> 
+                    Note - Body1 is green. Body2 is blue.
+                </div>
             </p>,
             code = {
                 val S = Staging
@@ -1004,7 +1045,11 @@ pg = IncrPage(
         ),
         Para(
             <ul>
-                <li>Making pretty computer sketches and paintings.</li>
+                <li>Making pretty computer sketches and paintings.
+                    <div style={smallNoteStyle}>
+                        See the <em>Samples | Turtle Art</em> menu item for many examples.
+                    </div>
+                </li>
             </ul>
         ),
         Para(
@@ -1056,8 +1101,37 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                [Todo]
+                As children work with Kojo, they learn many different aspects of 
+                Computers:
             </p>
+        ),
+        Para(
+            <ul>
+                <li>Basic computer proficiency: doing substantial projects and 
+                    organising their work within files and folders.</li>
+            </ul>
+        ),
+        Para(
+            <ul>
+                <li>Programming computers.</li>
+            </ul>
+        ),
+        Para(
+            <ul>
+                <li>Working with multimedia: text, images, sounds, and music.</li>
+            </ul>
+        ),
+        Para(
+            <ul>
+                <li>Using the internet for research, and participating on a social
+                    network (the <a href="http://www.kogics.net/codeexchange">Kojo Code Exchange</a>) for meaningful discussion.</li>
+            </ul>
+        ),
+        Para(
+            <ul>
+                <li>Using the computer for creative play and learning, by bringing together 
+                    the different features offered by Kojo.</li>
+            </ul>
         )
     )
 )
