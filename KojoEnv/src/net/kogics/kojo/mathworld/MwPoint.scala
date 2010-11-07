@@ -44,7 +44,16 @@ object MwPoint {
   def apply(ggbApi: GgbAPI, l: MwLine, c: MwCircle) = {
     val pts = Utils.runInSwingThreadAndWait {
       val gPoints = ggbApi.getKernel.IntersectLineConic(Array(lGen.next(), lGen.next()), l.gLine, c.gCircle)
-      (new MwPoint(ggbApi, gPoints(0)), new MwPoint(ggbApi, gPoints(1)))
+      gPoints.map {gPoint => new MwPoint(ggbApi, gPoint)}
+    }
+    pts
+  }
+
+  def apply(ggbApi: GgbAPI, c1: MwCircle, c2: MwCircle) = {
+    val pts = Utils.runInSwingThreadAndWait {
+      val labels = for (idx <- 1 to 10) yield (lGen.next())
+      val gPoints = ggbApi.getKernel.IntersectConics(labels.toArray, c1.gCircle, c2.gCircle)
+      gPoints.map {gPoint => new MwPoint(ggbApi, gPoint)}
     }
     pts
   }
