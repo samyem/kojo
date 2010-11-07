@@ -74,7 +74,7 @@ class CodePaneTest extends KojoTestBase {
   }
 
   val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance,
-                                              geogebra.GeoGebraCanvas.instance.geomCanvas, story.StoryTeller.instance)
+                                              story.StoryTeller.instance)
   val pane = new javax.swing.JEditorPane()
   val Delimiter = ""
   var latch: CountDownLatch = _

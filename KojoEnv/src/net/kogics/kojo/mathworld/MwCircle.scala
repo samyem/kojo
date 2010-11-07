@@ -13,28 +13,31 @@
  *
  */
 
-package net.kogics.kojo.geogebra
+package net.kogics.kojo.mathworld
 
-import geogebra.kernel.GeoLine
+import geogebra.kernel.GeoConic
+import geogebra.kernel.GeoNumeric
 import geogebra.plugin.GgbAPI
 import net.kogics.kojo.util.Utils
 
 import net.kogics.kojo.core._
 
-object MwLine {
-  def apply(ggbApi: GgbAPI, label: String, p1: MwPoint, p2: MwPoint) = {
+object MwCircle {
+  val lGen = new LabelGenerator("Crc")
+
+  def apply(ggbApi: GgbAPI, p1: MwPoint, r: Double) = {
     net.kogics.kojo.util.Throttler.throttle()
-    val line = Utils.runInSwingThreadAndWait {
-      val gLine = ggbApi.getKernel.Line(label, p1.gPoint, p2.gPoint)
-      new MwLine(ggbApi, gLine, p1, p2)
+    val circle = Utils.runInSwingThreadAndWait {
+      val gCircle = ggbApi.getKernel.Circle(lGen.next(), p1.gPoint, new GeoNumeric(ggbApi.getConstruction, r))
+      new MwCircle(ggbApi, gCircle, p1, r)
     }
-    line
+    circle
   }
 }
 
-class MwLine(val ggbApi: GgbAPI, val gLine: GeoLine, p1: MwPoint, p2: MwPoint) extends Line(p1, p2) with MwShape {
+class MwCircle(val ggbApi: GgbAPI, val gCircle: GeoConic, p1: MwPoint, r: Double) extends Circle(p1, r) with MwShape {
 
   ctorDone()
 
-  protected def geogebraElement = gLine
+  protected def geogebraElement = gCircle
 }

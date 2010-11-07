@@ -29,6 +29,7 @@ trait Labelled extends VisualElement {
   def showValueInLabel()
   def hideLabel()
   def showLabel()
+  def setLabel(label: String)
 }
 
 class Point(val x: Double, val y: Double) {
@@ -49,9 +50,9 @@ class Point(val x: Double, val y: Double) {
   def canEqual(other: Any) = other.isInstanceOf[Point]
 }
 class Line(val p1: Point, val p2: Point)
-class LineSegment(p1: Point, p2: Point) extends Line(p1, p2)
+//class LineSegment(p1: Point, p2: Point) extends Line(p1, p2)
 class Ellipse(val center: Point, val w: Double, val h: Double)
-// class Circle(center: Point, val radius: Double) extends Ellipse(center, 2*radius, 2*radius)
+class Circle(center: Point, val radius: Double) extends Ellipse(center, 2*radius, 2*radius)
 class Arc(val onEll: Ellipse, val start: Double, val extent: Double)
 class Angle(val size: Double)
 class Text(val content: String)
@@ -72,7 +73,7 @@ trait MoveablePoint {
   def cy: Double
 }
 
-//trait Polygon {
-//  val points: mutable.ArrayBuffer[Point]
-//}
-
+// a group of VisualElements
+trait VisualElements extends VisualElement {
+  def add(ves: VisualElement*)
+}

@@ -13,10 +13,13 @@
  *
  */
 
-package net.kogics.kojo
+package net.kogics.kojo.mathworld
 
-class KojoTestBase {
-  SpriteCanvas.initedInstance(KojoCtx.instance())
-  mathworld.GeoGebraCanvas.initedInstance(KojoCtx.instance())
-  story.StoryTeller.initedInstance(KojoCtx.instance())
+class LabelGenerator(prefix: String) {
+  var counter = 0
+
+  def next(): String = {
+    counter += 1
+    "%s%d" format(prefix,counter)
+  }
 }

@@ -49,7 +49,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val tCanvas = SpriteCanvas.instance
   tCanvas.outputFn = showOutput _
 
-  val geomCanvas = geogebra.GeoGebraCanvas.instance.geomCanvas
+//  val geomCanvas = geogebra.GeoGebraCanvas.instance.geomCanvas
 
   val storyTeller = story.StoryTeller.instance()
   storyTeller.outputFn = showOutput _
@@ -359,7 +359,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           }
         }
 
-      }, tCanvas, geomCanvas, storyTeller)
+      }, tCanvas, storyTeller)
     codeRunner
   }
 

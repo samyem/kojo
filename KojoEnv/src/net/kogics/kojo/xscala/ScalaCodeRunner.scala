@@ -27,7 +27,7 @@ import net.kogics.kojo.core._
 
 import org.openide.ErrorManager;
 
-class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas, storyTeller: story.StoryTeller) extends CodeRunner {
+class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, storyTeller: story.StoryTeller) extends CodeRunner {
   val Log = Logger.getLogger(getClass.getName)
   val outputHandler = new InterpOutputHandler(ctx)
   val codeRunner = startCodeRunner()
@@ -218,7 +218,10 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
                "modules/net-kogics-kojo.jar",
                "modules/ext/piccolo2d-core-1.3.jar",
                "modules/ext/piccolo2d-extras-1.3.jar",
-               "modules/geogebra.jar"
+               "modules/ext/geogebra_main.jar",
+               "modules/ext/geogebra_gui.jar",
+               "modules/ext/geogebra_cas.jar",
+               "modules/ext/geogebra.jar"
           )
         ))
 
@@ -239,7 +242,8 @@ class ScalaCodeRunner(ctx: RunContext, tCanvas: SCanvas, geomCanvas: GeomCanvas,
         // TODO: reevaluate other binds
         interp.interpret("val Staging = net.kogics.kojo.staging.API")
 //        interp.bind("Staging", "net.kogics.kojo.staging.Facade$", staging.Facade)
-        interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
+//        interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
+        interp.interpret("val Mw = net.kogics.kojo.mathworld.MathWorld.instance")
       }
 
       ctx.onInterpreterInit()

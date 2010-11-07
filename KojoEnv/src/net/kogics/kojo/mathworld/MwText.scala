@@ -13,7 +13,7 @@
  *
  */
 
-package net.kogics.kojo.geogebra
+package net.kogics.kojo.mathworld
 
 import geogebra.kernel.GeoText
 import geogebra.plugin.GgbAPI

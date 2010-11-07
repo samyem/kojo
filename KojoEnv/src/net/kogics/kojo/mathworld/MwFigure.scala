@@ -14,9 +14,34 @@
  */
 
 package net.kogics.kojo
+package mathworld
 
-class KojoTestBase {
-  SpriteCanvas.initedInstance(KojoCtx.instance())
-  mathworld.GeoGebraCanvas.initedInstance(KojoCtx.instance())
-  story.StoryTeller.initedInstance(KojoCtx.instance())
+import util.Utils
+
+class MwFigure(name: String) extends core.VisualElements {
+  val shapes = new collection.mutable.ArrayBuffer[core.VisualElement]()
+
+  def add(newshapes: core.VisualElement*) {
+    newshapes.foreach { shape =>
+      shapes += shape
+    }
+  }
+
+  def show {
+    Utils.runInSwingThread {
+      shapes.foreach {s => s.show}
+    }
+  }
+
+  def hide {
+    Utils.runInSwingThread {
+      shapes.foreach {s => s.hide}
+    }
+  }
+
+  def setColor(color: java.awt.Color) {
+    Utils.runInSwingThread {
+      shapes.foreach {s => s.setColor(color)}
+    }
+  }
 }

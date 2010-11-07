@@ -10,7 +10,7 @@ import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
-import net.kogics.kojo.geogebra.GeoGebraCanvas;
+import net.kogics.kojo.mathworld.GeoGebraCanvas;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;

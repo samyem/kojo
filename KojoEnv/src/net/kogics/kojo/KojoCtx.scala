@@ -39,6 +39,7 @@ class KojoCtx extends core.KojoCtx {
       activate(tc)
     }
     activateCodeEditor()
+    xscala.CodeCompletionUtils.activateStaging()
   }
 
   def makeMathWorldVisible() {
@@ -47,6 +48,7 @@ class KojoCtx extends core.KojoCtx {
       activate(tc)
     }
     activateCodeEditor()
+    xscala.CodeCompletionUtils.activateMw()
   }
 
   def makeStoryTellerVisible() {
