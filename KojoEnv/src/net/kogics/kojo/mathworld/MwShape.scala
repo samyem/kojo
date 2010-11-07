@@ -13,7 +13,7 @@
  *
  */
 
-package net.kogics.kojo.geogebra
+package net.kogics.kojo.mathworld
 
 import java.util.logging._
 
@@ -29,8 +29,10 @@ trait MwShape extends Labelled {
   protected def geogebraElement: GeoElement
 
   protected def ctorDone() {
-    ggbApi.getApplication.storeUndoInfo()
-    repaint()
+//    ggbApi.getApplication.storeUndoInfo()
+    hide()
+    hideLabel()
+//    repaint()
   }
 
   def repaint() {
@@ -90,6 +92,14 @@ trait MwShape extends Labelled {
 
   def showLabel() {
     Utils.runInSwingThread {
+      geogebraElement.setLabelVisible(true)
+      repaint()
+    }
+  }
+
+  def setLabel(label: String) {
+    Utils.runInSwingThread {
+      geogebraElement.setLabel(label)
       geogebraElement.setLabelVisible(true)
       repaint()
     }

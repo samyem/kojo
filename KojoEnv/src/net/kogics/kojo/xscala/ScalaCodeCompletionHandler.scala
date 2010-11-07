@@ -75,6 +75,13 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
 
   val scalaImageIcon = Utils.loadIcon("/images/scala16x16.png")
 
+  def methodTemplate(completion: String) = {
+    CodeCompletionUtils.MethodTemplates.getOrElse(
+      completion,
+      CodeCompletionUtils.ExtraMethodTemplates.getOrElse(completion, null)
+    )
+  }
+
   override def complete(context: CodeCompletionContext): CodeCompletionResult = {
     if (context.getQueryType != QueryType.COMPLETION) {
       return null
@@ -85,9 +92,9 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
 
     val (methodCompletions, moffset) = completionSupport.methodCompletions(caretOffset)
     methodCompletions.foreach { completion =>
-      proposals.add(new ScalaCompletionProposal(caretOffset - moffset, completion, 
+      proposals.add(new ScalaCompletionProposal(caretOffset - moffset, completion,
                                                 ElementKind.METHOD,
-                                                CodeCompletionUtils.MethodTemplates.getOrElse(completion, null)))
+                                                methodTemplate(completion)))
     }
 
     val (varCompletions, voffset) = completionSupport.varCompletions(caretOffset)
@@ -98,7 +105,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     val (keywordCompletions, koffset) = completionSupport.keywordCompletions(caretOffset)
     keywordCompletions.foreach { completion =>
       proposals.add(new ScalaCompletionProposal(caretOffset - koffset, completion,
-                                                ElementKind.KEYWORD, 
+                                                ElementKind.KEYWORD,
                                                 CodeCompletionUtils.KeywordTemplates.getOrElse(completion, null),
                                                 scalaImageIcon))
     }

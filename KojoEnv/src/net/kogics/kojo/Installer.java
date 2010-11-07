@@ -15,7 +15,7 @@
 package net.kogics.kojo;
 
 import javax.swing.SwingUtilities;
-import net.kogics.kojo.geogebra.GeoGebraCanvas;
+import net.kogics.kojo.mathworld.GeoGebraCanvas;
 import net.kogics.kojo.story.StoryTeller;
 import org.openide.modules.ModuleInstall;
 

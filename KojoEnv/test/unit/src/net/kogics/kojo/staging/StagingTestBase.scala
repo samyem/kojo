@@ -47,7 +47,7 @@ class StagingTestBase extends KojoTestBase {
   val runCtx = new TestRunContext(this)
 
   val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance,
-                                              geogebra.GeoGebraCanvas.instance.geomCanvas, story.StoryTeller.instance)
+                                              story.StoryTeller.instance)
   val pane = new javax.swing.JEditorPane()
   val Delimiter = ""
 

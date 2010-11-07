@@ -13,7 +13,7 @@
  *
  */
 
-package net.kogics.kojo.geogebra
+package net.kogics.kojo.mathworld
 
 import geogebra.kernel._
 import geogebra.plugin.GgbAPI
@@ -23,25 +23,35 @@ import net.kogics.kojo.core._
 
 object MwPoint {
 
-  def apply(ggbApi: GgbAPI, label: String, x: Double, y: Double) = {
+  val lGen = new LabelGenerator("Pt")
+
+  def apply(ggbApi: GgbAPI, x: Double, y: Double): MwPoint = {
     net.kogics.kojo.util.Throttler.throttle()
     val pt = Utils.runInSwingThreadAndWait {
-      new MwPoint(ggbApi, ggbApi.getKernel.Point(label, x, y))
+      new MwPoint(ggbApi, ggbApi.getKernel.Point(lGen.next(), x, y))
     }
     pt
   }
 
-  def apply(ggbApi: GgbAPI, label: String, l1: MwLine, l2: MwLine) = {
+  def apply(ggbApi: GgbAPI, l1: MwLine, l2: MwLine) = {
     val pt = Utils.runInSwingThreadAndWait {
-      val gPoint = ggbApi.getKernel.IntersectLines(label, l1.gLine, l2.gLine)
+      val gPoint = ggbApi.getKernel.IntersectLines(lGen.next(), l1.gLine, l2.gLine)
       new MwPoint(ggbApi, gPoint)
     }
     pt
   }
 
-  def apply(ggbApi: GgbAPI, label: String, on: MwLine, x: Double, y: Double) = {
+  def apply(ggbApi: GgbAPI, l: MwLine, c: MwCircle) = {
+    val pts = Utils.runInSwingThreadAndWait {
+      val gPoints = ggbApi.getKernel.IntersectLineConic(Array(lGen.next(), lGen.next()), l.gLine, c.gCircle)
+      (new MwPoint(ggbApi, gPoints(0)), new MwPoint(ggbApi, gPoints(1)))
+    }
+    pts
+  }
+
+  def apply(ggbApi: GgbAPI, on: MwLine, x: Double, y: Double) = {
     val pt = Utils.runInSwingThreadAndWait {
-      new MwPoint(ggbApi, ggbApi.getKernel.Point(label, on.gLine, x, y))
+      new MwPoint(ggbApi, ggbApi.getKernel.Point(lGen.next(), on.gLine, x, y))
     }
     pt
   }

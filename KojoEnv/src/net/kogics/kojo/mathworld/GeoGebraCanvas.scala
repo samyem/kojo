@@ -13,7 +13,7 @@
  *
  */
 
-package net.kogics.kojo.geogebra
+package net.kogics.kojo.mathworld
 
 import net.kogics.kojo.InitedSingleton
 
@@ -26,7 +26,7 @@ object GeoGebraCanvas extends InitedSingleton[GeoGebraCanvas] {
   def initedInstance(kojoCtx: KojoCtx) = synchronized {
     instanceInit()
     val ret = instance()
-    ret.geomCanvas.kojoCtx = kojoCtx
+    MathWorld.initedInstance(kojoCtx, ret.ggbApi)
     ret
   }
 
@@ -43,9 +43,7 @@ class GeoGebraCanvas extends GeoGebraPanel {
   buildGUI()
   app.getGuiManager().initMenubar()
 
-
   val ggbApi = getGeoGebraAPI
-  val geomCanvas = new GeomCanvas(ggbApi)
 
   def selectAllAction = app.getGuiManager().getMenuBar().asInstanceOf[GeoGebraMenuBar].getSelectAllAction
 

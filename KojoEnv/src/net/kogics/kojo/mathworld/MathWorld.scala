@@ -13,21 +13,35 @@
  *
  */
 
-package net.kogics.kojo.geogebra
+package net.kogics.kojo
+package mathworld
 
 import geogebra.plugin.GgbAPI
 import net.kogics.kojo.core._
-import net.kogics.kojo.util.Utils
+import net.kogics.kojo.util._
 
+object MathWorld extends InitedSingleton[MathWorld] {
+  def initedInstance(kojoCtx: KojoCtx, ggbApi: GgbAPI) = synchronized {
+    instanceInit()
+    val ret = instance()
+    ret.kojoCtx = kojoCtx
+    ret.ggbApi = ggbApi
+    ret
+  }
 
-class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
-  type GPoint = MwPoint
-  type GLine = MwLine
-  type GSegment = MwLineSegment
-  type GAngle = MwAngle
-  type GText = MwText
+  protected def newInstance = new MathWorld
+}
+
+class MathWorld {
+//  type GPoint = MwPoint
+//  type GLine = MwLine
+//  type GSegment = MwLineSegment
+//  type GAngle = MwAngle
+//  type GText = MwText
+//  type GCircle = MwCircle
 
   @volatile var kojoCtx: KojoCtx = _
+  @volatile var ggbApi: GgbAPI = _
 
   def ensureVisible() {
     kojoCtx.makeMathWorldVisible()
@@ -55,30 +69,37 @@ class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
     }
   }
 
-  def point(label: String, x: Double, y: Double) = MwPoint(ggbApi, label, x, y)
-  def point(label: String, on: MwLine, x: Double, y: Double) = MwPoint(ggbApi, label, on, x, y)
+  def point(x: Double, y: Double) = MwPoint(ggbApi, x, y)
+  def point(on: MwLine, x: Double, y: Double) = MwPoint(ggbApi, on, x, y)
 
-  def line(label: String, p1: MwPoint, p2: MwPoint) = MwLine(ggbApi, label, p1, p2)
+  def line(p1: MwPoint, p2: MwPoint) = MwLine(ggbApi, p1, p2)
 
-  def lineSegment(label: String, p1: MwPoint, p2: MwPoint) = MwLineSegment(ggbApi, label, p1, p2)
+  def lineSegment(p1: MwPoint, p2: MwPoint) = MwLineSegment(ggbApi, p1, p2)
+  def lineSegment(p: MwPoint, len: Double) = MwLineSegment(ggbApi, p, len)
 
-  def intersect(label: String, l1: MwLine, l2: MwLine): MwPoint = {
-    MwPoint(ggbApi, label, l1, l2)
-  }
+  def intersect(l1: MwLine, l2: MwLine) = MwPoint(ggbApi, l1, l2)
 
-  def angle(label: String, p1: MwPoint, p2: MwPoint, p3: MwPoint): MwAngle = {
-    MwAngle(ggbApi, label, p1, p2, p3)
-  }
+  def intersect(l: MwLine, c: MwCircle) = MwPoint(ggbApi, l, c)
 
+  def angle(p1: MwPoint, p2: MwPoint, p3: MwPoint) = MwAngle(ggbApi, p1, p2, p3)
+
+  def angle(p1: MwPoint, p2: MwPoint, size: Double) = MwAngle(ggbApi, p1, p2, size * math.Pi / 180)
+  
   def text(content: String, x: Double, y: Double): MwText = {
-    val txt = MwText(ggbApi, content, x, y)
-    txt
+    MwText(ggbApi, content, x, y)
   }
+
+  def circle(center: MwPoint, radius: Double): MwCircle = {
+    MwCircle(ggbApi, center, radius)
+  }
+
+  def figure(name: String) = new MwFigure(name)
 
   // quick and dirty stuff for now
   import geogebra.kernel._
 
   def variable(name: String, value: Double, min: Double, max: Double, increment: Double, x: Int, y: Int) {
+    Throttler.throttle()
     Utils. runInSwingThread {
       val number = new GeoNumeric(ggbApi.getConstruction)
       number.setEuclidianVisible(true)
@@ -96,6 +117,7 @@ class GeomCanvas(ggbApi: GgbAPI) extends net.kogics.kojo.core.GeomCanvas {
   }
 
   def evaluate(cmd: String) {
+    Throttler.throttle()
     Utils. runInSwingThread {
       ggbApi.evalCommand(cmd)
     }

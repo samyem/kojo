@@ -31,7 +31,20 @@ object CodeCompletionUtils {
     "while" -> "while (${condition}) {\n    ${cursor}\n}",
     "if" -> "if (${condition}) {\n    ${cursor}\n}"
   )
-  val MethodTemplates = collection.mutable.Map(
+
+  val MethodTemplates = collection.mutable.Map[String, String]()
+
+  val MwMethodTemplates = collection.mutable.Map(
+    "figure" -> "figure(${name})",
+    "point" -> "point(${x}, ${y})",
+    "line" -> "line(${point1}, ${point2})",
+    "lineSegment" -> "lineSegment(${point1}, ${point2})",
+    "circle" -> "circle(${center}, ${radius})",
+    "angle" -> "angle(${point1}, ${point2}, ${pointOrSize})",
+    "intersect" -> "intersect(${shape1}, ${shape2})"
+  )
+
+  val StagingMethodTemplates = collection.mutable.Map(
     "point" -> "point(${x}, ${y})",
     "line" -> "line(${x0}, ${y0}, ${x1}, ${y1})",
     "rectangle" -> "rectangle(${x0}, ${y0}, ${width}, ${height})",
@@ -80,7 +93,17 @@ object CodeCompletionUtils {
     "reset" -> "reset()",
     "wipe" -> "wipe()"
   )
-  
+
+  @volatile var ExtraMethodTemplates = MwMethodTemplates
+
+  def activateMw() {
+    ExtraMethodTemplates = MwMethodTemplates
+  }
+
+  def activateStaging() {
+    ExtraMethodTemplates = StagingMethodTemplates
+  }
+
   val MethodDropFilter = List("turtle0")
   val VarDropFilter = List("builtins", "predef")
   val InternalVarsRe = java.util.regex.Pattern.compile("""res\d+""")
