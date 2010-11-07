@@ -78,8 +78,8 @@ class MathWorld {
   def lineSegment(p: MwPoint, len: Double) = MwLineSegment(ggbApi, p, len)
 
   def intersect(l1: MwLine, l2: MwLine) = MwPoint(ggbApi, l1, l2)
-
   def intersect(l: MwLine, c: MwCircle) = MwPoint(ggbApi, l, c)
+  def intersect(c1: MwCircle, c2: MwCircle) = MwPoint(ggbApi, c1, c2)
 
   def angle(p1: MwPoint, p2: MwPoint, p3: MwPoint) = MwAngle(ggbApi, p1, p2, p3)
 

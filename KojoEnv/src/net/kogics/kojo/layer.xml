@@ -332,20 +332,6 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Input-Output.instance"/>
                 </file>
             </folder>
-            <folder name="Early Preview ">
-                <attr name="position" intvalue="6"/>
-                <folder name="Math World ">
-                    <attr name="position" intvalue="1"/>
-                    <file name="net-kogics-kojo-Samples.Parallel-Transversal.shadow">
-                        <attr name="position" intvalue="1"/>
-                        <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Parallel-Transversal.instance"/>
-                    </file>
-                    <file name="net-kogics-kojo-Samples.Triangle-Angles.shadow">
-                        <attr name="position" intvalue="2"/>
-                        <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Triangle-Angles.instance"/>
-                    </file>
-                </folder>
-            </folder>
         </folder>
         <folder name="S&amp;tories">
             <attr name="position" intvalue="1260"/>
