@@ -1,7 +1,7 @@
 // Click the Run button in the toolbar above to start the story
-// 
+//
 // =================================================================
-// 
+//
 // The source for the story is provided below
 
 val pageStyle = "color:#1e1e1e; margin:15px;"
@@ -11,12 +11,12 @@ val codeStyle = "font-size:90%;"
 val smallNoteStyle = "color:gray;font-size:95%;"
 val sublistStyle = "margin-left:60px;"
 
-def pgHeader(hdr: String) = 
+def pgHeader(hdr: String) =
     <p style={headerStyle}>
         {new xml.Unparsed(hdr)}
         <hr/>
     </p>
-    
+
 
 var pages = new collection.mutable.ListBuffer[StoryPage]
 var pg: StoryPage = _
@@ -26,7 +26,7 @@ def link(page: String) = "http://localpage/%s" format(page)
 val homeLink = <div style={smallNoteStyle+centerStyle}><a href={link("home#7")}>Start Page</a></div>
 
 pg = Page(
-    body = 
+    body =
         <body style={pageStyle+centerStyle}>
             { for (i <- 1 to 5) yield {
                     <br/>
@@ -39,7 +39,7 @@ pg = Page(
                 }
             }
             <p style={smallNoteStyle}>
-                Please resize this window to about half your screen width, by dragging 
+                Please resize this window to about half your screen width, by dragging
                 its right border. Also make sure that the Turtle Canvas is nice and visible.
             </p>
         </body>
@@ -110,7 +110,7 @@ pg = IncrPage(
         ),
         Para(
             <ul>
-                <li>A studio, where they can create computer sketches, and 
+                <li>A studio, where they can create computer sketches, and
                     stories/presentations (like this one!).</li>
             </ul>
         ),
@@ -155,8 +155,8 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                Computer programming is the basis of most things that children do 
-                within Kojo, so let us spend a little time looking at how it is 
+                Computer programming is the basis of most things that children do
+                within Kojo, so let us spend a little time looking at how it is
                 supported within Kojo.
             </p>
         )
@@ -305,7 +305,7 @@ pg = IncrPage(
         Para(
             <p>
                 And the kind of interactivity that is available within Kojo stories
-                (like this one!) - which children get to both read and author, 
+                (like this one!) - which children get to both read and author,
                 as they work with Kojo.
             </p>
         )
@@ -319,7 +319,7 @@ val treeSample = """
 def tree(distance: Double) {
     if (distance > 4) {
         setPenThickness(distance/7)
-        setPenColor(color(distance.toInt, 
+        setPenColor(color(distance.toInt,
            Math.abs(255-distance*3).toInt, 125))
         forward(distance)
         right(25)
@@ -373,7 +373,7 @@ pg = IncrPage(
                         back(distance)
                     }
                 }
-            
+
                 stAddButton ("Make Tree") {
                     clear()
                     axesOff()
@@ -389,7 +389,7 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                That was meant to show you the richness of figures that can be 
+                That was meant to show you the richness of figures that can be
                 drawn, with the help of small computer programs, within Kojo.
             </p>
         )
@@ -413,7 +413,7 @@ pg = IncrPage(
             <ul>
                 <li>Scala, arguably the 21st century successor to Java.</li>
                 <div style={smallNoteStyle+"margin-left:40px;"}>
-                    <a href="http://macstrac.blogspot.com/2009/04/scala-as-long-term-replacement-for.html">This page on the web</a> 
+                    <a href="http://macstrac.blogspot.com/2009/04/scala-as-long-term-replacement-for.html">This page on the web</a>
                     has a detailed discussion of the merits of Scala, including links to endorsements for Scala by creators of other
                     languages like Java, JRuby, and Groovy.
                 </div>
@@ -432,7 +432,7 @@ pg = IncrPage(
         ),
         Para(
             <p style={smallNoteStyle}>
-                This story itself has been written (right within Kojo) using 
+                This story itself has been written (right within Kojo) using
                 Scala and HTML!
             </p>
         )
@@ -459,7 +459,7 @@ pg = IncrPage(
         Para(
             <p>
                 Writing any computer program involves Critical and Logical thinking.
-                So, children are exposed to these modes of thought with anything that 
+                So, children are exposed to these modes of thought with anything that
                 they do within Kojo.
             </p>
         ),
@@ -470,7 +470,7 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                For example, take a look at the two figures that are being drawn 
+                For example, take a look at the two figures that are being drawn
                 within the Turtle Canvas.
                 Children are shown a computer program that draws the figure on the left,
                 and then asked to slightly modify this program to draw the figure on the right.
@@ -504,8 +504,8 @@ pg = IncrPage(
                     left()
                     penDown()
                 }
-            
-            
+
+
                 setPosition(100, 0)
                 setPenColor(green)
                 setPenThickness(4)
@@ -528,14 +528,14 @@ pg = IncrPage(
                     forward(50)
                     left()
                     penDown
-                }            
+                }
             }
         ),
         Para(
             <p>
-                By doing this, they learn important ideas related to computer 
+                By doing this, they learn important ideas related to computer
                 programming - by studying an existing program.<br/>
-                Then they get to test their knowledge and apply some clear and 
+                Then they get to test their knowledge and apply some clear and
                 precise thinking to solve the problem given to them.
             </p>
         )
@@ -597,14 +597,14 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                Let's visualize this particular equation to see the role of 
-                <em>m</em> and <em>c</em>. 
+                Let's visualize this particular equation to see the role of
+                <em>m</em> and <em>c</em>.
             </p>
         ),
         Para(
             <p>
-                Put in different values for <em>m</em> and <em>c</em> below, and 
-                then Click the <em>Plot</em> button to see what the equation looks 
+                Put in different values for <em>m</em> and <em>c</em> below, and
+                then Click the <em>Plot</em> button to see what the equation looks
                 like for these different values (of <em>m</em> and <em>c</em>).
             </p>,
             code = {
@@ -630,7 +630,7 @@ pg = IncrPage(
                     write("m=%.1f, c=%.1f" format(m, c))
                     for(x <- -dom+10 to dom; if (x % 10 == 0)) {
                         moveTo(x, y(m, x, c))
-                    }                
+                    }
                 }
                 stAddButton ("Clear") {
                     init()
@@ -650,9 +650,9 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                It's important to note that Children, in their work with Kojo, 
-                <em>get to actually write computer programs to <strong>make</strong> 
-                    interactive screens </em> like the one that you just saw, instead 
+                It's important to note that Children, in their work with Kojo,
+                <em>get to actually write computer programs to <strong>make</strong>
+                    interactive screens </em> like the one that you just saw, instead
                 of just viewing (or interacting with) them.
             </p>
         ),
@@ -664,9 +664,9 @@ pg = IncrPage(
         ),
         Para(
             <p style={smallNoteStyle}>
-                Viewing pre-made content and interacting with it is, of course, an 
+                Viewing pre-made content and interacting with it is, of course, an
                 important learning activity that is available to children within Kojo.<br/>
-                But children can go much further with Kojo - by authoring their own 
+                But children can go much further with Kojo - by authoring their own
                 interactive, animated content.
             </p>
         )
@@ -689,7 +689,7 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                Let's see what an experiment with linear equations might look like 
+                Let's see what an experiment with linear equations might look like
                 within <em>Math World</em>.
             </p>
         ),
@@ -697,7 +697,7 @@ pg = IncrPage(
             <p>
                 Click on the <em>Linear Equation Experiment</em> button below to bring up <em>Math World</em>.
                 Within <em>Math World</em>, you should see a linear equation represented as a straight line.
-                You should also see two sliders representing <em>m</em> and <em>c</em>. 
+                You should also see two sliders representing <em>m</em> and <em>c</em>.
                 Play with these sliders to visualize, in real time, how the values of <em>m</em>
                 and <em>c</em> affect the equation.
             </p>,
@@ -743,56 +743,67 @@ pg = IncrPage(
             <p>
                 But first, let's look at an important property of two parallel lines
                 that are cut by a transversal. Click on the <em>Show Lines</em>
-                button below to bring up a figure - which will help us in 
+                button below to bring up a figure - which will help us in
                 understanding this property.
             </p>,
             code = {
                 stAddButton ("Show Lines") {
                     Mw.clear()
                     Mw.hideAxes()
-                    // Make first line
-                    val P1 = Mw.point("P1", -10,3)
-                    val P2 = Mw.point("P2", 20,3)
-                    val L1 = Mw.line("L1", P1,P2)
+                    val fig = Mw.figure("F1")
 
-                    // Make second line, parallel to first 
-                    val P3 = Mw.point("P3", -10,1)
-                    val P4 = Mw.point("P4", 20,1)
-                    val L2 = Mw.line("L2", P3,P4)
+                    // Make first line
+                    val P1 = Mw.point(-10, 3)
+                    val P2 = Mw.point(20, 3)
+                    val L1 = Mw.line(P1,P2)
+                    fig.add(L1)
+
+                    // Make second line, parallel to first
+                    val P3 = Mw.point(-10, 1)
+                    val P4 = Mw.point(20, 1)
+                    val L2 = Mw.line(P3, P4)
+                    fig.add(L2)
 
                     // Make transversal
-                    val P5 = Mw.point("P5", 1,0)
-                    val P6 = Mw.point("P6", 4,4)
-                    val L3 = Mw.line("L3", P5,P6)
+                    val P5 = Mw.point(1, 0)
+                    P5.setLabel("P5")
+                    fig.add(P5)
+                    val P6 = Mw.point(4, 4)
+                    P6.setLabel("P6")
+                    fig.add(P6)
+                    val L3 = Mw.line(P5, P6)
+                    fig.add(L3)
 
                     // Find intersection points of transversal with lines
-                    val P7 = Mw.intersect("P7", L1, L3)
-                    val P8 = Mw.intersect("P8", L2, L3)
+                    val P7 = Mw.intersect(L1, L3)
+                    val P8 = Mw.intersect(L2, L3)
 
                     // Show Angles that transversal makes with lines
                     val color1 = color(0, 102, 0)
 
-                    val A1 = Mw.angle("A1", P1,P7,P5)
+                    val A1 = Mw.angle(P1,P7,P5)
                     A1.setColor(color1)
+                    A1.setLabel("A1")
+                    fig.add(A1)
 
-                    val A3 = Mw.angle("A3", P4,P8,P6)
+                    val A3 = Mw.angle(P4,P8,P6)
                     A3.setColor(color1)
+                    A3.setLabel("A3")
+                    fig.add(A3)
 
-                    // Hide intersection points so angles are clearly visible
-                    P7.hide()
-                    P8.hide()
+                    fig.show()
                 }
             }
         ),
         Para(
             <p>
                 The property of interest is - <em>when two parallel lines are cut
-                    by a transversal, the alternate angles are equal</em>. 
-                A pair of alternate angles are marked on the figure. Play with 
-                the two marked points on the transversal (by dragging them around) to 
+                    by a transversal, the alternate angles are equal</em>.
+                A pair of alternate angles are marked on the figure. Play with
+                the two marked points on the transversal (by dragging them around) to
                 get a feel for the truth of this property.
             </p>
-        )    
+        )
     )
 )
 
@@ -815,53 +826,61 @@ pg = IncrPage(
                 stAddButton ("Show Triangle") {
                     Mw.clear()
                     Mw.hideAxes()
-                    // Make first line
-                    val P1 = Mw.point("P1", -10,3)
-                    val P2 = Mw.point("P2", 20,3)
-                    val L1 = Mw.line("L1", P1,P2)
+                    val fig = Mw.figure("F1")
 
-                    // Make second line, parallel to first 
-                    val P3 = Mw.point("P3", -10,1)
-                    val P4 = Mw.point("P4", 20,1)
-                    val L2 = Mw.line("L2", P3,P4)
+                    // Make first line
+                    val P1 = Mw.point(-10,3)
+                    val P2 = Mw.point(20,3)
+                    val L1 = Mw.line(P1,P2)
+
+                    // Make second line, parallel to first
+                    val P3 = Mw.point(-10,1)
+                    val P4 = Mw.point(20,1)
+                    val L2 = Mw.line(P3,P4)
+                    fig.add(L1, L2)
 
                     // Make Triangle
 
                     // Make first vertex on the first line
-                    val A = Mw.point("A", L1, 2, 3)
-                    A.hideLabel()
-                    // Make other two vertices on the second line
-                    val B = Mw.point("B", L2, 1, 1)
-                    B.hideLabel()
-                    val C = Mw.point("C", L2, 4, 1)
-                    C.hideLabel()
+                    val A = Mw.point(L1, 2, 3)
 
-                    val c = Mw.lineSegment("c",A,B)
-                    c.hideLabel()
-                    val a = Mw.lineSegment("a",B,C)
-                    a.hideLabel()
-                    val b = Mw.lineSegment("b",C,A)
-                    b.hideLabel()
+                    // Make other two vertices on the second line
+                    val B = Mw.point(L2, 1, 1)
+                    val C = Mw.point(L2, 4, 1)
+                    fig.add(A, B, C)
+
+                    val c = Mw.lineSegment(A,B)
+                    val a = Mw.lineSegment(B,C)
+                    val b = Mw.lineSegment(C,A)
+                    fig.add(a, b, c)
 
                     val color1 = color(0, 0, 102)
                     val color2 = color(153, 0, 0)
 
-                    val X = Mw.angle("X", B,A,C)
+                    val X = Mw.angle(B,A,C)
+                    X.setLabel("X")
                     X.showNameInLabel()
-                    val Y = Mw.angle("Y", C,B,A)
+                    val Y = Mw.angle(C,B,A)
                     Y.setColor(color1)
+                    Y.setLabel("Y")
                     Y.showNameInLabel()
-                    val Z = Mw.angle("Z", A,C,B)
+                    val Z = Mw.angle(A,C,B)
                     Z.setColor(color2)
+                    Z.setLabel("Z")
                     Z.showNameInLabel()
+                    fig.add(X, Y, Z)
 
-                    val Yp = Mw.angle("Y'", P1,A,B)
+                    val Yp = Mw.angle(P1,A,B)
                     Yp.setColor(color1)
+                    Yp.setLabel("Y'")
                     Yp.showNameInLabel()
-                    val Zp = Mw.angle("Z'", C,A,P2)
+                    val Zp = Mw.angle(C,A,P2)
                     Zp.setColor(color2)
+                    Zp.setLabel("Z'")
                     Zp.showNameInLabel()
-                }
+                    fig.add(Yp, Zp)
+
+                    fig.show()                }
             }
         ),
         Para(
@@ -878,7 +897,7 @@ pg = IncrPage(
             <p>
                 Do you see why the the sum of the angles of a triangle is 180°?
                 <div style={smallNoteStyle+"margin-left:30px;margin-right:30px"}>
-                    You should know that the sum of the angles that lie on a 
+                    You should know that the sum of the angles that lie on a
                     straight line is 180°<br/>
                 </div>
             </p>
@@ -886,7 +905,7 @@ pg = IncrPage(
         Para(
             <p style={smallNoteStyle}>
                 Children can write computer programs within Kojo to play with,
-                and demonstrate their understanding of, geometric theorems and 
+                and demonstrate their understanding of, geometric theorems and
                 proofs.
             </p>
         )
@@ -954,11 +973,11 @@ pg = IncrPage(
         Para(
             <p>
                 The figure on the right shows two bodies. You can specify their
-                mass, and the force applied to them, via fields at the bottom 
-                of this page. You can then animate the bodies by Clicking on the 
-                <em>Apply Newton's Law</em> button - to see how the bodies 
+                mass, and the force applied to them, via fields at the bottom
+                of this page. You can then animate the bodies by Clicking on the
+                <em>Apply Newton's Law</em> button - to see how the bodies
                 behave - as per the second law.
-                <div style={smallNoteStyle + "margin-left:30px;"}> 
+                <div style={smallNoteStyle + "margin-left:30px;"}>
                     Note - Body1 is green. Body2 is blue.
                 </div>
             </p>,
@@ -966,7 +985,7 @@ pg = IncrPage(
                 val S = Staging
                 axesOff()
                 gridOff()
-                
+
                 def setup() = {
                     S.reset()
                     S.line(-225, 100, -225, -200)
@@ -977,7 +996,7 @@ pg = IncrPage(
                     body2.fill = blue
                     (body1, body2)
                 }
-                
+
                 def currTime = System.currentTimeMillis
                 def moveBodyTo(x: Double, shape: S.Shape) {
                     val pos = shape.offset
@@ -1006,9 +1025,9 @@ pg = IncrPage(
                     S.loop {
                         // s = 1/2 * a * t^2
                         val t = (currTime - t0)/1000.0
-                        val s1 = 0.5 * acc1 * t * t 
-                        val s2 = 0.5 * acc2 * t * t 
-    
+                        val s1 = 0.5 * acc1 * t * t
+                        val s2 = 0.5 * acc2 * t * t
+
                         moveBodyTo(s1, body1)
                         moveBodyTo(s2, body2)
                     }
@@ -1017,8 +1036,8 @@ pg = IncrPage(
         ),
         Para(
             <p style={smallNoteStyle}>
-                Children can write computer programs to create interactive animations 
-                like this one within Kojo - to gain a deeper understanding of 
+                Children can write computer programs to create interactive animations
+                like this one within Kojo - to gain a deeper understanding of
                 scientific concepts.
             </p>
         )
@@ -1054,7 +1073,7 @@ pg = IncrPage(
         ),
         Para(
             <ul>
-                <li>Making stories about interesting mathematical and scientific 
+                <li>Making stories about interesting mathematical and scientific
                     facts. This involves:</li>
             </ul>
         ),
@@ -1075,7 +1094,7 @@ pg = IncrPage(
         ),
         Para(
             <ul style={sublistStyle}>
-                <li>Tying the programs together within a story, along with 
+                <li>Tying the programs together within a story, along with
                     text, images, sound, and music.</li>
             </ul>
         ),
@@ -1101,13 +1120,13 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                As children work with Kojo, they learn many different aspects of 
+                As children work with Kojo, they learn many different aspects of
                 Computers:
             </p>
         ),
         Para(
             <ul>
-                <li>Basic computer proficiency: doing substantial projects and 
+                <li>Basic computer proficiency: doing substantial projects and
                     organising their work within files and folders.</li>
             </ul>
         ),
@@ -1129,7 +1148,7 @@ pg = IncrPage(
         ),
         Para(
             <ul>
-                <li>Using the computer for creative play and learning, by bringing together 
+                <li>Using the computer for creative play and learning, by bringing together
                     the different features offered by Kojo.</li>
             </ul>
         )
@@ -1156,7 +1175,7 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                Actually, we have barely scratched the surface of what is 
+                Actually, we have barely scratched the surface of what is
                 possible with Kojo.
             </p>
         ),
