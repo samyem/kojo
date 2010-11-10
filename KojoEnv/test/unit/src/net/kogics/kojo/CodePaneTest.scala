@@ -71,6 +71,10 @@ class CodePaneTest extends KojoTestBase {
     def reportErrorText(errText: String) {
       currOutput.append(errText)
     }
+
+    def reportSmartErrorText(errText: String, line: Int, column: Int, offset: Int) {
+      currOutput.append(errText)
+    }
   }
 
   val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance,

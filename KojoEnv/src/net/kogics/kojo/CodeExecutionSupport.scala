@@ -60,7 +60,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val findAction = new org.netbeans.editor.ext.ExtKit.FindAction()
   val replaceAction = new org.netbeans.editor.ext.ExtKit.ReplaceAction()
 
-  val (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearSButton, clearButton, undoButton, cexButton) = makeToolbar()
+  val (toolbar, runButton, compileRunButton, stopButton, hNextButton, hPrevButton,
+       clearSButton, clearButton, undoButton, cexButton) = makeToolbar()
 
   @volatile var runMonitor: RunMonitor = new NoOpRunMonitor()
   var undoRedoManager: UndoRedo.Manager = _ 
@@ -108,6 +109,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       })
   }
 
+  def enableRunButton(enable: Boolean) {
+    runButton.setEnabled(enable)
+    compileRunButton.setEnabled(enable)
+  }
+
   def doWelcome() = {
     val msg = """Welcome to Kojo! 
     |* To access context-sensitive actions  ->  Right-click on (most) windows
@@ -129,6 +135,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def makeToolbar() = {
     val RunScript = "RunScript"
+    val CompileRunScript = "CompileRunScript"
     val StopScript = "StopScript"
     val HistoryNext = "HistoryNext"
     val HistoryPrev = "HistoryPrev"
@@ -141,6 +148,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       def actionPerformed(e: ActionEvent) = e.getActionCommand match {
         case RunScript =>
           runCode()
+        case CompileRunScript =>
+          compileRunCode()
         case StopScript =>
           stopScript()
         case HistoryNext =>
@@ -174,6 +183,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     toolbar.setPreferredSize(new Dimension(100, 24))
 
     val runButton = makeNavigationButton("/images/run24.png", RunScript, "Run Script (Ctrl + Enter)", "Run the Code")
+    val compileRunButton = makeNavigationButton("/images/run24.png", CompileRunScript, "Compile and Run Standalone Program", "Run the Code")
     val stopButton = makeNavigationButton("/images/stop24.png", StopScript, "Stop Script/Animation", "Stop the Code")
     val hNextButton = makeNavigationButton("/images/history-next.png", HistoryNext, "Go to Next Script in History (Ctrl + Down Arrow)", "Next in History")
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
@@ -186,6 +196,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
     stopButton.setEnabled(false)
     toolbar.add(stopButton)
+
+    toolbar.add(compileRunButton)
 
     hPrevButton.setEnabled(false)
     toolbar.add(hPrevButton)
@@ -206,7 +218,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     clearButton.setEnabled(false)
     toolbar.add(clearButton)
 
-    (toolbar, runButton, stopButton, hNextButton, hPrevButton, clearSButton, clearButton, undoButton, cexButton)
+    (toolbar, runButton, compileRunButton, stopButton, hNextButton, hPrevButton, clearSButton, clearButton, undoButton, cexButton)
   }
 
   def makeCodeRunner(): core.CodeRunner = {
@@ -261,7 +273,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           }
 
           showNormalCursor()
-          runButton.setEnabled(false)
+          enableRunButton(false)
           stopButton.setEnabled(true)
           runMonitor.onRunStart()
         }
@@ -311,8 +323,13 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           runMonitor.reportOutput(errText)
         }
 
+        def reportSmartErrorText(errText: String, line: Int, column: Int, offset: Int) {
+          showSmartErrorText(errText, line, column, offset)
+          runMonitor.reportOutput(errText)
+        }
+
         private def interpreterDone() {
-          runButton.setEnabled(true)
+          enableRunButton(true)
           if (!pendingCommands) {
             stopButton.setEnabled(false)
           }
@@ -586,6 +603,14 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     lastOutput = errText
   }
 
+  def showSmartErrorText(errText: String, line: Int, column: Int, offset: Int) {
+    Utils.runInSwingThread {
+      IOColorPrint.print(IO, errText, new CompilerOutputListener(line, column, offset), true, Color.red);
+      enableClearButton()
+    }
+    lastOutput = errText
+  }
+
   def showWaitCursor() {
     val wc = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)
     codePane.setCursor(wc)
@@ -608,23 +633,58 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     tCanvas.stop()
   }
 
-  def runCode() {
-    // Runs on swing thread
-    
-    val code = codePane.getText()
-    if (code == null || code.trim.length == 0) return
+  def invalidCode(code: String): Boolean = {
+    if (code == null || code.trim.length == 0) return true
     if (code.contains(CommandHistory.Separator)) {
       showOutput(
         """|Sorry, you can't have the word %s in your script. This is an
            |internal reserved word within Kojo.
            |Please change %s to something else and rerun your script.""".stripMargin.format(CommandHistory.Separator, CommandHistory.Separator))
+      return true
+    }
+    return false
+  }
+
+  def compileRunCode() {
+    val code = codePane.getText()
+
+    if (invalidCode(code)) {
       return
     }
 
+    enableRunButton(false)
+    showWaitCursor()
+
+    if (code.indexOf("stClear") != -1) {
+      // a story
+      storyTeller.storyComing()
+    }
+
+    try {
+      // always add full code to history
+      historyManager.codeRun(code, true, (0, 0))
+    }
+    catch {
+      case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))
+    }
+
+    maybeOutputDelimiter()
+    codeRunner.compileRunCode(code)
+  }
+
+  def runCode() {
+    // Runs on swing thread
+    
+    val code = codePane.getText()
+
+    if (invalidCode(code)) {
+      return
+    }
+    
     // now that we use the proxy code runner, disable the run button right away and change
     // the cursor so that the user gets some feedback the first time he runs something
     // - relevant if the proxy is still loading the real runner
-    runButton.setEnabled(false)
+    enableRunButton(false)
     showWaitCursor()
 
     val selStart = codePane.getSelectionStart
@@ -634,10 +694,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val codeToRun = if (selectedCode == null) code else selectedCode
 
     if (codeToRun.indexOf("stClear") != -1) {
-      // a stroy
+      // a story
       storyTeller.storyComing()
     }
-
 
     try {
       // always add full code to history
@@ -828,6 +887,18 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     }
   }
 
+  class CompilerOutputListener(line: Int, column: Int, offset: Int) extends OutputListener {
+    def outputLineAction(ev: OutputEvent) {
+        switchFocusToCodeEditor()
+        codePane.select(offset, offset+1)
+    }
+
+    def outputLineSelected(ev: OutputEvent) {
+    }
+
+    def outputLineCleared(ev: OutputEvent) {
+    }
+  }
 }
 
 trait RunMonitor {
