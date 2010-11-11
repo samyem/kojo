@@ -64,6 +64,7 @@ trait MwShape extends Labelled {
 
   def showNameInLabel() {
     Utils.runInSwingThread {
+      geogebraElement.setLabelVisible(true)
       geogebraElement.setLabelMode(GeoElement.LABEL_NAME)
       repaint()
     }
@@ -71,6 +72,7 @@ trait MwShape extends Labelled {
 
   def showNameValueInLabel() {
     Utils.runInSwingThread {
+      geogebraElement.setLabelVisible(true)
       geogebraElement.setLabelMode(GeoElement.LABEL_NAME_VALUE)
       repaint()
     }
@@ -78,6 +80,7 @@ trait MwShape extends Labelled {
 
   def showValueInLabel() {
     Utils.runInSwingThread {
+      geogebraElement.setLabelVisible(true)
       geogebraElement.setLabelMode(GeoElement.LABEL_VALUE)
       repaint()
     }
@@ -99,8 +102,8 @@ trait MwShape extends Labelled {
 
   def setLabel(label: String) {
     Utils.runInSwingThread {
-      geogebraElement.setLabel(label)
       geogebraElement.setLabelVisible(true)
+      geogebraElement.setLabel(label)
       repaint()
     }
   }
