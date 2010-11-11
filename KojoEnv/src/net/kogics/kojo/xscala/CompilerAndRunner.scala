@@ -119,7 +119,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
 
   val compiler = new Global(settings, reporter)
 
-  def compileAndRun(code0: String) = {
+  def compile(code0: String) = {
     counter += 1
     val pfx = prefix format(counter)
     offsetDelta = pfx.length
@@ -129,8 +129,14 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     val run = new compiler.Run
     reporter.reset
     run.compileSources(List(new BatchSourceFile("scripteditor", code)))
+    if (reporter.hasErrors) IR.Error else IR.Success
+  }
 
-    if (!reporter.hasErrors) {
+  def compileAndRun(code0: String) = {
+
+    val result = compile(code0)
+
+    if (result == IR.Success) {
       if (Thread.interrupted) {
         listener.message("Thread interrupted")
         IR.Error
@@ -147,7 +153,12 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
             while (realT.getCause != null) {
               realT = realT.getCause
             }
-            listener.message(Utils.stackTraceAsString(realT))
+            if (realT.isInstanceOf[InterruptedException]) {
+              listener.message("Execution thread interrupted.")
+            }
+            else {
+              listener.message(Utils.stackTraceAsString(realT))
+            }
             IR.Error
         }
       }
@@ -155,6 +166,5 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     else {
       IR.Error
     }
-
   }
 }
