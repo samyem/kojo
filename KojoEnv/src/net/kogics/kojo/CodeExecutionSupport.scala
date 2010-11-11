@@ -60,7 +60,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val findAction = new org.netbeans.editor.ext.ExtKit.FindAction()
   val replaceAction = new org.netbeans.editor.ext.ExtKit.ReplaceAction()
 
-  val (toolbar, runButton, compileRunButton, stopButton, hNextButton, hPrevButton,
+  val (toolbar, runButton, compileButton, stopButton, hNextButton, hPrevButton,
        clearSButton, clearButton, undoButton, cexButton) = makeToolbar()
 
   @volatile var runMonitor: RunMonitor = new NoOpRunMonitor()
@@ -111,7 +111,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def enableRunButton(enable: Boolean) {
     runButton.setEnabled(enable)
-    compileRunButton.setEnabled(enable)
+    compileButton.setEnabled(enable)
   }
 
   def doWelcome() = {
@@ -135,7 +135,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def makeToolbar() = {
     val RunScript = "RunScript"
-    val CompileRunScript = "CompileRunScript"
+    val CompileScript = "CompileScript"
     val StopScript = "StopScript"
     val HistoryNext = "HistoryNext"
     val HistoryPrev = "HistoryPrev"
@@ -148,8 +148,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       def actionPerformed(e: ActionEvent) = e.getActionCommand match {
         case RunScript =>
           runCode()
-        case CompileRunScript =>
-          compileRunCode()
+        case CompileScript =>
+          compileCode()
         case StopScript =>
           stopScript()
         case HistoryNext =>
@@ -183,7 +183,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     toolbar.setPreferredSize(new Dimension(100, 24))
 
     val runButton = makeNavigationButton("/images/run24.png", RunScript, "Run Script (Ctrl + Enter)", "Run the Code")
-    val compileRunButton = makeNavigationButton("/images/compile-run24.png", CompileRunScript, "Run Standalone Program (for better error detection)", "Run the Code")
+    val compileButton = makeNavigationButton("/images/check.png", CompileScript, "Check Script for Errors (helps to precisely locate errors in large scripts)", "Check the Code")
     val stopButton = makeNavigationButton("/images/stop24.png", StopScript, "Stop Script/Animation", "Stop the Code")
     val hNextButton = makeNavigationButton("/images/history-next.png", HistoryNext, "Go to Next Script in History (Ctrl + Down Arrow)", "Next in History")
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
@@ -197,7 +197,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     stopButton.setEnabled(false)
     toolbar.add(stopButton)
 
-    toolbar.add(compileRunButton)
+    toolbar.add(compileButton)
 
     hPrevButton.setEnabled(false)
     toolbar.add(hPrevButton)
@@ -218,7 +218,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     clearButton.setEnabled(false)
     toolbar.add(clearButton)
 
-    (toolbar, runButton, compileRunButton, stopButton, hNextButton, hPrevButton, clearSButton, clearButton, undoButton, cexButton)
+    (toolbar, runButton, compileButton, stopButton, hNextButton, hPrevButton, clearSButton, clearButton, undoButton, cexButton)
   }
 
   def makeCodeRunner(): core.CodeRunner = {
@@ -645,6 +645,27 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     return false
   }
 
+  def compileCode() {
+    val code = codePane.getText()
+
+    if (invalidCode(code)) {
+      return
+    }
+
+    statusStrip.onDocChange()
+    enableRunButton(false)
+    showWaitCursor()
+
+    try {
+      historyManager.codeRun(code, true, (0, 0))
+    }
+    catch {
+      case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))
+    }
+
+    codeRunner.compileCode(code)
+  }
+
   def compileRunCode() {
     val code = codePane.getText()
 
@@ -661,7 +682,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     }
 
     try {
-      // always add full code to history
       historyManager.codeRun(code, true, (0, 0))
     }
     catch {

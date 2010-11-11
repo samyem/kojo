@@ -34,14 +34,17 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 
   def println(s: String) = ctx.println(s)
 
-  def runCode(code: String) = {
+  def runCode(code: String) {
     // Runs on swing thread
     codeRunner ! RunCode(code)
   }
 
-  def compileRunCode(code: String) = {
-    // Runs on swing thread
+  def compileRunCode(code: String) {
     codeRunner ! CompileRunCode(code)
+  }
+
+  def compileCode(code: String) {
+    codeRunner ! CompileCode(code)
   }
 
   def interruptInterpreter() = InterruptionManager.interruptInterpreter()
@@ -49,6 +52,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
   case object Init
   case class RunCode(code: String)
   case class CompileRunCode(code: String)
+  case class CompileCode(code: String)
   case class MethodCompletionRequest(str: String)
   case class VarCompletionRequest(str: String)
   case class KeywordCompletionRequest(str: String)
@@ -173,16 +177,14 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
               initCompiler()
             }
 
-          case CompileRunCode(code) =>
+          case CompileCode(code) =>
             try {
-              Log.info("CodeRunner actor compiling/running code:\n---\n%s\n---\n" format(code))
+              Log.info("CodeRunner actor compiling code:\n---\n%s\n---\n" format(code))
               InterruptionManager.onInterpreterStart()
               ctx.onInterpreterStart(code)
 
-              val ret = compileAndRun(code)
-              Log.info("CodeRunner actor done compiling/running code. Return value %s" format (ret.toString))
-
-              if (ret == IR.Incomplete) showIncompleteCodeMsg(code)
+              val ret = compile(code)
+              Log.info("CodeRunner actor done compiling code. Return value %s" format (ret.toString))
 
               if (ret == IR.Success) {
                 ctx.onRunSuccess()
@@ -201,6 +203,31 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
               InterruptionManager.onInterpreterFinish()
             }
 
+          case CompileRunCode(code) =>
+            try {
+              Log.info("CodeRunner actor compiling/running code:\n---\n%s\n---\n" format(code))
+              InterruptionManager.onInterpreterStart()
+              ctx.onInterpreterStart(code)
+
+              val ret = compileAndRun(code)
+              Log.info("CodeRunner actor done compiling/running code. Return value %s" format (ret.toString))
+
+              if (ret == IR.Success) {
+                ctx.onRunSuccess()
+              }
+              else {
+                if (InterruptionManager.interruptionInProgress) ctx.onRunSuccess() // user cancelled running code; no errors
+                else ctx.onRunError()
+              }
+            }
+            catch {
+              case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
+                ctx.onRunInterpError
+            }
+            finally {
+              Log.info("CodeRunner actor doing final handling for code.")
+              InterruptionManager.onInterpreterFinish()
+            }
 
           case RunCode(code) =>
             try {
@@ -385,6 +412,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 
     def compileAndRun(code: String): IR.Result = {
       compiler.compileAndRun(code)
+    }
+
+    def compile(code: String): IR.Result = {
+      compiler.compile(code)
     }
 
     def needsLineByLineInterpretation(code: String): Boolean = {

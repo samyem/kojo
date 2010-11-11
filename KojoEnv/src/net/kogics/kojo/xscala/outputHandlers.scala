@@ -36,7 +36,6 @@ class InterpOutputHandler(ctx: RunContext) {
   @volatile var interpOutputSuppressed = false
 
   def showInterpOutput(lineFragment: String) {
-    println(lineFragment)
     if (!interpOutputSuppressed) reportInterpOutput(lineFragment)
   }
 

@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch
 trait CodeRunner {
   def interruptInterpreter(): Unit
   def runCode(code: String): Unit
+  def compileCode(code: String): Unit
   def compileRunCode(code: String): Unit
   def methodCompletions(str: String): (List[String], Int)
   def varCompletions(str: String): (List[String], Int)
@@ -75,6 +76,11 @@ class ProxyCodeRunner(codeRunnerMaker: () => CodeRunner) extends CodeRunner {
   def compileRunCode(code: String) {
     latch.await()
     codeRunner.compileRunCode(code)
+  }
+
+  def compileCode(code: String) {
+    latch.await()
+    codeRunner.compileCode(code)
   }
 
   def methodCompletions(str: String): (List[String], Int) = {
