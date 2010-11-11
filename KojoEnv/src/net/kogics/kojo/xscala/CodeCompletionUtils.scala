@@ -39,6 +39,7 @@ object CodeCompletionUtils {
     "point" -> "point(${x}, ${y})",
     "line" -> "line(${point1}, ${point2})",
     "lineSegment" -> "lineSegment(${point1}, ${point2})",
+    "ray" -> "ray(${point1}, ${point2})",
     "circle" -> "circle(${center}, ${radius})",
     "angle" -> "angle(${point1}, ${point2}, ${pointOrSize})",
     "intersect" -> "intersect(${shape1}, ${shape2})"
