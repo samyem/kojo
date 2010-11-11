@@ -13,7 +13,10 @@
  *
  */
 
-package net.kogics.kojo.xscala
+package net.kogics.kojo
+package xscala
+
+import util.Utils
 
 import scala.tools.nsc._
 import reporters._
@@ -64,9 +67,8 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
 
   val virtualDirectory = new VirtualDirectory("(memory)", None)
 
-//  val settings = new Settings()
-//  settings.usejavacp.value = true
   settings.outputDirs.setSingleOutput(virtualDirectory)
+  settings.deprecation.value = true
 
   lazy val compilerClasspath: List[URL] = new PathResolver(settings) asURLs
 
@@ -124,24 +126,30 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     val code = codeTemplate format(pfx, code0)
     val codeBytes = code.getBytes
 
-//    val file = new VirtualFile("ab", "cd") {
-//      override def input : InputStream = new ByteArrayInputStream(codeBytes)
-//      override def sizeOption: Option[Int] = Some(codeBytes.size)
-//    }
-
     val run = new compiler.Run
     reporter.reset
-//    run.compileFiles(List(file))
     run.compileSources(List(new BatchSourceFile("scripteditor", code)))
 
     if (!reporter.hasErrors) {
-      try {
-        val loadedResultObject = loadByName("Wrapper%d" format(counter))
-        loadedResultObject.getMethod("entry").invoke(loadedResultObject)
-        IR.Success
+      if (Thread.interrupted) {
+        listener.message("Thread interrupted")
+        IR.Error
       }
-      catch {
-        case t: Throwable => IR.Error
+      else {
+        try {
+          val loadedResultObject = loadByName("Wrapper%d" format(counter))
+          loadedResultObject.getMethod("entry").invoke(loadedResultObject)
+          IR.Success
+        }
+        catch {
+          case t: Throwable =>
+            var realT = t
+            while (realT.getCause != null) {
+              realT = realT.getCause
+            }
+            listener.message(Utils.stackTraceAsString(realT))
+            IR.Error
+        }
       }
     }
     else {
