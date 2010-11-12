@@ -69,23 +69,23 @@ class MathWorld {
     }
   }
 
-  def point(x: Double, y: Double) = MwPoint(ggbApi, x, y)
-  def point(on: MwLine, x: Double, y: Double) = MwPoint(ggbApi, on, x, y)
+  def point(x: Double, y: Double): MwPoint = MwPoint(ggbApi, x, y)
+  def point(on: MwLine, x: Double, y: Double): MwPoint = MwPoint(ggbApi, on, x, y)
 
-  def line(p1: MwPoint, p2: MwPoint) = MwLine(ggbApi, p1, p2)
+  def line(p1: MwPoint, p2: MwPoint): MwLine = MwLine(ggbApi, p1, p2)
 
-  def lineSegment(p1: MwPoint, p2: MwPoint) = MwLineSegment(ggbApi, p1, p2)
-  def lineSegment(p: MwPoint, len: Double) = MwLineSegment(ggbApi, p, len)
+  def lineSegment(p1: MwPoint, p2: MwPoint): MwLineSegment = MwLineSegment(ggbApi, p1, p2)
+  def lineSegment(p: MwPoint, len: Double): MwLineSegment = MwLineSegment(ggbApi, p, len)
 
-  def ray(p1: MwPoint, p2: MwPoint) = MwRay(ggbApi, p1, p2)
+  def ray(p1: MwPoint, p2: MwPoint): MwRay = MwRay(ggbApi, p1, p2)
 
-  def intersect(l1: MwLine, l2: MwLine) = MwPoint(ggbApi, l1, l2)
-  def intersect(l: MwLine, c: MwCircle) = MwPoint(ggbApi, l, c)
-  def intersect(c1: MwCircle, c2: MwCircle) = MwPoint(ggbApi, c1, c2)
+  def intersect(l1: MwLine, l2: MwLine): MwPoint  = MwPoint(ggbApi, l1, l2)
+  def intersect(l: MwLine, c: MwCircle): Seq[MwPoint] = MwPoint(ggbApi, l, c)
+  def intersect(c1: MwCircle, c2: MwCircle): Seq[MwPoint] = MwPoint(ggbApi, c1, c2)
 
-  def angle(p1: MwPoint, p2: MwPoint, p3: MwPoint) = MwAngle(ggbApi, p1, p2, p3)
+  def angle(p1: MwPoint, p2: MwPoint, p3: MwPoint): MwAngle = MwAngle(ggbApi, p1, p2, p3)
 
-  def angle(p1: MwPoint, p2: MwPoint, size: Double) = MwAngle(ggbApi, p1, p2, size * math.Pi / 180)
+  def angle(p1: MwPoint, p2: MwPoint, size: Double): MwAngle = MwAngle(ggbApi, p1, p2, size * math.Pi / 180)
   
   def text(content: String, x: Double, y: Double): MwText = {
     MwText(ggbApi, content, x, y)

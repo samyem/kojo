@@ -33,7 +33,8 @@ class Stories extends ActionListener {
     e.getActionCommand match {
       case "Kojo Overview" => Utils.readFile(storyStream("kojo-overview.kojo"))
       case "Simple Story" => Utils.readFile(storyStream("simple-story.kojo"))
-      case "Learn" => Utils.readFile(storyStream("learn.kojo"))
+      case "Learn More" => Utils.readFile(storyStream("learn.kojo"))
+      case "Mathworld Introduction" => Utils.readFile(storyStream("mathworld-intro.kojo"))
     }
   }
 
