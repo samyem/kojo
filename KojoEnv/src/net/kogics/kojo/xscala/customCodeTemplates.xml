@@ -1,26 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE codetemplates PUBLIC "-//NetBeans//DTD Editor Code Templates settings 1.0//EN" "http://www.netbeans.org/dtds/EditorCodeTemplates-1_0.dtd">
 <codetemplates>
-    <codetemplate abbreviation="li" xml:space="preserve">
-        <code><![CDATA[<li>${cursor}</li>]]></code>
-    </codetemplate>
     <codetemplate abbreviation="ul" xml:space="preserve">
         <code><![CDATA[<ul>
     <li>${cursor}</li>
     <li></li>
 </ul>]]></code>
-    </codetemplate>
-    <codetemplate abbreviation="strong" xml:space="preserve">
-        <code><![CDATA[<strong>${cursor}</strong>]]></code>
-    </codetemplate>
-    <codetemplate abbreviation="Page" xml:space="preserve">
-        <code><![CDATA[Page(
-    name = "",
-    body =
-        <body>
-        </body>,
-    code = {}
-)]]></code>
     </codetemplate>
     <codetemplate abbreviation="a" xml:space="preserve">
         <code><![CDATA[<a href="${cursor}"></a>]]></code>
@@ -48,11 +33,8 @@
     )
 )]]></code>
     </codetemplate>
-    <codetemplate abbreviation="em" xml:space="preserve">
-        <code><![CDATA[<em>${cursor}</em>]]></code>
-    </codetemplate>
-    <codetemplate abbreviation="sty" xml:space="preserve">
-        <code><![CDATA[style="${cursor}"]]></code>
+    <codetemplate abbreviation="code" xml:space="preserve">
+        <code><![CDATA[<code>${cursor}</code>]]></code>
     </codetemplate>
     <codetemplate abbreviation="br" xml:space="preserve">
         <code><![CDATA[<br/>]]></code>
@@ -66,12 +48,39 @@
 )
 ]]></code>
     </codetemplate>
-    <codetemplate abbreviation="span" xml:space="preserve">
-        <code><![CDATA[<span>${cursor}</span>]]></code>
+    <codetemplate abbreviation="li" xml:space="preserve">
+        <code><![CDATA[<li>${cursor}</li>]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="strong" xml:space="preserve">
+        <code><![CDATA[<strong>${cursor}</strong>]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="pre" xml:space="preserve">
+        <code><![CDATA[<pre>
+    ${cursor}
+</pre>]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="Page" xml:space="preserve">
+        <code><![CDATA[Page(
+    name = "",
+    body =
+        <body>
+            ${cursor}
+        </body>,
+    code = {}
+)]]></code>
     </codetemplate>
     <codetemplate abbreviation="p" xml:space="preserve">
         <code><![CDATA[<p>
     ${cursor}
 </p>]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="em" xml:space="preserve">
+        <code><![CDATA[<em>${cursor}</em>]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="sty" xml:space="preserve">
+        <code><![CDATA[style="${cursor}"]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="span" xml:space="preserve">
+        <code><![CDATA[<span>${cursor}</span>]]></code>
     </codetemplate>
 </codetemplates>
