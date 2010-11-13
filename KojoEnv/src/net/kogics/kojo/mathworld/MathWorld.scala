@@ -26,6 +26,7 @@ object MathWorld extends InitedSingleton[MathWorld] {
     val ret = instance()
     ret.kojoCtx = kojoCtx
     ret.ggbApi = ggbApi
+    ret.Algo = new Algo(ggbApi)
     ret
   }
 
@@ -42,6 +43,7 @@ class MathWorld {
 
   @volatile var kojoCtx: KojoCtx = _
   @volatile var ggbApi: GgbAPI = _
+  @volatile var Algo: Algo = _
 
   def ensureVisible() {
     kojoCtx.makeMathWorldVisible()
@@ -69,7 +71,21 @@ class MathWorld {
     }
   }
 
-  def point(x: Double, y: Double): MwPoint = MwPoint(ggbApi, x, y)
+  def showGrid() {
+    Utils.runInSwingThread {
+      ggbApi.setGridVisible(true)
+      ggbApi.getKernel.notifyRepaint()
+    }
+  }
+
+  def hideGrid() {
+    Utils.runInSwingThread {
+      ggbApi.setGridVisible(false)
+      ggbApi.getKernel.notifyRepaint()
+    }
+  }
+
+  def point(x: Double, y: Double, label: String=null): MwPoint = MwPoint(ggbApi, x, y, Option(label))
   def point(on: MwLine, x: Double, y: Double): MwPoint = MwPoint(ggbApi, on, x, y)
 
   def line(p1: MwPoint, p2: MwPoint): MwLine = MwLine(ggbApi, p1, p2)
@@ -79,12 +95,7 @@ class MathWorld {
 
   def ray(p1: MwPoint, p2: MwPoint): MwRay = MwRay(ggbApi, p1, p2)
 
-  def intersect(l1: MwLine, l2: MwLine): MwPoint  = MwPoint(ggbApi, l1, l2)
-  def intersect(l: MwLine, c: MwCircle): Seq[MwPoint] = MwPoint(ggbApi, l, c)
-  def intersect(c1: MwCircle, c2: MwCircle): Seq[MwPoint] = MwPoint(ggbApi, c1, c2)
-
   def angle(p1: MwPoint, p2: MwPoint, p3: MwPoint): MwAngle = MwAngle(ggbApi, p1, p2, p3)
-
   def angle(p1: MwPoint, p2: MwPoint, size: Double): MwAngle = MwAngle(ggbApi, p1, p2, size * math.Pi / 180)
   
   def text(content: String, x: Double, y: Double): MwText = {
@@ -96,6 +107,13 @@ class MathWorld {
   }
 
   def figure(name: String) = new MwFigure(name)
+
+  def intersect(l1: MwLine, l2: MwLine): MwPoint  = Algo.intersect(ggbApi, l1, l2)
+  def intersect(l: MwLine, c: MwCircle): Seq[MwPoint] = Algo.intersect(ggbApi, l, c)
+  def intersect(c: MwCircle, l: MwLine): Seq[MwPoint] = intersect(l, c)
+  def intersect(c1: MwCircle, c2: MwCircle): Seq[MwPoint] = Algo.intersect(ggbApi, c1, c2)
+
+  def midpoint(ls: MwLineSegment) = Algo.midpoint(ls)
 
   // quick and dirty stuff for now
   import geogebra.kernel._

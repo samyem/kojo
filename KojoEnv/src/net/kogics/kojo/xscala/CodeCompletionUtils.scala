@@ -36,13 +36,16 @@ object CodeCompletionUtils {
 
   val MwMethodTemplates = collection.mutable.Map(
     "figure" -> "figure(${name})",
-    "point" -> "point(${x}, ${y})",
+    "point" -> "point(${x}, ${y}, ${optionalLabel})",
     "line" -> "line(${point1}, ${point2})",
-    "lineSegment" -> "lineSegment(${point1}, ${point2})",
+    "lineSegment" -> "lineSegment(${point1}, ${point2Orlength})",
     "ray" -> "ray(${point1}, ${point2})",
     "circle" -> "circle(${center}, ${radius})",
     "angle" -> "angle(${point1}, ${point2}, ${pointOrSize})",
-    "intersect" -> "intersect(${shape1}, ${shape2})"
+    "intersect" -> "intersect(${shape1}, ${shape2})",
+    "setLabel" -> "setLabel(${label})",
+    "setColor" -> "setColor(${color})",
+    "add" -> "add(${shapes})"
   )
 
   val StagingMethodTemplates = collection.mutable.Map(

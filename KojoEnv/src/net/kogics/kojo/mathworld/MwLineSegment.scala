@@ -48,7 +48,7 @@ object MwLineSegment {
   }
 }
 
-class MwLineSegment(ggbApi: GgbAPI, gLineSegment: GeoSegment, p1: MwPoint, p2: MwPoint)
+class MwLineSegment(ggbApi: GgbAPI, val gLineSegment: GeoSegment, p1: MwPoint, p2: MwPoint)
 extends MwLine(ggbApi, gLineSegment, p1, p2) with MwShape {
 
   ctorDone()
