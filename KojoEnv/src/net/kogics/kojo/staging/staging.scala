@@ -20,6 +20,7 @@ import edu.umd.cs.piccolo.PNode
 import edu.umd.cs.piccolo.nodes.PPath
 import edu.umd.cs.piccolo.util.PBounds
 import edu.umd.cs.piccolo.activities.PActivity
+import edu.umd.cs.piccolo.event._
 
 import net.kogics.kojo.util.Utils
 import net.kogics.kojo.core.Point
@@ -471,9 +472,18 @@ trait Shape {
       node.repaint()
     }
   }
+
   def offset = Utils.runInSwingThreadAndWait {
     val o = node.getOffset
     Point(o.getX, o.getY)
+  }
+
+  def onMouseClick(fn: => Unit) {
+    node.addInputEventListener(new PBasicInputEventHandler {
+      override def mouseClicked(event: PInputEvent) {
+        fn
+      }
+    })
   }
 //  def addActivity(a: PActivity) = Impl.canvas.getRoot.addActivity(a)
 }

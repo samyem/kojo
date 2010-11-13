@@ -25,37 +25,16 @@ object MwPoint {
 
   val lGen = new LabelGenerator("Pt")
 
-  def apply(ggbApi: GgbAPI, x: Double, y: Double): MwPoint = {
+  def apply(ggbApi: GgbAPI, x: Double, y: Double, label: Option[String]): MwPoint = {
     net.kogics.kojo.util.Throttler.throttle()
     val pt = Utils.runInSwingThreadAndWait {
-      new MwPoint(ggbApi, ggbApi.getKernel.Point(lGen.next(), x, y))
+      val ret = new MwPoint(ggbApi, ggbApi.getKernel.Point(label.getOrElse(lGen.next()), x, y))
+      if (label.isDefined) {
+        ret.showLabel()
+      }
+      ret
     }
     pt
-  }
-
-  def apply(ggbApi: GgbAPI, l1: MwLine, l2: MwLine) = {
-    val pt = Utils.runInSwingThreadAndWait {
-      val gPoint = ggbApi.getKernel.IntersectLines(lGen.next(), l1.gLine, l2.gLine)
-      new MwPoint(ggbApi, gPoint)
-    }
-    pt
-  }
-
-  def apply(ggbApi: GgbAPI, l: MwLine, c: MwCircle) = {
-    val pts = Utils.runInSwingThreadAndWait {
-      val gPoints = ggbApi.getKernel.IntersectLineConic(Array(lGen.next(), lGen.next()), l.gLine, c.gCircle)
-      gPoints.map {gPoint => new MwPoint(ggbApi, gPoint)}
-    }
-    pts
-  }
-
-  def apply(ggbApi: GgbAPI, c1: MwCircle, c2: MwCircle) = {
-    val pts = Utils.runInSwingThreadAndWait {
-      val labels = for (idx <- 1 to 10) yield (lGen.next())
-      val gPoints = ggbApi.getKernel.IntersectConics(labels.toArray, c1.gCircle, c2.gCircle)
-      gPoints.map {gPoint => new MwPoint(ggbApi, gPoint)}
-    }
-    pts
   }
 
   def apply(ggbApi: GgbAPI, on: MwLine, x: Double, y: Double) = {
