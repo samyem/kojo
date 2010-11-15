@@ -45,7 +45,12 @@ object CodeCompletionUtils {
     "intersect" -> "intersect(${shape1}, ${shape2})",
     "setLabel" -> "setLabel(${label})",
     "setColor" -> "setColor(${color})",
-    "add" -> "add(${shapes})"
+    "add" -> "add(${shapes})",
+    "show" -> "show(${shapes})",
+    "showGrid" -> "showGrid()",
+    "hideGrid" -> "hideGrid()",
+    "showAxes" -> "showAxes()",
+    "hideAxes" -> "hideAxes()"
   )
 
   val StagingMethodTemplates = collection.mutable.Map(

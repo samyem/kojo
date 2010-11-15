@@ -115,6 +115,12 @@ class MathWorld {
 
   def midpoint(ls: MwLineSegment) = Algo.midpoint(ls)
 
+  def show(shapes: VisualElement*) {
+    Utils.runInSwingThread {
+      shapes.foreach {s => s.show}
+    }
+  }
+  
   // quick and dirty stuff for now
   import geogebra.kernel._
 
