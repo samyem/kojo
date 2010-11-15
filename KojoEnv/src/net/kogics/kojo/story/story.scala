@@ -25,6 +25,7 @@ trait Viewable {
   def numViews: Int
   def currView: Int // 1 based
   val name: String
+  def scrollToEnd: Boolean
 }
 
 object Page {
@@ -44,6 +45,7 @@ class Page(val name: String, body: xml.Node, code: => Unit) extends Viewable {
   def back() = new IllegalStateException("Can't go back on a Static page")
   def numViews = 1
   def currView = 1
+  def scrollToEnd = false
 }
 
 object Para {
@@ -93,6 +95,7 @@ class IncrPage(val name: String, style: String, body: List[Para]) extends Viewab
 
   def numViews = paras
   def currView = currPara
+  def scrollToEnd = true
 }
 
 case class Story(pages: Viewable*) extends Viewable {
@@ -194,4 +197,5 @@ case class Story(pages: Viewable*) extends Viewable {
   def numViews = throw new UnsupportedOperationException
   def currView = throw new UnsupportedOperationException
   val name = ""
+  def scrollToEnd = pages(currPage).scrollToEnd
 }

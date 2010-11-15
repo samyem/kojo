@@ -42,7 +42,6 @@ class StoryTeller extends JPanel {
   val Log = Logger.getLogger(getClass.getName);
   val NoText = <span/>
   @volatile var kojoCtx: core.KojoCtx = _
-  @volatile var content: xml.Node = NoText
   @volatile var mp3Player: Option[Player] = None
   @volatile var bgmp3Player: Option[Player] = None
   @volatile var currStory: Option[Story] = None
@@ -262,6 +261,20 @@ class StoryTeller extends JPanel {
     }
   }
 
+  private def scrollEp() {
+    if (currStory.isDefined) {
+      if (story.scrollToEnd) {
+        scrollToEnd()
+      }
+      else {
+        scrollToBeginning()
+      }
+    }
+    else {
+      scrollToBeginning()
+    }
+  }
+
   private def scrollToEnd() {
     Utils.schedule(0.3) {
       val sb = sp.getVerticalScrollBar
@@ -269,11 +282,18 @@ class StoryTeller extends JPanel {
     }
   }
 
+  private def scrollToBeginning() {
+    Utils.schedule(0.3) {
+      val sb = sp.getVerticalScrollBar
+      sb.setValue(sb.getMinimum)
+    }
+  }
+
   private def displayContent(html: xml.Node) {
     Utils.runInSwingThread {
-      content = html
       clearStatusBar()
       ep.setText(html.toString)
+      scrollEp()
     }
   }
 
@@ -288,7 +308,7 @@ class StoryTeller extends JPanel {
       uc.setBorder(BorderFactory.createEtchedBorder())
       uc.repaint()
       pageFields += (label -> tf)
-      scrollToEnd()
+      scrollEp()
     }
     tf
   }
@@ -367,7 +387,7 @@ class StoryTeller extends JPanel {
         uc.revalidate()
       }
       uc.repaint()
-      scrollToEnd()
+      scrollEp()
     }
   }
 
