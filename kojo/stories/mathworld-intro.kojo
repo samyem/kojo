@@ -11,12 +11,12 @@ val code1_1 = """
 
 val code1_2 = """
     Mw.clear()
-    val fig = Mw.figure("f1")
-    val p1 = Mw.point(1, 1)
-    val p2 = Mw.point(2, 3)
-    val p3 = Mw.point(5, 2)
-    fig.add(p1, p2, p3)
-    fig.show()
+    val a = Mw.point(1, 1, "A")
+    val b = Mw.point(0, 3, "B")
+    val c = Mw.point(5, 2, "C")
+    val ab = Mw.lineSegment(a, b)
+    val ac = Mw.lineSegment(a, c)
+    Mw.show(a, b, c, ab, ac)
 """
 
 val pg1 = Page(
@@ -34,15 +34,15 @@ val pg1 = Page(
                 <pre style={codeStyle}>
                     {code1_1}
                 </pre>
-                You need points to do pretty much anything related to Geometry
+                You need <em>points</em> to do pretty much anything related to Geometry
                 within Mathworld. You create a point by using the <code>Mw.point</code>
-                function. <br/>
-                To make these points visible within Mathworld, you need to:
-                <ul>
-                    <li>Make a figure using the <code>Mw.figure</code> function</li>
-                    <li>Add the point to the figure via the <code>figure.add</code> command</li>
-                    <li>Make the figure visible using the <code>figure.show</code> command</li>
-                </ul>
+                function. <br/><br/>
+
+                Once you have points, you can make <em>line segments</em> using the
+                <code>Mw.lineSegment()</code>function. <br/><br/>
+
+                To show the shapes that you create within Mathworld, you
+                need to use the <code>Mw.show()</code> command.<br/><br/>
 
                 The following code demonstrates the above ideas:
                 <pre style={codeStyle}>
@@ -80,8 +80,8 @@ val pg2 = Page(
             </pre>
             Play with these functions to get to know them better.
             <p style={smallNoteStyle}>
-                Remember to add
-                the shapes returned by these functions to a figure, to see them on the
+                Remember to call the <code>Mw.show()</code> command to
+                to see the shapes created by these functions on the
                 screen within Mathworld.
             </p>
             <p>
