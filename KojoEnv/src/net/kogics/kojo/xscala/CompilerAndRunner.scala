@@ -62,8 +62,9 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
   }
 }
 """
-  
+
   var offsetDelta: Int = _
+  val adjustOffset = System.getProperty("line.separator").length == 2
 
   val virtualDirectory = new VirtualDirectory("(memory)", None)
 
@@ -103,7 +104,8 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     override def info0(position: Position, msg: String, severity: Severity, force: Boolean) = {
       severity.count += 1
       lazy val line = position.line - prefixLines
-      lazy val offset = position.startOrPoint - offsetDelta - (line-1)
+      lazy val delta = if (adjustOffset) (line-1) else 0
+      lazy val offset = position.startOrPoint - offsetDelta - delta
       severity match {
         case ERROR if position.isDefined =>
           listener.error(msg, line, position.column, offset, position.lineContent)
