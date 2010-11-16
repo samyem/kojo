@@ -149,7 +149,15 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         case RunScript =>
           runCode()
         case CompileScript =>
-          compileCode()
+          if ((e.getModifiers & Event.CTRL_MASK) == Event.CTRL_MASK) {
+            parseCode(false)
+          }
+          else if ((e.getModifiers & Event.SHIFT_MASK) == Event.SHIFT_MASK) {
+            parseCode(true)
+          }
+          else {
+            compileCode()
+          }
         case StopScript =>
           stopScript()
         case HistoryNext =>
@@ -645,6 +653,27 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     return false
   }
 
+  def parseCode(browseAst: Boolean) {
+    val code = codePane.getText()
+
+    if (invalidCode(code)) {
+      return
+    }
+
+    statusStrip.onDocChange()
+    enableRunButton(false)
+    showWaitCursor()
+
+    try {
+      historyManager.codeRun(code, true, (0, 0))
+    }
+    catch {
+      case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))
+    }
+
+    codeRunner.parseCode(code, browseAst)
+  }
+
   def compileCode() {
     val code = codePane.getText()
 
@@ -909,8 +938,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   class CompilerOutputListener(line: Int, column: Int, offset: Int) extends OutputListener {
     def outputLineAction(ev: OutputEvent) {
-        switchFocusToCodeEditor()
-        codePane.select(offset, offset+1)
+      switchFocusToCodeEditor()
+      codePane.select(offset, offset+1)
     }
 
     def outputLineSelected(ev: OutputEvent) {

@@ -47,12 +47,17 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
     codeRunner ! CompileCode(code)
   }
 
+  def parseCode(code: String, browseAst: Boolean) {
+    codeRunner ! ParseCode(code, browseAst)
+  }
+
   def interruptInterpreter() = InterruptionManager.interruptInterpreter()
 
   case object Init
   case class RunCode(code: String)
   case class CompileRunCode(code: String)
   case class CompileCode(code: String)
+  case class ParseCode(code: String, browseAst: Boolean)
   case class MethodCompletionRequest(str: String)
   case class VarCompletionRequest(str: String)
   case class KeywordCompletionRequest(str: String)
@@ -241,6 +246,32 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
               if (ret == IR.Incomplete) showIncompleteCodeMsg(code)
 
               if (ret == IR.Success) {
+                ctx.onRunSuccess()
+              }
+              else {
+                if (InterruptionManager.interruptionInProgress) ctx.onRunSuccess() // user cancelled running code; no errors
+                else ctx.onRunError()
+              }
+            }
+            catch {
+              case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
+                ctx.onRunInterpError
+            }
+            finally {
+              Log.info("CodeRunner actor doing final handling for code.")
+              InterruptionManager.onInterpreterFinish()
+            }
+
+          case ParseCode(code, browseAst) =>
+            try {
+              Log.info("CodeRunner actor parsing code:\n---\n%s\n---\n" format(code))
+              InterruptionManager.onInterpreterStart()
+              ctx.onInterpreterStart(code)
+
+              val ret = compiler.parse(code, browseAst)
+              Log.info("CodeRunner actor done parsing code. Return value %s" format (ret.toString))
+
+              if (ret != null) {
                 ctx.onRunSuccess()
               }
               else {

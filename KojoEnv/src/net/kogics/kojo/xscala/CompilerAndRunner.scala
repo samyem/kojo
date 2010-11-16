@@ -124,7 +124,6 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     val pfx = prefix format(counter)
     offsetDelta = pfx.length
     val code = codeTemplate format(pfx, code0)
-    val codeBytes = code.getBytes
 
     val run = new compiler.Run
     reporter.reset
@@ -165,6 +164,35 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     }
     else {
       IR.Error
+    }
+  }
+
+  def parse(code0: String, browseAst: Boolean) = {
+    counter += 1
+    val pfx = prefix format(counter)
+    offsetDelta = pfx.length
+    val code = codeTemplate format(pfx, code0)
+
+    val savedStop = compiler.settings.stop.value
+
+    compiler.settings.stop.value = List("superaccessors") // phase after typer
+    if (browseAst) {
+      compiler.settings.browse.value = List("typer")
+    }
+    val run = new compiler.Run
+    reporter.reset
+    run.compileSources(List(new BatchSourceFile("scripteditor", code)))
+
+    compiler.settings.stop.value = savedStop
+    compiler.settings.browse.value = List()
+
+    if (reporter.hasErrors) {
+      IR.Error
+    }
+    else {
+      val tree = run.units.next.body
+      listener.message(tree.toString)
+      IR.Success
     }
   }
 }
