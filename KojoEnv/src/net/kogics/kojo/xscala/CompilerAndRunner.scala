@@ -64,7 +64,6 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
 """
 
   var offsetDelta: Int = _
-  val adjustOffset = System.getProperty("line.separator").length == 2
 
   val virtualDirectory = new VirtualDirectory("(memory)", None)
 
@@ -104,8 +103,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     override def info0(position: Position, msg: String, severity: Severity, force: Boolean) = {
       severity.count += 1
       lazy val line = position.line - prefixLines
-      lazy val delta = if (adjustOffset) (line-1) else 0
-      lazy val offset = position.startOrPoint - offsetDelta - delta
+      lazy val offset = position.startOrPoint - offsetDelta
       severity match {
         case ERROR if position.isDefined =>
           listener.error(msg, line, position.column, offset, position.lineContent)
@@ -125,7 +123,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     counter += 1
     val pfx = prefix format(counter)
     offsetDelta = pfx.length
-    val code = codeTemplate format(pfx, code0)
+    val code = Utils.stripCR(codeTemplate format(pfx, code0))
 
     val run = new compiler.Run
     reporter.reset
@@ -173,7 +171,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     counter += 1
     val pfx = prefix format(counter)
     offsetDelta = pfx.length
-    val code = codeTemplate format(pfx, code0)
+    val code = Utils.stripCR(codeTemplate format(pfx, code0))
 
     val savedStop = compiler.settings.stop.value
 
