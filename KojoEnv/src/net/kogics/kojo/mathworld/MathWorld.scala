@@ -85,6 +85,22 @@ class MathWorld {
     }
   }
 
+  def showAlgebraView() {
+    Utils.runInSwingThread {
+      ggbApi.getApplication.setShowAlgebraView(true)
+      ggbApi.getApplication.updateCenterPanel(true)
+      ggbApi.getApplication.setDefaultCursor()
+    }
+  }
+
+  def hideAlgebraView() {
+    Utils.runInSwingThread {
+      ggbApi.getApplication.setShowAlgebraView(false)
+      ggbApi.getApplication.updateCenterPanel(true)
+      ggbApi.getApplication.setDefaultCursor()
+    }
+  }
+
   def point(x: Double, y: Double, label: String=null): MwPoint = MwPoint(ggbApi, x, y, Option(label))
   def point(on: MwLine, x: Double, y: Double): MwPoint = MwPoint(ggbApi, on, x, y)
 
@@ -114,6 +130,8 @@ class MathWorld {
   def intersect(c1: MwCircle, c2: MwCircle): Seq[MwPoint] = Algo.intersect(ggbApi, c1, c2)
 
   def midpoint(ls: MwLineSegment) = Algo.midpoint(ls)
+  def perpendicular(l: MwLine, p: MwPoint) = Algo.perpendicular(l, p)
+  def parallel(l: MwLine, p: MwPoint) = Algo.parallel(l, p)
 
   def show(shapes: VisualElement*) {
     Utils.runInSwingThread {
