@@ -56,4 +56,18 @@ class Algo(ggbApi: GgbAPI) {
     }
     pt
   }
+
+  def perpendicular(l: MwLine, p: MwPoint): MwLine = {
+    Utils.runInSwingThreadAndWait {
+      val gLine = ggbApi.getKernel.OrthogonalLine(MwLine.lGen.next(), p.gPoint, l.gLine)
+      new MwLine(ggbApi, gLine, p, p)
+    }
+  }
+
+  def parallel(l: MwLine, p: MwPoint): MwLine = {
+    Utils.runInSwingThreadAndWait {
+      val gLine = ggbApi.getKernel.Line(MwLine.lGen.next(), p.gPoint, l.gLine)
+      new MwLine(ggbApi, gLine, p, p)
+    }
+  }
 }

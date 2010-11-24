@@ -43,6 +43,9 @@ object CodeCompletionUtils {
     "circle" -> "circle(${center}, ${radius})",
     "angle" -> "angle(${point1}, ${point2}, ${pointOrSize})",
     "intersect" -> "intersect(${shape1}, ${shape2})",
+    "midpoint" -> "midpoint(${lineSegment})",
+    "perpendicular" -> "perpendicular(${toLine}, ${thruPoint})",
+    "parallel" -> "perpendicular(${toLine}, ${thruPoint})",
     "setLabel" -> "setLabel(${label})",
     "setColor" -> "setColor(${color})",
     "add" -> "add(${shapes})",
@@ -50,7 +53,9 @@ object CodeCompletionUtils {
     "showGrid" -> "showGrid()",
     "hideGrid" -> "hideGrid()",
     "showAxes" -> "showAxes()",
-    "hideAxes" -> "hideAxes()"
+    "hideAxes" -> "hideAxes()",
+    "showAlgebraView" -> "showAlgebraView()",
+    "hideAlgebraView" -> "hideAlgebraView()"
   )
 
   val StagingMethodTemplates = collection.mutable.Map(
