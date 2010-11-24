@@ -1,8 +1,8 @@
-val pageStyle = "color:#1e1e1e; margin:15px;"
+val pageStyle = "color:#f0f0f0; margin:15px;background-image: url(blue-bg.png);"
 val centerStyle = "text-align:center;"
 val headerStyle = "text-align:center;font-size:110%;color:maroon;"
 val codeStyle = "font-size:90%;"
-val smallNoteStyle = "color:gray;font-size:95%;"
+val smallNoteStyle = "color:#d0d0d0;font-size:95%;"
 val sublistStyle = "margin-left:60px;"
 
 val code1_1 = """
@@ -73,8 +73,8 @@ val pg2 = Page(
     name = "",
     body =
         <body style={pageStyle}>
-            Mathworld has the following functions for creating and manipulating
-            Geometric shapes:
+            Some of the functions available within Mathworld - for creating and
+            manipulating Geometric shapes - are:
             <pre style={codeStyle}>
                 {code2_1}
             </pre>

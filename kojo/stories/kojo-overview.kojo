@@ -470,7 +470,7 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                For example, take a look at the two figures that are being drawn
+                For example, take a look at the two figures 
                 within the Turtle Canvas.
                 Children are shown a computer program that draws the figure on the left,
                 and then asked to slightly modify this program to draw the figure on the right.
@@ -479,7 +479,7 @@ pg = IncrPage(
                 clear()
                 axesOff()
                 gridOff()
-                setAnimationDelay(100)
+                setAnimationDelay(10)
                 setPosition(-200, 0)
 
                 setPenColor(green)
@@ -533,10 +533,10 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                By doing this, they learn important ideas related to computer
-                programming - by studying an existing program.<br/>
-                Then they get to test their knowledge and apply some clear and
-                precise thinking to solve the problem given to them.
+                In activities of this type, children analyse how an existing
+                program makes a particular figure.
+                Then they get to change this program - guided by critical
+                and logical thinking - to make a desired second figure.
             </p>
         )
     )
@@ -704,6 +704,7 @@ pg = IncrPage(
             code = {
                 stAddButton ("Linear Equation Experiment") {
                     Mw.clear()
+                    Mw.hideAlgebraView()
                     Mw.showAxes()
                     Mw.variable("m", 1, -5, 5, 0.1, 50, 50)
                     Mw.variable("c", 0, -2, 2, 0.1, 50, 80)
@@ -749,6 +750,7 @@ pg = IncrPage(
             code = {
                 stAddButton ("Show Lines") {
                     Mw.clear()
+                    Mw.hideAlgebraView()
                     Mw.hideAxes()
                     val fig = Mw.figure("F1")
 
@@ -825,6 +827,7 @@ pg = IncrPage(
             code = {
                 stAddButton ("Show Triangle") {
                     Mw.clear()
+                    Mw.hideAlgebraView()
                     Mw.hideAxes()
                     val fig = Mw.figure("F1")
 
@@ -1084,7 +1087,7 @@ pg = IncrPage(
         ),
         Para(
             <ul style={sublistStyle}>
-                <li>Digging deeper and better understanding the concept.</li>
+                <li>Digging deeper to understanding the concept better.</li>
             </ul>
         ),
         Para(
