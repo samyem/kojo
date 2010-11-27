@@ -129,9 +129,9 @@ class MathWorld {
   def intersect(c: MwCircle, l: MwLine): Seq[MwPoint] = intersect(l, c)
   def intersect(c1: MwCircle, c2: MwCircle): Seq[MwPoint] = Algo.intersect(ggbApi, c1, c2)
 
-  def midpoint(ls: MwLineSegment) = Algo.midpoint(ls)
-  def perpendicular(l: MwLine, p: MwPoint) = Algo.perpendicular(l, p)
-  def parallel(l: MwLine, p: MwPoint) = Algo.parallel(l, p)
+  def midpoint(ls: MwLineSegment): MwPoint = Algo.midpoint(ls)
+  def perpendicular(l: MwLine, p: MwPoint): MwLine = Algo.perpendicular(l, p)
+  def parallel(l: MwLine, p: MwPoint): MwLine = Algo.parallel(l, p)
 
   def show(shapes: VisualElement*) {
     Utils.runInSwingThread {
