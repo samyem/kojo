@@ -34,6 +34,14 @@ val pg1 = Page(
                 <pre style={codeStyle}>
                     {code1_1}
                 </pre>
+            </p>
+            <p style={smallNoteStyle}>
+                After the call to <em>Mw.clear()</em>,
+                Kojo will also show you the appropriate code-completions for Mathworld.
+                So it is important to start every Mathworld session with a call to
+                <em>Mw.clear()</em>.
+            </p>
+            <p>
                 You need <em>points</em> to do pretty much anything related to Geometry
                 within Mathworld. You create a point by using the <code>Mw.point</code>
                 function. <br/><br/>
@@ -61,14 +69,19 @@ val code2_1 = """
   lineSegment(p1: MwPoint, p2: MwPoint): MwLineSegment
   lineSegment(p: MwPoint, len: Double): MwLineSegment
   ray(p1: MwPoint, p2: MwPoint): MwRay
-  intersect(l1: MwLine, l2: MwLine): MwPoint
-  intersect(l: MwLine, c: MwCircle): Seq[MwPoint]
-  intersect(c1: MwCircle, c2: MwCircle): Seq[MwPoint]
   angle(p1: MwPoint, p2: MwPoint, p3: MwPoint): MwAngle
   angle(p1: MwPoint, p2: MwPoint, size: Double): MwAngle
   text(content: String, x: Double, y: Double): MwText
   circle(center: MwPoint, radius: Double): MwCircle
+  intersect(l1: MwLine, l2: MwLine): MwPoint
+  intersect(l: MwLine, c: MwCircle): Seq[MwPoint]
+  intersect(c: MwCircle, l: MwLine): Seq[MwPoint]
+  intersect(c1: MwCircle, c2: MwCircle): Seq[MwPoint]
+  midpoint(ls: MwLineSegment): MwPoint
+  perpendicular(l: MwLine, p: MwPoint): MwLine
+  parallel(l: MwLine, p: MwPoint): MwLine
 """
+
 val pg2 = Page(
     name = "",
     body =
