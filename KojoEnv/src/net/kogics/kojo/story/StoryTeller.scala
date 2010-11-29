@@ -20,8 +20,7 @@ import java.awt._
 import java.awt.event._
 import javax.swing._
 import util.Utils
-import util.NumberOrString
-import util.NoS._
+import util.Read
 import javazoom.jl.player.Player
 import java.io._
 import javax.swing.text.html.HTMLDocument
@@ -313,18 +312,18 @@ class StoryTeller extends JPanel {
     tf
   }
 
-  def fieldValue[T](label: String, default: T)(implicit nos: NumberOrString[T]): T = {
+  def fieldValue[T](label: String, default: T)(implicit reader: Read[T]): T = {
     Utils.runInSwingThreadAndWait {
       val tf = pageFields.get(label)
       if (tf.isDefined) {
         val svalue = tf.get.getText
         if (svalue != null && svalue.trim != "") {
           try {
-            nos.value(svalue)
+            reader.read(svalue)
           }
           catch {
             case ex: Exception =>
-              showStatusError("Unable to convert value - %s - to required type %s" format(svalue, nos.typeName))
+              showStatusError("Unable to convert value - %s - to required type %s" format(svalue, reader.typeName))
               throw ex
           }
         }

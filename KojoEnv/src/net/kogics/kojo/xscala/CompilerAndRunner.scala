@@ -175,7 +175,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
 
     val savedStop = compiler.settings.stop.value
 
-    compiler.settings.stop.value = List("superaccessors") // phase after typer
+    compiler.settings.stop.value = stopPhase()
     if (browseAst) {
       compiler.settings.browse.value = List("typer")
     }
@@ -194,5 +194,11 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
       listener.message(tree.toString)
       IR.Success
     }
+  }
+
+  // phase after the one you want to see
+  private def stopPhase() = {
+    val ret = System.getProperty("kojo.compiler.stop")
+    if (ret != null) List(ret) else Nil
   }
 }
