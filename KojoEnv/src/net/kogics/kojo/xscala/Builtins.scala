@@ -318,11 +318,12 @@ class Builtins extends SCanvas with TurtleMover {
   }
   UserCommand("stAddField", List("label", "default"), "Adds an input field with the supplied label and default value to the Story Teller Window.")
 
-  implicit val StringNoS = util.NoS.StringNoS
-  implicit val DoubleNoS = util.NoS.DoubleNoS
-  implicit val IntNoS = util.NoS.IntNoS
-  import util.NumberOrString
-  def stFieldValue[T](label: String, default: T)(implicit nos: NumberOrString[T]): T = {
+  implicit val StringRead = util.Read.StringRead
+  implicit val DoubleRead = util.Read.DoubleRead
+  implicit val IntRead = util.Read.IntRead
+  import util.Read
+  
+  def stFieldValue[T](label: String, default: T)(implicit reader: Read[T]): T = {
     storyTeller.fieldValue(label, default)
   }
   UserCommand("stFieldValue", List("label", "default"), "Gets the value of the specified field.")

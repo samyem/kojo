@@ -19,7 +19,7 @@ package story
 import org.junit.Test
 import org.junit.Assert._
 
-import util.NoS._
+import util.Read._
 
 class StoryTellerTest extends KojoTestBase {
 
