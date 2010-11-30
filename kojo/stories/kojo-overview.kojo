@@ -79,7 +79,7 @@ pg = IncrPage(
         ),
         Para(
             <ul>
-                <li><a href={link("creative")}>Art and Creative Thinking</a>.</li>
+                <li><a href={link("creative")}>Art and Creative Work</a>.</li>
             </ul>
         ),
         Para(
@@ -105,20 +105,27 @@ pg = IncrPage(
         ),
         Para(
             <ul>
-                <li>A gym, where children can exercise their brains.</li>
+                <li>A gym, where children exercise their brains.</li>
             </ul>
         ),
         Para(
             <ul>
-                <li>A studio, where they can create computer sketches, and
+                <li>A studio, where they create computer sketches, and
                     stories/presentations (like this one!).</li>
             </ul>
         ),
         Para(
             <ul>
-                <li>A Lab, where they can experiment with mathematical and scientific ideas.</li>
+                <li>A Lab, where they experiment with mathematical and scientific ideas.</li>
             </ul>
+        ),
+        Para(
+            <p>
+                Within Kojo, children <em>learn by doing</em>.
+            </p>,
+            code = {}
         )
+
     )
 )
 
@@ -470,7 +477,7 @@ pg = IncrPage(
         ),
         Para(
             <p>
-                For example, take a look at the two figures 
+                For example, take a look at the two figures
                 within the Turtle Canvas.
                 Children are shown a computer program that draws the figure on the left,
                 and then asked to slightly modify this program to draw the figure on the right.
@@ -1076,7 +1083,7 @@ pg = IncrPage(
         ),
         Para(
             <ul>
-                <li>Making stories about interesting mathematical and scientific
+                <li>Creating stories about interesting mathematical and scientific
                     facts. This involves:</li>
             </ul>
         ),
@@ -1102,8 +1109,15 @@ pg = IncrPage(
             </ul>
         ),
         Para(
+            <div style={sublistStyle + smallNoteStyle}>
+                Storywriting works nicely with the three Rs of education -
+                <em>R</em>eading (doing research), w<em>R</em>iting (creating content),
+                and a<em>R</em>ithmetic (writing programs that deal with numbers).
+            </div>
+        ),
+        Para(
             <p>
-                Imagine the creative possibilities this opens up!
+                Imagine the creative possibilities that all of this opens up!
             </p>
         )
     )
