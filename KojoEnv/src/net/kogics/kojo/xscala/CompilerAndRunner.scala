@@ -119,12 +119,13 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
 
   val compiler = new Global(settings, reporter)
 
-  def compile(code0: String) = {
+  def compile(code0: String, stopPhase: List[String] = List("superaccessors")) = {
     counter += 1
     val pfx = prefix format(counter)
     offsetDelta = pfx.length
     val code = Utils.stripCR(codeTemplate format(pfx, code0))
 
+    compiler.settings.stop.value = stopPhase
     val run = new compiler.Run
     reporter.reset
     run.compileSources(List(new BatchSourceFile("scripteditor", code)))
@@ -133,7 +134,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
 
   def compileAndRun(code0: String) = {
 
-    val result = compile(code0)
+    val result = compile(code0, Nil) // needs more testing, after stopPhase change
 
     if (result == IR.Success) {
       if (Thread.interrupted) {
@@ -173,9 +174,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     offsetDelta = pfx.length
     val code = Utils.stripCR(codeTemplate format(pfx, code0))
 
-    val savedStop = compiler.settings.stop.value
-
-    compiler.settings.stop.value = stopPhase()
+    compiler.settings.stop.value = stopBeforePhase()
     if (browseAst) {
       compiler.settings.browse.value = List("typer")
     }
@@ -183,7 +182,6 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     reporter.reset
     run.compileSources(List(new BatchSourceFile("scripteditor", code)))
 
-    compiler.settings.stop.value = savedStop
     compiler.settings.browse.value = List()
 
     if (reporter.hasErrors) {
@@ -197,8 +195,8 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
   }
 
   // phase after the one you want to see
-  private def stopPhase() = {
-    val ret = System.getProperty("kojo.compiler.stop")
-    if (ret != null) List(ret) else Nil
+  private def stopBeforePhase() = {
+    val ret = Builtins.instance.astStopPhase
+    if (ret != null && ret != "") List(ret) else Nil
   }
 }

@@ -33,6 +33,7 @@ object Builtins extends InitedSingleton[Builtins] {
 import java.awt.Color
 
 class Builtins extends SCanvas with TurtleMover {
+  @volatile var astStopPhase = "superaccessors"
   @volatile var scalaCodeRunner: ScalaCodeRunner = _
   lazy val tCanvas = scalaCodeRunner.tCanvas
   lazy val ctx = scalaCodeRunner.ctx
@@ -270,6 +271,10 @@ class Builtins extends SCanvas with TurtleMover {
 
   def inspect(obj: AnyRef) = ctx.inspect(obj)
   UserCommand("inspect", List("obj"), "Explores the internal fields of the given object.")
+
+  def setAstStopPhase(phase: String): Unit = astStopPhase = phase
+  UserCommand.addSynopsis("astStopPhase - Gets the compiler phase value for AST printing.")
+  UserCommand("setAstStopPhase", List("stopBeforePhase"), "Sets the compiler phase value for AST printing.")
 
   def stClear() {
     storyTeller.clear()
