@@ -62,6 +62,13 @@ trait MwShape extends Labelled {
     }
   }
 
+  def setLineThickness(t:  Int) {
+    Utils.runInSwingThread {
+      geogebraElement.setLineThickness(t)
+      repaint()
+    }
+  }
+
   def showNameInLabel() {
     Utils.runInSwingThread {
       geogebraElement.setLabelVisible(true)

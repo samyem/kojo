@@ -34,12 +34,7 @@ object MathWorld extends InitedSingleton[MathWorld] {
 }
 
 class MathWorld {
-//  type GPoint = MwPoint
-//  type GLine = MwLine
-//  type GSegment = MwLineSegment
-//  type GAngle = MwAngle
-//  type GText = MwText
-//  type GCircle = MwCircle
+  import turtle.TurtleHelper._
 
   @volatile var kojoCtx: KojoCtx = _
   @volatile var ggbApi: GgbAPI = _
@@ -54,6 +49,7 @@ class MathWorld {
       ensureVisible()
       ggbApi.getApplication.setSaved()
       ggbApi.getApplication.fileNew()
+      init()
     }
   }
 
@@ -166,4 +162,123 @@ class MathWorld {
       ggbApi.evalCommand(cmd)
     }
   }
+
+  // turtle like stuff
+  import java.awt.Color
+
+  private var position: MwPoint = _
+  private var theta: Double = _
+  private var penColor: Color = _
+  private var penThickness: Int = _
+  private var penIsDown: Boolean = _
+  private var angleShow: Boolean = _
+  private var lastLine: MwLineSegment = _
+
+  def init() {
+    penColor = Color.red
+    penThickness = 2
+    penIsDown = true
+    angleShow = true
+    lastLine = null
+    setPos(0, 0)
+    setHeading(90)
+  }
+
+  def forward(n: Double) {
+    Utils.runInSwingThread {
+      val p0 = position
+      val delX = math.cos(theta) * n
+      val delY = math.sin(theta) * n
+      setPosition(position.x + delX, position.y + delY)
+      if (penIsDown) {
+        val ls = lineSegment(p0, position)
+        ls.setColor(penColor)
+        ls.setLineThickness(penThickness)
+        ls.show()
+
+        if (angleShow && lastLine != null) {
+          val a = angle(lastLine.p1, p0, position)
+          a.showValueInLabel()
+          a.show()
+        }
+
+        lastLine = ls
+      }
+    }
+  }
+
+  def turn(angle: Double) {
+    Utils.runInSwingThread {
+      theta = thetaAfterTurn(angle, theta)
+    }
+  }
+
+  // should be called on swing thread
+  private def setPos(x: Double, y: Double) {
+    position = point(x, y)
+    if (penIsDown) {
+      position.setColor(Color.green)
+      position.show()
+    }
+  }
+
+  def setPosition(x: Double, y: Double) {
+    Utils.runInSwingThread {
+      position.setColor(Color.blue)
+      setPos(x, y)
+    }
+  }
+
+  def setHeading(angle: Double) {
+    Utils.runInSwingThread {
+      setRotation(Utils.deg2radians(angle))
+    }
+  }
+
+  private def setRotation(angle: Double) {
+    theta = angle
+  }
+
+  def setPenColor(color: Color) {
+    Utils.runInSwingThread {
+      penColor = color
+    }
+  }
+
+  def setPenThickness(t: Int) {
+    Utils.runInSwingThread {
+      penThickness = t
+    }
+  }
+
+  def moveTo(x: Double, y: Double) {
+    Utils.runInSwingThread {
+      setRotation(thetaTowards(position.x, position.y, x, y, theta))
+      forward(distance(position.x, position.y, x, y))
+    }
+  }
+
+  def penUp() {
+    Utils.runInSwingThread {
+      penIsDown = false
+    }
+  }
+
+  def penDown() {
+    Utils.runInSwingThread {
+      penIsDown = true
+      position.show()
+    }
+  }
+
+  def setLabel(l: String) {
+    Utils.runInSwingThread {
+      position.setLabel(l)
+    }
+  }
+
+  def left(angle: Double) = turn(angle)
+  def right(angle: Double) = turn(-angle)
+  def back(n: Double) = forward(-n)
+
 }
