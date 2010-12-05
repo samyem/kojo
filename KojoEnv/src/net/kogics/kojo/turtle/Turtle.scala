@@ -47,6 +47,9 @@ object Turtle {
 
 class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
              initY: Double = 0, bottomLayer: Boolean = false) extends core.Turtle {
+
+  import TurtleHelper._
+
   private val Log = Logger.getLogger(getClass.getName)
   Log.info("Turtle being created in thread: " + Thread.currentThread.getName)
 
@@ -99,10 +102,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   def distanceTo(x: Double, y: Double): Double = {
-    val (x0,y0) = (_position.x, _position.y)
-    val delX = Math.abs(x-x0)
-    val delY = Math.abs(y-y0)
-    Math.sqrt(delX * delX + delY * delY)
+    distance(_position.x, _position.y, x, y)
+  }
+
+  private def towardsHelper(x: Double, y: Double): Double = {
+    thetaTowards(_position.x, _position.y, x, y, theta)
   }
 
   def delayFor(dist: Double): Long = {
@@ -130,7 +134,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def stringRep(node: PNode): String = node match {
-    case l: PolyLine => 
+    case l: PolyLine =>
       new StringBuilder().append("  Polyline:\n").append("    Points: %s\n" format l.points).toString
     case n: PNode =>
       new StringBuilder().append("  PNode:\n").append("    Children: %s\n" format n.getChildrenReference).toString
@@ -466,28 +470,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       pushHistory(UndoPenState(pen))
       pen = DownPen
       pen.updatePosition()
-    }
-  }
-
-  private def towardsHelper(x: Double, y: Double): Double = {
-    val (x0, y0) = (_position.x, _position.y)
-    val delX = x - x0
-    val delY = y - y0
-    if (Utils.doublesEqual(delX,0,0.001)) {
-      if (Utils.doublesEqual(delY,0,0.001)) theta
-      else if (delY > 0) Math.Pi/2
-      else 3*Math.Pi/2
-    }
-    else if (Utils.doublesEqual(delY,0,0.001)) {
-      if (delX > 0) 0
-      else Math.Pi
-    }
-    else {
-      var nt2 = Math.atan(delY/delX)
-      if (delX < 0 && delY > 0) nt2 += Math.Pi
-      else if (delX < 0 && delY < 0) nt2 += Math.Pi
-      else if (delX > 0 && delY < 0) nt2 += 2* Math.Pi
-      nt2
     }
   }
 
