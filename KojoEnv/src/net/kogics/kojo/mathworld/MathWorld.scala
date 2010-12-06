@@ -337,26 +337,28 @@ class MathWorld {
 
   def endPoly() {
     Utils.runInSwingThread {
-      setRotation(thetaTowards(position.x, position.y, polyP1.get.x, polyP1.get.y, theta))
-      val p0 = position
+      if (polyP1.isDefined) {
+        setRotation(thetaTowards(position.x, position.y, polyP1.get.x, polyP1.get.y, theta))
+        val p0 = position
 
-      forwardLine(p0, polyP1.get)
+        forwardLine(p0, polyP1.get)
 
-      // make angles at first vertex of poly
-      if (penIsDown) {
-        if (angleShow && lastLine.isDefined) {
-          val a2 = angle(p0, position, polyP2.get)
-          a2.showValueInLabel()
-          a2.show()
+        // make angles at first vertex of poly
+        if (penIsDown && polyP2.isDefined) {
+          if (angleShow) {
+            val a2 = angle(p0, position, polyP2.get)
+            a2.showValueInLabel()
+            a2.show()
+          }
+
+          if (externalAngleShow) {
+            val a2 = angle(polyP2.get, position, p0)
+            a2.showValueInLabel()
+            a2.show()
+          }
+          polyP1 = None
+          polyP2 = None
         }
-
-        if (externalAngleShow && lastLine.isDefined) {
-          val a2 = angle(polyP2.get, position, p0)
-          a2.showValueInLabel()
-          a2.show()
-        }
-        polyP1 = None
-        polyP2 = None
       }
     }
   }
