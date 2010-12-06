@@ -172,16 +172,50 @@ class MathWorld {
   private var penThickness: Int = _
   private var penIsDown: Boolean = _
   private var angleShow: Boolean = _
-  private var lastLine: MwLineSegment = _
+  private var externalAngleShow: Boolean = _
+  private var lastLine: Option[MwLineSegment] = _
+  private var polyP1: Option[MwPoint] = _
+  private var polyP2: Option[MwPoint] = _
 
   def init() {
     penColor = Color.red
     penThickness = 2
     penIsDown = true
-    angleShow = true
-    lastLine = null
-    setPos(0, 0)
+    angleShow = false
+    externalAngleShow = false
+    lastLine = None
+    polyP1 = None
+    polyP2 = None
+    setPos(point(0, 0))
     setHeading(90)
+  }
+
+  private def forwardLine(p0: MwPoint, p1: MwPoint) {
+    setPosition(p1)
+    if (penIsDown) {
+      val ls = lineSegment(p0, position)
+      ls.setColor(penColor)
+      ls.setLineThickness(penThickness)
+      ls.show()
+
+      if (angleShow && lastLine.isDefined) {
+        val a = angle(lastLine.get.p1, p0, position)
+        a.showValueInLabel()
+        a.show()
+      }
+
+      if (externalAngleShow && lastLine.isDefined) {
+        val a = angle(position, p0, lastLine.get.p1)
+        a.showValueInLabel()
+        a.show()
+      }
+
+      if (polyP1.isDefined && !polyP2.isDefined) {
+        polyP2 = Some(position)
+      }
+
+      lastLine = Some(ls)
+    }
   }
 
   def forward(n: Double) {
@@ -189,21 +223,8 @@ class MathWorld {
       val p0 = position
       val delX = math.cos(theta) * n
       val delY = math.sin(theta) * n
-      setPosition(position.x + delX, position.y + delY)
-      if (penIsDown) {
-        val ls = lineSegment(p0, position)
-        ls.setColor(penColor)
-        ls.setLineThickness(penThickness)
-        ls.show()
-
-        if (angleShow && lastLine != null) {
-          val a = angle(lastLine.p1, p0, position)
-          a.showValueInLabel()
-          a.show()
-        }
-
-        lastLine = ls
-      }
+      val p1 = point(position.x + delX, position.y + delY)
+      forwardLine(p0, p1)
     }
   }
 
@@ -214,18 +235,18 @@ class MathWorld {
   }
 
   // should be called on swing thread
-  private def setPos(x: Double, y: Double) {
-    position = point(x, y)
+  private def setPos(p: MwPoint) {
+    position = p
     if (penIsDown) {
       position.setColor(Color.green)
       position.show()
     }
   }
 
-  def setPosition(x: Double, y: Double) {
+  def setPosition(p: MwPoint) {
     Utils.runInSwingThread {
       position.setColor(Color.blue)
-      setPos(x, y)
+      setPos(p)
     }
   }
 
@@ -277,8 +298,66 @@ class MathWorld {
     }
   }
 
+  def showAngles() {
+    Utils.runInSwingThread {
+      angleShow = true
+    }
+  }
+
+  def hideAngles() {
+    Utils.runInSwingThread {
+      angleShow = false
+    }
+  }
+
+  def showExternalAngles() {
+    Utils.runInSwingThread {
+      externalAngleShow = true
+    }
+  }
+
+  def hideExternalAngles() {
+    Utils.runInSwingThread {
+      externalAngleShow = false
+    }
+  }
+
   def left(angle: Double) = turn(angle)
   def right(angle: Double) = turn(-angle)
+  def left(): Unit = left(90)
+  def right(): Unit = right(90)
+
   def back(n: Double) = forward(-n)
 
+  def beginPoly() {
+    Utils.runInSwingThread {
+      polyP1 = Some(position)
+    }
+  }
+
+  def endPoly() {
+    Utils.runInSwingThread {
+      setRotation(thetaTowards(position.x, position.y, polyP1.get.x, polyP1.get.y, theta))
+      val p0 = position
+
+      forwardLine(p0, polyP1.get)
+
+      // make angles at first vertex of poly
+      if (penIsDown) {
+        if (angleShow && lastLine.isDefined) {
+          val a2 = angle(p0, position, polyP2.get)
+          a2.showValueInLabel()
+          a2.show()
+        }
+
+        if (externalAngleShow && lastLine.isDefined) {
+          val a2 = angle(polyP2.get, position, p0)
+          a2.showValueInLabel()
+          a2.show()
+        }
+        polyP1 = None
+        polyP2 = None
+      }
+    }
+  }
 }
