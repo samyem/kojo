@@ -174,8 +174,7 @@ class MathWorld {
   private var angleShow: Boolean = _
   private var externalAngleShow: Boolean = _
   private var lastLine: Option[MwLineSegment] = _
-  private var polyP1: Option[MwPoint] = _
-  private var polyP2: Option[MwPoint] = _
+  private var polyPoints: List[MwPoint] = _
 
   def init() {
     penColor = Color.red
@@ -184,8 +183,7 @@ class MathWorld {
     angleShow = false
     externalAngleShow = false
     lastLine = None
-    polyP1 = None
-    polyP2 = None
+    polyPoints = Nil
     setPos(point(0, 0))
     setHeading(90)
   }
@@ -210,8 +208,8 @@ class MathWorld {
         a.show()
       }
 
-      if (polyP1.isDefined && !polyP2.isDefined) {
-        polyP2 = Some(position)
+      if (polyPoints != Nil) {
+        polyPoints = position :: polyPoints
       }
 
       lastLine = Some(ls)
@@ -331,35 +329,34 @@ class MathWorld {
 
   def beginPoly() {
     Utils.runInSwingThread {
-      polyP1 = Some(position)
+      polyPoints = List(position)
     }
   }
 
   def endPoly() {
     Utils.runInSwingThread {
-      if (polyP1.isDefined) {
-        setRotation(thetaTowards(position.x, position.y, polyP1.get.x, polyP1.get.y, theta))
+      if (polyPoints.size > 2) {
+        val pp = polyPoints.reverse
+        setRotation(thetaTowards(position.x, position.y, pp(0).x, pp(0).y, theta))
         val p0 = position
-
-        forwardLine(p0, polyP1.get)
+        forwardLine(p0, pp(0))
 
         // make angles at first vertex of poly
-        if (penIsDown && polyP2.isDefined) {
+        if (penIsDown) {
           if (angleShow) {
-            val a2 = angle(p0, position, polyP2.get)
+            val a2 = angle(p0, position, pp(1))
             a2.showValueInLabel()
             a2.show()
           }
 
           if (externalAngleShow) {
-            val a2 = angle(polyP2.get, position, p0)
+            val a2 = angle(pp(1), position, p0)
             a2.showValueInLabel()
             a2.show()
           }
-          polyP1 = None
-          polyP2 = None
         }
       }
+      polyPoints = Nil
     }
   }
 }
