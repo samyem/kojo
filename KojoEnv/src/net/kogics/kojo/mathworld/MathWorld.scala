@@ -166,6 +166,8 @@ class MathWorld {
   // turtle like stuff
   import java.awt.Color
 
+  val MarkerSize = 0.2
+  private var headingMarker: MwPoint = _
   private var position: MwPoint = _
   private var theta: Double = _
   private var penColor: Color = _
@@ -184,6 +186,9 @@ class MathWorld {
     externalAngleShow = false
     lastLine = None
     polyPoints = Nil
+    headingMarker = point(0, 0)
+    headingMarker.setColor(Color.orange)
+    headingMarker.show()
     setPos(point(0, 0))
     setHeading(90)
   }
@@ -216,20 +221,29 @@ class MathWorld {
     }
   }
 
+  def forwardXy(p0: MwPoint, theta: Double, n: Double) = {
+    val delX = math.cos(theta) * n
+    val delY = math.sin(theta) * n
+    (p0.x + delX, p0.y + delY)
+  }
+
   def forward(n: Double) {
     Utils.runInSwingThread {
       val p0 = position
-      val delX = math.cos(theta) * n
-      val delY = math.sin(theta) * n
-      val p1 = point(position.x + delX, position.y + delY)
-      forwardLine(p0, p1)
+      val xy = forwardXy(p0, theta, n)
+      forwardLine(p0, point(xy._1, xy._2))
     }
   }
 
   def turn(angle: Double) {
     Utils.runInSwingThread {
-      theta = thetaAfterTurn(angle, theta)
+      setRotation(thetaAfterTurn(angle, theta))
     }
+  }
+
+  private def updateHMarker() {
+    val xy = forwardXy(position, theta, MarkerSize)
+    headingMarker.moveTo(xy._1, xy._2)
   }
 
   // should be called on swing thread
@@ -238,6 +252,7 @@ class MathWorld {
     if (penIsDown) {
       position.setColor(Color.green)
       position.show()
+      updateHMarker()
     }
   }
 
@@ -256,6 +271,7 @@ class MathWorld {
 
   private def setRotation(angle: Double) {
     theta = angle
+    updateHMarker()
   }
 
   def setPenColor(color: Color) {
