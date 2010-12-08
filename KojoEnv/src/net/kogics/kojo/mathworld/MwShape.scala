@@ -114,4 +114,10 @@ trait MwShape extends Labelled {
       repaint()
     }
   }
+
+  def label = {
+    Utils.runInSwingThreadAndWait {
+      geogebraElement.getLabel()
+    }
+  }
 }

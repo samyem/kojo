@@ -33,10 +33,17 @@ class MwTurtle(x: Double, y: Double) {
   private var penIsDown: Boolean = _
   private var angleShow: Boolean = _
   private var externalAngleShow: Boolean = _
-  private var lastLine: Option[MwLineSegment] = _
   private var polyPoints: List[MwPoint] = _
 
+  private var lines: List[MwLineSegment] = _
+  private var angles: List[MwAngle] = _
+
   init()
+
+  def lastLine: Option[MwLineSegment] = lines match {
+    case Nil => None
+    case _ => Some(lines.head)
+  }
 
   def init() {
     penColor = Color.red
@@ -44,13 +51,14 @@ class MwTurtle(x: Double, y: Double) {
     penIsDown = true
     angleShow = false
     externalAngleShow = false
-    lastLine = None
     polyPoints = Nil
     headingMarker = point(0, 0)
     headingMarker.setColor(Color.orange)
     headingMarker.show()
     setPos(point(x, y))
     setHeading(90)
+    lines = Nil
+    angles = Nil
   }
 
   private def forwardLine(p0: MwPoint, p1: MwPoint) {
@@ -65,19 +73,21 @@ class MwTurtle(x: Double, y: Double) {
         val a = angle(lastLine.get.p1, p0, position)
         a.showValueInLabel()
         a.show()
+        angles = a :: angles
       }
 
       if (externalAngleShow && lastLine.isDefined) {
         val a = angle(position, p0, lastLine.get.p1)
         a.showValueInLabel()
         a.show()
+        angles = a :: angles
       }
 
       if (polyPoints != Nil) {
         polyPoints = position :: polyPoints
       }
 
-      lastLine = Some(ls)
+      lines = ls :: lines
     }
   }
 
@@ -114,6 +124,10 @@ class MwTurtle(x: Double, y: Double) {
       position.show()
       updateHMarker()
     }
+  }
+
+  def setPosition(x: Double, y: Double) {
+    setPosition(point(x, y))
   }
 
   def setPosition(p: MwPoint) {
@@ -223,16 +237,36 @@ class MwTurtle(x: Double, y: Double) {
             val a2 = angle(p0, position, pp(1))
             a2.showValueInLabel()
             a2.show()
+            angles = a2 :: angles
           }
 
           if (externalAngleShow) {
             val a2 = angle(pp(1), position, p0)
             a2.showValueInLabel()
             a2.show()
+            angles = a2 :: angles
           }
         }
       }
       polyPoints = Nil
+    }
+  }
+
+  def findLine(label: String) = {
+    Utils.runInSwingThreadAndWait {
+      lines.find {l => l.p1.label + l.p2.label == label} match {
+        case Some(l) => l
+        case None => throw new RuntimeException("Unknown line: " + label)
+      }
+    }
+  }
+
+  def findAngle(label: String) = {
+    Utils.runInSwingThreadAndWait {
+      angles.find {a => a.p1.label + a.p2.label + a.p3.label == label} match {
+        case Some(a) => a
+        case None => throw new RuntimeException("Unknown angle: " + label)
+      }
     }
   }
 }
