@@ -37,6 +37,7 @@ class MwTurtle(x: Double, y: Double) {
 
   private var lines: List[MwLineSegment] = _
   private var angles: List[MwAngle] = _
+  private var points: List[MwPoint] = _
 
   init()
 
@@ -55,10 +56,13 @@ class MwTurtle(x: Double, y: Double) {
     headingMarker = point(0, 0)
     headingMarker.setColor(Color.orange)
     headingMarker.show()
-    setPos(point(x, y))
-    setHeading(90)
+
     lines = Nil
     angles = Nil
+    points = Nil
+
+    setPos(point(x, y))
+    setHeading(90)
   }
 
   private def forwardLine(p0: MwPoint, p1: MwPoint) {
@@ -69,18 +73,20 @@ class MwTurtle(x: Double, y: Double) {
       ls.setLineThickness(penThickness)
       ls.show()
 
-      if (angleShow && lastLine.isDefined) {
+      if (lastLine.isDefined && lastLine.get.p2 == p0) {
         val a = angle(lastLine.get.p1, p0, position)
         a.showValueInLabel()
-        a.show()
         angles = a :: angles
-      }
+        if (angleShow) {
+          a.show()
+        }
 
-      if (externalAngleShow && lastLine.isDefined) {
-        val a = angle(position, p0, lastLine.get.p1)
-        a.showValueInLabel()
-        a.show()
-        angles = a :: angles
+        val ea = angle(position, p0, lastLine.get.p1)
+        ea.showValueInLabel()
+        angles = ea :: angles
+        if (externalAngleShow) {
+          ea.show()
+        }
       }
 
       if (polyPoints != Nil) {
@@ -119,6 +125,7 @@ class MwTurtle(x: Double, y: Double) {
   // should be called on swing thread
   private def setPos(p: MwPoint) {
     position = p
+    points = p :: points
     if (penIsDown) {
       position.setColor(Color.green)
       position.show()
@@ -161,9 +168,13 @@ class MwTurtle(x: Double, y: Double) {
   }
 
   def moveTo(x: Double, y: Double) {
+    moveTo(point(x, y))
+  }
+
+  def moveTo(p: MwPoint) {
     Utils.runInSwingThread {
-      setRotation(thetaTowards(position.x, position.y, x, y, theta))
-      forward(distance(position.x, position.y, x, y))
+      setRotation(thetaTowards(position.x, position.y, p.x, p.y, theta))
+      forwardLine(position, p)
     }
   }
 
@@ -180,7 +191,7 @@ class MwTurtle(x: Double, y: Double) {
     }
   }
 
-  def setLabel(l: String) {
+  def labelPosition(l: String) {
     Utils.runInSwingThread {
       position.setLabel(l)
     }
@@ -233,18 +244,18 @@ class MwTurtle(x: Double, y: Double) {
 
         // make angles at first vertex of poly
         if (penIsDown) {
+          val a2 = angle(p0, position, pp(1))
+          a2.showValueInLabel()
+          angles = a2 :: angles
           if (angleShow) {
-            val a2 = angle(p0, position, pp(1))
-            a2.showValueInLabel()
             a2.show()
-            angles = a2 :: angles
           }
 
+          val ea2 = angle(pp(1), position, p0)
+          ea2.showValueInLabel()
+          angles = ea2 :: angles
           if (externalAngleShow) {
-            val a2 = angle(pp(1), position, p0)
-            a2.showValueInLabel()
-            a2.show()
-            angles = a2 :: angles
+            ea2.show()
           }
         }
       }
@@ -266,6 +277,15 @@ class MwTurtle(x: Double, y: Double) {
       angles.find {a => a.p1.label + a.p2.label + a.p3.label == label} match {
         case Some(a) => a
         case None => throw new RuntimeException("Unknown angle: " + label)
+      }
+    }
+  }
+
+  def findPoint(label: String) = {
+    Utils.runInSwingThreadAndWait {
+      points.find {p => p.label == label} match {
+        case Some(l) => l
+        case None => throw new RuntimeException("Unknown point: " + label)
       }
     }
   }
