@@ -50,6 +50,14 @@ class MathWorld {
     }
   }
 
+  // for unit tests
+  private[mathworld] def clear2() {
+    Utils.runInSwingThread {
+      ggbApi.getApplication.setSaved()
+      ggbApi.getApplication.fileNew()
+    }
+  }
+
   def showAxes() {
     Utils.runInSwingThread {
       ggbApi.setAxesVisible(true, true)
@@ -95,7 +103,7 @@ class MathWorld {
   }
 
   def point(x: Double, y: Double, label: String=null): MwPoint = MwPoint(ggbApi, x, y, Option(label))
-  def point(on: MwLine, x: Double, y: Double): MwPoint = MwPoint(ggbApi, on, x, y)
+  def pointOn(on: MwLine, x: Double, y: Double): MwPoint = MwPoint(ggbApi, on, x, y)
 
   def line(p1: MwPoint, p2: MwPoint): MwLine = MwLine(ggbApi, p1, p2)
 
