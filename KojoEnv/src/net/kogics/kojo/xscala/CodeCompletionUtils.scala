@@ -37,6 +37,7 @@ object CodeCompletionUtils {
   val MwMethodTemplates = collection.mutable.Map(
     "figure" -> "figure(${name})",
     "point" -> "point(${x}, ${y}, ${optionalLabel})",
+    "pointOn" -> "pointOn(${line}, ${x}, ${y})",
     "line" -> "line(${point1}, ${point2})",
     "lineSegment" -> "lineSegment(${point1}, ${point2Orlength})",
     "ray" -> "ray(${point1}, ${point2})",
@@ -55,7 +56,16 @@ object CodeCompletionUtils {
     "showAxes" -> "showAxes()",
     "hideAxes" -> "hideAxes()",
     "showAlgebraView" -> "showAlgebraView()",
-    "hideAlgebraView" -> "hideAlgebraView()"
+    "hideAlgebraView" -> "hideAlgebraView()",
+    "turtle" -> "turtle(${x}, ${y})",
+    "labelPosition" -> "labelPosition(${label})",
+    "findPoint" -> "findPoint(${label})",
+    "findLine" -> "findLine(${label})",
+    "findAngle" -> "findAngle(${label})",
+    "showAngles" -> "showAngles()",
+    "hideAngles" -> "hideAngles()",
+    "showExternalAngles" -> "showExternalAngles()",
+    "hideExternalAngles" -> "hideExternalAngles()"
   )
 
   val StagingMethodTemplates = collection.mutable.Map(
@@ -120,7 +130,8 @@ object CodeCompletionUtils {
 
   val MethodDropFilter = List("turtle0")
   val VarDropFilter = List("builtins", "predef")
-  val InternalVarsRe = java.util.regex.Pattern.compile("""res\d+""")
+  val InternalVarsRe = java.util.regex.Pattern.compile("""res\d+|_.*""")
+  val InternalMethodsRe = java.util.regex.Pattern.compile("""_.*|.*\$.*""")
 
   def notIdChar(c: Char): Boolean =  NotIdChars.contains(c)
 

@@ -24,9 +24,9 @@ object MathWorld extends InitedSingleton[MathWorld] {
   def initedInstance(kojoCtx: KojoCtx, ggbApi: GgbAPI) = synchronized {
     instanceInit()
     val ret = instance()
-    ret.kojoCtx = kojoCtx
-    ret.ggbApi = ggbApi
-    ret.Algo = new Algo(ggbApi)
+    ret._kojoCtx = kojoCtx
+    ret._ggbApi = ggbApi
+    ret._Algo = new Algo(ggbApi)
     ret
   }
 
@@ -34,105 +34,105 @@ object MathWorld extends InitedSingleton[MathWorld] {
 }
 
 class MathWorld {
-  @volatile var kojoCtx: KojoCtx = _
-  @volatile var ggbApi: GgbAPI = _
-  @volatile var Algo: Algo = _
+  @volatile var _kojoCtx: KojoCtx = _
+  @volatile var _ggbApi: GgbAPI = _
+  @volatile var _Algo: Algo = _
 
   def ensureVisible() {
-    kojoCtx.makeMathWorldVisible()
+    _kojoCtx.makeMathWorldVisible()
   }
 
   def clear() {
     Utils.runInSwingThread {
       ensureVisible()
-      ggbApi.getApplication.setSaved()
-      ggbApi.getApplication.fileNew()
+      _ggbApi.getApplication.setSaved()
+      _ggbApi.getApplication.fileNew()
     }
   }
 
   // for unit tests
-  private[mathworld] def clear2() {
+  private[mathworld] def _clear2() {
     Utils.runInSwingThread {
-      ggbApi.getApplication.setSaved()
-      ggbApi.getApplication.fileNew()
+      _ggbApi.getApplication.setSaved()
+      _ggbApi.getApplication.fileNew()
     }
   }
 
   def showAxes() {
     Utils.runInSwingThread {
-      ggbApi.setAxesVisible(true, true)
-      ggbApi.getKernel.notifyRepaint()
+      _ggbApi.setAxesVisible(true, true)
+      _ggbApi.getKernel.notifyRepaint()
     }
   }
 
   def hideAxes() {
     Utils.runInSwingThread {
-      ggbApi.setAxesVisible(false, false)
-      ggbApi.getKernel.notifyRepaint()
+      _ggbApi.setAxesVisible(false, false)
+      _ggbApi.getKernel.notifyRepaint()
     }
   }
 
   def showGrid() {
     Utils.runInSwingThread {
-      ggbApi.setGridVisible(true)
-      ggbApi.getKernel.notifyRepaint()
+      _ggbApi.setGridVisible(true)
+      _ggbApi.getKernel.notifyRepaint()
     }
   }
 
   def hideGrid() {
     Utils.runInSwingThread {
-      ggbApi.setGridVisible(false)
-      ggbApi.getKernel.notifyRepaint()
+      _ggbApi.setGridVisible(false)
+      _ggbApi.getKernel.notifyRepaint()
     }
   }
 
   def showAlgebraView() {
     Utils.runInSwingThread {
-      ggbApi.getApplication.setShowAlgebraView(true)
-      ggbApi.getApplication.updateCenterPanel(true)
-      ggbApi.getApplication.setDefaultCursor()
+      _ggbApi.getApplication.setShowAlgebraView(true)
+      _ggbApi.getApplication.updateCenterPanel(true)
+      _ggbApi.getApplication.setDefaultCursor()
     }
   }
 
   def hideAlgebraView() {
     Utils.runInSwingThread {
-      ggbApi.getApplication.setShowAlgebraView(false)
-      ggbApi.getApplication.updateCenterPanel(true)
-      ggbApi.getApplication.setDefaultCursor()
+      _ggbApi.getApplication.setShowAlgebraView(false)
+      _ggbApi.getApplication.updateCenterPanel(true)
+      _ggbApi.getApplication.setDefaultCursor()
     }
   }
 
-  def point(x: Double, y: Double, label: String=null): MwPoint = MwPoint(ggbApi, x, y, Option(label))
-  def pointOn(on: MwLine, x: Double, y: Double): MwPoint = MwPoint(ggbApi, on, x, y)
+  def point(x: Double, y: Double, label: String=null): MwPoint = MwPoint(_ggbApi, x, y, Option(label))
+  def pointOn(on: MwLine, x: Double, y: Double): MwPoint = MwPoint(_ggbApi, on, x, y)
 
-  def line(p1: MwPoint, p2: MwPoint): MwLine = MwLine(ggbApi, p1, p2)
+  def line(p1: MwPoint, p2: MwPoint): MwLine = MwLine(_ggbApi, p1, p2)
 
-  def lineSegment(p1: MwPoint, p2: MwPoint): MwLineSegment = MwLineSegment(ggbApi, p1, p2)
-  def lineSegment(p: MwPoint, len: Double): MwLineSegment = MwLineSegment(ggbApi, p, len)
+  def lineSegment(p1: MwPoint, p2: MwPoint): MwLineSegment = MwLineSegment(_ggbApi, p1, p2)
+  def lineSegment(p: MwPoint, len: Double): MwLineSegment = MwLineSegment(_ggbApi, p, len)
 
-  def ray(p1: MwPoint, p2: MwPoint): MwRay = MwRay(ggbApi, p1, p2)
+  def ray(p1: MwPoint, p2: MwPoint): MwRay = MwRay(_ggbApi, p1, p2)
 
-  def angle(p1: MwPoint, p2: MwPoint, p3: MwPoint): MwAngle = MwAngle(ggbApi, p1, p2, p3)
-  def angle(p1: MwPoint, p2: MwPoint, size: Double): MwAngle = MwAngle(ggbApi, p1, p2, size * math.Pi / 180)
+  def angle(p1: MwPoint, p2: MwPoint, p3: MwPoint): MwAngle = MwAngle(_ggbApi, p1, p2, p3)
+  def angle(p1: MwPoint, p2: MwPoint, size: Double): MwAngle = MwAngle(_ggbApi, p1, p2, size * math.Pi / 180)
   
   def text(content: String, x: Double, y: Double): MwText = {
-    MwText(ggbApi, content, x, y)
+    MwText(_ggbApi, content, x, y)
   }
 
   def circle(center: MwPoint, radius: Double): MwCircle = {
-    MwCircle(ggbApi, center, radius)
+    MwCircle(_ggbApi, center, radius)
   }
 
   def figure(name: String) = new MwFigure(name)
 
-  def intersect(l1: MwLine, l2: MwLine): MwPoint  = Algo.intersect(ggbApi, l1, l2)
-  def intersect(l: MwLine, c: MwCircle): Seq[MwPoint] = Algo.intersect(ggbApi, l, c)
+  def intersect(l1: MwLine, l2: MwLine): MwPoint  = _Algo.intersect(_ggbApi, l1, l2)
+  def intersect(l: MwLine, c: MwCircle): Seq[MwPoint] = _Algo.intersect(_ggbApi, l, c)
   def intersect(c: MwCircle, l: MwLine): Seq[MwPoint] = intersect(l, c)
-  def intersect(c1: MwCircle, c2: MwCircle): Seq[MwPoint] = Algo.intersect(ggbApi, c1, c2)
+  def intersect(c1: MwCircle, c2: MwCircle): Seq[MwPoint] = _Algo.intersect(_ggbApi, c1, c2)
 
-  def midpoint(ls: MwLineSegment): MwPoint = Algo.midpoint(ls)
-  def perpendicular(l: MwLine, p: MwPoint): MwLine = Algo.perpendicular(l, p)
-  def parallel(l: MwLine, p: MwPoint): MwLine = Algo.parallel(l, p)
+  def midpoint(ls: MwLineSegment): MwPoint = _Algo.midpoint(ls)
+  def perpendicular(l: MwLine, p: MwPoint): MwLine = _Algo.perpendicular(l, p)
+  def parallel(l: MwLine, p: MwPoint): MwLine = _Algo.parallel(l, p)
 
   def show(shapes: VisualElement*) {
     Utils.runInSwingThread {
@@ -146,7 +146,7 @@ class MathWorld {
   def variable(name: String, value: Double, min: Double, max: Double, increment: Double, x: Int, y: Int) {
     Throttler.throttle()
     Utils. runInSwingThread {
-      val number = new GeoNumeric(ggbApi.getConstruction)
+      val number = new GeoNumeric(_ggbApi.getConstruction)
       number.setEuclidianVisible(true)
       number.setSliderLocation(x, y)
       number.setAbsoluteScreenLocActive(true)
@@ -164,7 +164,7 @@ class MathWorld {
   def evaluate(cmd: String) {
     Throttler.throttle()
     Utils. runInSwingThread {
-      ggbApi.evalCommand(cmd)
+      _ggbApi.evalCommand(cmd)
     }
   }
 
