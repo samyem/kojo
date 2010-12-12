@@ -473,9 +473,11 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
     }
 
     def completions(identifier: String) = {
+      def methodFilter(s: String) = !MethodDropFilter.contains(s) && !InternalMethodsRe.matcher(s).matches
+
       Log.fine("Finding Identifier completions for: " + identifier)
       val completions = outputHandler.withOutputSuppressed {
-        interp.methodsOf(identifier).distinct.filter {s => !MethodDropFilter.contains(s)}
+        interp.methodsOf(identifier).distinct.filter {s => methodFilter(s)}
       }
       Log.fine("Completions: " + completions)
       completions

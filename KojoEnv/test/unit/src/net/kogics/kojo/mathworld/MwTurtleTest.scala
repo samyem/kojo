@@ -23,7 +23,7 @@ import org.junit.Assert._
 
 class MwTurtleTest extends KojoTestBase {
 
-  MathWorld.instance.clear2()
+  MathWorld.instance._clear2()
   val t = MathWorld.instance.turtle(0, 0)
 
   @Test
