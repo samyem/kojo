@@ -22,7 +22,7 @@ import scala.actors.Actor._
 import org.jfugue.{Rhythm => JFRhythm, _}
 
 case class MusicDef(p: Pattern)
-case class VoiceDef(ms: core.Voice, n: Int)
+case class VoiceDef(v: core.Voice, n: Int)
 
 object MusicPlayer extends Singleton[MusicPlayer] {
   protected def newInstance = {
@@ -37,7 +37,7 @@ class MusicPlayer extends Actor {
     while(true) {
       receive {
         case MusicDef(p) => Music(p).play()
-        case VoiceDef(ms, n) => Music(ms, n).play()
+        case VoiceDef(v, n) => Music(v, n).play()
       }
     }
   }

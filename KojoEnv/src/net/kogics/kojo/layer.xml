@@ -220,6 +220,12 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Stories.ComposingMusic.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_ComposingMusic"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
@@ -355,8 +361,12 @@
                     <attr name="position" intvalue="2"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.MathworldIntro.instance"/>
                 </file>
-                <file name="net-kogics-kojo-Stories.Learn.shadow">
+                <file name="net-kogics-kojo-Stories.ComposingMusic.shadow">
                     <attr name="position" intvalue="3"/>
+                    <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.ComposingMusic.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Stories.Learn.shadow">
+                    <attr name="position" intvalue="4"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Learn.instance"/>
                 </file>
             </folder>

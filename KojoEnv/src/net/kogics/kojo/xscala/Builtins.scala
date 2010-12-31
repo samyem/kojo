@@ -393,5 +393,9 @@ Here's a partial list of the available commands:
   def playMusic(voice: Voice, n: Int = 1) {
     music.MusicPlayer.instance() ! music.VoiceDef(voice, n)
   }
+
+  def playMusicUntilDone(voice: Voice, n: Int = 1) {
+    music.Music(voice, n).play()
+  }
 }
 
