@@ -59,4 +59,5 @@ trait TurtleMover {
   def clear(): Unit
   def undo(): Unit
   def waitFor(): Unit = animationDelay
+  def playSound(voice: Voice): Unit
 }

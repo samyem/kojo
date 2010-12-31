@@ -247,6 +247,15 @@ class Builtins extends SCanvas with TurtleMover {
   UserCommand.addCompletion("repeat", " (${n}) {\n    ${cursor}\n}")
   UserCommand.addSynopsis("repeat(n) {} - Repeats the commands within braces n number of times.")
 
+  def repeati(n: Int) (fn: Int => Unit) {
+    for (i <- 1 to n) {
+      fn(i)
+      Throttler.throttle()
+    }
+  }
+  UserCommand.addCompletion("repeati", " (${n}) {i => \n    ${cursor}\n}")
+  UserCommand.addSynopsis("repeat(n) {} - Repeats the commands within braces n number of times. The current repeat index is available within the braces.")
+
   def print(obj: Any): Unit = println(obj)
   UserCommand.addCompletion("print", List("obj"))
 
@@ -369,6 +378,20 @@ Here's a partial list of the available commands:
     // Runs on Actor pool (interpreter) thread
     scalaCodeRunner.println(s + "\n")
     Throttler.throttle()
+  }
+
+  override def playSound(voice: Voice) = turtle0.playSound(voice)
+
+  type Melody = core.Melody
+  val Melody = core.Melody
+
+  type Rhythm = core.Rhythm
+  val Rhythm = core.Rhythm
+
+  val MusicScore = core.Score
+
+  def playMusic(voice: Voice, n: Int = 1) {
+    music.MusicPlayer.instance() ! music.VoiceDef(voice, n)
   }
 }
 

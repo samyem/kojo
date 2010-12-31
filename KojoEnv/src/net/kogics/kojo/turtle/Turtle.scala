@@ -206,6 +206,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   def write(text: String) = enqueueCommand(Write(text, cmdBool))
   def visible() = enqueueCommand(Show(cmdBool))
   def invisible() = enqueueCommand(Hide(cmdBool))
+  def playSound(voice: Voice) = enqueueCommand(PlaySound(voice, cmdBool))
   def setAnimationDelay(d: Long) = {
     if (d < 0) {
       throw new IllegalArgumentException("Negative delay not allowed")
@@ -617,6 +618,12 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
   }
 
+  private def realPlaySound(voice: core.Voice, cmd: Command) {
+    import music._
+    // MusicPlayer.instance() ! MusicS(mString, rString)
+    Music(voice).play()
+  }
+
 // undo methods are called in the GUI thread via realUndo
   private def undoChangeInPos(oldPos: (Double, Double)) {
     pen.undoMove()
@@ -873,6 +880,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         case cmd @ Hide(b) =>
           processCommand(cmd) {
             realHide(cmd)
+          }
+        case cmd @ PlaySound(score, b) =>
+          processCommand(cmd) {
+            realPlaySound(score, cmd)
           }
         case cmd @ Undo =>
           processCommand(cmd) {

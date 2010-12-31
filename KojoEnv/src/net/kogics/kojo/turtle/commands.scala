@@ -55,6 +55,7 @@ case class Hide(v: AtomicBoolean) extends Command(v)
 case object CommandDone
 case object Undo extends Command(Command.AlwaysValid)
 case class GetState(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
+case class PlaySound(voice: core.Voice, v: AtomicBoolean) extends Command(v)
 
 abstract sealed class UndoCommand
 case class UndoChangeInPos(oldPos: (Double, Double)) extends UndoCommand
