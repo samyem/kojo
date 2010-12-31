@@ -79,7 +79,7 @@ pg = IncrPage(
         ),
         Para(
             <ul>
-                <li><a href={link("creative")}>Art and Creative Work</a>.</li>
+                <li><a href={link("creative")}>Art, Music, and Creative Work</a>.</li>
             </ul>
         ),
         Para(
@@ -852,11 +852,11 @@ pg = IncrPage(
                     // Make Triangle
 
                     // Make first vertex on the first line
-                    val A = Mw.point(L1, 2, 3)
+                    val A = Mw.pointOn(L1, 2, 3)
 
                     // Make other two vertices on the second line
-                    val B = Mw.point(L2, 1, 1)
-                    val C = Mw.point(L2, 4, 1)
+                    val B = Mw.pointOn(L2, 1, 1)
+                    val C = Mw.pointOn(L2, 4, 1)
                     fig.add(A, B, C)
 
                     val c = Mw.lineSegment(A,B)
@@ -1079,6 +1079,11 @@ pg = IncrPage(
                         See the <em>Samples | Turtle Art</em> menu item for many examples.
                     </div>
                 </li>
+            </ul>
+        ),
+        Para(
+            <ul>
+                <li>Composing and playing computer generated music.</li>
             </ul>
         ),
         Para(
