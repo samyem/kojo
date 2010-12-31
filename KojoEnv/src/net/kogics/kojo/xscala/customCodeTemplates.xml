@@ -51,6 +51,12 @@
     <codetemplate abbreviation="li" xml:space="preserve">
         <code><![CDATA[<li>${cursor}</li>]]></code>
     </codetemplate>
+    <codetemplate abbreviation="MusicScore" xml:space="preserve">
+        <code><![CDATA[MusicScore(
+    Melody("${cursor}", ""),
+    Rhythm("", "", "")
+)]]></code>
+    </codetemplate>
     <codetemplate abbreviation="strong" xml:space="preserve">
         <code><![CDATA[<strong>${cursor}</strong>]]></code>
     </codetemplate>
@@ -79,6 +85,12 @@
     </codetemplate>
     <codetemplate abbreviation="sty" xml:space="preserve">
         <code><![CDATA[style="${cursor}"]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="Melody" xml:space="preserve">
+        <code><![CDATA[Melody("${cursor}", "")]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="Rhythm" xml:space="preserve">
+        <code><![CDATA[Rhythm("${cursor}", "q", "o")]]></code>
     </codetemplate>
     <codetemplate abbreviation="span" xml:space="preserve">
         <code><![CDATA[<span>${cursor}</span>]]></code>

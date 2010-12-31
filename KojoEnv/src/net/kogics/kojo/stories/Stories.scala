@@ -35,6 +35,7 @@ class Stories extends ActionListener {
       case "Simple Story" => Utils.readFile(storyStream("simple-story.kojo"))
       case "Learn More" => Utils.readFile(storyStream("learn.kojo"))
       case "Mathworld Introduction" => Utils.readFile(storyStream("mathworld-intro.kojo"))
+      case "Composing Music" => Utils.readFile(storyStream("composing-music.kojo"))
     }
   }
 
