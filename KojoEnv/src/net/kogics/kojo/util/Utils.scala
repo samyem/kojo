@@ -86,6 +86,16 @@ object Utils {
     t
   }
 
+  def scheduleRec(secs: Double)(f: => Unit): Timer = {
+    val t: Timer = new Timer((secs * 1000).toInt, new ActionListener {
+        def actionPerformed(e: ActionEvent) {
+          f
+        }
+      })
+    t.start
+    t
+  }
+
   def replAssertEquals(a: Any, b: Any) {
     if (a != b) println("Not Good. First: %s, Second: %s" format (a.toString, b.toString))
     else println("Good")
