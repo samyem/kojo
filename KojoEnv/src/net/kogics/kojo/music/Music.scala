@@ -32,27 +32,30 @@ object Music {
 
 class Music(pattern: Pattern) {
   val listener = SpriteCanvas.instance().megaListener // hack!
-  private var player: Player = _
+  @volatile private var player: Player = _
+  @volatile private var timer: Timer = _
 
   def play() {
     listener.hasPendingCommands()
     player = new Player()
 
-    val timer = Utils.scheduleRec(0.5) {
+    timer = Utils.scheduleRec(0.5) {
       listener.hasPendingCommands()
     }
 
     player.play(pattern)
-    timer.stop()
     done()
   }
 
   def stop() {
-    player.stop()
+    if (player.isPlaying) {
+      player.stop()
+    }
     done()
   }
 
   private def done() {
+    timer.stop()
     player.close()
     listener.pendingCommandsDone()
   }
