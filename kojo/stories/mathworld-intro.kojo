@@ -64,7 +64,7 @@ val pg1 = Page(
 
 val code2_1 = """
   point(x: Double, y: Double): MwPoint
-  point(on: MwLine, x: Double, y: Double): MwPoint
+  pointOn(on: MwLine, x: Double, y: Double): MwPoint
   line(p1: MwPoint, p2: MwPoint): MwLine
   lineSegment(p1: MwPoint, p2: MwPoint): MwLineSegment
   lineSegment(p: MwPoint, len: Double): MwLineSegment
@@ -97,13 +97,54 @@ val pg2 = Page(
                 to see the shapes created by these functions on the
                 screen within Mathworld.
             </p>
+        </body>
+)
+
+val code3_1 = """
+Mw.clear()
+Mw.hideAlgebraView()
+Mw.hideAxes()
+
+val t = Mw.turtle(5, 0)
+t.showAngles()
+t.showLengths()
+
+t.beginPoly()
+t.labelPosition("A")
+t.left()
+t.forward(3)
+t.labelPosition("B")
+t.right()
+t.forward(4)
+t.labelPosition("C")
+t.endPoly()
+"""
+
+val pg3 = Page(
+    name = "",
+    body =
+        <body style={pageStyle}>
+            Mathworld also supports turtle style drawing! <br/><br/>
+
+            You ask Mathworld to create a turtle for you by calling the
+            <code>Mw.turtle(x, y)</code> function. <br/><br/>
+
+            Once you have a turtle, you can discover the commands available within
+            it via code completion. <br/><br/>
+
+            Here's some code to get you started with turtle programming within
+            Mathworld:
+
+            <pre style={codeStyle}>
+                {xml.Unparsed(code3_1)}
+            </pre>
             <p>
                 To be continued...
             </p>
         </body>
 )
 
-val story = Story(pg1, pg2)
+val story = Story(pg1, pg2, pg3)
 
 stClear()
 stPlayStory(story)
