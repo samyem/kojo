@@ -397,7 +397,7 @@ Here's a partial list of the available commands:
   UserCommand("playMusic", List("voice"), "Plays the specified melody, rhythm, or score.")
 
   def playMusicUntilDone(voice: Voice, n: Int = 1) {
-    music.Music(voice, n).play()
+    music.MusicPlayer.instance().playMusicUntilDone(voice, n)
   }
   UserCommand("playMusicUntilDone", List("voice"), "Plays the specified melody, rhythm, or score, and waits till the music finishes.")
 }

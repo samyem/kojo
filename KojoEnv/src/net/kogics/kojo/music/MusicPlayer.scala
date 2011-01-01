@@ -22,35 +22,52 @@ import scala.actors.Actor._
 
 import org.jfugue.{Rhythm => JFRhythm, _}
 
-case class VoiceDef(v: core.Voice, n: Int, valid: AtomicBoolean)
+case class PlayVoice(v: core.Voice, n: Int, valid: AtomicBoolean)
+case class PlayVoiceUntilDone(v: core.Voice, n: Int, valid: AtomicBoolean)
+case object Done
 
 object MusicPlayer extends Singleton[MusicPlayer] {
   protected def newInstance = new MusicPlayer
 }
 
 class MusicPlayer {
-  @volatile private var currMusic: Music = _
+  @volatile private var currMusic: Option[Music] = None
   @volatile private var validBool = new AtomicBoolean(true)
 
   val asyncPlayer = actor {
+
     while(true) {
       receive {
-        case VoiceDef(v, n, valid) =>
-          if (valid.get) {
-            currMusic = Music(v, n)
-            currMusic.play()
-          }
+        case PlayVoice(v, n, valid) =>
+          playVoice(v, n, valid)
+        case PlayVoiceUntilDone(v, n, valid) =>
+          playVoice(v, n, valid)
+          reply(Done)
+      }
+    }
+
+    def playVoice(v: core.Voice, n: Int, valid: AtomicBoolean) {
+      if (valid.get) {
+        currMusic = Some(Music(v, n))
+        currMusic.get.play()
       }
     }
   }
 
   def playMusic(voice: core.Voice, n: Int = 1) {
-    asyncPlayer ! VoiceDef(voice, n, validBool)
+    asyncPlayer ! PlayVoice(voice, n, validBool)
+  }
+
+  def playMusicUntilDone(voice: core.Voice, n: Int) {
+    asyncPlayer !? PlayVoiceUntilDone(voice, n, validBool)
   }
 
   def stopMusic() {
     validBool.set(false)
     validBool = new AtomicBoolean(true)
-    currMusic.stop()
+    if (currMusic.isDefined) {
+      currMusic.get.stop()
+      currMusic = None
+    }
   }
 }
