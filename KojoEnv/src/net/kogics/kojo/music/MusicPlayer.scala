@@ -16,29 +16,41 @@
 package net.kogics.kojo
 package music
 
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.actors._
 import scala.actors.Actor._
 
 import org.jfugue.{Rhythm => JFRhythm, _}
 
-case class MusicDef(p: Pattern)
-case class VoiceDef(v: core.Voice, n: Int)
+case class VoiceDef(v: core.Voice, n: Int, valid: AtomicBoolean)
 
 object MusicPlayer extends Singleton[MusicPlayer] {
-  protected def newInstance = {
-    val p = new MusicPlayer
-    p.start()
-    p
-  }
+  protected def newInstance = new MusicPlayer
 }
 
-class MusicPlayer extends Actor {
-  def act {
+class MusicPlayer {
+  @volatile private var currMusic: Music = _
+  @volatile private var validBool = new AtomicBoolean(true)
+
+  val asyncPlayer = actor {
     while(true) {
       receive {
-        case MusicDef(p) => Music(p).play()
-        case VoiceDef(v, n) => Music(v, n).play()
+        case VoiceDef(v, n, valid) =>
+          if (valid.get) {
+            currMusic = Music(v, n)
+            currMusic.play()
+          }
       }
     }
+  }
+
+  def playMusic(voice: core.Voice, n: Int = 1) {
+    asyncPlayer ! VoiceDef(voice, n, validBool)
+  }
+
+  def stopMusic() {
+    validBool.set(false)
+    validBool = new AtomicBoolean(true)
+    currMusic.stop()
   }
 }

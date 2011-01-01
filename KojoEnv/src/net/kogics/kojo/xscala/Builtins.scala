@@ -392,7 +392,7 @@ Here's a partial list of the available commands:
   val MusicScore = core.Score
 
   def playMusic(voice: Voice, n: Int = 1) {
-    music.MusicPlayer.instance() ! music.VoiceDef(voice, n)
+    music.MusicPlayer.instance().playMusic(voice, n)
   }
   UserCommand("playMusic", List("voice"), "Plays the specified melody, rhythm, or score.")
 

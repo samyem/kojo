@@ -639,6 +639,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def stopAnimation() {
     storyTeller.stopCallback()
     tCanvas.stop()
+    music.MusicPlayer.instance().stopMusic()
   }
 
   def invalidCode(code: String): Boolean = {

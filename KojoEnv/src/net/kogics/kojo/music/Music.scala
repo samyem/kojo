@@ -17,6 +17,8 @@ package net.kogics.kojo
 package music
 
 import org.jfugue.{Rhythm => JFRhythm, _}
+import util.Utils
+import javax.swing.Timer
 
 object Music {
   def apply(mString: String) = new Music(new Pattern(mString))
@@ -29,9 +31,29 @@ object Music {
 }
 
 class Music(pattern: Pattern) {
+  val listener = SpriteCanvas.instance().megaListener // hack!
+  private var player: Player = _
+
   def play() {
-    val p = new Player()
-    p.play(pattern)
-    p.close()
+    listener.hasPendingCommands()
+    player = new Player()
+
+    val timer = Utils.scheduleRec(0.5) {
+      listener.hasPendingCommands()
+    }
+
+    player.play(pattern)
+    timer.stop()
+    done()
+  }
+
+  def stop() {
+    player.stop()
+    done()
+  }
+
+  private def done() {
+    player.close()
+    listener.pendingCommandsDone()
   }
 }
