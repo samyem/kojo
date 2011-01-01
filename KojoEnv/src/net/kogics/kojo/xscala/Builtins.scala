@@ -381,6 +381,7 @@ Here's a partial list of the available commands:
   }
 
   override def playSound(voice: Voice) = turtle0.playSound(voice)
+  UserCommand("playSound", List("voice"), "Makes the turtle play the specified melody, rhythm, or score.")
 
   type Melody = core.Melody
   val Melody = core.Melody
@@ -393,9 +394,11 @@ Here's a partial list of the available commands:
   def playMusic(voice: Voice, n: Int = 1) {
     music.MusicPlayer.instance() ! music.VoiceDef(voice, n)
   }
+  UserCommand("playMusic", List("voice"), "Plays the specified melody, rhythm, or score.")
 
   def playMusicUntilDone(voice: Voice, n: Int = 1) {
     music.Music(voice, n).play()
   }
+  UserCommand("playMusicUntilDone", List("voice"), "Plays the specified melody, rhythm, or score, and waits till the music finishes.")
 }
 
