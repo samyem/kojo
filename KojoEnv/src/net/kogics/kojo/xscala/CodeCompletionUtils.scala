@@ -62,7 +62,11 @@ object CodeCompletionUtils {
     "findPoint" -> "findPoint(${label})",
     "findLine" -> "findLine(${label})",
     "findAngle" -> "findAngle(${label})",
+    "beginPoly" -> "beginPoly()",
+    "endPoly" -> "endPoly()",
     "showAngles" -> "showAngles()",
+    "showLengths" -> "showLengths()",
+    "hideLengths" -> "hideLengths()",
     "hideAngles" -> "hideAngles()",
     "showExternalAngles" -> "showExternalAngles()",
     "hideExternalAngles" -> "hideExternalAngles()"

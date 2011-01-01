@@ -35,6 +35,7 @@ class MwTurtle(x: Double, y: Double) {
   private var _penIsDown: Boolean = _
   private var _angleShow: Boolean = _
   private var _externalAngleShow: Boolean = _
+  private var _lengthShow: Boolean = _
   private var _polyPoints: List[MwPoint] = _
 
   private var _lines: List[MwLineSegment] = _
@@ -54,6 +55,7 @@ class MwTurtle(x: Double, y: Double) {
     _penIsDown = true
     _angleShow = false
     _externalAngleShow = false
+    _lengthShow = false
     _polyPoints = Nil
     _headingMarker = point(0, 0)
     _headingMarker.setColor(Color.orange)
@@ -74,6 +76,10 @@ class MwTurtle(x: Double, y: Double) {
       ls.setColor(_penColor)
       ls.setLineThickness(_penThickness)
       ls.show()
+
+      if (_lengthShow) {
+        ls.showValueInLabel()
+      }
 
       if (_lastLine.isDefined && _lastLine.get.p2 == p0) {
         val a = angle(_lastLine.get.p1, p0, _position)
@@ -220,6 +226,18 @@ class MwTurtle(x: Double, y: Double) {
   def hideExternalAngles() {
     Utils.runInSwingThread {
       _externalAngleShow = false
+    }
+  }
+
+  def showLengths() {
+    Utils.runInSwingThread {
+      _lengthShow = true
+    }
+  }
+
+  def hideLengths() {
+    Utils.runInSwingThread {
+      _lengthShow = false
     }
   }
 
