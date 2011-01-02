@@ -36,15 +36,19 @@ class Music(pattern: Pattern) {
   @volatile private var timer: Timer = _
 
   def play() {
-    listener.hasPendingCommands()
     player = new Player()
+    listener.hasPendingCommands()
 
     timer = Utils.scheduleRec(0.5) {
       listener.hasPendingCommands()
     }
 
-    player.play(pattern)
-    done()
+    try {
+      player.play(pattern)
+    }
+    finally {
+      done()
+    }
   }
 
   def stop() {

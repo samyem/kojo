@@ -33,6 +33,8 @@ object MusicPlayer extends Singleton[MusicPlayer] {
 class MusicPlayer {
   @volatile private var currMusic: Option[Music] = None
   @volatile private var validBool = new AtomicBoolean(true)
+  var outputFn: String => Unit = { msg =>
+  }
 
   val asyncPlayer = actor {
 
@@ -48,8 +50,13 @@ class MusicPlayer {
 
     def playVoice(v: core.Voice, n: Int, valid: AtomicBoolean) {
       if (valid.get) {
-        currMusic = Some(Music(v, n))
-        currMusic.get.play()
+        try {
+          currMusic = Some(Music(v, n))
+          currMusic.get.play()
+        }
+        catch {
+          case e: Exception => outputFn("Error in Music Definition:\n" + e.getMessage)
+        }
       }
     }
   }

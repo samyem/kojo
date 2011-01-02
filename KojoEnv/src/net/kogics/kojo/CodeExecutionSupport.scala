@@ -54,6 +54,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val storyTeller = story.StoryTeller.instance()
   storyTeller.outputFn = showOutput _
 
+  val musicPlayer = music.MusicPlayer.instance()
+  musicPlayer.outputFn = showOutput _
+
   val commandHistory = CommandHistory.instance
   val historyManager = new HistoryManager()
   @volatile var pendingCommands = false
@@ -639,7 +642,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def stopAnimation() {
     storyTeller.stopCallback()
     tCanvas.stop()
-    music.MusicPlayer.instance().stopMusic()
+    musicPlayer.stopMusic()
   }
 
   def invalidCode(code: String): Boolean = {
