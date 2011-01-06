@@ -110,8 +110,8 @@ pg = IncrPage(
         ),
         Para(
             <ul>
-                <li>A studio, where they create computer sketches, and
-                    stories/presentations (like this one!).</li>
+                <li>A studio, where they create computer sketches, compose music, and
+                    write stories/presentations (like this one!).</li>
             </ul>
         ),
         Para(
