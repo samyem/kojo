@@ -25,6 +25,8 @@ import org.jfugue.{Rhythm => JFRhythm, _}
 case class PlayVoice(v: core.Voice, n: Int, valid: AtomicBoolean)
 case class PlayVoiceUntilDone(v: core.Voice, n: Int, valid: AtomicBoolean)
 case object Done
+case object MusicDefGood
+case class MusicError(e: Exception)
 
 object MusicPlayer extends Singleton[MusicPlayer] {
   protected def newInstance = new MusicPlayer
@@ -41,32 +43,62 @@ class MusicPlayer {
     while(true) {
       receive {
         case PlayVoice(v, n, valid) =>
-          playVoice(v, n, valid)
+          if (valid.get) {
+            try {
+              createMusic(v, n)
+              reply(MusicDefGood)
+              playMusic()
+            }
+            catch {
+              case e: Exception =>
+                reply(MusicError(e))
+            }
+          }
+          else {
+            reply(Done)
+          }
         case PlayVoiceUntilDone(v, n, valid) =>
-          playVoice(v, n, valid)
-          reply(Done)
+          if (valid.get) {
+            try {
+              createMusic(v, n)
+              playMusic()
+              reply(Done)
+            }
+            catch {
+              case e: Exception =>
+                reply(MusicError(e))
+            }
+          }
+          else {
+            reply(Done)
+          }
       }
     }
 
-    def playVoice(v: core.Voice, n: Int, valid: AtomicBoolean) {
-      if (valid.get) {
-        try {
-          currMusic = Some(Music(v, n))
-          currMusic.get.play()
-        }
-        catch {
-          case e: Exception => outputFn("Error in Music Definition:\n" + e.getMessage)
-        }
-      }
+    def createMusic(v: core.Voice, n: Int) {
+      currMusic = Some(Music(v, n))
+    }
+
+    def playMusic() {
+      currMusic.get.play()
     }
   }
 
   def playMusic(voice: core.Voice, n: Int = 1) {
-    asyncPlayer ! PlayVoice(voice, n, validBool)
+    val ret = asyncPlayer !? PlayVoice(voice, n, validBool)
+    ret match {
+      case MusicError(e) => throw e
+      case MusicDefGood =>
+      case Done =>
+    }
   }
 
   def playMusicUntilDone(voice: core.Voice, n: Int) {
-    asyncPlayer !? PlayVoiceUntilDone(voice, n, validBool)
+    val ret = asyncPlayer !? PlayVoiceUntilDone(voice, n, validBool)
+    ret match {
+      case MusicError(e) => throw e
+      case Done =>
+    }
   }
 
   def stopMusic() {

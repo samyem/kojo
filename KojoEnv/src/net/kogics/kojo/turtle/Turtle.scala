@@ -620,8 +620,12 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private def realPlaySound(voice: core.Voice, cmd: Command) {
     import music._
-    // MusicPlayer.instance() ! MusicS(mString, rString)
-    Music(voice).play()
+    try {
+      Music(voice).play()
+    }
+    catch {
+      case e: Exception => canvas.outputFn("Turtle Error while playing sound:\n" + e.getMessage)
+    }
   }
 
 // undo methods are called in the GUI thread via realUndo
