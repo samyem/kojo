@@ -31,20 +31,22 @@ object Music {
 }
 
 class Music(pattern: Pattern) {
+  val player = new Player()
+  val sequence = player.getSequence(pattern)
   val listener = SpriteCanvas.instance().megaListener // hack!
-  @volatile private var player: Player = _
   @volatile private var timer: Timer = _
 
   def play() {
-    player = new Player()
+    if (timer != null) {
+      throw new RuntimeException("You can play a Music instance only once.")
+    }
     listener.hasPendingCommands()
-
     timer = Utils.scheduleRec(0.5) {
       listener.hasPendingCommands()
     }
 
     try {
-      player.play(pattern)
+      player.play(sequence)
     }
     finally {
       done()

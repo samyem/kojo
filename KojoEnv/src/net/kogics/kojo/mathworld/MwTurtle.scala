@@ -241,6 +241,18 @@ class MwTurtle(x: Double, y: Double) {
     }
   }
 
+  def position = {
+    Utils.runInSwingThreadAndWait {
+      _position
+    }
+  }
+
+  def heading = {
+    Utils.runInSwingThreadAndWait {
+      Utils.rad2degrees(_theta)
+    }
+  }
+
   def left(angle: Double) = turn(angle)
   def right(angle: Double) = turn(-angle)
   def left(): Unit = left(90)
