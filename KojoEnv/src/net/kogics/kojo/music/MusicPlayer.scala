@@ -21,6 +21,7 @@ import scala.actors._
 import scala.actors.Actor._
 
 import org.jfugue.{Rhythm => JFRhythm, _}
+import java.util.logging._
 
 case class PlayVoice(v: core.Voice, n: Int, valid: AtomicBoolean)
 case class PlayVoiceUntilDone(v: core.Voice, n: Int, valid: AtomicBoolean)
@@ -33,6 +34,7 @@ object MusicPlayer extends Singleton[MusicPlayer] {
 }
 
 class MusicPlayer {
+  val Log = Logger.getLogger(getClass.getName)
   @volatile private var currMusic: Option[Music] = None
   @volatile private var validBool = new AtomicBoolean(true)
   var outputFn: String => Unit = { msg =>
@@ -51,6 +53,7 @@ class MusicPlayer {
             }
             catch {
               case e: Exception =>
+                Log.severe(e.getMessage) // we might have replied by the time we got here. So log problem.
                 reply(MusicError(e))
             }
           }

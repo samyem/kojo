@@ -305,6 +305,7 @@ class StoryTeller extends JPanel {
       uc.add(l)
       uc.add(tf)
       uc.setBorder(BorderFactory.createEtchedBorder())
+      uc.revalidate()
       uc.repaint()
       pageFields += (label -> tf)
       scrollEp()
@@ -383,8 +384,8 @@ class StoryTeller extends JPanel {
         val spacing = 5
         val rowHeight = 20
         uc.setPreferredSize(new Dimension(20, rowHeight * (numC/4 + 1) + spacing))
-        uc.revalidate()
       }
+      uc.revalidate()
       uc.repaint()
       scrollEp()
     }
