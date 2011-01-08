@@ -64,6 +64,24 @@ class CustomHtmlFactory extends HTMLEditorKit.HTMLFactory {
 class LatexView(elem: Element) extends View(elem) {
   val srcAttr = elem.getAttributes().getAttribute(HTML.Attribute.SRC).asInstanceOf[String]
   val latex = srcAttr.substring(CustomHtmlEditorKit.latexPrefix.length, srcAttr.length) // strip off latex prefix
+  val defColor = new Color(30, 30, 30)
+
+  def colorAttr(e: Element) = e.getAttributes().getAttribute(CSS.Attribute.COLOR)
+  val cae = colorAttr(elem)
+
+  val color = if (cae != null) {
+    ColorValue.parseCssValue(cae.toString).getValue
+  }
+  else {
+    val cape = colorAttr(elem.getParentElement)
+    if (cape != null) {
+      ColorValue.parseCssValue(cape.toString).getValue
+    }
+    else {
+      defColor
+    }
+  }
+
   val formula = try {
     new TeXFormula(latex)
   }
@@ -74,7 +92,7 @@ class LatexView(elem: Element) extends View(elem) {
   val icon = formula.createTeXIcon(TeXConstants.STYLE_DISPLAY, 18)
   icon.setInsets(new Insets(2, 2, 2, 2))
   val jl = new JLabel();
-  jl.setForeground(new Color(30, 30, 30));
+  jl.setForeground(color);
   
   override def getPreferredSpan(axis: Int) = {
     axis match {
