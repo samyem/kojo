@@ -176,10 +176,13 @@ pg = Page(
             </p>
             <p>
                 <strong>Some Instruments</strong>: <br/>
-                Piano <br/>
-                Xylophone <br/>
-                Accoridan <br/>
                 Guitar <br/>
+                Pan_Flute <br/>
+                Piano <br/>
+                Flute <br/>
+                Acoustic_Grand <br/>
+                Xylophone <br/>
+                Accordian <br/>
                 Acoustic_Bass <br/>
                 Violin <br/>
                 Trumpet <br/>
@@ -187,8 +190,8 @@ pg = Page(
             <p>
                 <strong>Some Percussion Instruments</strong>: <br/>
                 Acoustic_Base_Drum <br/>
-                Bass_Drum <br/>
                 Hand_Clap <br/>
+                Bass_Drum <br/>
                 Hi_Bongo <br/>
                 Low_Bongo <br/>
             </p>
