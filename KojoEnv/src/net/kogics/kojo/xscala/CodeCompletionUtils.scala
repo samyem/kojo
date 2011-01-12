@@ -113,13 +113,21 @@ object CodeCompletionUtils {
     "norm" -> "norm(${value}, ${low}, ${high})",
     "map" -> "map(${value}, ${min1}, ${max1}, ${min2}, ${max2})",
     "sq" -> "sq(${value})",
+    "sqrt" -> "sqrt(${value})",
     "dist" -> "dist(${x0}, ${y0}, ${x1}, ${y1})",
     "mag" -> "mag(${x}, ${y})",
     "lerp" -> "lerp(${low}, ${high}, ${value})",
     "loop" -> "loop {\n    ${cursor}\n}",
+    "animate" -> "animate {\n    ${cursor}\n}",
     "stop" -> "stop()",
     "reset" -> "reset()",
-    "wipe" -> "wipe()"
+    "wipe" -> "wipe()",
+    "sprite" -> "sprite(${x}, ${y}, ${filename})",
+    "translate" -> "translate(${x}, ${y})",
+    "path" -> "path(${x}, ${y})",
+    "lineTo" -> "lineTo(${x}, ${y})",
+    "setFontSize" -> "setFontSize(${size})",
+    "setContent" -> "setContent(${content})"
   )
 
   @volatile var ExtraMethodTemplates = MwMethodTemplates
