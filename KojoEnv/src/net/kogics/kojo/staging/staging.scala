@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Peter Lewerin
+ * Copyright (C) 2010 Lalit Pant <pant.lalit@gmail.com>
  *
  * The contents of this file are subject to the GNU General Public License
  * Version 3 (the "License"); you may not use this file
@@ -16,6 +17,7 @@
 package net.kogics.kojo
 package staging
 
+import java.awt.BasicStroke
 import edu.umd.cs.piccolo.PNode
 import edu.umd.cs.piccolo.nodes.PPath
 import edu.umd.cs.piccolo.util.PBounds
@@ -25,7 +27,6 @@ import edu.umd.cs.piccolo.event._
 import net.kogics.kojo.util.Utils
 import net.kogics.kojo.core.Point
 import java.awt.Color
-import math._
 
 object Impl {
   val canvas = SpriteCanvas.instance
@@ -249,6 +250,9 @@ object API {
   //T SvgShapesTest begins
   def svgShape(node: scala.xml.Node) = SvgShape(node)
   //T SvgShapesTest ends
+  
+  def sprite(x: Double, y: Double, fname: String) = Sprite(point(x, y), fname)
+  def path(x: Double, y: Double) = Path(point(x, y))
 
   //W
   //W==Color==
@@ -279,6 +283,11 @@ object API {
   def stroke(c: Color) = Impl.figure0.setPenColor(c)
   def noStroke() = Impl.figure0.setPenColor(null)
   def strokeWidth(w: Double) = Impl.figure0.setPenThickness(w)
+
+  def setPenColor(color: Color) = stroke(color)
+  def setFillColor(color: Color) = fill(color)
+  def setPenThickness(w: Double) = strokeWidth(w)
+  
   def withStyle(fc: Color, sc: Color, sw: Double)(body: => Unit) =
     Style(fc, sc, sw)(body)
   implicit def ColorToRichColor (c: java.awt.Color) = RichColor(c)
@@ -297,6 +306,7 @@ object API {
   //W
   //T TimekeepingTest begins
   def millis = System.currentTimeMillis()
+  def time = System.currentTimeMillis()/1000.0
 
   import java.util.Calendar
   def second = Calendar.getInstance().get(Calendar.SECOND)
@@ -326,6 +336,7 @@ object API {
     Math.lerp(value1, value2, amt)
 
   def sq(x: Double) = x * x
+  def sqrt(x: Double) = math.sqrt(x)
 
   def dist(x0: Double, y0: Double, x1: Double, y1: Double) =
     sqrt(sq(x1 - x0) + sq(y1 - y0))
@@ -347,6 +358,9 @@ object API {
   def sin(a: Double) = math.sin(a)
   def cos(a: Double) = math.cos(a)
   def tan(a: Double) = math.tan(a)
+  def asin(a: Double) = math.asin(a)
+  def acos(a: Double) = math.acos(a)
+  def atan(a: Double) = math.atan(a)
   def radians(deg: Double) = deg.toRadians
   def degrees(rad: Double) = rad.toDegrees
   //T MathTest ends
@@ -359,11 +373,13 @@ object API {
   //W
   //T ControlTest begins
   def loop(fn: => Unit) = Impl.figure0.refresh(fn)
+  def animate(fn: => Unit) = loop(fn)
   def stop() = Impl.figure0.stopRefresh()
   def reset() = {
     Impl.canvas.clear()
     Impl.canvas.turtle0.invisible()
   }
+  def clear() = reset()
   def wipe() = Impl.figure0.fgClear()
 
   def mouseX() = Inputs.stepMousePos.x
@@ -382,7 +398,7 @@ object API {
     var g0 = polygon(pts1)
     for (i <- 0 to n ; amt = i / n.toFloat) {
       val pts = (pts1 zip pts2) map { case(p1, p2) =>
-        point(lerp(p1.x, p2.x, amt), lerp(p1.y, p2.y, amt))
+          point(lerp(p1.x, p2.x, amt), lerp(p1.y, p2.y, amt))
       }
       g0.hide
       g0 = polygon(pts)
@@ -401,13 +417,13 @@ object API {
   //W
 } // end of API
 
-  abstract class ColorModes
-  case class RGB(r: Int, g: Int, b: Int) extends ColorModes
-  case class RGBA(r: Int, g: Int, b: Int, a: Int) extends ColorModes
-  case class HSB(h: Int, s: Int, b: Int) extends ColorModes
-  case class HSBA(h: Int, s: Int, b: Int, a: Int) extends ColorModes
-  case class GRAY(v: Int) extends ColorModes
-  case class GRAYA(v: Int, a: Int) extends ColorModes
+abstract class ColorModes
+case class RGB(r: Int, g: Int, b: Int) extends ColorModes
+case class RGBA(r: Int, g: Int, b: Int, a: Int) extends ColorModes
+case class HSB(h: Int, s: Int, b: Int) extends ColorModes
+case class HSBA(h: Int, s: Int, b: Int, a: Int) extends ColorModes
+case class GRAY(v: Int) extends ColorModes
+case class GRAYA(v: Int, a: Int) extends ColorModes
 
 object Point {
   def apply(x: Double, y: Double) = new Point(x, y)
@@ -439,9 +455,13 @@ trait Shape {
       node.repaint()
     }
   }
+  def fill(color: Color) {
+    fill = color
+  }
   def fill = Utils.runInSwingThreadAndWait {
     node.getPaint
   }
+  def setFillColor(color: Color) = fill(color)
 
   def rotate(amount: Double) = {
     Utils.runInSwingThread {
@@ -466,9 +486,24 @@ trait Shape {
     scale(size / sizeFactor)
   }
   
-  def translate(p: Point) = {
+  def translate(p: Point) {
+    translate(p.x, p.y)
+  }
+
+  def translate(x: Double, y: Double) = {
     Utils.runInSwingThread {
-      node.offset(p.x, p.y)
+      node.offset(x, y)
+      node.repaint()
+    }
+  }
+
+  def setPosition(p: Point) {
+    setPosition(p.x, p.y)
+  }
+
+  def setPosition(x: Double, y: Double) {
+    Utils.runInSwingThread {
+      node.setOffset(x, y)
       node.repaint()
     }
   }
@@ -477,13 +512,14 @@ trait Shape {
     val o = node.getOffset
     Point(o.getX, o.getY)
   }
+  def position = offset
 
   def onMouseClick(fn: => Unit) {
     node.addInputEventListener(new PBasicInputEventHandler {
-      override def mouseClicked(event: PInputEvent) {
-        fn
-      }
-    })
+        override def mouseClicked(event: PInputEvent) {
+          fn
+        }
+      })
   }
 //  def addActivity(a: PActivity) = Impl.canvas.getRoot.addActivity(a)
 }
@@ -513,6 +549,22 @@ trait StrokedShape extends BaseShape {
   def stroke = Utils.runInSwingThreadAndWait {
     node.getStrokePaint
   }
+  def stroke(color: Color) {
+    stroke = color
+  }
+
+  def strokeWidth(w: Double) {
+    Utils.runInSwingThread {
+      node.setStroke(new BasicStroke(w.toFloat, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND))
+      node.repaint()
+    }
+  }
+  def strokeWidth = Utils.runInSwingThreadAndWait {
+    node.getStroke.asInstanceOf[BasicStroke].getLineWidth
+  }
+
+  def setPenColor(color: Color) = stroke(color)
+  def setPenThickness(w: Double) = strokeWidth(w)
 }
 
 trait SimpleShape extends StrokedShape {
@@ -533,10 +585,32 @@ class Text(val text: String, val origin: Point) extends BaseShape {
   def node = tnode
 
   Utils.runInSwingThread {
-    node.getTransformReference(true).setToScale(1, -1)
-    node.setOffset(origin.x, origin.y)
-    val font = new Font(node.getFont.getName, Font.PLAIN, 14)
-    node.setFont(font)
+    tnode.getTransformReference(true).setToScale(1, -1)
+    tnode.setOffset(origin.x, origin.y)
+    val font = new Font(tnode.getFont.getName, Font.PLAIN, 14)
+    tnode.setFont(font)
+  }
+
+  def setPenColor(color: Color) {
+    Utils.runInSwingThread {
+      tnode.setTextPaint(color)
+      tnode.repaint()
+    }
+  }
+
+  def setFontSize(s: Int) {
+    Utils.runInSwingThread {
+      val font = new Font(node.getFont.getName, Font.PLAIN, s)
+      tnode.setFont(font)
+      tnode.repaint()
+    }
+  }
+
+  def setContent(content: String) {
+    Utils.runInSwingThread {
+      tnode.setText(content)
+      tnode.repaint()
+    }
   }
 
   override def toString = "Staging.Text(" + text + ", " + origin + ")"

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Peter Lewerin <peter.lewerin@tele2.se>
+ * Copyright (C) 2010 Lalit Pant <pant.lalit@gmail.com>
  *
  * The contents of this file are subject to the GNU General Public License
  * Version 3 (the "License"); you may not use this file
@@ -53,6 +54,58 @@ class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
 object Line {
   def apply(p1: Point, p2: Point) = {
     val shape = new Line(p1, p2)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
+}
+
+class Sprite(val origin: Point, fname: String) extends BaseShape {
+  val image =
+    new PImage(fname)
+  val imageHolder = new PNode
+  
+  val width = image.getWidth
+  val height = image.getHeight
+
+  Utils.runInSwingThread {
+    image.getTransformReference(true).setToScale(1, -1)
+    image.setOffset(-width/2, height/2)
+
+    imageHolder.addChild(image)
+    imageHolder.setOffset(origin.x, origin.y)
+  }
+
+  def node = imageHolder
+
+  override def toString = "Staging.Image(" + origin + ", " + fname + ")"
+}
+object Sprite {
+  def apply(p1: Point, fname: String) = {
+    val shape = new Sprite(p1, fname)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
+}
+
+class Path(val origin: Point) extends StrokedShape {
+  val path = new PPath
+  moveTo(origin.x.toFloat, origin.y.toFloat)
+
+  def lineTo(x: Double, y: Double) {
+    Utils.runInSwingThread {
+      path.lineTo(x.toFloat, y.toFloat)
+    }
+  }
+
+  def moveTo(x: Double, y: Double) {
+    Utils.runInSwingThread {
+      path.moveTo(x.toFloat, y.toFloat)
+    }
+  }
+}
+object Path {
+  def apply(p1: Point) = {
+    val shape = new Path(p1)
     Impl.figure0.pnode(shape.node)
     shape
   }
@@ -143,13 +196,13 @@ class Cross(val origin: Point,
             val greek: Boolean) extends SimpleShape with CrossShape {
   val pts = crossDims(width, height, crossWidth, ratio, greek) points
   val path = PPath.createPolyline((pts map { case Point(x, y) =>
-    new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
-  }).toArray)
+          new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
+      }).toArray)
   path.closePath
 
   override def toString = "Staging.Cross(" +
-    origin + "," + endpoint + "," + crossWidth + "," +
-    ratio + "," + greek + "," + ")"
+  origin + "," + endpoint + "," + crossWidth + "," +
+  ratio + "," + greek + "," + ")"
 }
 object Cross {
   def apply(origin: Point, endpoint: Point, crossWidth: Double, ratio: Double, greek: Boolean) = {
@@ -160,19 +213,19 @@ object Cross {
 }
 
 class CrossOutline(val origin: Point,
-            val endpoint: Point,
-            val crossWidth: Double,
-            val ratio: Double,
-            val greek: Boolean) extends SimpleShape with CrossShape {
+                   val endpoint: Point,
+                   val crossWidth: Double,
+                   val ratio: Double,
+                   val greek: Boolean) extends SimpleShape with CrossShape {
   val pts = crossDims(width, height, crossWidth, ratio, greek) outlinePoints
   val path = PPath.createPolyline((pts map { case Point(x, y) =>
-    new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
-  }).toArray)
+          new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
+      }).toArray)
   path.closePath
 
   override def toString = "Staging.CrossOutline(" +
-    origin + "," + endpoint + "," + crossWidth + "," +
-    ratio + "," + greek + "," + ")"
+  origin + "," + endpoint + "," + crossWidth + "," +
+  ratio + "," + greek + "," + ")"
 }
 object CrossOutline {
   def apply(origin: Point, endpoint: Point, crossWidth: Double, ratio: Double, greek: Boolean) = {
@@ -187,8 +240,8 @@ class Saltire(val origin: Point,
               val crossWidth: Double) extends SimpleShape {
   val points = Saltire.saltirePoints(width, height, crossWidth)
   val path = PPath.createPolyline((points map { case Point(x, y) =>
-    new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
-  }).toArray)
+          new java.awt.geom.Point2D.Double(x + origin.x, y + origin.y)
+      }).toArray)
   path.closePath
 
   override def toString = "Staging.Saltire(" + origin + "," + endpoint + "," + crossWidth + ")"
@@ -237,8 +290,8 @@ object Saltire {
 }
 
 class SaltireOutline(val origin: Point,
-              val endpoint: Point,
-              val crossWidth: Double) extends SimpleShape {
+                     val endpoint: Point,
+                     val crossWidth: Double) extends SimpleShape {
   val path = new PPath
 
   // TODO scale outset to crossWidth
