@@ -38,10 +38,14 @@ class Dot(val origin: Point) extends StrokedShape {
   override def toString = "Staging.Dot(" + origin + ")"
 }
 object Dot {
-  def apply(p: Point) = {
+  def apply(p: Point) = Utils.runInSwingThreadAndWait {
     val shape = new Dot(p)
     Impl.figure0.pnode(shape.node)
     shape
+  }
+  def create(p: Point) = Utils.runInSwingThread {
+    val shape = new Dot(p)
+    Impl.figure0.pnode(shape.node)
   }
 }
 
@@ -52,10 +56,14 @@ class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
   override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
 }
 object Line {
-  def apply(p1: Point, p2: Point) = {
+  def apply(p1: Point, p2: Point) = Utils.runInSwingThreadAndWait {
     val shape = new Line(p1, p2)
     Impl.figure0.pnode(shape.node)
     shape
+  }
+  def create(p1: Point, p2: Point) = Utils.runInSwingThread {
+    val shape = new Line(p1, p2)
+    Impl.figure0.pnode(shape.node)
   }
 }
 
@@ -67,13 +75,11 @@ class Sprite(val origin: Point, fname: String) extends BaseShape {
   val width = image.getWidth
   val height = image.getHeight
 
-  Utils.runInSwingThread {
-    image.getTransformReference(true).setToScale(1, -1)
-    image.setOffset(-width/2, height/2)
+  image.getTransformReference(true).setToScale(1, -1)
+  image.setOffset(-width/2, height/2)
 
-    imageHolder.addChild(image)
-    imageHolder.setOffset(origin.x, origin.y)
-  }
+  imageHolder.addChild(image)
+  imageHolder.setOffset(origin.x, origin.y)
 
   def node = imageHolder
 
@@ -81,9 +87,15 @@ class Sprite(val origin: Point, fname: String) extends BaseShape {
 }
 object Sprite {
   def apply(p1: Point, fname: String) = {
-    val shape = new Sprite(p1, fname)
-    Impl.figure0.pnode(shape.node)
-    shape
+    if (!new java.io.File(fname).exists) {
+      throw new IllegalArgumentException("Unknown Sprite Filename: " + fname)
+    }
+
+    Utils.runInSwingThreadAndWait {
+      val shape = new Sprite(p1, fname)
+      Impl.figure0.pnode(shape.node)
+      shape
+    }
   }
 }
 
@@ -104,7 +116,7 @@ class Path(val origin: Point) extends StrokedShape {
   }
 }
 object Path {
-  def apply(p1: Point) = {
+  def apply(p1: Point) = Utils.runInSwingThreadAndWait {
     val shape = new Path(p1)
     Impl.figure0.pnode(shape.node)
     shape
@@ -120,7 +132,7 @@ class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
   override def toString = "Staging.Rectangle(" + origin + ", " + endpoint + ")"
 }
 object Rectangle {
-  def apply(p1: Point, p2: Point) = {
+  def apply(p1: Point, p2: Point) = Utils.runInSwingThreadAndWait {
     val shape = new Rectangle(p1, p2)
     Impl.figure0.pnode(shape.node)
     shape
@@ -145,7 +157,7 @@ class RoundRectangle(
     "Staging.RoundRectangle(" + origin + ", " + endpoint + ", " + curvature + ")"
 }
 object RoundRectangle {
-  def apply(p1: Point, p2: Point, p3: Point) = {
+  def apply(p1: Point, p2: Point, p3: Point) = Utils.runInSwingThreadAndWait {
     val shape = new RoundRectangle(p1, p2, p3)
     Impl.figure0.pnode(shape.node)
     shape
@@ -161,7 +173,7 @@ class Ellipse(val origin: Point, val endpoint: Point) extends Elliptical {
   override def toString = "Staging.Ellipse(" + origin + "," + endpoint + ")"
 }
 object Ellipse {
-  def apply(p1: Point, p2: Point) = {
+  def apply(p1: Point, p2: Point) = Utils.runInSwingThreadAndWait {
     val shape = new Ellipse(p1, p2)
     Impl.figure0.pnode(shape.node)
     shape
@@ -182,7 +194,7 @@ class Arc(
   override def toString = "Staging.Arc(" + origin + "," + endpoint + start + "," + extent + ")"
 }
 object Arc {
-  def apply(p1: Point, p2: Point, s: Double, e: Double, k: Int) = {
+  def apply(p1: Point, p2: Point, s: Double, e: Double, k: Int) = Utils.runInSwingThreadAndWait {
     val shape = new Arc(p1, p2, s, e, k)
     Impl.figure0.pnode(shape.node)
     shape
@@ -205,11 +217,12 @@ class Cross(val origin: Point,
   ratio + "," + greek + "," + ")"
 }
 object Cross {
-  def apply(origin: Point, endpoint: Point, crossWidth: Double, ratio: Double, greek: Boolean) = {
-    val shape = new Cross(origin, endpoint, crossWidth, ratio, greek)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
+  def apply(origin: Point, endpoint: Point, crossWidth: Double, ratio: Double, greek: Boolean) = 
+    Utils.runInSwingThreadAndWait {
+      val shape = new Cross(origin, endpoint, crossWidth, ratio, greek)
+      Impl.figure0.pnode(shape.node)
+      shape
+    }
 }
 
 class CrossOutline(val origin: Point,
@@ -228,11 +241,12 @@ class CrossOutline(val origin: Point,
   ratio + "," + greek + "," + ")"
 }
 object CrossOutline {
-  def apply(origin: Point, endpoint: Point, crossWidth: Double, ratio: Double, greek: Boolean) = {
-    val shape = new CrossOutline(origin, endpoint, crossWidth, ratio, greek)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
+  def apply(origin: Point, endpoint: Point, crossWidth: Double, ratio: Double, greek: Boolean) = 
+    Utils.runInSwingThreadAndWait {
+      val shape = new CrossOutline(origin, endpoint, crossWidth, ratio, greek)
+      Impl.figure0.pnode(shape.node)
+      shape
+    }
 }
 
 class Saltire(val origin: Point,
@@ -282,7 +296,7 @@ object Saltire {
     )
   }
 
-  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = Utils.runInSwingThreadAndWait {
     val shape = new Saltire(origin, endpoint, crossWidth)
     Impl.figure0.pnode(shape.node)
     shape
@@ -334,7 +348,7 @@ class SaltireOutline(val origin: Point,
   override def toString = "Staging.SaltireOutline(" + origin + "," + endpoint + "," + crossWidth + ")"
 }
 object SaltireOutline {
-  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = Utils.runInSwingThreadAndWait {
     val shape = new SaltireOutline(origin, endpoint, crossWidth)
     Impl.figure0.pnode(shape.node)
     shape
@@ -363,14 +377,12 @@ class Vector(val origin: Point, val endpoint: Point, val length: Double) extends
     if (origin.x < endpoint.x) { math.asin((endpoint.y - origin.y) / vlength) }
   else { math.Pi - math.asin((endpoint.y - origin.y) / vlength) }
 
-  Utils.runInSwingThread {
-    node.rotateAboutPoint(angle, origin.x, origin.y)
-  }
+  node.rotateAboutPoint(angle, origin.x, origin.y)
 
   override def toString = "Staging.Vector(" + origin + ", " + endpoint + ")"
 }
 object Vector {
-  def apply(p1: Point, p2: Point, length: Double) = {
+  def apply(p1: Point, p2: Point, length: Double) = Utils.runInSwingThreadAndWait {
     val shape = new Vector(p1, p2, length)
     Impl.figure0.pnode(shape.node)
     shape
@@ -378,7 +390,7 @@ object Vector {
 }
 
 object Star {
-  def apply(origin: Point, inner: Double, outer: Double, points: Int) = {
+  def apply(origin: Point, inner: Double, outer: Double, points: Int) = Utils.runInSwingThreadAndWait {
     val a = math.Pi / points // the angle between outer and inner point
     val pts = Seq.tabulate(2 * points){ i =>
       val aa = math.Pi / 2 + a * i

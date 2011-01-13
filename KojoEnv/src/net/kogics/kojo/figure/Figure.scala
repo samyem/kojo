@@ -38,7 +38,7 @@ object Figure {
   }
 }
 
-class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extends core.Figure {
+class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
   private val bgLayer = new PLayer
   private val fgLayer = new PLayer
   private var currLayer = bgLayer
@@ -96,7 +96,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     fgLayer.repaint()
   }
 
-  def clear {
+  def clear() {
     Utils.runInSwingThread {
       bgLayer.removeAllChildren()
       fgLayer.removeAllChildren()
@@ -105,7 +105,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     }
   }
 
-  def fgClear {
+  def fgClear() {
     Utils.runInSwingThread {
       fgLayer.removeAllChildren()
       repaint()
@@ -143,160 +143,21 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) extend
     }
   }
 
-  type FPoint = FigPoint
-  type FLine = FigLine
-  type FEllipse = FigEllipse
-  type FArc = FigArc
-  type FText = FigText
-  type FRectangle = FigRectangle
-  type FRRectangle = FigRoundRectangle
-  type FPolyLine = FigShape
-
-
-  def point(x: Double, y: Double): FigPoint = {
-    val pt = new FigPoint(canvas, x,y)
-    Utils.runInSwingThread {
-      pt.pPoint.setStroke(_lineStroke)
-      pt.pPoint.setStrokePaint(_lineColor)
-      currLayer.addChild(pt.pPoint)
-      currLayer.repaint()
-    }
-    pt
-  }
-
-  def line(p1: Point, p2: Point): FigLine = {
-    val line = new FigLine(canvas, p1, p2)
-    Utils.runInSwingThread {
-      line.pLine.setStroke(_lineStroke)
-      line.pLine.setStrokePaint(_lineColor)
-      currLayer.addChild(line.pLine)
-      currLayer.repaint()
-    }
-    line
-  }
-
-  def line(x0: Double, y0: Double, x1: Double, y1: Double) = line(new Point(x0, y0), new Point(x1, y1))
-
-  def ellipse(center: Point, w: Double, h: Double): FigEllipse = {
-    val ell = new FigEllipse(canvas, center, w, h)
-    Utils.runInSwingThread {
-      ell.pEllipse.setStroke(_lineStroke)
-      ell.pEllipse.setStrokePaint(_lineColor)
-      ell.pEllipse.setPaint(_fillColor)
-      currLayer.addChild(ell.pEllipse)
-      currLayer.repaint()
-    }
-    ell
-  }
-
-  def ellipse(cx: Double, cy: Double, w: Double, h: Double): FigEllipse = {
-    ellipse(new Point(cx, cy), w, h)
-  }
-
-  def circle(cx: Double, cy: Double, radius: Double) = ellipse(cx, cy, 2*radius, 2*radius)
-  
-  def circle(cp: Point, radius: Double) = circle(cp.x, cp.y, radius)
-
-
-  def arc(onEll: Ellipse, start: Double, extent: Double): FigArc = {
-    val arc = new FigArc(canvas, onEll, start, extent)
-    Utils.runInSwingThread {
-      arc.pArc.setStroke(_lineStroke)
-      arc.pArc.setStrokePaint(_lineColor)
-      arc.pArc.setPaint(_fillColor)
-      currLayer.addChild(arc.pArc)
-      currLayer.repaint()
-    }
-    arc
-
-  }
-
-  def arc(cx: Double, cy: Double, w: Double, h: Double, start: Double, extent: Double): FigArc = {
-    arc(new Ellipse(new Point(cx, cy), w, h), start, extent)
-  }
-
-  def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double): FigArc = {
-    arc(cx, cy, 2*r, 2*r, start, extent)
-  }
-
-  def arc(cp: Point, r: Double, start: Double, extent: Double): FArc = {
-    arc(cp.x, cp.y, 2*r, 2*r, start, extent)
-  }
-
-
-  def rectangle(bLeft: Point, tRight: Point): FigRectangle = {
-    val rect = new FigRectangle(canvas, bLeft, tRight)
-    Utils.runInSwingThread {
-      rect.pRect.setStroke(_lineStroke)
-      rect.pRect.setStrokePaint(_lineColor)
-      rect.pRect.setPaint(_fillColor)
-      currLayer.addChild(rect.pRect)
-      currLayer.repaint()
-    }
-    rect
-  }
-
-  def rectangle(x0: Double, y0: Double, w: Double, h: Double) = rectangle(new Point(x0, y0), new Point(x0+w, y0+h))
-
-  def roundRectangle(p1: Point, p2: Point, rx: Double, ry: Double) = {
-    val rrect = new FigRoundRectangle(canvas, p1, p2, rx, ry)
-    Utils.runInSwingThread {
-      rrect.pRect.setStroke(_lineStroke)
-      rrect.pRect.setStrokePaint(_lineColor)
-      rrect.pRect.setPaint(_fillColor)
-      currLayer.addChild(rrect.pRect)
-      currLayer.repaint()
-    }
-    rrect
-  }
-
-  def text(content: String, x: Double, y: Double): FigText = {
-    val txt = new FigText(canvas, content, x, y)
-    Utils.runInSwingThread {
-      txt.pText.setTextPaint(_lineColor)
-      currLayer.addChild(txt.pText)
-      currLayer.repaint()
-    }
-    txt
-  }
-
-  def text(content: String, p: Point): FText = text(content, p.x, p.y)
-
-
-  def polyLine(path: kgeom.PolyLine) = {
-    val cv = canvas
-    // fake a FigShape-derived class for the benefit of staging.Shape.shapes
-    val poly = new FigShape {
-      val pLine = path
-      val canvas = cv
-      val piccoloNode = pLine
-    }
-    Utils.runInSwingThread {
-      poly.pLine.setStroke(_lineStroke)
-      poly.pLine.setStrokePaint(_lineColor)
-      poly.pLine.setPaint(_fillColor)
-      currLayer.addChild(poly.pLine)
-      currLayer.repaint()
-    }
-    poly
-  }
-
 
   def pnode(node: PNode) = {
-    Utils.runInSwingThread {
-      if (node.isInstanceOf[PPath]) {
-        val p = node.asInstanceOf[PPath]
-        p.setPaint(_fillColor)
-        p.setStroke(_lineStroke)
-        p.setStrokePaint(_lineColor)
-      }
-      else if (node.isInstanceOf[PText]) {
-        val t = node.asInstanceOf[PText]
-        t.setTextPaint(_lineColor)
-      }
-      currLayer.addChild(node)
-      currLayer.repaint
+    // needs to be called on swing thread
+    if (node.isInstanceOf[PPath]) {
+      val p = node.asInstanceOf[PPath]
+      p.setPaint(_fillColor)
+      p.setStroke(_lineStroke)
+      p.setStrokePaint(_lineColor)
     }
+    else if (node.isInstanceOf[PText]) {
+      val t = node.asInstanceOf[PText]
+      t.setTextPaint(_lineColor)
+    }
+    currLayer.addChild(node)
+    currLayer.repaint
     node
   }
 

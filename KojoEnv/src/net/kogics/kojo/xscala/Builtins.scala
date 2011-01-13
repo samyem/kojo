@@ -39,7 +39,6 @@ class Builtins extends SCanvas with TurtleMover {
   lazy val ctx = scalaCodeRunner.ctx
   lazy val storyTeller = scalaCodeRunner.storyTeller
   lazy val turtle0 = tCanvas.turtle0
-  lazy val figure0 = tCanvas.figure0
 
   type Turtle = core.Turtle
   type Color = java.awt.Color
@@ -375,7 +374,6 @@ Here's a partial list of the available commands:
   def clearOutput() = ctx.clearOutput()
   override def exportImage(filePrefix: String) = tCanvas.exportImage(filePrefix)
   override def exportThumbnail(filePrefix: String, height: Int) = tCanvas.exportThumbnail(filePrefix, height)
-  override def newFigure(x: Int, y: Int) = tCanvas.newFigure(x, y)
   override def newPuzzler(x: Int, y: Int) = tCanvas.newPuzzler(x, y)
   override def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double) =
     tCanvas.zoomXY(xfactor, yfactor, cx, cy)

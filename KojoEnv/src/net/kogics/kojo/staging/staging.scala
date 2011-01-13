@@ -125,13 +125,22 @@ object API {
   //Walso be placed in this way.
   //W
   //T SimpleShapesTest begins
-  def dot(x: Double, y: Double) = Dot(Point(x, y))
-  def dot(p: Point) = Dot(p)
+  def dot(x: Double, y: Double): Dot = Dot(Point(x, y))
+  def dot(p: Point): Dot = Dot(p)
+  // dot commands (with c suffix)
+  // just create dot, don't return dot object. Much faster'than the functions above
+  def dotc(x: Double, y: Double): Unit = Dot.create(Point(x, y))
+  def dotc(p: Point): Unit = Dot.create(p)
 
   def line(x1: Double, y1: Double, x2: Double, y2: Double) =
     Line(Point(x1, y1), Point(x2, y2))
   def line(p1: Point, p2: Point) =
     Line(p1, p2)
+  // just create line, don't return line object. Much faster'than the functions above
+  def linec(x1: Double, y1: Double, x2: Double, y2: Double) =
+    Line.create(Point(x1, y1), Point(x2, y2))
+  def linec(p1: Point, p2: Point) =
+    Line.create(p1, p2)
 
   def vector(x1: Double, y1: Double, x2: Double, y2: Double, a: Double) =
     Vector(Point(x1, y1), Point(x2, y2), a)
@@ -616,7 +625,7 @@ class Text(val text: String, val origin: Point) extends BaseShape {
   override def toString = "Staging.Text(" + text + ", " + origin + ")"
 }
 object Text {
-  def apply(s: String, p: Point) = {
+  def apply(s: String, p: Point) = Utils.runInSwingThreadAndWait {
     val shape = new Text(s, p)
     Impl.figure0.pnode(shape.node)
     shape
@@ -689,7 +698,7 @@ class Composite(val shapes: Seq[Shape]) extends Shape {
   override def toString = "Staging.Group(" + shapes.mkString(",") + ")"
 }
 object Composite {
-  def apply(shapes: Seq[Shape]) = {
+  def apply(shapes: Seq[Shape]) = Utils.runInSwingThreadAndWait {
     new Composite(shapes)
   }
 }
@@ -719,9 +728,11 @@ object Style {
 
   def apply(fc: Color, sc: Color, sw: Double)(body: => Unit) = {
     save
-    f.setFillColor(fc)
-    f.setPenColor(sc)
-    f.setPenThickness(sw)
+    Utils.runInSwingThread {
+      f.setFillColor(fc)
+      f.setPenColor(sc)
+      f.setPenThickness(sw)
+    }
     try { body }
     finally { restore }
   }
@@ -729,9 +740,7 @@ object Style {
 
 
 class Bounds(x1: Double, y1: Double, x2: Double, y2: Double) {
-  val bounds = Utils.runInSwingThreadAndWait {
-    new PBounds(x1, y1, x2 - x1, y2 - y1)
-  }
+  val bounds = new PBounds(x1, y1, x2 - x1, y2 - y1)
 
   def getWidth = Utils.runInSwingThreadAndWait { bounds.getWidth }
   def getHeight = Utils.runInSwingThreadAndWait { bounds.getHeight }
@@ -756,7 +765,6 @@ class Bounds(x1: Double, y1: Double, x2: Double, y2: Double) {
       bounds.setRect(x1, y1, x2 - x1, y2 - y1)
     }
   }
-//     Utils.runInSwingThread {
 }
 object Bounds {
   def apply(b: PBounds) = Utils.runInSwingThreadAndWait {
@@ -766,6 +774,7 @@ object Bounds {
     val h = b.getHeight
     new Bounds(x, y, x + w, y + h)
   }
-  def apply(x1: Double, y1: Double, x2: Double, y2: Double) =
+  def apply(x1: Double, y1: Double, x2: Double, y2: Double) = Utils.runInSwingThreadAndWait {
     new Bounds(x1, y1, x2, y2)
+  }
 }
