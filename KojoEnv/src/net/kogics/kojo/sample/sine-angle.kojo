@@ -41,7 +41,7 @@ strokeWidth(1)
 // Draw a circle and a wave with a thick green line.
 withStyle(null, green, 3) {
   circle(O, unit)
-  0 to 360 foreach { a => dot(WavePlotter(a)) }
+  0 to 360 foreach { a => dotc(WavePlotter(a)) }
 }
 
 // Using a thin dark gray line, draw...

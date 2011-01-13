@@ -16,6 +16,7 @@
 package net.kogics.kojo
 package staging
 
+import util.Utils
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 import edu.umd.cs.piccolo.util._
@@ -33,7 +34,7 @@ class Polyline(val points: Seq[Point]) extends PolyShape with StrokedShape {
   override def toString = "Staging.Polyline(" + points + ")"
 }
 object Polyline {
-  def apply(pts: Seq[Point]) = {
+  def apply(pts: Seq[Point]) = Utils.runInSwingThreadAndWait {
     val shape = new Polyline(pts)
     Impl.figure0.pnode(shape.node)
     shape
@@ -49,7 +50,7 @@ class Polygon(val points: Seq[Point]) extends PolyShape with StrokedShape {
   override def toString = "Staging.Polygon(" + points + ")"
 }
 object Polygon {
-  def apply(pts: Seq[Point]) = {
+  def apply(pts: Seq[Point]) = Utils.runInSwingThreadAndWait {
     val shape = new Polygon(pts)
     Impl.figure0.pnode(shape.node)
     shape
@@ -74,7 +75,7 @@ class LinesShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
   override def toString = "Staging.LinesShape(" + points + ")"
 }
 object LinesShape {
-  def apply(pts: Seq[Point]) = {
+  def apply(pts: Seq[Point]) = Utils.runInSwingThreadAndWait {
     val shape = new LinesShape(pts)
     Impl.figure0.pnode(shape.node)
     shape
@@ -101,7 +102,7 @@ class TrianglesShape(val points: Seq[Point]) extends PolyShape with StrokedShape
   override def toString = "Staging.TrianglesShape(" + points + ")"
 }
 object TrianglesShape {
-  def apply(pts: Seq[Point]) = {
+  def apply(pts: Seq[Point]) = Utils.runInSwingThreadAndWait {
     val shape = new TrianglesShape(pts)
     Impl.figure0.pnode(shape.node)
     shape
@@ -128,7 +129,7 @@ class TriangleStripShape(val points: Seq[Point]) extends PolyShape with StrokedS
   override def toString = "Staging.TriangleStripShape(" + points + ")"
 }
 object TriangleStripShape {
-  def apply(pts: Seq[Point]) = {
+  def apply(pts: Seq[Point]) = Utils.runInSwingThreadAndWait {
     val shape = new TriangleStripShape(pts)
     Impl.figure0.pnode(shape.node)
     shape
@@ -156,7 +157,7 @@ class QuadsShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
   override def toString = "Staging.QuadsShape(" + points + ")"
 }
 object QuadsShape {
-  def apply(pts: Seq[Point]) = {
+  def apply(pts: Seq[Point]) = Utils.runInSwingThreadAndWait {
     val shape = new QuadsShape(pts)
     Impl.figure0.pnode(shape.node)
     shape
@@ -184,7 +185,7 @@ class QuadStripShape(val points: Seq[Point]) extends PolyShape with StrokedShape
   override def toString = "Staging.QuadStripShape(" + points + ")"
 }
 object QuadStripShape {
-  def apply(pts: Seq[Point]) = {
+  def apply(pts: Seq[Point]) = Utils.runInSwingThreadAndWait {
     val shape = new QuadStripShape(pts)
     Impl.figure0.pnode(shape.node)
     shape
@@ -214,7 +215,7 @@ class HexShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
   override def toString = "Staging.HexShape(" + points + ")"
 }
 object HexShape {
-  def apply(pts: Seq[Point]) = {
+  def apply(pts: Seq[Point]) = Utils.runInSwingThreadAndWait {
     val shape = new HexShape(pts)
     Impl.figure0.pnode(shape.node)
     shape
@@ -241,7 +242,7 @@ class TriangleFanShape(override val origin: Point, val points: Seq[Point]) exten
   override def toString = "Staging.QuadStripShape(" + origin + "," + points + ")"
 }
 object TriangleFanShape {
-  def apply(p0: Point, pts: Seq[Point]) = {
+  def apply(p0: Point, pts: Seq[Point]) = Utils.runInSwingThreadAndWait {
     val shape = new TriangleFanShape(p0, pts)
     Impl.figure0.pnode(shape.node)
     shape

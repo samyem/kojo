@@ -16,6 +16,7 @@
 package net.kogics.kojo
 package staging
 
+import util.Utils
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 import edu.umd.cs.piccolo.util._
@@ -51,7 +52,7 @@ object SvgPath {
     var t: Point = _
 
     def adjust(p: Point): Point = p match { case Point(x, y) =>
-      adjust(x.toFloat, y.toFloat)
+        adjust(x.toFloat, y.toFloat)
     }
     def adjust(x: Float, y: Float): Point
 
@@ -87,11 +88,11 @@ object SvgPath {
     }
     def apply () = {
       if (pts.nonEmpty) adjust(pts.head) match { case Point(x, y) =>
-        pPath.moveTo(x.toFloat, y.toFloat)
-        currentPoint = adjust(pts.head)
+          pPath.moveTo(x.toFloat, y.toFloat)
+          currentPoint = adjust(pts.head)
       }
       this foreach { case Point(x, y) =>
-        pPath.lineTo(x.toFloat, y.toFloat)
+          pPath.lineTo(x.toFloat, y.toFloat)
       }
     }
   }
@@ -111,7 +112,7 @@ object SvgPath {
       currentPoint = pts.last
     }
     def apply () = this foreach { case(Point(x, y)) =>
-      pPath.lineTo(x.toFloat, y.toFloat)
+        pPath.lineTo(x.toFloat, y.toFloat)
     }
   }
 
@@ -127,13 +128,13 @@ object SvgPath {
     val xs: List[Float]
     def foreach(fn: Point => Unit) {
       xs foreach { case x0: Float =>
-        t = complementY(x0)
-        fn(t)
+          t = complementY(x0)
+          fn(t)
       }
       currentPoint = t
     }
     def apply () = this foreach { case(Point(x, y)) =>
-      pPath.lineTo(x.toFloat, y.toFloat)
+        pPath.lineTo(x.toFloat, y.toFloat)
     }
   }
 
@@ -149,13 +150,13 @@ object SvgPath {
     val ys: List[Float]
     def foreach(fn: Point => Unit) {
       ys foreach { case y0: Float =>
-        t = complementX(y0)
-        fn(t)
+          t = complementX(y0)
+          fn(t)
       }
       currentPoint = t
     }
     def apply () = this foreach { case(Point(x, y)) =>
-      pPath.lineTo(x.toFloat, y.toFloat)
+        pPath.lineTo(x.toFloat, y.toFloat)
     }
   }
 
@@ -181,7 +182,7 @@ object SvgPath {
       currentPoint = t
     }
     def apply () = this foreach { case(Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
-      pPath.curveTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat, x3.toFloat, y3.toFloat)
+        pPath.curveTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat, x3.toFloat, y3.toFloat)
     }
   }
 
@@ -207,7 +208,7 @@ object SvgPath {
       currentPoint = t
     }
     def apply () = this foreach { case(Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
-      pPath.curveTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat, x3.toFloat, y3.toFloat)
+        pPath.curveTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat, x3.toFloat, y3.toFloat)
     }
   }
 
@@ -232,7 +233,7 @@ object SvgPath {
       currentPoint = t
     }
     def apply () = this foreach { case(Point(x1, y1), Point(x2, y2)) =>
-      pPath.quadTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat)
+        pPath.quadTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat)
     }
   }
   case class QuadBezierAbs(cs: List[QuadPointGroup]) extends SVGCmd
@@ -255,7 +256,7 @@ object SvgPath {
       currentPoint = t
     }
     def apply () = this foreach { case(Point(x1, y1), Point(x2, y2)) =>
-      pPath.quadTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat)
+        pPath.quadTo(x1.toFloat, y1.toFloat, x2.toFloat, y2.toFloat)
     }
   }
 
@@ -273,7 +274,7 @@ object SvgPath {
   }
 
   case class EllipticalArcRel(as: List[_]) extends SVGCmd
-                                                     with RelativeCoords {
+                                              with RelativeCoords {
     def apply () = {}
   }
 
@@ -341,8 +342,8 @@ object SvgPath {
       }
     def arcArg: Parser[Any]        =
       number~oc~number~oc~number~oc~flag~oc~flag~oc~coordPair             ^^ {
-      case n1~a~n2~b~n3~c~f1~d~f2~e~cp => (n1, n2, n3, f1, f2, cp)
-    }
+        case n1~a~n2~b~n3~c~f1~d~f2~e~cp => (n1, n2, n3, f1, f2, cp)
+      }
     def flag: Parser[Int]          = ("0" | "1")                  ^^ (_.toInt)
     def oc: Parser[Any]            = opt(",")
     def number: Parser[Float]      = floatingPointNumber        ^^ (_.toFloat)
@@ -369,8 +370,10 @@ object SvgPath {
       case e => throw e
     }
 
-    val shape = new SvgPath(pPath)
-    Impl.figure0.pnode(shape.node)
-    shape
+    Utils.runInSwingThreadAndWait {
+      val shape = new SvgPath(pPath)
+      Impl.figure0.pnode(shape.node)
+      shape
+    }
   }
 }

@@ -534,36 +534,4 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
       out.write(s)
     }
   }
-
-  object CanvasAPI  /* extends core.Figure */ {
-    import core._
-
-    // impl - prefixed with z to push it down in the code completion list
-    val zimpl = tCanvas.figure0
-    def clear() = zimpl.clear()
-    def fgClear() = zimpl.fgClear()
-    def stopRefresh() = zimpl.stopRefresh()
-    def setPenColor(color: Color) = zimpl.setPenColor(color)
-    def setPenThickness(t: Double) = zimpl.setPenThickness(t)
-    def setFillColor(color: Color) = zimpl.setFillColor(color)
-
-    def point(x: Double, y: Double) = zimpl.point(x, y)
-    def line(p1: Point, p2: Point) = zimpl.line(p1, p2)
-    def line(x0: Double, y0: Double, x1: Double, y1: Double) = zimpl.line(x0, y0, x1, y1)
-    def ellipse(center: Point, w: Double, h: Double) = zimpl.ellipse(center, w, h)
-    def ellipse(cx: Double, cy: Double, w: Double, h: Double) = zimpl.ellipse(cx, cy, w, h)
-    def arc(onEll: Ellipse, start: Double, extent: Double) = zimpl.arc(onEll, start, extent)
-    def arc(cx: Double, cy: Double, w: Double, h: Double,
-            start: Double, extent: Double) = zimpl.arc(cx, cy, w, h, start, extent)
-    def arc(cx: Double, cy: Double, r: Double, start: Double, extent: Double) = zimpl.arc(cx, cy, r, start, extent)
-    def arc(cp: Point, r: Double, start: Double, extent: Double) = zimpl.arc(cp, r, start, extent)
-    def circle(cp: Point, radius: Double) = zimpl.circle(cp, radius)
-    def circle(cx: Double, cy: Double, radius: Double) = zimpl.circle(cx, cy, radius)
-    def rectangle(bLeft: Point, tRight: Point) = zimpl.rectangle(bLeft, tRight)
-    def rectangle(x0: Double, y0: Double,  w: Double, h: Double) = zimpl.rectangle(x0, y0, w, h)
-    def text(content: String, x: Double, y: Double) = zimpl.text(content, x, y)
-    def text(content: String, p: Point) = zimpl.text(content, p)
-    def refresh(fn: => Unit) = zimpl.refresh(fn)
-  }
-
 }
