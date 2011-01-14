@@ -340,7 +340,6 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
         interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", ScalaCodeRunner.this)
         interp.interpret("val builtins = predef.builtins")
         interp.interpret("import predef.builtins._")
-        interp.bind("turtle0", "net.kogics.kojo.core.Turtle", tCanvas.turtle0)
         // Interesting fact:
         // If you make an object available via bind, the interface is not type-safe
         // If you make it available via interpret("val ="), its type safe
