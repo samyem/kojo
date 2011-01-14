@@ -143,6 +143,9 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
     }
   }
 
+  def addPnode(node: PNode) = Utils.runInSwingThread {
+    pnode(node)
+  }
 
   def pnode(node: PNode) = {
     // needs to be called on swing thread

@@ -38,14 +38,17 @@ class Dot(val origin: Point) extends StrokedShape {
   override def toString = "Staging.Dot(" + origin + ")"
 }
 object Dot {
-  def apply(p: Point) = Utils.runInSwingThreadAndWait {
+  def apply(p: Point) = {
     val shape = new Dot(p)
-    Impl.figure0.pnode(shape.node)
+    // The JMM (Java Memory Model) - section 17.5 - says that
+    // after the constructor for an object is done, its final fields (and the objects they refer to)
+    // are visible to other threads without synchronization.
+    // Refs:
+    // http://java.sun.com/docs/books/jls/third_edition/html/memory.html#66562
+    // http://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html#finalRight
+    // So, shape.node should be visible to the Swing thread
+    Impl.figure0.addPnode(shape.node)
     shape
-  }
-  def create(p: Point) = Utils.runInSwingThread {
-    val shape = new Dot(p)
-    Impl.figure0.pnode(shape.node)
   }
 }
 
@@ -56,69 +59,9 @@ class Line(val origin: Point, val endpoint: Point) extends SimpleShape {
   override def toString = "Staging.Line(" + origin + ", " + endpoint + ")"
 }
 object Line {
-  def apply(p1: Point, p2: Point) = Utils.runInSwingThreadAndWait {
+  def apply(p1: Point, p2: Point) = {
     val shape = new Line(p1, p2)
-    Impl.figure0.pnode(shape.node)
-    shape
-  }
-  def create(p1: Point, p2: Point) = Utils.runInSwingThread {
-    val shape = new Line(p1, p2)
-    Impl.figure0.pnode(shape.node)
-  }
-}
-
-class Sprite(val origin: Point, fname: String) extends BaseShape {
-  val image =
-    new PImage(fname)
-  val imageHolder = new PNode
-  
-  val width = image.getWidth
-  val height = image.getHeight
-
-  image.getTransformReference(true).setToScale(1, -1)
-  image.setOffset(-width/2, height/2)
-
-  imageHolder.addChild(image)
-  imageHolder.setOffset(origin.x, origin.y)
-
-  def node = imageHolder
-
-  override def toString = "Staging.Image(" + origin + ", " + fname + ")"
-}
-object Sprite {
-  def apply(p1: Point, fname: String) = {
-    if (!new java.io.File(fname).exists) {
-      throw new IllegalArgumentException("Unknown Sprite Filename: " + fname)
-    }
-
-    Utils.runInSwingThreadAndWait {
-      val shape = new Sprite(p1, fname)
-      Impl.figure0.pnode(shape.node)
-      shape
-    }
-  }
-}
-
-class Path(val origin: Point) extends StrokedShape {
-  val path = new PPath
-  moveTo(origin.x.toFloat, origin.y.toFloat)
-
-  def lineTo(x: Double, y: Double) {
-    Utils.runInSwingThread {
-      path.lineTo(x.toFloat, y.toFloat)
-    }
-  }
-
-  def moveTo(x: Double, y: Double) {
-    Utils.runInSwingThread {
-      path.moveTo(x.toFloat, y.toFloat)
-    }
-  }
-}
-object Path {
-  def apply(p1: Point) = Utils.runInSwingThreadAndWait {
-    val shape = new Path(p1)
-    Impl.figure0.pnode(shape.node)
+    Impl.figure0.addPnode(shape.node)
     shape
   }
 }
@@ -132,9 +75,9 @@ class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
   override def toString = "Staging.Rectangle(" + origin + ", " + endpoint + ")"
 }
 object Rectangle {
-  def apply(p1: Point, p2: Point) = Utils.runInSwingThreadAndWait {
+  def apply(p1: Point, p2: Point) = {
     val shape = new Rectangle(p1, p2)
-    Impl.figure0.pnode(shape.node)
+    Impl.figure0.addPnode(shape.node)
     shape
   }
 }
@@ -157,9 +100,9 @@ class RoundRectangle(
     "Staging.RoundRectangle(" + origin + ", " + endpoint + ", " + curvature + ")"
 }
 object RoundRectangle {
-  def apply(p1: Point, p2: Point, p3: Point) = Utils.runInSwingThreadAndWait {
+  def apply(p1: Point, p2: Point, p3: Point) = {
     val shape = new RoundRectangle(p1, p2, p3)
-    Impl.figure0.pnode(shape.node)
+    Impl.figure0.addPnode(shape.node)
     shape
   }
 }
@@ -173,9 +116,9 @@ class Ellipse(val origin: Point, val endpoint: Point) extends Elliptical {
   override def toString = "Staging.Ellipse(" + origin + "," + endpoint + ")"
 }
 object Ellipse {
-  def apply(p1: Point, p2: Point) = Utils.runInSwingThreadAndWait {
+  def apply(p1: Point, p2: Point) = {
     val shape = new Ellipse(p1, p2)
-    Impl.figure0.pnode(shape.node)
+    Impl.figure0.addPnode(shape.node)
     shape
   }
 }
@@ -194,9 +137,9 @@ class Arc(
   override def toString = "Staging.Arc(" + origin + "," + endpoint + start + "," + extent + ")"
 }
 object Arc {
-  def apply(p1: Point, p2: Point, s: Double, e: Double, k: Int) = Utils.runInSwingThreadAndWait {
+  def apply(p1: Point, p2: Point, s: Double, e: Double, k: Int) = {
     val shape = new Arc(p1, p2, s, e, k)
-    Impl.figure0.pnode(shape.node)
+    Impl.figure0.addPnode(shape.node)
     shape
   }
 }
@@ -218,11 +161,11 @@ class Cross(val origin: Point,
 }
 object Cross {
   def apply(origin: Point, endpoint: Point, crossWidth: Double, ratio: Double, greek: Boolean) = 
-    Utils.runInSwingThreadAndWait {
-      val shape = new Cross(origin, endpoint, crossWidth, ratio, greek)
-      Impl.figure0.pnode(shape.node)
-      shape
-    }
+  {
+    val shape = new Cross(origin, endpoint, crossWidth, ratio, greek)
+    Impl.figure0.addPnode(shape.node)
+    shape
+  }
 }
 
 class CrossOutline(val origin: Point,
@@ -242,11 +185,11 @@ class CrossOutline(val origin: Point,
 }
 object CrossOutline {
   def apply(origin: Point, endpoint: Point, crossWidth: Double, ratio: Double, greek: Boolean) = 
-    Utils.runInSwingThreadAndWait {
-      val shape = new CrossOutline(origin, endpoint, crossWidth, ratio, greek)
-      Impl.figure0.pnode(shape.node)
-      shape
-    }
+  {
+    val shape = new CrossOutline(origin, endpoint, crossWidth, ratio, greek)
+    Impl.figure0.addPnode(shape.node)
+    shape
+  }
 }
 
 class Saltire(val origin: Point,
@@ -296,9 +239,9 @@ object Saltire {
     )
   }
 
-  def apply(origin: Point, endpoint: Point, crossWidth: Double) = Utils.runInSwingThreadAndWait {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
     val shape = new Saltire(origin, endpoint, crossWidth)
-    Impl.figure0.pnode(shape.node)
+    Impl.figure0.addPnode(shape.node)
     shape
   }
 }
@@ -348,9 +291,9 @@ class SaltireOutline(val origin: Point,
   override def toString = "Staging.SaltireOutline(" + origin + "," + endpoint + "," + crossWidth + ")"
 }
 object SaltireOutline {
-  def apply(origin: Point, endpoint: Point, crossWidth: Double) = Utils.runInSwingThreadAndWait {
+  def apply(origin: Point, endpoint: Point, crossWidth: Double) = {
     val shape = new SaltireOutline(origin, endpoint, crossWidth)
-    Impl.figure0.pnode(shape.node)
+    Impl.figure0.addPnode(shape.node)
     shape
   }
 }
@@ -401,3 +344,26 @@ object Star {
   }
 }
 
+class Path(val origin: Point) extends StrokedShape {
+  val path = new PPath
+  moveTo(origin.x.toFloat, origin.y.toFloat)
+
+  def lineTo(x: Double, y: Double) {
+    Utils.runInSwingThread {
+      path.lineTo(x.toFloat, y.toFloat)
+    }
+  }
+
+  def moveTo(x: Double, y: Double) {
+    Utils.runInSwingThread {
+      path.moveTo(x.toFloat, y.toFloat)
+    }
+  }
+}
+object Path {
+  def apply(p1: Point) = Utils.runInSwingThreadAndWait {
+    val shape = new Path(p1)
+    Impl.figure0.pnode(shape.node)
+    shape
+  }
+}
