@@ -127,20 +127,11 @@ object API {
   //T SimpleShapesTest begins
   def dot(x: Double, y: Double): Dot = Dot(Point(x, y))
   def dot(p: Point): Dot = Dot(p)
-  // dot commands (with c suffix)
-  // just create dot, don't return dot object. Much faster'than the functions above
-  def dotc(x: Double, y: Double): Unit = Dot.create(Point(x, y))
-  def dotc(p: Point): Unit = Dot.create(p)
 
   def line(x1: Double, y1: Double, x2: Double, y2: Double) =
     Line(Point(x1, y1), Point(x2, y2))
   def line(p1: Point, p2: Point) =
     Line(p1, p2)
-  // just create line, don't return line object. Much faster'than the functions above
-  def linec(x1: Double, y1: Double, x2: Double, y2: Double) =
-    Line.create(Point(x1, y1), Point(x2, y2))
-  def linec(p1: Point, p2: Point) =
-    Line.create(p1, p2)
 
   def vector(x1: Double, y1: Double, x2: Double, y2: Double, a: Double) =
     Vector(Point(x1, y1), Point(x2, y2), a)
