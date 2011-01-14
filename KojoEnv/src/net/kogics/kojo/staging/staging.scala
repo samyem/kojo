@@ -587,12 +587,10 @@ class Text(val text: String, val origin: Point) extends BaseShape {
   val tnode = new edu.umd.cs.piccolo.nodes.PText(text)
   def node = tnode
 
-  Utils.runInSwingThread {
-    tnode.getTransformReference(true).setToScale(1, -1)
-    tnode.setOffset(origin.x, origin.y)
-    val font = new Font(tnode.getFont.getName, Font.PLAIN, 14)
-    tnode.setFont(font)
-  }
+  tnode.getTransformReference(true).setToScale(1, -1)
+  tnode.setOffset(origin.x, origin.y)
+  val font = new Font(tnode.getFont.getName, Font.PLAIN, 14)
+  tnode.setFont(font)
 
   def setPenColor(color: Color) {
     Utils.runInSwingThread {
@@ -683,10 +681,8 @@ trait CrossShape {
 
 class Composite(val shapes: Seq[Shape]) extends Shape {
   val node = new PNode
-  Utils.runInSwingThread {
-    shapes foreach { shape =>
-      node.addChild(shape.node)
-    }
+  shapes foreach { shape =>
+    node.addChild(shape.node)
   }
 
   override def toString = "Staging.Group(" + shapes.mkString(",") + ")"
@@ -696,7 +692,6 @@ object Composite {
     new Composite(shapes)
   }
 }
-
 
 object Style {
   val savedStyles =
