@@ -126,3 +126,6 @@ loop {
   // Now for the next angle value!
   theta = if (theta < 360) theta + 1 else 0
 }
+
+// reset builtin commands/functions that we clobbered by importing Staging
+import builtins._

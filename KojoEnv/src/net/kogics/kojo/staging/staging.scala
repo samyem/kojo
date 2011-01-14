@@ -390,6 +390,9 @@ object API {
   }
   def clear() = reset()
   def wipe() = Impl.figure0.fgClear()
+  def draw(fn: => Unit) = Utils.runInSwingThread {
+    fn
+  }
 
   def mouseX() = Inputs.stepMousePos.x
   def mouseY() = Inputs.stepMousePos.y
