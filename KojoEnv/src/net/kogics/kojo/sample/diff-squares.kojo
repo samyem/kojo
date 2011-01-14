@@ -116,3 +116,6 @@ square((a, a - b), b)
 glide("Cut off a square b × b.")
 
 glide("\u2234 a² - b² = (a + b)(a - b)")
+
+// reset builtin commands/functions that we clobbered by importing Staging
+import builtins._
