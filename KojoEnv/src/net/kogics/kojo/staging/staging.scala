@@ -518,7 +518,7 @@ trait Shape {
   }
   def position = offset
 
-  def onMouseClick(fn: => Unit) {
+  def onMouseClick(fn: => Unit) = Utils.runInSwingThread {
     node.addInputEventListener(new PBasicInputEventHandler {
         override def mouseClicked(event: PInputEvent) {
           fn
@@ -526,7 +526,7 @@ trait Shape {
       })
   }
   import java.awt.event.KeyEvent
-  def onKeyPress(fn: Int => Unit) {
+  def onKeyPress(fn: Int => Unit) = Utils.runInSwingThread {
     val eh = new PBasicInputEventHandler {
       override def mouseClicked(event: PInputEvent) {
         event.getInputManager().setKeyboardFocus(event.getPath())

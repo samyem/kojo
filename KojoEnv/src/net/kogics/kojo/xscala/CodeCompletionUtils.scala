@@ -127,7 +127,9 @@ object CodeCompletionUtils {
     "path" -> "path(${x}, ${y})",
     "lineTo" -> "lineTo(${x}, ${y})",
     "setFontSize" -> "setFontSize(${size})",
-    "setContent" -> "setContent(${content})"
+    "setContent" -> "setContent(${content})",
+    "onMouseClick" -> "onMouseClick {\n    ${cursor}\n}",
+    "onKeyPress" -> "onKeyPress { k =>\n    ${cursor}\n}"
   )
 
   @volatile var ExtraMethodTemplates = MwMethodTemplates
