@@ -17,6 +17,9 @@
 package net.kogics.kojo
 package staging
 
+import util.Utils
+import core.Point
+
 import java.awt.BasicStroke
 import edu.umd.cs.piccolo.PNode
 import edu.umd.cs.piccolo.nodes.PPath
@@ -24,8 +27,6 @@ import edu.umd.cs.piccolo.util.PBounds
 import edu.umd.cs.piccolo.activities.PActivity
 import edu.umd.cs.piccolo.event._
 
-import net.kogics.kojo.util.Utils
-import net.kogics.kojo.core.Point
 import java.awt.Color
 
 object Impl {
@@ -523,6 +524,19 @@ trait Shape {
           fn
         }
       })
+  }
+  import java.awt.event.KeyEvent
+  def onKeyPress(fn: Int => Unit) {
+    val eh = new PBasicInputEventHandler {
+      override def mouseClicked(event: PInputEvent) {
+        event.getInputManager().setKeyboardFocus(event.getPath())
+      }
+      override def keyPressed(e: PInputEvent) {
+        fn(e.getKeyCode)
+      }
+    }
+    node.addInputEventListener(eh)
+    Impl.canvas.getRoot.getDefaultInputManager.setKeyboardFocus(eh)
   }
 //  def addActivity(a: PActivity) = Impl.canvas.getRoot.addActivity(a)
 }
