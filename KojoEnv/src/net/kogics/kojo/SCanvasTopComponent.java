@@ -74,6 +74,7 @@ public final class SCanvasTopComponent extends TopComponent {
     public SCanvasTopComponent() {
         changeApplicationIcon();
         initComponents();
+        setFocusable(true);
 
         SpriteCanvas canvas = (SpriteCanvas)SpriteCanvas.instance();
         canvas.setPreferredSize(this.getPreferredSize());

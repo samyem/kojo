@@ -16,11 +16,12 @@
 package net.kogics.kojo
 package staging
 
+import util.Utils
+import core._
+
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 
-import net.kogics.kojo.util.Utils
-import core._
 
 class Sprite(val origin: Point, fname: String) extends BaseShape {
   val image =

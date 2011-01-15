@@ -58,6 +58,8 @@ class Builtins extends SCanvas with TurtleMover {
   val black = Color.black
   val white = Color.white
 
+  val Kc = new staging.KeyCodes
+
   def forward() = println("Please provide the distance to move forward - e.g. forward(100)")
   override def forward(n: Double) = turtle0.forward(n)
   UserCommand("forward", List("numSteps"), "Moves the turtle forward a given number of steps.")
