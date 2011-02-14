@@ -226,6 +226,12 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Stories.TurtleCommands.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_TurtleCommands"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
@@ -365,8 +371,12 @@
                     <attr name="position" intvalue="3"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.ComposingMusic.instance"/>
                 </file>
-                <file name="net-kogics-kojo-Stories.Learn.shadow">
+                <file name="net-kogics-kojo-Stories.TurtleCommands.shadow">
                     <attr name="position" intvalue="4"/>
+                    <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.TurtleCommands.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Stories.Learn.shadow">
+                    <attr name="position" intvalue="5"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Learn.instance"/>
                 </file>
             </folder>

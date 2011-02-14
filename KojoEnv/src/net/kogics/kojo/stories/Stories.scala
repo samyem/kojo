@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.io._
 import util.Utils
+import util.Utils.BundleMessage
 
 class Stories extends ActionListener {
   def actionPerformed(e: ActionEvent) {
@@ -30,12 +31,21 @@ class Stories extends ActionListener {
   }
 
   def getCode(e: ActionEvent) = {
+    val klass = classOf[Stories]
+    val KojoOverview = BundleMessage(klass, "CTL_KojoOverview")
+    val SimpleStory = BundleMessage(klass, "CTL_Simple")
+    val LearnMore = BundleMessage(klass, "CTL_Learn")
+    val MathworldIntro = BundleMessage(klass, "CTL_MathworldIntro")
+    val ComposingMusic = BundleMessage(klass, "CTL_ComposingMusic")
+    val TurtleCommands = BundleMessage(klass, "CTL_TurtleCommands")
+
     e.getActionCommand match {
-      case "Kojo Overview" => Utils.readFile(storyStream("kojo-overview.kojo"))
-      case "Simple Story" => Utils.readFile(storyStream("simple-story.kojo"))
-      case "Learn More" => Utils.readFile(storyStream("learn.kojo"))
-      case "Mathworld Introduction" => Utils.readFile(storyStream("mathworld-intro.kojo"))
-      case "Composing Music" => Utils.readFile(storyStream("composing-music.kojo"))
+      case KojoOverview(_) => Utils.readFile(storyStream("kojo-overview.kojo"))
+      case SimpleStory(_) => Utils.readFile(storyStream("simple-story.kojo"))
+      case LearnMore(_) => Utils.readFile(storyStream("learn.kojo"))
+      case MathworldIntro(_) => Utils.readFile(storyStream("mathworld-intro.kojo"))
+      case ComposingMusic(_) => Utils.readFile(storyStream("composing-music.kojo"))
+      case  TurtleCommands(_) => Utils.readFile(storyStream("turtle-commands.kojo"))
     }
   }
 
