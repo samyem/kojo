@@ -301,10 +301,12 @@ class Builtins extends SCanvas with TurtleMover {
   type Story = story.Story
   val Story = story.Story
   type StoryPage = story.Viewable
+  UserCommand.addCompletion("Story", List("pages"))
 
   def stPlayStory(st: story.Story) {
     storyTeller.playStory(st)
   }
+  UserCommand("stPlayStory", List("story"), "Play the given story.")
 
   def stFormula(latex: String, cssColor: String = null) =
     <div style={"text-align:center;margin:6px;"}>
