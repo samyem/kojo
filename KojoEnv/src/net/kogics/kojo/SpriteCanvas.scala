@@ -126,6 +126,9 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
+  panHandler.getEventFilter.setNotMask(InputEvent.SHIFT_MASK)
+  zoomHandler.setEventFilter(new PInputEventFilter(InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK))
+
   setPanEventHandler(panHandler)
   setZoomEventHandler(zoomHandler)
 
@@ -142,6 +145,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         StatusDisplayer.getDefault().setStatusText(statusStr format(pos.getX, pos.getY));
       }
     })
+
+  setComponentPopupMenu(new Popup())
 
   private def initCamera() {
     val size = getSize(null)
@@ -530,4 +535,47 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       if (startCount == 0) realListener.pendingCommandsDone
     }
   }
+
+  class Popup() extends JPopupMenu {
+
+    val axesItem = new JCheckBoxMenuItem("Show Axes")
+    axesItem.addActionListener(new ActionListener {
+        override def actionPerformed(e: ActionEvent) {
+          if (axesItem.isSelected) {
+            axesOn()
+          }
+          else {
+            axesOff()
+          }
+        }
+      })
+    add(axesItem)
+
+    val gridItem = new JCheckBoxMenuItem("Show Grid")
+    gridItem.addActionListener(new ActionListener {
+        override def actionPerformed(e: ActionEvent) {
+          if (gridItem.isSelected) {
+            gridOn()
+          }
+          else {
+            gridOff()
+          }
+        }
+      })
+    add(gridItem)
+
+    val clearItem = new JMenuItem("Clear")
+    clearItem.addActionListener(new ActionListener {
+        override def actionPerformed(e: ActionEvent) {
+          clear()
+        }
+      })
+    add(clearItem)
+
+    addSeparator()
+
+    add("<html><em>Mouse Actions: Drag to Pan; Shift-Drag to Zoom</em></html>")
+  }
 }
+
+
