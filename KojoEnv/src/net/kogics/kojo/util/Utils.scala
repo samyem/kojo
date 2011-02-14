@@ -133,4 +133,17 @@ object Utils {
   def rad2degrees(angle: Double) = angle * 180 / Math.Pi
 
   def stripCR(str: String) = str.replaceAll("\r\n", "\n")
+
+  import org.openide.util.NbBundle
+
+  case class BundleMessage(klass: Class[_], key: String) {
+    def unapply(action: String): Option[Boolean] = {
+      try {
+        if (NbBundle.getMessage(klass, key) == action) Some(true) else None
+      }
+      catch {
+        case e: Throwable => None
+      }
+    }
+  }
 }

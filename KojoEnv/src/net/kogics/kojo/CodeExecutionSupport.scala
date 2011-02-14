@@ -295,6 +295,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           Utils.runInSwingThread {
             statusStrip.onError()
           }
+          // just in case this was a story
+          // bad coupling here!
+          storyTeller.storyAborted()
         }
 
         def onRunSuccess() = {

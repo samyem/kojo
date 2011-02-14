@@ -508,4 +508,8 @@ class StoryTeller extends JPanel {
     ensureVisible()
     ep.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR))
   }
+
+  def storyAborted() {
+    ep.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR))
+  }
 }
