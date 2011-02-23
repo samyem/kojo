@@ -59,6 +59,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val GridColor = new Color(200, 200, 200)
   val TickColor = new Color(150, 150, 150)
   val TickLabelColor = new Color(50, 50, 50)
+  val TickIntegerLabelColor = Color.blue
 
   var outputFn: String => Unit = { msg =>
     Log.info(msg)
@@ -197,6 +198,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   def updateAxesAndGrid() {
 
+    def isInteger(d: Double) = d.floor == d
+
     if (!(showGrid || showAxes))
       return
     
@@ -212,7 +215,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       case _ => MaxPrec
     }
 
-    val labelPrec = if (scale % 50 == 0) math.log10(scale/50).toInt else prec
+    val labelPrec = if (scale % 50 == 0) math.log10(scale).round else prec
 
     val labelText = "%%.%df" format(labelPrec)
     val deltaFinder = "%%.%df" format(if (prec == 0) prec else prec-1)
@@ -277,7 +280,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       axes.addChild(yAxis)
     }
 
-    // ticks on y axis
+    // gridlines and ticks on y axis
     for (i <- 0 until numyTicks) {
       val ycoord = yStart + i * deltap.getY
       if (showGrid) {
@@ -298,13 +301,19 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         if (!Utils.doublesEqual(ycoord, 0, 1/math.pow(10, prec+1))) {
           val label = new PText(labelText format(ycoord))
           label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
-          label.setTextPaint(TickLabelColor)
+          if (isInteger(ycoord)) {
+            label.setText("%.0f" format(ycoord))
+            label.setTextPaint(TickIntegerLabelColor)
+          }
+          else {
+            label.setTextPaint(TickLabelColor)
+          }
           axes.addChild(label)
         }
       }
     }
 
-    // ticks on x axis
+    // gridlines and ticks on x axis
     for (i <- 0 until numxTicks) {
       val xcoord = xStart + i * deltap.getX
       if (showGrid) {
@@ -324,13 +333,19 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         if (Utils.doublesEqual(xcoord, 0, 1/math.pow(10, prec+1))) {
           val label = new PText("0")
           label.setOffset(pt2.getX.toFloat+2, pt2.getY.toFloat)
-          label.setTextPaint(TickLabelColor)
+          label.setTextPaint(TickIntegerLabelColor)
           axes.addChild(label)
         }
         else {
           val label = new PText(labelText format(xcoord))
           label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
-          label.setTextPaint(TickLabelColor)
+          if (isInteger(xcoord)) {
+            label.setText("%.0f" format(xcoord))
+            label.setTextPaint(TickIntegerLabelColor)
+          }
+          else {
+            label.setTextPaint(TickLabelColor)
+          }
           if (label.getText.length > 5) {
             label.rotateInPlace(45.toRadians)
           }
