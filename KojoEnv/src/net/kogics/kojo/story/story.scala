@@ -29,10 +29,10 @@ trait Viewable {
 }
 
 object Page {
-  def apply(name: String = "", body: xml.Node, code: => Unit = {}) = new Page(name, body, code)
+  def apply(name: String, body: => xml.Node, code: => Unit = {}) = new Page(name, body, code)
 }
 
-class Page(val name: String, body: xml.Node, code: => Unit) extends Viewable {
+class Page(val name: String, body: => xml.Node, code: => Unit) extends Viewable {
   def hasNextView = false
   def hasPrevView = false
   def view = {
@@ -57,7 +57,7 @@ class Para(body0: => xml.Node, code0: => Unit) {
 }
 
 object IncrPage {
-  def apply(name: String = "", style: String = "", body: List[Para]) = new IncrPage(name, style, body)
+  def apply(name: String, style: String, body: List[Para]) = new IncrPage(name, style, body)
 }
 
 class IncrPage(val name: String, style: String, body: List[Para]) extends Viewable {
