@@ -192,7 +192,7 @@ class StoryTeller extends JPanel {
     }
   }
 
-  private def nextPage() {
+  def nextPage() {
     // needs to run on GUI thread
     newPage()
 
