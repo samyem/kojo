@@ -93,6 +93,7 @@ pg = IncrPage(
 pages += pg
 
 pg = IncrPage(
+    name = "",
     style=pageStyle,
     body = List(
         Para(
@@ -183,6 +184,7 @@ val squareSample = """
 
 
 pg = IncrPage(
+    name = "",
     style=pageStyle,
     body = List(
         Para(
@@ -230,6 +232,7 @@ pages += pg
 
 
 pg = IncrPage(
+    name = "",
     style=pageStyle,
     body = List(
         Para(
@@ -348,6 +351,7 @@ tree(90)
 """
 
 pg = IncrPage(
+    name = "",
     style=pageStyle,
     body = List (
         Para(
@@ -406,6 +410,7 @@ pg = IncrPage(
 pages += pg
 
 pg = IncrPage(
+    name = "",
     style=pageStyle,
     body = List(
         Para(
@@ -650,6 +655,7 @@ pg = IncrPage(
 pages += pg
 
 pg = IncrPage(
+    name = "",
     style = pageStyle,
     body = List(
         Para(
@@ -683,6 +689,7 @@ pg = IncrPage(
 pages += pg
 
 pg = IncrPage(
+    name = "",
     style = pageStyle,
     body = List(
         Para(
