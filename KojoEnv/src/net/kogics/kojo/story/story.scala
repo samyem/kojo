@@ -49,10 +49,11 @@ class Page(val name: String, body: xml.Node, code: => Unit) extends Viewable {
 }
 
 object Para {
-  def apply(body: xml.Node, code: => Unit = {}) = new Para(body, code)
+  def apply(body: => xml.Node, code: => Unit = {}) = new Para(body, code)
 }
-class Para(val body: xml.Node, code0: => Unit) {
+class Para(body0: => xml.Node, code0: => Unit) {
   def code = code0
+  def body = body0
 }
 
 object IncrPage {
