@@ -364,7 +364,8 @@ class Builtins extends SCanvas with TurtleMover {
   }
   UserCommand("stShowStatusError", List("msg"), "Shows the specified error message in the Story Teller status bar.")
 
-  def stNextPage() = storyTeller.nextPage()
+  def stNext() = storyTeller.nextPage()
+  UserCommand("stNext", Nil, "Moves the story to the next page/view.")
 
   def help() = {
     println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
