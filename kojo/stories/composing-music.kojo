@@ -23,6 +23,7 @@ var pg: StoryPage = _
 var header: xml.Node = _
 
 pg = Page(
+    name = "",
     body =
         <body style={pageStyle+centerStyle}>
             { for (i <- 1 to 5) yield {
