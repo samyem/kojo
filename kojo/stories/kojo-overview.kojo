@@ -26,6 +26,7 @@ def link(page: String) = "http://localpage/%s" format(page)
 val homeLink = <div style={smallNoteStyle+centerStyle}><a href={link("home#7")}>Start Page</a></div>
 
 pg = Page(
+    name = "",
     body =
         <body style={pageStyle+centerStyle}>
             { for (i <- 1 to 5) yield {
