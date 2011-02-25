@@ -7,6 +7,8 @@ var n2 = 1
 var d2 = 1
 var plcm = 1
 
+def noInput = {n1 == 1 && d1 == 1 && n2 == 1 && d2 == 1}
+
 def gcd(n1: Int, n2: Int): Int = {
     if (n2 == 0) n1 else gcd(n2, n1 % n2)
 }
@@ -52,19 +54,33 @@ def showFrac(n: Int, d: Int) {
 }
 
 val pg1 = Page(
-    name = "",
+    name = "page1",
     body =
         <body style={pageStyle}>
             <p>
+                <p style="text-align:center">
+                    <strong>Adding Two Fractions</strong>
+                </p>
+                <br/>
                 In the fields below, put in the values of the fractions
-                that you want to add. <em>n1</em> is the numerator of the
-                first fraction, and <em>d1</em> is its denominator. <em>n2</em>
-                and <em>d2</em> are the numerator and the denominator of the second
-                fraction. <br/><br/>
-                Click on the <em>Proceed </em> button after inputing the fractions.
+                that you want to add.
+                <ul>
+                    <li><em>n1</em> is the numerator of the first fraction</li>
+                    <li><em>d1</em> is the denominator of the first fraction</li>
+                    <li><em>n2</em> is the numerator of the second fraction</li>
+                    <li><em>d2</em> is the demonimator of the second fraction</li>
+                </ul>
+
+                Click on the <strong>Proceed </strong> button after inputing the fractions.
+                <br/>
+                <br/>
+                For mixed fractions, add the whole numbers separately, and input
+                just the fractional parts of the two fractions.
+
             </p>
         </body>,
     code = {
+        n1 = 1; d1 = 1; n2 = 1; d2 = 1; plcm = 1
         S.clear()
         stAddField("n1", "")
         stAddField("d1", "")
@@ -102,6 +118,17 @@ def fracs2() {
 val pg2 = Page(
     name = "",
     body =
+        if (noInput)
+            <body style={pageStyle}>
+            <p>
+                Looks like you forgot to click on the Proceed button!
+                <br/>
+                <br/>
+                Go back, input your fractions, and make sure you click the Proceed
+                button to move forward.
+            </p>
+            </body>
+    else
         <body style={pageStyle}>
             <p>
                 You want to calculate:
@@ -124,13 +151,15 @@ val pg3 = IncrPage(
     body = List(
         Para(
             <p>
+                {stFormula("""\frac{%s}{%s} + \frac{%s}{%s}""" format(n1, d1, n2, d2))}
+                <br/>
                 In adding the two given fractions, the first step is to determine
                 the LCM of the denominators (<em>d1</em> = {d1} and <em>d2</em> = {d2})
                 - so that we can convert the fractions to equivalent fractions with the
                 same denominator.
                 <br/>
                 <br/>
-                Calulate the LCM yourself before moving on.
+                Calculate the LCM of {d1} and {d2} yourself before moving on.
             </p>
         ),
         Para(
@@ -146,11 +175,16 @@ val pg4 = Page(
     body =
         <body style={pageStyle}>
             <p>
-                Next, we covert the two given fractions to equivalent fractions,
+                {stFormula("""\frac{%s}{%s} + \frac{%s}{%s}""" format(n1, d1, n2, d2))}
+                <br/>
+                Next, we convert the two given fractions to equivalent fractions,
                 with the LCM as the common denominator.
                 <br/>
                 <br/>
                 Do this conversion on your own before moving on.
+                <br/>
+                <br/>
+                From the previous page, the LCM of {d1} and {d2} is {plcm}
             </p>
         </body>,
     code = {}
@@ -189,6 +223,14 @@ val pg6 = Page(
             <br/>
             <br/>
             The turtle canvas (third row) shows you a visual representation of the answer.
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <p style="text-align:center;">
+                <a style="color:white;" href="http://localpage/page1">Add more fractions...</a>
+            </p>
+
         </body>,
     code = {
         init()
