@@ -164,7 +164,7 @@ val pg5 = Page(
                 The first fraction - {"%s/%s" format(n1, d1)} gets converted to {"%s/%s" format(n1*plcm/d1, plcm)}<br/>
                 The second fraction - {"%s/%s" format(n2, d2)} gets converted to {"%s/%s" format(n2*plcm/d2, plcm)}<br/>
                 <br/>
-                The turtle canvas shows you a visual representation of these two new
+                The turtle canvas (second row) shows you a visual representation of these two new
                 fractions.
             </p>
         </body>,
@@ -188,7 +188,7 @@ val pg6 = Page(
                               n1*plcm/d1+n2*plcm/d2, plcm))}
             <br/>
             <br/>
-            The turtle canvas shows you a visual representation of the answer.
+            The turtle canvas (third row) shows you a visual representation of the answer.
         </body>,
     code = {
         init()
