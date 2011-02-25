@@ -125,7 +125,9 @@ val pg3 = IncrPage(
         Para(
             <p>
                 In adding the two given fractions, the first step is to determine
-                the LCM of <em>d1</em> = {d1} and <em>d2</em> = {d2}.
+                the LCM of the denominators (<em>d1</em> = {d1} and <em>d2</em> = {d2})
+                - so that we can convert the fractions to equivalent fractions with the
+                same denominator.
                 <br/>
                 <br/>
                 Calulate the LCM yourself before moving on.
@@ -179,7 +181,7 @@ val pg6 = Page(
     name = "",
     body =
         <body style={pageStyle}>
-            Now, we just add the numerators for the converted fractions to get the answer.
+            Now, we just add the numerators of the converted fractions to get the answer.
             {stFormula("""\frac{%s}{%s} + \frac{%s}{%s} = \frac{%s}{%s}"""
                        format(n1*plcm/d1, plcm,
                               n2*plcm/d2, plcm,
