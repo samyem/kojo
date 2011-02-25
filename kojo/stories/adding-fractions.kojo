@@ -1,11 +1,11 @@
 val S = Staging
 
 val pageStyle = "color:white;background:green;margin:15px;"
-var n1 = 0
-var d1 = 0
-var n2 = 0
-var d2 = 0
-var plcm = 0
+var n1 = 1
+var d1 = 1
+var n2 = 1
+var d2 = 1
+var plcm = 1
 
 def gcd(n1: Int, n2: Int): Int = {
     if (n2 == 0) n1 else gcd(n2, n1 % n2)
