@@ -33,6 +33,7 @@ class Stories extends ActionListener {
   def getCode(e: ActionEvent) = {
     val klass = classOf[Stories]
     val KojoOverview = BundleMessage(klass, "CTL_KojoOverview")
+    val AddFrac = BundleMessage(klass, "CTL_AddFrac")
     val SimpleStory = BundleMessage(klass, "CTL_Simple")
     val LearnMore = BundleMessage(klass, "CTL_Learn")
     val MathworldIntro = BundleMessage(klass, "CTL_MathworldIntro")
@@ -41,6 +42,7 @@ class Stories extends ActionListener {
 
     e.getActionCommand match {
       case KojoOverview(_) => Utils.readFile(storyStream("kojo-overview.kojo"))
+      case AddFrac(_) => Utils.readFile(storyStream("adding-fractions.kojo"))
       case SimpleStory(_) => Utils.readFile(storyStream("simple-story.kojo"))
       case LearnMore(_) => Utils.readFile(storyStream("learn.kojo"))
       case MathworldIntro(_) => Utils.readFile(storyStream("mathworld-intro.kojo"))
