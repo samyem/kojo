@@ -232,6 +232,12 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Stories.AddFrac.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_AddFrac"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
@@ -357,8 +363,15 @@
                 <attr name="position" intvalue="1"/>
                 <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Overview.instance"/>
             </file>
-            <folder name="Learn">
+            <folder name="Math">
                 <attr name="position" intvalue="2"/>
+                <file name="net-kogics-kojo-Stories.AddFrac.shadow">
+                    <attr name="position" intvalue="1"/>
+                    <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.AddFrac.instance"/>
+                </file>
+            </folder>
+            <folder name="Learn">
+                <attr name="position" intvalue="3"/>
                 <file name="net-kogics-kojo-Stories.Simple.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Simple.instance"/>
