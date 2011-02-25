@@ -87,13 +87,18 @@ class LatexView(elem: Element) extends View(elem) {
   }
   catch {
     case pe: ParseException =>
-      new TeXFormula("\\text{Incorrect Formula. Problem: %s}" format(pe.getMessage))
+      output("Incorrect formula - %s.\nProblem: %s" format(latex, pe.getMessage))
+      new TeXFormula("\\text{Incorrect Formula. See output for details}")
   }
   val icon = formula.createTeXIcon(TeXConstants.STYLE_DISPLAY, 18)
   icon.setInsets(new Insets(2, 2, 2, 2))
   val jl = new JLabel();
   jl.setForeground(color);
-  
+
+  def output(msg: String) {
+    StoryTeller.instance.outputFn(msg)
+  }
+
   override def getPreferredSpan(axis: Int) = {
     axis match {
       case View.X_AXIS => icon.getIconWidth
