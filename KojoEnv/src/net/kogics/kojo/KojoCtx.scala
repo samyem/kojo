@@ -34,7 +34,7 @@ class KojoCtx extends core.KojoCtx {
   }
 
   def makeCanvasVisible() {
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       val tc = SCanvasTopComponent.findInstance()
       activate(tc)
     }
@@ -43,7 +43,7 @@ class KojoCtx extends core.KojoCtx {
   }
 
   def makeMathWorldVisible() {
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       val tc = GeoGebraTopComponent.findInstance()
       activate(tc)
     }
@@ -52,7 +52,7 @@ class KojoCtx extends core.KojoCtx {
   }
 
   def makeStoryTellerVisible() {
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       val tc = story.StoryTellerTopComponent.findInstance()
       activate(tc)
     }
@@ -60,7 +60,7 @@ class KojoCtx extends core.KojoCtx {
   }
 
   def activateCodeEditor() {
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       val tc = CodeEditorTopComponent.findInstance()
       activate(tc)
     }

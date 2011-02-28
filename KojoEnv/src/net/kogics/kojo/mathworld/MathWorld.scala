@@ -38,12 +38,12 @@ class MathWorld {
   @volatile var _ggbApi: GgbAPI = _
   @volatile var _Algo: Algo = _
 
-  def ensureVisible() {
+  private def ensureVisible() {
     _kojoCtx.makeMathWorldVisible()
   }
 
   def clear() {
-    Utils.runInSwingThread {
+    Utils.runInSwingThreadAndWait {
       ensureVisible()
       _ggbApi.getApplication.setSaved()
       _ggbApi.getApplication.fileNew()
@@ -101,6 +101,16 @@ class MathWorld {
       _ggbApi.getApplication.setDefaultCursor()
     }
   }
+
+  def zoom(factor: Double, cx: Double, cy: Double) {
+    Utils.runInSwingThread {
+      val view = _ggbApi.getApplication.getEuclidianView
+      val newZoom = factor * geogebra.euclidian.EuclidianView.SCALE_STANDARD
+      view.setCoordSystem(view.getWidth/2 - cx * newZoom, view.getHeight/2 + cy * newZoom, newZoom, newZoom)
+    }
+  }
+
+  def switchTo() = ensureVisible()
 
   def point(x: Double, y: Double, label: String=null): MwPoint = MwPoint(_ggbApi, x, y, Option(label))
   def pointOn(on: MwLine, x: Double, y: Double): MwPoint = MwPoint(_ggbApi, on, x, y)
