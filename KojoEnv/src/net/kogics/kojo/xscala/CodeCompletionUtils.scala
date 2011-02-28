@@ -32,7 +32,9 @@ object CodeCompletionUtils {
     "if" -> "if (${condition}) {\n    ${cursor}\n}"
   )
 
-  val MethodTemplates = collection.mutable.Map[String, String]()
+  val MethodTemplates = collection.mutable.Map(
+    "switchTo" -> "switchTo()"
+  )
 
   val MwMethodTemplates = collection.mutable.Map(
     "figure" -> "figure(${name})",
