@@ -308,14 +308,16 @@ class Builtins extends SCanvas with TurtleMover {
   }
   UserCommand("stPlayStory", List("story"), "Play the given story.")
 
-  def stFormula(latex: String, cssColor: String = null) =
+  def stFormula(latex: String, size: Int = 18, cssColor: String = null) =
     <div style={"text-align:center;margin:6px;"}>
       {if (cssColor != null) {
           <img src={xml.Unparsed(story.CustomHtmlEditorKit.latexPrefix + latex)}
-            style={"color:%s" format(cssColor)}/>
+            style={"color:%s" format(cssColor)}
+            height={"%d" format(size)} />
         }
         else {
-          <img src={xml.Unparsed(story.CustomHtmlEditorKit.latexPrefix + latex)} />
+          <img src={xml.Unparsed(story.CustomHtmlEditorKit.latexPrefix + latex)}
+            height={"%d" format(size)} />
         }}
     </div>
   UserCommand("stFormula", List("latex"), "Converts the supplied latex string into html that can be displayed in the Story Teller Window.")
