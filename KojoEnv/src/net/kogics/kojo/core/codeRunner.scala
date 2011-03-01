@@ -34,6 +34,9 @@ trait RunContext {
   def onRunError(): Unit
   def onRunSuccess(): Unit
   def onRunInterpError(): Unit
+  def onCompileStart(): Unit
+  def onCompileError(): Unit
+  def onCompileSuccess(): Unit
 
   def println(outText: String)
   def reportOutput(outText: String)

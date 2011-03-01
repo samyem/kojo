@@ -64,4 +64,7 @@ class TestRunContext(val base: StagingTestBase) extends RunContext {
   def reportSmartErrorText(errText: String, line: Int, column: Int, offset: Int) {
     currOutput.append(errText)
   }
+  def onCompileStart() {}
+  def onCompileError() {}
+  def onCompileSuccess() {}
 }

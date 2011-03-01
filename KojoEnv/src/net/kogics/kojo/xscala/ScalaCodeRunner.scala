@@ -186,17 +186,16 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
             try {
               Log.info("CodeRunner actor compiling code:\n---\n%s\n---\n" format(code))
               InterruptionManager.onInterpreterStart()
-              ctx.onInterpreterStart(code)
+              ctx.onCompileStart()
 
               val ret = compile(code)
               Log.info("CodeRunner actor done compiling code. Return value %s" format (ret.toString))
 
               if (ret == IR.Success) {
-                ctx.onRunSuccess()
+                ctx.onCompileSuccess()
               }
               else {
-                if (InterruptionManager.interruptionInProgress) ctx.onRunSuccess() // user cancelled running code; no errors
-                else ctx.onRunError()
+                ctx.onCompileError()
               }
             }
             catch {
