@@ -39,11 +39,6 @@ page = Page(
                 <br/>
                 {stFormula("""\pi""", 30)}.
             </p>
-
-            <p style="color:gray;font-size:95%;">
-                The Greek letter π was adopted to represent the number PI because it
-                is the first letter of the Greek word for perimeter - "περίμετρος".
-            </p>
         </body>,
     code = {}
 )
@@ -55,13 +50,17 @@ page = Page(
     body =
         <body style="margin:15px;">
             <h1>Definition of PI</h1>
-            <p> PI is defined as the ratio of a circle's circumference to its diameter.
+            <p> PI is defined as the ratio of a circle's circumference (or perimeter) to its diameter.
                 See the circle on the right, whose radius can be controlled using the slider.
                 <br/>
                 <br/>
                 Note that the ratio of the circle's circumference to its diameter, as shown
                 to the right of the circle, remains constant as you change the radius of the
                 circle.
+            </p>
+            <p style="color:gray;font-size:95%;">
+                The Greek letter π was adopted to represent the number PI because it
+                is the first letter of the Greek word for perimeter - "περίμετρος".
             </p>
         </body>,
     code = {
