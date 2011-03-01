@@ -289,15 +289,41 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           runMonitor.onRunStart()
         }
 
+        def onCompileStart() {
+          showNormalCursor()
+          enableRunButton(false)
+        }
+
         def onRunError() {
           historyManager.codeRunError()
           interpreterDone()
+          onError()
+        }
+
+        def onCompileError() {
+          compileDone()
+          onError()
+        }
+
+        private def onError() {
           Utils.runInSwingThread {
             statusStrip.onError()
           }
           // just in case this was a story
           // bad coupling here!
           storyTeller.storyAborted()
+        }
+
+        def onCompileSuccess() {
+          compileDone
+          Utils.runInSwingThread {
+            statusStrip.onSuccess()
+          }
+        }
+
+        private def compileDone() {
+          codePane.requestFocusInWindow
+          enableRunButton(true)
         }
 
         def onRunSuccess() = {
@@ -691,13 +717,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     statusStrip.onDocChange()
     enableRunButton(false)
     showWaitCursor()
-
-    try {
-      historyManager.codeRun(code, true, (0, 0))
-    }
-    catch {
-      case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))
-    }
 
     codeRunner.compileCode(code)
   }
