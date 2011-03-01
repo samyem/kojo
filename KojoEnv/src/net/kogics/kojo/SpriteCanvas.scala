@@ -198,7 +198,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   def updateAxesAndGrid() {
 
-    def isInteger(d: Double) = d.floor == d
+    def isInteger(d: Double) = Utils.doublesEqual(d.floor, d, 0.0000000001)
 
     if (!(showGrid || showAxes))
       return
