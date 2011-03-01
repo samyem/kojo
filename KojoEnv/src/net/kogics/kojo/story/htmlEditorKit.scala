@@ -63,6 +63,7 @@ class CustomHtmlFactory extends HTMLEditorKit.HTMLFactory {
 
 class LatexView(elem: Element) extends View(elem) {
   val srcAttr = elem.getAttributes().getAttribute(HTML.Attribute.SRC).asInstanceOf[String]
+  val size = elem.getAttributes().getAttribute(HTML.Attribute.HEIGHT).asInstanceOf[String].toInt
   val latex = srcAttr.substring(CustomHtmlEditorKit.latexPrefix.length, srcAttr.length) // strip off latex prefix
   val defColor = new Color(30, 30, 30)
 
@@ -90,7 +91,7 @@ class LatexView(elem: Element) extends View(elem) {
       output("Incorrect formula - %s.\nProblem: %s" format(latex, pe.getMessage))
       new TeXFormula("\\text{Incorrect Formula. See output for details}")
   }
-  val icon = formula.createTeXIcon(TeXConstants.STYLE_DISPLAY, 18)
+  val icon = formula.createTeXIcon(TeXConstants.STYLE_DISPLAY, size)
   icon.setInsets(new Insets(2, 2, 2, 2))
   val jl = new JLabel();
   jl.setForeground(color);
