@@ -196,7 +196,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
-  val intPat = java.util.regex.Pattern.compile(""".*\.0+""")
+  val intPat = java.util.regex.Pattern.compile("""-?\d*(\.0+)?""")
   def updateAxesAndGrid() {
 
 //    def isInteger(d: Double) = Utils.doublesEqual(d.floor, d, 0.0000000001)
