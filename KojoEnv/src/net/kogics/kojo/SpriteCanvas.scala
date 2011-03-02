@@ -196,9 +196,11 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
+  val intPat = java.util.regex.Pattern.compile(""".*\.0+""")
   def updateAxesAndGrid() {
 
-    def isInteger(d: Double) = Utils.doublesEqual(d.floor, d, 0.0000000001)
+//    def isInteger(d: Double) = Utils.doublesEqual(d.floor, d, 0.0000000001)
+    def isInteger(label: String) = intPat.matcher(label).matches
 
     if (!(showGrid || showAxes))
       return
@@ -301,7 +303,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         if (!Utils.doublesEqual(ycoord, 0, 1/math.pow(10, prec+1))) {
           val label = new PText(labelText format(ycoord))
           label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
-          if (isInteger(ycoord)) {
+          if (isInteger(label.getText)) {
             label.setText("%.0f" format(ycoord))
             label.setTextPaint(TickIntegerLabelColor)
           }
@@ -339,7 +341,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         else {
           val label = new PText(labelText format(xcoord))
           label.setOffset(pt2.getX.toFloat, pt2.getY.toFloat)
-          if (isInteger(xcoord)) {
+          if (isInteger(label.getText)) {
             label.setText("%.0f" format(xcoord))
             label.setTextPaint(TickIntegerLabelColor)
           }
