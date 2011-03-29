@@ -19,13 +19,11 @@ def pgHeader(hdr: String) =
 
 
 var pages = new collection.mutable.ListBuffer[StoryPage]
-var pg: StoryPage = _
-var header: xml.Node = _
 
 def link(page: String) = "http://localpage/%s" format(page)
 val homeLink = <div style={smallNoteStyle+centerStyle}><a href={link("home#7")}>Start Page</a></div>
 
-pg = Page(
+pages += Page(
     name = "",
     body =
         <body style={pageStyle+centerStyle}>
@@ -46,16 +44,12 @@ pg = Page(
         </body>
 )
 
-pages += pg
-
-header = pgHeader("What is Kojo?")
-
-pg = IncrPage(
+pages += IncrPage(
     name = "home",
     style=pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("What is Kojo?")}
         ),
         Para(
             <p>
@@ -91,14 +85,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style=pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("What is Kojo?")}
         ),
         Para(
             <p>
@@ -131,18 +123,13 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-
-header = pgHeader("Kojo and Computer Programming")
-
-pg = IncrPage(
+pages += IncrPage(
     name = "comp-prog",
     style=pageStyle,
     body = List(
         Para(
             <span>
-                {header}
+                {pgHeader("Kojo and Computer Programming")}
                 {homeLink}
             </span>
         ),
@@ -172,8 +159,6 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
 val squareSample = """
     clear()
     repeat (4) {
@@ -184,12 +169,12 @@ val squareSample = """
 
 
 
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style=pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Kojo and Computer Programming")}
         ),
         Para(
             <p>
@@ -229,15 +214,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style=pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Kojo and Computer Programming")}
         ),
         Para(
             <p>
@@ -268,14 +250,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style = pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Kojo and Computer Programming")}
         ),
         Para(
             <p>
@@ -323,9 +303,6 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-
 val treeSample = """
 def tree(distance: Double) {
     if (distance > 4) {
@@ -351,12 +328,12 @@ penDown()
 tree(90)
 """
 
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style=pageStyle,
     body = List (
         Para(
-            {header}
+            {pgHeader("Kojo and Computer Programming")}
         ),
         Para(
             <p>
@@ -408,14 +385,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style=pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Kojo and Computer Programming")}
         ),
         Para(
             <p>
@@ -452,17 +427,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-
-header = pgHeader("Kojo and Critical Thinking")
-
-pg = IncrPage(
+pages += IncrPage(
     name = "crit-think",
     style = pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Kojo and Critical Thinking")}
         ),
         Para(
             <p>
@@ -555,17 +525,13 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-header = pgHeader("Kojo and Math")
-
-pg = IncrPage(
+pages += IncrPage(
     name = "math",
     style = pageStyle,
     body = List(
         Para(
             <span>
-                {header}
+                {pgHeader("Kojo and Math")}
                 {homeLink}
             </span>
         ),
@@ -586,15 +552,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style = pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Kojo and Math")}
         ),
         Para(
             <p>
@@ -653,14 +616,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style = pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Kojo and Math")}
         ),
         Para(
             <p>
@@ -687,14 +648,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style = pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Kojo and Math")}
         ),
         Para(
             <p>
@@ -730,14 +689,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style = pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Kojo and Math")}
         ),
         Para(
             <p>
@@ -824,14 +781,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style = pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Kojo and Math")}
         ),
         Para(
             <p>
@@ -930,14 +885,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style = pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Kojo and Math")}
         ),
         Para(
             <p>
@@ -961,17 +914,13 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-header = pgHeader("Kojo and Science")
-
-pg = IncrPage(
+pages += IncrPage(
     name = "science",
     style = pageStyle,
     body = List(
         Para(
             <span>
-                {header}
+                {pgHeader("Kojo and Science")}
                 {homeLink}
             </span>
         ),
@@ -1062,9 +1011,7 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-pg = IncrPage(
+pages += IncrPage(
     name = "creative",
     style = pageStyle,
     body = List(
@@ -1136,9 +1083,7 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-pg = IncrPage(
+pages += IncrPage(
     name = "literacy",
     style = pageStyle,
     body = List(
@@ -1185,9 +1130,7 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style = pageStyle,
     body = List(
@@ -1222,8 +1165,6 @@ pg = IncrPage(
         )
     )
 )
-
-pages += pg
 
 val story = Story(pages: _*)
 stClear()

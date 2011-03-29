@@ -19,10 +19,8 @@ def pgHeader(hdr: String) =
 
 
 var pages = new collection.mutable.ListBuffer[StoryPage]
-var pg: StoryPage = _
-var header: xml.Node = _
 
-pg = Page(
+pages += Page(
     name = "",
     body =
         <body style={pageStyle+centerStyle}>
@@ -43,10 +41,6 @@ pg = Page(
         </body>
 )
 
-pages += pg
-
-header = pgHeader("Composing Music")
-
 val score1 = """
     MusicScore(
         Melody("Guitar", "C D E F G A B")
@@ -60,12 +54,12 @@ val score2 = """
     )
 """
 
-pg = IncrPage(
+pages +=  IncrPage(
     name = "home",
     style=pageStyle,
     body = List(
         Para(
-            {header}
+            {pgHeader("Composing Music")}
         ),
         Para(
             <p>
@@ -106,10 +100,6 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-header = pgHeader("Playing Music")
-
 val code1 = """
     val score = MusicScore(
         Melody("Acoustic_Grand", "C6q D#6q F6q G6q D#6q F6h Rq D#6q F6q G6q F6q C6q D#6h Rq"),
@@ -119,13 +109,13 @@ val code1 = """
     playMusic(score)
 """
 
-pg = IncrPage(
+pages += IncrPage(
     name = "",
     style=pageStyle,
     body = List(
         Para(
             <p>
-                {header}
+                {pgHeader("Playing Music")}
             </p>
         ),
         Para(
@@ -152,17 +142,12 @@ pg = IncrPage(
     )
 )
 
-pages += pg
-
-header = pgHeader("Reference Section")
-
-
-pg = Page(
+pages += Page(
     name = "reference",
     body =
         <body style={pageStyle}>
             <p>
-                {header}
+                {pgHeader("Reference Section")}
             </p>
             <p>
                 <strong>Durations</strong>: <br/>
@@ -203,10 +188,6 @@ pg = Page(
             </p>
         </body>
 )
-
-
-pages += pg
-
 
 val story = Story(pages: _*)
 stClear()
