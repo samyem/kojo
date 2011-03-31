@@ -15,6 +15,7 @@
 package net.kogics.kojo
 
 import javax.swing._
+import javax.swing.event._
 import java.awt.{List => _, _}
 import java.awt.event._
 import java.util.logging._
@@ -594,6 +595,14 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     addSeparator()
 
     add("<html><em>Mouse Actions: Drag to Pan; Shift-Drag to Zoom</em></html>")
+    addPopupMenuListener(new PopupMenuListener {
+        def popupMenuWillBecomeVisible(e: PopupMenuEvent) {
+          axesItem.setState(showAxes)
+          gridItem.setState(showGrid)
+        }
+        def popupMenuWillBecomeInvisible(e: PopupMenuEvent) {}
+        def popupMenuCanceled(e: PopupMenuEvent) {}
+      })
   }
 }
 

@@ -21,7 +21,7 @@ import core._
 import java.io._
 import java.awt.Color
 import scala.actors.Actor
-import scala.tools.nsc.{Interpreter, InterpreterResults => IR, Settings}
+import KojoInterpreter._
 
 import java.util.logging._
 import org.openide.ErrorManager;
@@ -62,7 +62,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
   case class VarCompletionRequest(str: String)
   case class KeywordCompletionRequest(str: String)
   case class CompletionResponse(data: (List[String], Int))
-
+  
   def methodCompletions(str: String): (List[String], Int) = {
     val resp = (codeRunner !? MethodCompletionRequest(str)).asInstanceOf[CompletionResponse]
     resp.data
@@ -88,6 +88,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
   object InterruptionManager {
     @volatile var interpreterThread: Option[Thread] = None
     @volatile var interruptTimer: Option[javax.swing.Timer] = None
+    @volatile var stoppable: Option[StoppableCodeRunner] = None
 
     def interruptionInProgress = interruptTimer.isDefined
 
@@ -110,19 +111,20 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
             println("Unable to stop script.\nPlease restart the Kojo Environment unless you see a 'Script Stopped' message soon.\n")
           })
         outputHandler.interpOutputSuppressed = true
-        interpreterThread.get.interrupt
+        stoppable.get.stop(interpreterThread.get)
       }
       else {
         println("Animation Stopped.\n")
       }
     }
 
-    def onInterpreterStart() {
+    def onInterpreterStart(stoppable: StoppableCodeRunner) {
       // Runs on Actor pool thread
       // we store the thread every time the interp runs
       // allows interp to switch between react and receive without impacting
       // interruption logic
       interpreterThread = Some(Thread.currentThread)
+      this.stoppable = Some(stoppable)
     }
 
     def onInterpreterFinish() {
@@ -138,16 +140,17 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
         println("Script Stopped.\n")
       }
       interpreterThread = None
+      stoppable = None
     }
   }
 
   class InterpActor extends Actor {
     
-    var interp: Interpreter = _
-    var compiler: CompilerAndRunner = _
+    var interp: KojoInterpreter = _
+    var compilerAndRunner: CompilerAndRunner = _
     
 //    val varPattern = java.util.regex.Pattern.compile("\\bvar\\b")
-    val storyPattern = java.util.regex.Pattern.compile("\\bstClear()\\b")
+//    val storyPattern = java.util.regex.Pattern.compile("\\bstClear()\\b")
 
     def safeProcess(fn: => Unit) {
       try {
@@ -185,7 +188,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
           case CompileCode(code) =>
             try {
               Log.info("CodeRunner actor compiling code:\n---\n%s\n---\n" format(code))
-              InterruptionManager.onInterpreterStart()
+              InterruptionManager.onInterpreterStart(compilerAndRunner)
               ctx.onCompileStart()
 
               val ret = compile(code)
@@ -210,7 +213,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
           case CompileRunCode(code) =>
             try {
               Log.info("CodeRunner actor compiling/running code:\n---\n%s\n---\n" format(code))
-              InterruptionManager.onInterpreterStart()
+              InterruptionManager.onInterpreterStart(compilerAndRunner)
               ctx.onInterpreterStart(code)
 
               val ret = compileAndRun(code)
@@ -225,7 +228,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
               }
             }
             catch {
-              case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
+              case t: Throwable => Log.log(Level.SEVERE, "CompilerAndRunner Problem", t)
                 ctx.onRunInterpError
             }
             finally {
@@ -236,7 +239,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
           case RunCode(code) =>
             try {
               Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
-              InterruptionManager.onInterpreterStart()
+              InterruptionManager.onInterpreterStart(interp)
               ctx.onInterpreterStart(code)
 
               val ret = interpret(code)
@@ -264,18 +267,18 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
           case ParseCode(code, browseAst) =>
             try {
               Log.info("CodeRunner actor parsing code:\n---\n%s\n---\n" format(code))
-              InterruptionManager.onInterpreterStart()
-              ctx.onInterpreterStart(code)
+              InterruptionManager.onInterpreterStart(compilerAndRunner)
+              ctx.onCompileStart()
 
-              val ret = compiler.parse(code, browseAst)
+              val ret = compilerAndRunner.parse(code, browseAst)
               Log.info("CodeRunner actor done parsing code. Return value %s" format (ret.toString))
 
               if (ret != null) {
-                ctx.onRunSuccess()
+                ctx.onCompileSuccess()
               }
               else {
-                if (InterruptionManager.interruptionInProgress) ctx.onRunSuccess() // user cancelled running code; no errors
-                else ctx.onRunError()
+                if (InterruptionManager.interruptionInProgress) ctx.onCompileSuccess()
+                ctx.onCompileError()
               }
             }
             catch {
@@ -320,20 +323,17 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
     def initCompiler() {
       val iSettings = new Settings()
       iSettings.classpath.append(createCp(jars))
-      compiler = new CompilerAndRunner(iSettings, new CompilerOutputHandler(ctx)) {
+      compilerAndRunner = new CompilerAndRunner(iSettings, new CompilerOutputHandler(ctx)) {
         override protected def parentClassLoader = classOf[ScalaCodeRunner].getClassLoader
       }
-      compiler.setContextClassLoader()
+      compilerAndRunner.setContextClassLoader()
     }
 
     def initInterp() {
       val iSettings = new Settings()
       iSettings.classpath.append(createCp(jars))
 
-      interp = new Interpreter(iSettings, new GuiPrintWriter()) {
-        override protected def parentClassLoader = classOf[ScalaCodeRunner].getClassLoader
-      }
-      interp.setContextClassLoader()
+      interp = new KojoInterpreter(iSettings, new GuiPrintWriter())
 
       outputHandler.withOutputSuppressed {
         interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", ScalaCodeRunner.this)
@@ -430,16 +430,16 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
     }
 
     def compileAndRun(code: String): IR.Result = {
-      compiler.compileAndRun(code)
+      compilerAndRunner.compileAndRun(code)
     }
 
     def compile(code: String): IR.Result = {
-      compiler.compile(code)
+      compilerAndRunner.compile(code)
     }
 
     def needsLineByLineInterpretation(code: String): Boolean = {
       false
-//      storyPattern.matcher(code).find()
+//      varPattern.matcher(code).find()
     }
 
     def showIncompleteCodeMsg(code: String) {
@@ -453,11 +453,12 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
     import CodeCompletionUtils._
     var _builtinsCompletions: List[String] = Nil
 
-    def builtinsCompletions = {
-      if (_builtinsCompletions == Nil) {
-        _builtinsCompletions = completions("builtins")
-      }
-      _builtinsCompletions
+    def builtinsCompletions: List[String] = {
+      Nil
+//      if (_builtinsCompletions == Nil) {
+//        _builtinsCompletions = completions("builtins")
+//      }
+//      _builtinsCompletions
     }
 
     def completions(identifier: String) = {
@@ -465,7 +466,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 
       Log.fine("Finding Identifier completions for: " + identifier)
       val completions = outputHandler.withOutputSuppressed {
-        interp.methodsOf(identifier).distinct.filter {s => methodFilter(s)}
+        interp.completions(identifier).distinct.filter {s => methodFilter(s)}
       }
       Log.fine("Completions: " + completions)
       completions

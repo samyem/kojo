@@ -32,7 +32,7 @@ import java.net.{ MalformedURLException, URL }
 import scala.tools.util.PathResolver
 import java.lang.reflect
 import reflect.InvocationTargetException
-import scala.tools.nsc.{InterpreterResults => IR}
+import KojoInterpreter.IR
 
 trait CompilerListener {
   def error(msg: String, line: Int, column: Int, offset: Int, lineContent: String)
@@ -42,7 +42,7 @@ trait CompilerListener {
 }
 
 // This class borrows code and ideas from scala.tools.nsc.Interpreter
-class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
+class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends StoppableCodeRunner {
   var counter = 0
 
   val prefix = """object Wrapper%d {
@@ -166,6 +166,10 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) {
     else {
       IR.Error
     }
+  }
+
+  def stop(interpThread: Thread) {
+    interpThread.interrupt()
   }
 
   def parse(code0: String, browseAst: Boolean) = {
