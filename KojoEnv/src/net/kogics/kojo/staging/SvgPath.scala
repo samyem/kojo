@@ -361,7 +361,7 @@ object SvgPath {
         case List((move: SVGCmd, drawcmds: List[SVGCmd])) =>
           move()
           drawcmds foreach (_())
-        case List() =>
+        case Nil =>
       }
     }
     catch {

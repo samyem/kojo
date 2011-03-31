@@ -150,7 +150,12 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val actionListener = new ActionListener {
       def actionPerformed(e: ActionEvent) = e.getActionCommand match {
         case RunScript =>
-          runCode()
+          if ((e.getModifiers & Event.CTRL_MASK) == Event.CTRL_MASK) {
+            compileRunCode()
+          }
+          else {
+            runCode()
+          }
         case CompileScript =>
           if ((e.getModifiers & Event.CTRL_MASK) == Event.CTRL_MASK) {
             parseCode(false)
@@ -697,13 +702,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     enableRunButton(false)
     showWaitCursor()
 
-    try {
-      historyManager.codeRun(code, true, (0, 0))
-    }
-    catch {
-      case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))
-    }
-
     codeRunner.parseCode(code, browseAst)
   }
 
@@ -721,39 +719,31 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     codeRunner.compileCode(code)
   }
 
+  def isStory(code: String) = {
+    code.indexOf("stPlayStory") != -1
+  }
+
   def compileRunCode() {
-    val code = codePane.getText()
-
-    if (invalidCode(code)) {
-      return
-    }
-
-    enableRunButton(false)
-    showWaitCursor()
-
-    if (code.indexOf("stClear") != -1) {
-      // a story
-      storyTeller.storyComing()
-    }
-
-    try {
-      historyManager.codeRun(code, true, (0, 0))
-    }
-    catch {
-      case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))
-    }
-
-    maybeOutputDelimiter()
-    codeRunner.compileRunCode(code)
+    preProcessCode() map { codeToRun => codeRunner.compileRunCode(codeToRun)}
   }
 
   def runCode() {
     // Runs on swing thread
-    
+    preProcessCode() map { codeToRun =>
+      if (isStory(codeToRun)) {
+        codeRunner.compileRunCode(codeToRun)
+      }
+      else {
+        codeRunner.runCode(codeToRun)
+      }
+    }
+  }
+
+  def preProcessCode(): Option[String] = {
     val code = codePane.getText()
 
     if (invalidCode(code)) {
-      return
+      None
     }
     
     // now that we use the proxy code runner, disable the run button right away and change
@@ -768,7 +758,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val selectedCode = codePane.getSelectedText
     val codeToRun = if (selectedCode == null) code else selectedCode
 
-    if (codeToRun.indexOf("stClear") != -1) {
+    if (isStory(codeToRun)) {
       // a story
       storyTeller.storyComing()
     }
@@ -789,8 +779,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     else {
       maybeOutputDelimiter()
     }
-
-    codeRunner.runCode(codeToRun)
+    Some(codeToRun)
   }
 
   def maybeOutputDelimiter() {

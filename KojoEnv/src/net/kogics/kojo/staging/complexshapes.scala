@@ -62,7 +62,7 @@ class LinesShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
 
   def init = {
     points grouped(2) foreach {
-      case List() =>
+      case Nil =>
       case Seq(Point(x1, y1), Point(x2, y2)) =>
         path.moveTo(x1.toFloat, y1.toFloat)
         path.lineTo(x2.toFloat, y2.toFloat)
@@ -87,7 +87,7 @@ class TrianglesShape(val points: Seq[Point]) extends PolyShape with StrokedShape
 
   def init = {
     points grouped(3) foreach {
-      case List() =>
+      case Nil =>
       case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)) =>
         path.moveTo(x0.toFloat, y0.toFloat)
         path.lineTo(x1.toFloat, y1.toFloat)
@@ -114,7 +114,7 @@ class TriangleStripShape(val points: Seq[Point]) extends PolyShape with StrokedS
 
   def init = {
     points sliding(3) foreach {
-      case List() =>
+      case Nil =>
       case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2)) =>
         path.moveTo(x0.toFloat, y0.toFloat)
         path.lineTo(x1.toFloat, y1.toFloat)
@@ -141,7 +141,7 @@ class QuadsShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
 
   def init = {
     points grouped(4) foreach {
-      case List() =>
+      case Nil =>
       case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
         path.moveTo(x0.toFloat, y0.toFloat)
         path.lineTo(x1.toFloat, y1.toFloat)
@@ -169,7 +169,7 @@ class QuadStripShape(val points: Seq[Point]) extends PolyShape with StrokedShape
 
   def init = {
     points sliding(4, 2) foreach {
-      case List() =>
+      case Nil =>
       case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2), Point(x3, y3)) =>
         path.moveTo(x0.toFloat, y0.toFloat)
         path.lineTo(x1.toFloat, y1.toFloat)
@@ -197,7 +197,7 @@ class HexShape(val points: Seq[Point]) extends PolyShape with StrokedShape {
 
   def init = {
     points grouped(6) foreach {
-      case List() =>
+      case Nil =>
       case Seq(Point(x0, y0), Point(x1, y1), Point(x2, y2), Point(x3, y3), Point(x4, y4), Point(x5, y5)) =>
         path.moveTo(x0.toFloat, y0.toFloat)
         path.lineTo(x1.toFloat, y1.toFloat)
@@ -228,7 +228,7 @@ class TriangleFanShape(override val origin: Point, val points: Seq[Point]) exten
 
   def init = {
     points grouped(2) foreach {
-      case List() =>
+      case Nil =>
       case Seq(Point(x1, y1), Point(x2, y2)) =>
         path.moveTo(origin.x.toFloat, origin.y.toFloat)
         path.lineTo(x1.toFloat, y1.toFloat)

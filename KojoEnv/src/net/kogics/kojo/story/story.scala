@@ -191,7 +191,7 @@ case class Story(pages: Viewable*) extends Viewable {
   def location = (currPage+1, pages(currPage).currView)
 
   def pageNumber(name: String): Option[Int] = {
-    val idx = pages.findIndexOf {e => name == e.name}
+    val idx = pages.indexWhere {e => name == e.name}
     if (idx == -1) None else Some(idx+1)
   }
 
