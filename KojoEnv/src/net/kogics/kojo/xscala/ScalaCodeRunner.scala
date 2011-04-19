@@ -453,12 +453,11 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
     import CodeCompletionUtils._
     var _builtinsCompletions: List[String] = Nil
 
-    def builtinsCompletions: List[String] = {
-      Nil
-//      if (_builtinsCompletions == Nil) {
-//        _builtinsCompletions = completions("builtins")
-//      }
-//      _builtinsCompletions
+    def builtinsCompletions: List[String]  = {
+      if (_builtinsCompletions == Nil) {
+        _builtinsCompletions = completions("builtins")
+      }
+      _builtinsCompletions
     }
 
     def completions(identifier: String) = {
