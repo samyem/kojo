@@ -24,6 +24,7 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -87,12 +88,10 @@ public final class CodeEditorTopComponent extends CloneableEditor {
     private static final String PREFERRED_ID = "CodeEditorTopComponent";
     private JPopupMenu popupMenu;
     private CodeExecutionSupport codeExecSupport;
-
     // Cut/Copy/Paste
     final Action copyAction = new DefaultEditorKit.CopyAction();
     final Action cutAction = new DefaultEditorKit.CutAction();
     final Action pasteAction = new DefaultEditorKit.PasteAction();
-
     private String lastLoadStoreDir = "";
     private String codexEmail = "";
     private String codexPassword = "";
@@ -330,6 +329,14 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         ce.getActionMap().put(clearKey, new ClearCodeEditor());
     }
 
+    void fileOpened(File file) {
+        setDisplayName(String.format("Script Editor - %s", file.getName()));
+    }
+
+    void fileClosed() {
+        setDisplayName("Script Editor");
+    }
+
     static class KojoEditorSupport extends CloneableEditorSupport {
 
         CodeEditorTopComponent tc;
@@ -476,7 +483,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             addPopupPresenterActionMenuItem(configRoot, "Editors/Actions/toggle-line-numbers.instance");
             addFontMenuItem();
             JMenuItem clr = new JMenuItem(new ClearCodeEditor());
-            clr.setText("Clear");
+            clr.setText("Clear/Close File");
             clr.setAccelerator(Utilities.stringToKey("D-L")); // shows ctrl-l in menu; functionality added in tweakActions
             add(clr);
 

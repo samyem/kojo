@@ -19,7 +19,8 @@ public final class LoadFrom implements ActionListener {
         chooser.setFileFilter(filter);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-        String loadDir = CodeEditorTopComponent.findInstance().getLastLoadStoreDir();
+        CodeEditorTopComponent cetc = CodeEditorTopComponent.findInstance();
+        String loadDir = cetc.getLastLoadStoreDir();
         if (loadDir != null && loadDir != "") {
             File dir = new File(loadDir);
             if (dir.exists() && dir.isDirectory()) {
@@ -32,7 +33,7 @@ public final class LoadFrom implements ActionListener {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             CodeEditorTopComponent.findInstance().setLastLoadStoreDir(chooser.getSelectedFile().getParent());
             CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
-            ces.loadFrom(chooser.getSelectedFile());
+            ces.openFile(chooser.getSelectedFile());
         }
     }
 }

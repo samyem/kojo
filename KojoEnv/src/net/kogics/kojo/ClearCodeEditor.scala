@@ -20,6 +20,6 @@ import javax.swing.AbstractAction
 
 class ClearCodeEditor extends AbstractAction {
   def actionPerformed(e: ActionEvent) {
-    CodeExecutionSupport.instance.clrEditor()
+    CodeExecutionSupport.instance.closeFileAndClrEditor()
   }
 }
