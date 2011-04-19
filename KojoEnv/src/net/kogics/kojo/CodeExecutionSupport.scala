@@ -846,6 +846,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def saveFile() {
     saveTo(openedFile.get)
+    fileChanged = false
   }
 
   def saveTo(file0: java.io.File) {
