@@ -13,26 +13,32 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public final class SaveTo implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
-        JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "Kojo Files", "kojo");
-        chooser.setFileFilter(filter);
-        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        CodeEditorTopComponent cetc = CodeEditorTopComponent.findInstance();
+        CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
 
-        String loadDir = CodeEditorTopComponent.findInstance().getLastLoadStoreDir();
-        if (loadDir != null && loadDir != "") {
-            File dir = new File(loadDir);
-            if (dir.exists() && dir.isDirectory()) {
-                chooser.setCurrentDirectory(dir);
+        if (ces.hasOpenFile()) {
+            ces.saveFile();
+        } else {
+            JFileChooser chooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "Kojo Files", "kojo");
+            chooser.setFileFilter(filter);
+            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+            String loadDir = cetc.getLastLoadStoreDir();
+            if (loadDir != null && loadDir != "") {
+                File dir = new File(loadDir);
+                if (dir.exists() && dir.isDirectory()) {
+                    chooser.setCurrentDirectory(dir);
+                }
             }
-        }
 
-        int returnVal = chooser.showSaveDialog(null);
+            int returnVal = chooser.showSaveDialog(null);
 
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            CodeEditorTopComponent.findInstance().setLastLoadStoreDir(chooser.getSelectedFile().getParent());
-            CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
-            ces.saveTo(chooser.getSelectedFile());
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                cetc.setLastLoadStoreDir(chooser.getSelectedFile().getParent());
+                ces.saveTo(chooser.getSelectedFile());
+            }
         }
     }
 }

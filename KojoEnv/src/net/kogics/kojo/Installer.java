@@ -46,6 +46,13 @@ public class Installer extends ModuleInstall {
 
     @Override
     public boolean closing() {
-        return ((GeoGebraCanvas) GeoGebraCanvas.instance()).ensureWorkSaved();
+        ((GeoGebraCanvas) GeoGebraCanvas.instance()).ensureWorkSaved();
+        try {
+            ((CodeExecutionSupport) CodeExecutionSupport.instance()).closeFileIfOpen();
+            return true;
+        }
+        catch (RuntimeException e) {
+            return false;
+        }
     }
 }

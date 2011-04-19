@@ -18,6 +18,7 @@ import javax.swing._
 import java.awt.{List => AwtList, _}
 import java.awt.event._
 import javax.swing.event._
+import java.io.File
 
 import java.util.concurrent.CountDownLatch
 import java.util.logging._
@@ -98,6 +99,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         def insertUpdate(e: DocumentEvent) {
           // runButton.setEnabled(true)
           clearSButton.setEnabled(true)
+          fileChanged = true
           // cexButton.setEnabled(true)
 
         }
@@ -173,7 +175,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         case HistoryPrev =>
           loadCodeFromHistoryPrev()
         case ClearEditor =>
-          clrEditor()
+          closeFileAndClrEditor()
         case ClearOutput =>
           clrOutput()
         case UndoCommand =>
@@ -203,7 +205,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val stopButton = makeNavigationButton("/images/stop24.png", StopScript, "Stop Script/Animation", "Stop the Code")
     val hNextButton = makeNavigationButton("/images/history-next.png", HistoryNext, "Go to Next Script in History (Ctrl + Down Arrow)", "Next in History")
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
-    val clearSButton = makeNavigationButton("/images/clears.png", ClearEditor, "Clear Editor (Ctrl + L)", "Clear the Editor")
+    val clearSButton = makeNavigationButton("/images/clears.png", ClearEditor, "Clear Editor (Ctrl + L) and close opened file (if any)", "Clear the Editor and Close Open File")
     val clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, "Clear Output", "Clear the Output")
     val undoButton = makeNavigationButton("/images/undo.png", UndoCommand, "Undo Last Turtle Command", "Undo")
     val cexButton = makeNavigationButton("/images/upload.png", UploadCommand, "Upload to CodeExchange", "Upload")
@@ -583,11 +585,18 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     lastOutput = ""
   }
 
-  def clrEditor() {
+  def closeFileAndClrEditor() {
     Utils.runInSwingThread {
-      this.codePane.setText(null)
-      clearSButton.setEnabled(false)
-      codePane.requestFocusInWindow
+      try {
+        closeFileIfOpen()
+        this.codePane.setText(null)
+        clearSButton.setEnabled(false)
+        CodeEditorTopComponent.findInstance.fileClosed()
+        codePane.requestFocusInWindow
+      }
+      catch {
+        case e: RuntimeException =>
+      }
     }
   }
 
@@ -796,10 +805,47 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def varCompletions(caretOffset: Int) = codeRunner.varCompletions(codeFragment(caretOffset))
   def keywordCompletions(caretOffset: Int) = codeRunner.keywordCompletions(codeFragment(caretOffset))
 
-  def loadFrom(file: java.io.File) {
-    import util.RichFile._
-    val script = file.readAsString
-    codePane.setText(script)
+  var openedFile: Option[File] = None
+  var fileChanged = false
+
+  def hasOpenFile = openedFile.isDefined
+
+  def openFile(file: java.io.File) {
+    try {
+      closeFileIfOpen()
+      openedFile = Some(file)
+      import util.RichFile._
+      val script = file.readAsString
+      codePane.setText(script)
+      CodeEditorTopComponent.findInstance.fileOpened(file)
+      fileChanged = false
+    }
+    catch {
+      case e: RuntimeException =>
+    }
+  }
+
+  def closeFileIfOpen() {
+    if (openedFile.isDefined) {
+      if (fileChanged) {
+        val doSave = JOptionPane.showConfirmDialog(
+          null,
+          "%s has changed. Do you want to save it".format(openedFile.get.getName)
+        )
+        if (doSave == JOptionPane.CANCEL_OPTION) {
+          throw new RuntimeException("Cancel File Close")
+        }
+        if (doSave == JOptionPane.YES_OPTION) {
+          saveFile()
+        }
+      }
+      openedFile = None
+      fileChanged = false
+    }
+  }
+
+  def saveFile() {
+    saveTo(openedFile.get)
   }
 
   def saveTo(file0: java.io.File) {
