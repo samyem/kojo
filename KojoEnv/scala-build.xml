@@ -42,6 +42,7 @@
     </target>
 
     <property name="jar-excludes" value="**/*.java,**/*.form,**/package.html,**/doc-files/,**/*.scala"/>
+    <property name="scala.fsc" value="true"/>
 
     <target name="-do-scalac" depends="init,up-to-date,scala-taskdef">
         <condition property="condition-scala-fsc">
@@ -118,8 +119,8 @@
     <target name="do-test-build" depends="init, test-init, test-up-to-date,projectized-common.do-test-build" unless="is.test.jar.uptodate">
 
         <path id="test.unit.custom.cp">
-        <path refid="test.unit.cp"/>
-        <path refid="kojo.test.jars"/>
+            <path refid="test.unit.cp"/>
+            <path refid="kojo.test.jars"/>
         </path>
 
         <scalac srcdir="${test.unit.src.dir}" destdir="${build.test.unit.classes.dir}" excludes="${test.excludes}"

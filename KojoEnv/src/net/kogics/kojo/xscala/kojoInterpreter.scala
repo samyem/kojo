@@ -20,21 +20,20 @@ import java.io.PrintWriter
 
 object KojoInterpreter {
   type Settings = scala.tools.nsc.Settings
-  val IR = Results
+  val IR = scala.tools.nsc.InterpreterResults
 }
 
 class KojoInterpreter(settings: KojoInterpreter.Settings, out: PrintWriter) extends StoppableCodeRunner {
-  val interp = new IMain(settings, out) {
+  val interp = new scala.tools.nsc.Interpreter(settings, out) {
     override protected def parentClassLoader = classOf[KojoInterpreter].getClassLoader
   }
   interp.setContextClassLoader()
-  val completer = new JLineCompletion(interp)
 
   def bind(name: String, boundType: String, value: Any) = interp.bind(name, boundType, value)
   def interpret(code: String) = interp.interpret(code)
-  def completions(id: String) = completer.completions(id)
+  def completions(id: String) = interp.methodsOf(id)
   def unqualifiedIds = interp.unqualifiedIds
   def stop(interpThread: Thread) {
-    interp.lineManager.cancel()
+    interpThread.interrupt()
   }
 }

@@ -99,9 +99,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
 
     val (varCompletions, voffset) = completionSupport.varCompletions(caretOffset)
     varCompletions.foreach { completion =>
-      proposals.add(new ScalaCompletionProposal(caretOffset - voffset, completion, 
-                                                ElementKind.FIELD,
-                                                methodTemplate(completion)))
+      proposals.add(new ScalaCompletionProposal(caretOffset - voffset, completion, ElementKind.VARIABLE))
     }
 
     val (keywordCompletions, koffset) = completionSupport.keywordCompletions(caretOffset)
