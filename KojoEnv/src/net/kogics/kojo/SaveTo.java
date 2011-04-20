@@ -38,6 +38,7 @@ public final class SaveTo implements ActionListener {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 cetc.setLastLoadStoreDir(chooser.getSelectedFile().getParent());
                 ces.saveTo(chooser.getSelectedFile());
+                ces.openFile(chooser.getSelectedFile());
             }
         }
     }
