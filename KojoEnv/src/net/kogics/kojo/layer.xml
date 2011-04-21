@@ -10,9 +10,16 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
-            <file name="net-kogics-kojo-SaveTo.instance">
-                <attr name="delegate" newvalue="net.kogics.kojo.SaveTo"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_SaveTo"/>
+            <file name="net-kogics-kojo-Save.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.Save"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Save"/>
+                <attr name="iconBase" stringvalue="images/save-to.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+            <file name="net-kogics-kojo-SaveAs.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.SaveAs"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_SaveAs"/>
                 <attr name="iconBase" stringvalue="images/save-to.png"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
@@ -248,17 +255,21 @@
     </folder>
     <folder name="Menu">
         <folder name="File">
-            <file name="net-kogics-kojo-LoadFrom-separatorAfter.instance">
-                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                <attr name="position" intvalue="2550"/>
-            </file>
             <file name="net-kogics-kojo-LoadFrom.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-LoadFrom.instance"/>
-                <attr name="position" intvalue="2500"/>
+                <attr name="position" intvalue="1"/>
             </file>
-            <file name="net-kogics-kojo-SaveTo.shadow">
-                <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-SaveTo.instance"/>
-                <attr name="position" intvalue="2525"/>
+            <file name="net-kogics-kojo-Save.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-Save.instance"/>
+                <attr name="position" intvalue="2"/>
+            </file>
+            <file name="net-kogics-kojo-SaveAs.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-SaveAs.instance"/>
+                <attr name="position" intvalue="3"/>
+            </file>
+            <file name="net-kogics-kojo-LoadFrom-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="4"/>
             </file>
         </folder>
         <folder name="Sa&amp;mples">
