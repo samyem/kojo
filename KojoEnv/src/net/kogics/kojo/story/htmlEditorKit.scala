@@ -30,9 +30,11 @@ object CustomHtmlEditorKit {
     val formula = new TeXFormula("\text{y = m x + c}")
     formula.createTeXIcon(TeXConstants.STYLE_DISPLAY, 18)
   }
+  // force usage of companion object - to warm up the latex subsystem
+  def apply() = new CustomHtmlEditorKit()
 }
 
-class CustomHtmlEditorKit extends HTMLEditorKit {
+class CustomHtmlEditorKit private extends HTMLEditorKit {
   override def getViewFactory() = new CustomHtmlFactory()
   
 //  override def createDefaultDocument() = {
