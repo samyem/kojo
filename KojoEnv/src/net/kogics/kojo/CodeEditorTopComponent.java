@@ -474,7 +474,8 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         public CodeEditorPopupMenu() {
             FileObject configRoot = FileUtil.getConfigRoot();
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-LoadFrom.instance");
-            addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-SaveTo.instance");
+            addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-Save.instance");
+            addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-SaveAs.instance");
             add(new JSeparator());
             addMenu(configRoot, "Menu/Edit", "Edit");
             add(new JSeparator());
@@ -483,7 +484,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             addPopupPresenterActionMenuItem(configRoot, "Editors/Actions/toggle-line-numbers.instance");
             addFontMenuItem();
             JMenuItem clr = new JMenuItem(new ClearCodeEditor());
-            clr.setText("Clear/Close File");
+            clr.setText("Clear Editor and Close File");
             clr.setAccelerator(Utilities.stringToKey("D-L")); // shows ctrl-l in menu; functionality added in tweakActions
             add(clr);
 
