@@ -72,7 +72,7 @@ class StoryTeller extends JPanel {
   setLayout(new BorderLayout())
 
   val ep = new JEditorPane()
-  ep.setEditorKit(new CustomHtmlEditorKit())
+  ep.setEditorKit(CustomHtmlEditorKit())
 
   ep.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
   ep.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20))
