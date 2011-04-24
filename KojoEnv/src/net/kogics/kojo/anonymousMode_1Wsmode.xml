@@ -11,6 +11,6 @@
   </constraints>
   <bounds x="0" y="0" width="0" height="0" />
   <frame state="0"/>
-    <active-tc  id="CodeEditorTopComponent" />
-    <empty-behavior permanent="true"/>
+  <active-tc  id="CodeEditorTopComponent" />
+  <empty-behavior permanent="true"/>
 </mode>

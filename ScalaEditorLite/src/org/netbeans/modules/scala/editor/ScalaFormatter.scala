@@ -43,6 +43,7 @@ import javax.swing.text.{BadLocationException, Document}
 import org.netbeans.api.lexer.{Token, TokenId}
 import org.netbeans.editor.{BaseDocument, Utilities}
 import org.netbeans.modules.csl.api.Formatter
+import org.netbeans.modules.csl.api.OffsetRange
 import org.netbeans.modules.csl.spi.{GsfUtilities, ParserResult}
 import org.netbeans.modules.editor.indent.spi.Context
 import org.openide.filesystems.FileUtil
@@ -76,33 +77,57 @@ object ScalaFormatter {
 
 }
 
-class ScalaFormatter(acodeStyle: CodeStyle, rightMarginOverride: Int) extends Formatter {
-  import ScalaFormatter._
-  
-  import org.netbeans.modules.csl.api.OffsetRange
+import ScalaFormatter._
+class ScalaFormatter(codeStyle: CodeStyle, rightMarginOverride: Int) extends Formatter {
 
   def this() = this(null, -1)
   
-  private var codeStyle = if (acodeStyle != null) acodeStyle else CodeStyle.getDefault(null)
-
   def needsParserResult: Boolean = {
     false
   }
 
-  override def reindent(context: Context): Unit = {
-    reindent(context, context.document, context.startOffset, context.endOffset, null, true)
+  override def reindent(context: Context) {
+    val document = context.document
+    val startOffset = context.startOffset
+    val endOffset = context.endOffset
+
+    if (codeStyle != null) {
+      // Make sure we're not reindenting HTML content
+      reindent(context, document, startOffset, endOffset, null, true)
+    } else {
+      val f = new ScalaFormatter(CodeStyle.get(document), -1)
+      f.reindent(context, document, startOffset, endOffset, null, true)
+    }
   }
 
-  override def reformat(context: Context, info: ParserResult): Unit =  {
-    reindent(context, context.document, context.startOffset, context.endOffset, info, false)
+  override def reformat(context: Context, info: ParserResult) {
+    val document = context.document
+    val startOffset = context.startOffset
+    val endOffset = context.endOffset
+
+    if (codeStyle != null) {
+      // Make sure we're not reindenting HTML content
+      reindent(context, document, startOffset, endOffset, info, true)
+    } else {
+      val f = new ScalaFormatter(CodeStyle.get(document), -1)
+      f.reindent(context, document, startOffset, endOffset, info, true)
+    }
   }
 
   def indentSize: Int = {
-    codeStyle.getIndentSize
+    if (codeStyle != null) {
+      codeStyle.indentSize
+    } else {
+      CodeStyle.get(null.asInstanceOf[Document]).indentSize
+    }
   }
 
   def hangingIndentSize: Int = {
-    codeStyle.getContinuationIndentSize
+    if (codeStyle != null) {
+      codeStyle.continuationIndentSize
+    } else {
+      CodeStyle.get(null.asInstanceOf[Document]).continuationIndentSize
+    }
   }
 
   /** Compute the initial balance of brackets at the given offset. */
@@ -158,7 +183,6 @@ class ScalaFormatter(acodeStyle: CodeStyle, rightMarginOverride: Int) extends Fo
     var endOffset = aendOffset
     try {
       val doc = document.asInstanceOf[BaseDocument]
-      syncOptions(doc, codeStyle)
 
       if (endOffset > doc.getLength) {
         endOffset = doc.getLength
@@ -193,7 +217,8 @@ class ScalaFormatter(acodeStyle: CodeStyle, rightMarginOverride: Int) extends Fo
       // will be left in place, semantic coloring info will not be temporarily
       // damaged, and the caret will stay roughly where it belongs.
       // TODO - remove initialbalance etc.
-      val (offsets, indents) =  computeIndents(doc, initialIndent, initialOffset, endOffset, info, indentEmptyLines, includeEnd);
+      val (offsets, indents) =
+        computeIndents(doc, initialIndent, initialOffset, endOffset, info, indentEmptyLines, includeEnd)
 
       doc.runAtomic(new Runnable {
           def run {
@@ -201,7 +226,6 @@ class ScalaFormatter(acodeStyle: CodeStyle, rightMarginOverride: Int) extends Fo
 
               // Iterate in reverse order such that offsets are not affected by our edits
               assert(indents.size == offsets.size)
-              val editorFormatter = doc.getFormatter
               var break = false
               var i = indents.size - 1
               while (i >= 0 && !break) {
@@ -238,11 +262,7 @@ class ScalaFormatter(acodeStyle: CodeStyle, rightMarginOverride: Int) extends Fo
                     val currentIndent = GsfUtilities.getLineIndent(doc, lineBegin)
 
                     if (currentIndent != indent) {
-                      if (context != null) {
-                        context.modifyIndent(lineBegin, indent)
-                      } else {
-                        editorFormatter.changeRowIndent(doc, lineBegin, indent)
-                      }
+                      context.modifyIndent(lineBegin, indent)
                     }
                   }
                 }
@@ -643,10 +663,11 @@ class ScalaFormatter(acodeStyle: CodeStyle, rightMarginOverride: Int) extends Fo
         }
       }
 
-    } catch {case e: AssertionError =>
-        doc.getProperty(Document.StreamDescriptionProperty).asInstanceOf[DataObject] match {
-          case null =>
-          case dobj =>  Exceptions.attachMessage(e, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
+    } catch {
+      case e: AssertionError =>
+        doc.getProperty(Document.StreamDescriptionProperty) match {
+          case dobj: DataObject => Exceptions.attachMessage(e, FileUtil.getFileDisplayName(dobj.getPrimaryFile))
+          case _ =>
         }
         
         throw e
@@ -754,17 +775,4 @@ class ScalaFormatter(acodeStyle: CodeStyle, rightMarginOverride: Int) extends Fo
 
     Array(indent, nextIndent, continueIndent)
   }
-
-  /**
-   * Ensure that the editor-settings for tabs match our code style, since the
-   * primitive "doc.getFormatter.changeRowIndent" calls will be using
-   * those settings
-   */
-  private def syncOptions(doc: BaseDocument, style: CodeStyle) {
-    val formatter = doc.getFormatter
-    if (formatter.getSpacesPerTab != style.getIndentSize) {
-      formatter.setSpacesPerTab(style.getIndentSize)
-    }
-  }
-  
 }

@@ -42,7 +42,9 @@
 package org.netbeans.modules.scala.editor.options;
 
 import java.util.prefs.Preferences
+import javax.swing.text.Document
 import org.netbeans.api.project.Project
+import org.netbeans.modules.editor.indent.spi.CodeStylePreferences
 
 
 /** 
@@ -51,7 +53,7 @@ import org.netbeans.api.project.Project
  */
 object CodeStyle {
 
-  private lazy val INSTANCE: CodeStyle = create
+  private lazy val INSTANCE: CodeStyle = new CodeStyle(FmtOptions.getPreferences)
   
   def getDefault(project: Project): CodeStyle = synchronized {
     if (FmtOptions.codeStyleProducer == null) {
@@ -60,12 +62,16 @@ object CodeStyle {
     INSTANCE
   }
 
-  def create: CodeStyle = new CodeStyle(FmtOptions.getPreferences)
-
   FmtOptions.codeStyleProducer = new Producer
 
   /** For testing purposes only */
-  def get(prefs: Preferences): CodeStyle = new CodeStyle(prefs)
+  def get(prefs: Preferences): CodeStyle = {
+    new CodeStyle(prefs)
+  }
+  
+  def get(doc: Document): CodeStyle = {
+    new CodeStyle(CodeStylePreferences.get(doc).getPreferences)
+  }
 
   // Communication with non public packages ----------------------------------
 
@@ -80,11 +86,11 @@ object CodeStyle {
 class CodeStyle private (preferences: Preferences) {
   import CodeStyle._
     
-  def getIndentSize: Int = {
+  def indentSize: Int = {
     preferences.getInt(FmtOptions.indentSize, FmtOptions.getDefaultAsInt(FmtOptions.indentSize))
   }
 
-  def getContinuationIndentSize: Int = {
+  def continuationIndentSize: Int = {
     preferences.getInt(FmtOptions.continuationIndentSize, FmtOptions.getDefaultAsInt(FmtOptions.continuationIndentSize))
   }
 
@@ -96,7 +102,7 @@ class CodeStyle private (preferences: Preferences) {
     preferences.getBoolean(FmtOptions.indentXml, FmtOptions.getDefaultAsBoolean(FmtOptions.indentXml))
   }
     
-  def getRightMargin: Int = {
+  def rightMargin: Int = {
     preferences.getInt(FmtOptions.rightMargin, FmtOptions.getGlobalRightMargin)
   }
 
