@@ -12,7 +12,6 @@ To build Kojo from source, you need to do the following:
 - Download and install Scala. This involves having scala on your path, and having
   SCALA_HOME pointing to your Scala install dir.
   The currently supported version of Scala is: Scala version 2.8.1
-  The above Scala version can be downloaded from: http://www.scala-lang.org/node/212/distributions
 
 - Download and install Ant 1.7.1 or later.
 
