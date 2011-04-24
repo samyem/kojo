@@ -6,23 +6,13 @@
     <description>Builds, tests, and runs the project net.kogics.kojo.</description>
     <import file="nbproject/build-impl.xml"/>
 
-    <property name="nb-jars" value="../nbjars"/>
     <import file="scala-build.xml"/>
-
-
-    <!-- special jar target for csl -->
-    <target name="jar" depends="init,compile,jar-prep" unless="is.jar.uptodate">
-        <taskdef name="csljar" classname="org.netbeans.modules.csl.CslJar" classpath="${nb-jars}/cslanttask.jar:${nb-jars}/nbantext.jar"/>
-        <csljar jarfile="${cluster}/${module.jar}" compress="${build.package.compress}" index="${build.package.index}" manifest="${manifest.mf}" stamp="${cluster}/.lastModified">
-            <fileset dir="${build.classes.dir}"/>
-        </csljar>
-    </target>
 
     <!--
     compile cleans out the classes because they seem to get zapped anyway,
     and that creates compilation problems when we try to compile only waht has
     changed
     -->
-    <target name="compile" depends="clean,init,scala-compile,projectized-common.compile"/>
-    <target name="do-test-build" depends="compile,scala-module.do-test-build"/>
+    <target name="compile" depends="scala-compile"/>
+    <target name="do-test-build" depends="scala-module.do-test-build"/>
 </project>

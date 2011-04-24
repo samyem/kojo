@@ -46,6 +46,7 @@ import javax.swing.KeyStroke;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.options.OptionsDisplayer;
@@ -57,9 +58,7 @@ import org.openide.windows.WindowManager;
 import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.netbeans.editor.EditorUI;
-import org.netbeans.modules.csl.core.GsfDocument;
-import org.netbeans.modules.csl.core.Language;
-import org.netbeans.modules.csl.core.LanguageRegistry;
+import org.netbeans.modules.editor.NbEditorDocument;
 import org.openide.ErrorManager;
 import org.openide.awt.Actions;
 import org.openide.awt.Mnemonics;
@@ -96,6 +95,61 @@ public final class CodeEditorTopComponent extends CloneableEditor {
     private String codexEmail = "";
     private String codexPassword = "";
 
+    public CodeEditorTopComponent() {
+        super(new KojoEditorSupport(new KojoEnv()));
+        ((KojoEditorSupport) cloneableEditorSupport()).setTc(this);
+
+        initComponents();
+
+        cutAction.setEnabled(false);
+        copyAction.setEnabled(false);
+        pasteAction.setEnabled(true);
+
+        ActionMap actionMap = getActionMap();
+        actionMap.put(DefaultEditorKit.copyAction, copyAction);
+        actionMap.put(DefaultEditorKit.cutAction, cutAction);
+        actionMap.put(DefaultEditorKit.pasteAction, pasteAction);
+
+        setName(NbBundle.getMessage(CodeEditorTopComponent.class, "CTL_CodeEditorTopComponent"));
+        setToolTipText(NbBundle.getMessage(CodeEditorTopComponent.class, "HINT_CodeEditorTopComponent"));
+        setIcon(ImageUtilities.loadImage(ICON_PATH, true));
+        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
+        
+        // The following code should have been good to provide Scala support 
+        // within the script editor.
+        // This code works great - except that we (sometimes) get exceptions related to 
+        // GsfHints and the File Object being null
+        // The exceptions seem related to the code pane getting focus too early on startup!
+        // Intstead of trying to chase that down, I've gone with the code that's worked
+        // well over most of Kojo's life.
+        
+//        JEditorPane pane = new JEditorPane();
+//        EditorKit ek = org.openide.text.CloneableEditorSupport.getEditorKit("text/x-scala");
+//        pane.setEditorKit(ek);
+//        pane.getDocument().putProperty(org.netbeans.api.lexer.Language.class, org.netbeans.modules.scala.core.lexer.ScalaTokenId.language());
+//
+//        MouseListener[] ml = pane.getMouseListeners();
+//        for (int i = 0; i < ml.length; i++) {
+//            MouseListener mouseListener = ml[i];
+//            if (mouseListener instanceof EditorUI) {
+//                // remove default popop handler
+//                pane.removeMouseListener(mouseListener);
+//            }
+//        }
+//
+//        pane.getDocument().addUndoableEditListener(undoRedoManager);
+//
+//        EditorUI editorUI = org.netbeans.editor.Utilities.getEditorUI(pane);
+//        JPanel panel = (JPanel) editorUI.getExtComponent();
+//
+//        onCodePaneAvailable(pane, panel);
+//        panel.add(getToolbar(), BorderLayout.NORTH);
+//
+//        setLayout(new BorderLayout());
+//        add(panel, BorderLayout.CENTER);
+        
+    }
+
     public String getLastLoadStoreDir() {
         return lastLoadStoreDir;
     }
@@ -118,27 +172,6 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 
     public void setCodexPassword(String codexPassword) {
         this.codexPassword = codexPassword;
-    }
-
-    public CodeEditorTopComponent() {
-        super(new KojoEditorSupport(new KojoEnv()));
-        ((KojoEditorSupport) cloneableEditorSupport()).setTc(this);
-
-        initComponents();
-
-        cutAction.setEnabled(false);
-        copyAction.setEnabled(false);
-        pasteAction.setEnabled(true);
-
-        ActionMap actionMap = getActionMap();
-        actionMap.put(DefaultEditorKit.copyAction, copyAction);
-        actionMap.put(DefaultEditorKit.cutAction, cutAction);
-        actionMap.put(DefaultEditorKit.pasteAction, pasteAction);
-
-        setName(NbBundle.getMessage(CodeEditorTopComponent.class, "CTL_CodeEditorTopComponent"));
-        setToolTipText(NbBundle.getMessage(CodeEditorTopComponent.class, "HINT_CodeEditorTopComponent"));
-        setIcon(ImageUtilities.loadImage(ICON_PATH, true));
-        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
     }
 
     /** This method is called from within the constructor to
@@ -343,6 +376,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 
         public KojoEditorSupport(CloneableEditorSupport.Env env) {
             super(env);
+//            setMIMEType(getMimeType());
         }
 
         public void setTc(CodeEditorTopComponent tc) {
@@ -374,14 +408,14 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             return "Opened!";
         }
 
-        private String getMimeType() {
-            return "text/x-scala";
-        }
+//        private String getMimeType() {
+//            return "text/x-scala";
+//        }
 
         @Override
         protected StyledDocument createStyledDocument(EditorKit kit) {
-            final Language language = LanguageRegistry.getInstance().getLanguageByMimeType(getMimeType());
-            return new KojoDoc(language, tc);
+            // see CslEditorKit.createDefaultDocument()
+            return new KojoDoc(kit.getContentType(), tc);
         }
 
         @Override
@@ -439,14 +473,15 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         }
     }
 
-    static class KojoDoc extends GsfDocument {
+    static class KojoDoc extends NbEditorDocument {
 
         CodeEditorTopComponent tc;
 
-        public KojoDoc(Language language, CodeEditorTopComponent tc) {
-            // logic similar to GsfEditorKit.createDefaultDocument
-            super(language);
-            putProperty("mimeType", language.getMimeType()); //NOI18N
+        public KojoDoc(String mimeType, CodeEditorTopComponent tc) {
+            // see GSFDocument ctor
+            super(mimeType);
+            putProperty("mimeType", mimeType); //NOI18N
+            putProperty(org.netbeans.api.lexer.Language.class, org.netbeans.modules.scala.core.lexer.ScalaTokenId.language());
             this.tc = tc;
         }
 
@@ -628,4 +663,3 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         }
     }
 }
-

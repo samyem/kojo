@@ -87,6 +87,7 @@
             <file name="org-netbeans-modules-editor-NbCodeFoldingAction.instance_hidden"/>
             <file name="org-netbeans-modules-project-ui-SyncEditorWithViewsAction.shadow_hidden"/>
             <file name="toggle-line-numbers.shadow_hidden"/>
+            <file name="toggle-non-printable-characters.shadow_hidden"/>
             <file name="toggle-toolbar.shadow_hidden"/>
         </folder>
         <folder name="Window">
@@ -105,9 +106,5 @@
             <file name="org-netbeans-modules-project-ui-physical-tab-action.shadow_hidden"/>
         </folder>
     </folder>
-    <folder name="Toolbars">
-        <file name="Build_hidden"/>
-        <file name="File_hidden"/>
-        <file name="Standard.xml_hidden"/>
-    </folder>
+    <file name="Toolbars_hidden"/>
 </filesystem>

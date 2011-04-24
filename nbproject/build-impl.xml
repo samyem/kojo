@@ -3,7 +3,7 @@
 *** GENERATED FROM project.xml - DO NOT EDIT  ***
 ***         EDIT ../build.xml INSTEAD         ***
 -->
-<project name="Kojo-impl" basedir=".." xmlns:sproject="http://www.netbeans.org/ns/nb-module-suite-project/1">
+<project name="Kojo - NB7-impl" basedir=".." xmlns:sproject="http://www.netbeans.org/ns/nb-module-suite-project/1">
     <fail message="Please build using Ant 1.7.1 or higher.">
         <condition>
             <not>
@@ -35,6 +35,13 @@
         <condition>
             <not>
                 <contains string="${cluster.path.evaluated}" substring="platform"/>
+            </not>
+        </condition>
+    </fail>
+    <fail message="Cannot find NetBeans build harness. ${line.separator}Check that nbplatform.${nbplatform.active}.netbeans.dest.dir and nbplatform.${nbplatform.active}.harness.dir are defined. ${line.separator}On a developer machine these are normally defined in ${user.properties.file}=${netbeans.user}/build.properties ${line.separator}but for automated builds you should pass these properties to Ant explicitly.">
+        <condition>
+            <not>
+                <available type="dir" file="${harness.dir}"/>
             </not>
         </condition>
     </fail>

@@ -146,7 +146,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     throw new UnsupportedOperationException("Not supported yet.")
   }
 
-  override def getApplicableTemplates(info: ParserResult, selectionBegin: Int, selectionEnd: Int): java.util.Set[String] = {
+  override def getApplicableTemplates(doc:  javax.swing.text.Document, selectionBegin: Int, selectionEnd: Int): java.util.Set[String] = {
     java.util.Collections.emptySet[String]
   }
 

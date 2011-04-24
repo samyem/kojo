@@ -79,11 +79,10 @@
             <file src="Kojo-license.txt" targetdir="$INSTALL_PATH"/>
             <file src="bin" targetdir="$INSTALL_PATH"/>
             <file src="etc" targetdir="$INSTALL_PATH"/>
-            <file src="harness" targetdir="$INSTALL_PATH"/>
-            <file src="ide12" targetdir="$INSTALL_PATH"/>
+            <file src="ide" targetdir="$INSTALL_PATH"/>
             <file src="kojo" targetdir="$INSTALL_PATH"/>
             <file src="licenses" targetdir="$INSTALL_PATH"/>
-            <file src="platform11" targetdir="$INSTALL_PATH"/>
+            <file src="platform" targetdir="$INSTALL_PATH"/>
             <file src="puzzles" targetdir="$INSTALL_PATH"/>
             <file src="icons" targetdir="$INSTALL_PATH"/>
             <file src="stories" targetdir="$INSTALL_PATH"/>

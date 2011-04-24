@@ -23,9 +23,10 @@
 
     <!-- scalac will check class dependencies deeply, so we can not rely on public package only which is refed by ${module.classpath} -->
     <path id="scalac.cp">
-    <path refid="scala.libs"/>
+        <path refid="scala.libs"/>
         <pathelement path="${module.run.classpath}"/>
         <pathelement path="${cp.extra}"/>
+        <pathelement path="${build.classes.dir}"/>
     </path>
 
     <target name="scala-taskdef" depends="init">
@@ -44,7 +45,7 @@
     <property name="jar-excludes" value="**/*.java,**/*.form,**/package.html,**/doc-files/,**/*.scala"/>
     <property name="scala.fsc" value="true"/>
 
-    <target name="-do-scalac" depends="init,up-to-date,scala-taskdef">
+    <target name="-do-scalac">
         <condition property="condition-scala-fsc">
             <isset property="scala.fsc"/>
         </condition>
@@ -52,38 +53,48 @@
         <antcall target="-do-norm-scalac"/>  <!--else-->
     </target>
 
-    <target name="-do-fast-scalac" depends="init,up-to-date,scala-taskdef" if="condition-scala-fsc">
+    <target name="-do-fast-scalac" if="condition-scala-fsc">
         <echo message="*************************************Doing fast scalac"/>
+        <!-- we set force=true to recompile eveything, because of the nb-javac issue (see below) -->
         <fsc classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
              encoding="UTF-8" target="jvm-${javac.target}" unchecked="${scalac.unchecked}"
-             deprecation="${scalac.deprecation}"/>
+             deprecation="${scalac.deprecation}" force="true" />
     </target>
 
-    <target name="-do-norm-scalac" depends="init,up-to-date,scala-taskdef" unless="condition-scala-fsc">
+    <target name="-do-norm-scalac" unless="condition-scala-fsc">
         <echo message="*************************************Doing normal scalac"/>
         <scalac classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
                 encoding="UTF-8" target="jvm-${javac.target}" unchecked="${scalac.unchecked}"
-                deprecation="${scalac.deprecation}"
+                deprecation="${scalac.deprecation}" force="true"
                 addparams="-make:transitive -dependencyfile ${build.classes.dir}/.scala_dependencies"/>
     </target>
 
-    <target name="scala-compile" depends="init,up-to-date,scala-taskdef" unless="is.jar.uptodate">
+    <target name="scala-compile" depends="scala-taskdef" unless="is.jar.uptodate">
 
         <!-- javac's classpath should include scala.library and all these paths of "cp" -->
         <!-- if I try to put this at the top level, javac fails with missing classes/packages -->
         <path id="javac.cp">
-        <path refid="scala.libs"/>
+            <path refid="scala.libs"/>
             <pathelement path="${module.classpath}"/>
             <pathelement path="${cp.extra}"/>
         </path>
 
         <mkdir dir="${build.classes.dir}"/>
-        <depend srcdir="${src.dir}" destdir="${build.classes.dir}" cache="build/depcache">
-            <classpath refid="scalac.cp"/>
+
+        <depend srcdir="${src.dir}" destdir="${build.classes.dir}" cache="${build.dir}/depcache">
+            <classpath refid="javac.cp"/>
         </depend>
 
         <!-- scalac -->
         <antcall target="-do-scalac"/>
+
+        <!-- nb-javac clobbers the scala classes because it thinks one of the classes is stale! -->
+        <nb-javac srcdir="${src.dir}" destdir="${build.classes.dir}" debug="${build.compiler.debug}" debuglevel="${build.compiler.debuglevel}" encoding="UTF-8"
+                deprecation="${build.compiler.deprecation}" optimize="${build.compiler.optimize}" source="${javac.source}" target="${javac.target}" includeantruntime="false">
+            <classpath refid="javac.cp"/>
+            <compilerarg line="${javac.compilerargs}"/>
+            <processorpath refid="processor.cp"/>
+        </nb-javac>
 
         <copy todir="${build.classes.dir}">
             <fileset dir="${src.dir}" excludes="${jar-excludes}"/>
@@ -109,20 +120,21 @@
         <fileset dir="../ScalaCheck/release/modules/ext">
             <include name="**/*.jar"/>
         </fileset>
-        <pathelement location="${nb-jars}/csl-api-tests.jar"/>
-        <pathelement location="${nb-jars}/editor-mimelookup-tests.jar"/>
+        <pathelement location="c:/users/lalit/work/junit4/junit-4.8.2.jar"/>
     </path>
 
     <property name="kojo.test.jars" refid="kojo.test.jars"/>
     <property name="test.unit.run.cp.extra" value="${kojo.test.jars}"/>
 
-    <target name="do-test-build" depends="init, test-init, test-up-to-date,projectized-common.do-test-build" unless="is.test.jar.uptodate">
+    <target name="do-test-build" depends="test-init">
 
         <path id="test.unit.custom.cp">
             <path refid="test.unit.cp"/>
             <path refid="kojo.test.jars"/>
         </path>
-
+        
+        <mkdir dir="${build.test.unit.classes.dir}"/>
+        
         <scalac srcdir="${test.unit.src.dir}" destdir="${build.test.unit.classes.dir}" excludes="${test.excludes}"
                 encoding="UTF-8">
             <classpath refid="test.unit.custom.cp"/>

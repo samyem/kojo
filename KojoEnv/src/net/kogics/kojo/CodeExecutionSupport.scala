@@ -870,7 +870,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       }
     }
     else {
-        saveTo(file)
+      saveTo(file)
     }
   }
 
@@ -962,6 +962,12 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val ret = runMonitor.asInstanceOf[OutputCapturingRunner].go()
     runMonitor = new NoOpRunMonitor()
     ret
+  }
+  
+  def activateEditor() {
+    Utils.schedule(0.3) {
+      codePane.requestFocusInWindow();
+    }
   }
 
   class OutputCapturingRunner extends RunMonitor {

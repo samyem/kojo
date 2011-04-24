@@ -492,6 +492,7 @@
             <folder name="navigator">
                 <file name="StoryTellerTopComponent.wstcref" url="StoryTellerTopComponentWstcref.xml"/>
             </folder>
+            <file name="output.wsmode" url="outputWsmode.xml"/>
         </folder>
     </folder>
     <folder name="Services">
@@ -543,21 +544,4 @@
             </folder>
         </folder>
     </folder>
-
-    <folder name="CslPlugins">
-        <folder name="text">
-            <folder name="x-scala">
-                <file name="language.instance">
-                    <attr name="instanceClass" stringvalue="net.kogics.kojo.xscala.ScalaLanguage"/>
-                </file>
-                <!--
-                <file name="structure.instance">
-                    <attr name="instanceClass" stringvalue="net.kogics.kojo.xscala.ScalaStructureScanner"/>
-                </file>
-                -->
-            </folder>
-
-        </folder>
-    </folder>
-
 </filesystem>

@@ -3,11 +3,10 @@ rm dist/kojo.zip
 rm installer/Kojo-license.txt
 rm -rf installer/bin/
 rm -rf installer/etc/
-rm -rf installer/harness/
-rm -rf installer/ide12/
+rm -rf installer/ide/
 rm -rf installer/kojo/
 rm -rf installer/licenses/
-rm -rf installer/platform11/
+rm -rf installer/platform/
 rm -rf installer/puzzles/
 rm -rf installer/icons/
 rm -rf installer/stories/
@@ -51,6 +50,10 @@ rm installer/licenses/hamcrest-license.txt
 rm installer/licenses/jmock-license.txt
 rm installer/licenses/objenesis-license.txt
 rm installer/licenses/scalacheck-license.txt
+
+# remove jni native libs that came in with NB7
+rm -rf installer/platform/modules/lib
+
 
 # run IzPack to create installer
 cd installer
