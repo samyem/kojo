@@ -120,7 +120,7 @@
         <fileset dir="../ScalaCheck/release/modules/ext">
             <include name="**/*.jar"/>
         </fileset>
-        <pathelement location="c:/users/lalit/work/junit4/junit-4.8.2.jar"/>
+        <pathelement location="../JUnit4/junit-4.8.2.jar"/>
     </path>
 
     <property name="kojo.test.jars" refid="kojo.test.jars"/>
