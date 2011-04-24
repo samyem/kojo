@@ -102,6 +102,7 @@
             <file name="SwitchToRecentDocumentAction.shadow_hidden"/>
             <file name="ViewFavoritesTabAction.shadow_hidden"/>
             <file name="org-netbeans-core-windows-actions-GlobalPropertiesAction.shadow_hidden"/>
+            <file name="org-netbeans-modules-favorites-View.shadow_hidden"/>
             <file name="org-netbeans-modules-project-ui-logical-tab-action.shadow_hidden"/>
             <file name="org-netbeans-modules-project-ui-physical-tab-action.shadow_hidden"/>
         </folder>
