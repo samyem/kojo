@@ -50,7 +50,7 @@ public final class SaveAs implements ActionListener {
             }
             try {
                 ces.saveAs(chooser.getSelectedFile());
-                ces.openFile(chooser.getSelectedFile());
+                ces.openFileWithoutClose(chooser.getSelectedFile());
             } catch (RuntimeException ex) {
                 // user cancelled save
             }
