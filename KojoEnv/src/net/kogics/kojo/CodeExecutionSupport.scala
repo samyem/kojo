@@ -571,9 +571,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   }
 
   def switchFocusToCodeEditor() {
-    // Need to do this in roundabout way because calling directly
-    // into CodeEditorTopComponent makes scalac barf
-    OutputTopComponent.findInstance.switchFocusToCodeEditor()
+    CodeEditorTopComponent.findInstance().requestActive()
   }
 
   def clrOutput() {
@@ -810,15 +808,20 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def hasOpenFile = openedFile.isDefined
 
+  def openFileWithoutClose(file: java.io.File) {
+    openedFile = Some(file)
+    import util.RichFile._
+    val script = file.readAsString
+    codePane.setText(script)
+    codePane.setCaretPosition(0)
+    CodeEditorTopComponent.findInstance.fileOpened(file)
+    fileChanged = false
+  }
+  
   def openFile(file: java.io.File) {
     try {
       closeFileIfOpen()
-      openedFile = Some(file)
-      import util.RichFile._
-      val script = file.readAsString
-      codePane.setText(script)
-      CodeEditorTopComponent.findInstance.fileOpened(file)
-      fileChanged = false
+      openFileWithoutClose(file)
     }
     catch {
       case e: RuntimeException =>

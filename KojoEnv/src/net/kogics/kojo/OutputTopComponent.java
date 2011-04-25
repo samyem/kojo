@@ -220,10 +220,6 @@ public final class OutputTopComponent extends TopComponent implements IOContaine
         return PREFERRED_ID;
     }
 
-    public void switchFocusToCodeEditor() {
-        CodeEditorTopComponent.findInstance().requestActive();
-    }
-
     public void scrollToEnd() {
         if (outputPane == null) {
             // we get here in the unit tests. need to look more into that
