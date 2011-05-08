@@ -373,7 +373,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 
       // add all jars in user's kojo lib dir to classpath
       val userDir = System.getProperty("netbeans.user")
-      val libDir = userDir + File.separatorChar + "lib"
+      val libDir = userDir + File.separatorChar + "libk"
       val libDirFs = new File(libDir)
       if (libDirFs.exists) {
         val jarFiles = libDirFs.list(new FilenameFilter {
