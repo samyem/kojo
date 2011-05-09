@@ -308,18 +308,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
       }
     }
 
-    val jars = List("modules/ext/scala-library.jar",
-                    "modules/ext/scala-compiler.jar",
-                    "modules/net-kogics-kojo.jar",
-                    "modules/ext/piccolo2d-core-1.3.jar",
-                    "modules/ext/piccolo2d-extras-1.3.jar",
-                    "modules/ext/geogebra_main.jar",
-                    "modules/ext/geogebra_gui.jar",
-                    "modules/ext/geogebra_cas.jar",
-                    "modules/ext/geogebra.jar",
-                    "modules/ext/jfugue-4.1.jar"
-    )
-
+    val jars = util.Utils.kojoJars
+    
     def initCompiler() {
       val iSettings = new Settings()
       iSettings.classpath.append(createCp(jars))

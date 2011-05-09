@@ -13,7 +13,8 @@
  *
  */
 
-package net.kogics.kojo.xscala
+package net.kogics.kojo
+package xscala
 
 import org.junit.After
 import org.junit.Before
@@ -23,9 +24,11 @@ import org.junit.Assert._
 import scala.tools.nsc.Settings
 
 class CompilerAndRunnerTest {
-  val jarsDir = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster/modules"
+  val jarsDir = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
+  val jars = util.Utils.kojoJars
+
   val settings = new Settings()
-  settings.classpath.append("%s/ext/scala-library.jar;%s/ext/scala-compiler.jar;%s/net-kogics-kojo.jar" format(jarsDir, jarsDir, jarsDir))
+  settings.classpath.append(jars.map {"%s/%s;" format(jarsDir, _)}.mkString)
 
   var errLine = 0
   var errColumn = 0

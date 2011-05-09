@@ -14,7 +14,7 @@
  */
 package net.kogics.kojo.util
 
-import java.awt._
+import java.awt.{List => _, _}
 import javax.swing._
 import java.awt.event.{ActionListener, ActionEvent}
 import java.io._
@@ -108,7 +108,19 @@ object Utils {
       new File(n, "modules/ext/scala-library.jar").exists
     }.getOrElse {throw new IllegalStateException("Unknown Install Dir")}
   }
-
+  
+  val kojoJars = List("modules/ext/scala-library.jar",
+                      "modules/ext/scala-compiler.jar",
+                      "modules/net-kogics-kojo.jar",
+                      "modules/ext/piccolo2d-core-1.3.jar",
+                      "modules/ext/piccolo2d-extras-1.3.jar",
+                      "modules/ext/geogebra_main.jar",
+                      "modules/ext/geogebra_gui.jar",
+                      "modules/ext/geogebra_cas.jar",
+                      "modules/ext/geogebra.jar",
+                      "modules/ext/jfugue-4.1.jar"
+  )
+  
   def readFile(is: InputStream): String = {
     val reader = new BufferedReader(new InputStreamReader(is, "UTF-8"))
     val buf = new Array[Char](1024)
