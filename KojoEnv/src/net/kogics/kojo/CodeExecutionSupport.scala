@@ -99,12 +99,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         def insertUpdate(e: DocumentEvent) {
           // runButton.setEnabled(true)
           clearSButton.setEnabled(true)
-          fileChanged = true
           // cexButton.setEnabled(true)
 
         }
         def removeUpdate(e: DocumentEvent) {
-          if (codePane.getDocument.getLength == 0) {
+          if (codePane.getDocument.getLength == 0 && !hasOpenFile) {
             // runButton.setEnabled(false) // interferes with enabling/disabling of run button with interpreter start/stop
             clearSButton.setEnabled(false)
             // cexButton.setEnabled(false) // makes the icon look horrible
@@ -322,7 +321,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         }
 
         def onCompileSuccess() {
-          compileDone
+          compileDone()
           Utils.runInSwingThread {
             statusStrip.onSuccess()
           }
@@ -331,6 +330,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         private def compileDone() {
           codePane.requestFocusInWindow
           enableRunButton(true)
+          Utils.schedule(0.2) {
+            OutputTopComponent.findInstance().scrollToEnd()
+          }
         }
 
         def onRunSuccess() = {
@@ -804,7 +806,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def keywordCompletions(caretOffset: Int) = codeRunner.keywordCompletions(codeFragment(caretOffset))
 
   var openedFile: Option[File] = None
-  var fileChanged = false
+  var fileData: String = _
+  def fileChanged = fileData != codePane.getText
 
   def hasOpenFile = openedFile.isDefined
 
@@ -815,7 +818,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     codePane.setText(script)
     codePane.setCaretPosition(0)
     CodeEditorTopComponent.findInstance.fileOpened(file)
-    fileChanged = false
+    fileData = script
   }
   
   def openFile(file: java.io.File) {
@@ -843,13 +846,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         }
       }
       openedFile = None
-      fileChanged = false
     }
   }
 
   def saveFile() {
     saveTo(openedFile.get)
-    fileChanged = false
   }
 
   import java.io.File
@@ -857,6 +858,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     import util.RichFile._
     val script = codePane.getText()
     file.write(script)
+    fileData = script
   }
 
   def saveAs(file: java.io.File) {

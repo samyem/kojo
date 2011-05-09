@@ -119,7 +119,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends 
 
   val compiler = new Global(settings, reporter)
 
-  def compile(code0: String, stopPhase: List[String] = List("superaccessors")) = {
+  def compile(code0: String, stopPhase: List[String] = List("selectiveanf")) = {
     counter += 1
     val pfx = prefix format(counter)
     offsetDelta = pfx.length
