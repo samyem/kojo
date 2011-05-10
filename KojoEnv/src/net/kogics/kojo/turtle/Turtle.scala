@@ -41,7 +41,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 object Turtle {
-  val handleLayer = new PLayer
   val writeFont = new Font(new PText().getFont.getName, Font.PLAIN, 18)
 }
 

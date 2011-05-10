@@ -15,6 +15,7 @@
 
 package net.kogics.swill
 
+import java.util.logging._
 import com.meterware.httpunit._
 import scala.util.matching.Regex
 
@@ -35,6 +36,8 @@ object Conversation {
 }
 
 class Conversation {
+  val Log = Logger.getLogger(getClass.getName)
+  
   import Conversation._
   val wc = new WebConversation
   var response: WebResponse = _
@@ -47,7 +50,7 @@ class Conversation {
 
   def go(relativeUrl: String) {
     val url = server + relativeUrl
-    println("[Thread %d] Going to page - %s" format(tid.get, url))
+    Log.info("[Thread %d] Going to page - %s" format(tid.get, url))
     response = wc.getResponse(url);
   }
 
@@ -56,7 +59,7 @@ class Conversation {
   }
 
   def find(regex: String) {
-    println("[Thread %d] Finding - %s" format(tid.get, regex))
+    Log.info("[Thread %d] Finding - %s" format(tid.get, regex))
     if (regex.r.findFirstIn(response.getText) == None) {
       throw new RuntimeException("[Thread %d] Not found - %s\nResponse Text:\n%s"
                                  format(tid.get, regex, response.getText))
@@ -64,14 +67,14 @@ class Conversation {
   }
 
   def notFind(regex: String) {
-    println("[Thread %d] Not Finding - %s" format(tid.get, regex))
+    Log.info("[Thread %d] Not Finding - %s" format(tid.get, regex))
     if (regex.r.findFirstIn(response.getText) != None) {
       throw new RuntimeException("[Thread %d] Found - %s" format(tid.get, regex))
     }
   }
 
   def url(regex: String) {
-    println("[Thread %d] Matching current URL - %s" format(tid.get, regex))
+    Log.info("[Thread %d] Matching current URL - %s" format(tid.get, regex))
     val url = response.getURL.toString
     if (regex.r.findFirstIn(url) == None) {
       throw new RuntimeException("[Thread %d] Actual URL: %s - does not match: %s" format(tid.get, url, regex))
@@ -79,7 +82,7 @@ class Conversation {
   }
 
   def title(regex: String) {
-    println("[Thread %d] Matching current Title - %s" format(tid.get, regex))
+    Log.info("[Thread %d] Matching current Title - %s" format(tid.get, regex))
     val url = response.getTitle.toString
     if (regex.r.findFirstIn(url) == None) {
       throw new RuntimeException("[Thread %d] Actual Title: %s - does not match: %s" format(tid.get, url, regex))
@@ -87,7 +90,7 @@ class Conversation {
   }
 
   def code(n: Int) {
-    println("[Thread %d] Checking current Code - %d" format(tid.get, n))
+    Log.info("[Thread %d] Checking current Code - %d" format(tid.get, n))
     val cd = response.getResponseCode
     if (cd != n) {
       throw new RuntimeException("[Thread %d] Expected code: %d, Actual code: %d" format(tid.get, n, cd))
@@ -99,18 +102,18 @@ class Conversation {
   def form0 = response.getForms()(0)
 
   def formSubmit() {
-    println("[Thread %d] Submitting Form" format(tid.get))
+    Log.info("[Thread %d] Submitting Form" format(tid.get))
     form0.getButtons()(0).click()
     response = wc.getCurrentPage()
   }
 
   def formField(name: String, value: String) {
-    println("[Thread %d] Setting Form Field: %s to %s" format(tid.get, name, value))
+    Log.info("[Thread %d] Setting Form Field: %s to %s" format(tid.get, name, value))
     form0.setParameter(name, value)
   }
 
   def formField(name: String, value: java.io.File) {
-    println("[Thread %d] Setting Form Field: %s to %s" format(tid.get, name, value))
+    Log.info("[Thread %d] Setting Form Field: %s to %s" format(tid.get, name, value))
     form0.setParameter(name, value)
   }
 
