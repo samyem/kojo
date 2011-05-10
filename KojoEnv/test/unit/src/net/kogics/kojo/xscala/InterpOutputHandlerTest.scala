@@ -64,7 +64,7 @@ class InterpOutputHandlerTest {
     context.checking (new Expectations {
         one(runCtx).reportErrorMsg(output11)
         one(runCtx).reportErrorText(output2)
-        one(runCtx).println(output3)
+        one(runCtx).kprintln(output3)
       })
 
     val outputHandler = new InterpOutputHandler(runCtx)
@@ -84,7 +84,7 @@ class InterpOutputHandlerTest {
     context.checking (new Expectations {
         one(runCtx).reportErrorMsg(output11)
         one(runCtx).reportErrorText(output2)
-        one(runCtx).println(output3)
+        one(runCtx).kprintln(output3)
       })
 
     val outputHandler = new InterpOutputHandler(runCtx)
@@ -104,7 +104,7 @@ class InterpOutputHandlerTest {
     context.checking (new Expectations {
         one(runCtx).reportErrorMsg(output11)
         one(runCtx).reportErrorText(output2)
-        one(runCtx).println(output3)
+        one(runCtx).kprintln(output3)
       })
 
     val outputHandler = new InterpOutputHandler(runCtx)
@@ -124,7 +124,7 @@ class InterpOutputHandlerTest {
     context.checking (new Expectations {
         one(runCtx).reportErrorMsg(output11)
         one(runCtx).reportErrorText(output2)
-        one(runCtx).println(output3)
+        one(runCtx).kprintln(output3)
       })
 
     val outputHandler = new InterpOutputHandler(runCtx)
@@ -160,7 +160,7 @@ class InterpOutputHandlerTest {
 
     val runCtx = (context.mock(classOf[RunContext])).asInstanceOf[RunContext]
     context.checking (new Expectations {
-        one(runCtx).println(output5)
+        one(runCtx).kprintln(output5)
       })
 
     val outputHandler = new InterpOutputHandler(runCtx)
@@ -194,7 +194,7 @@ class InterpOutputHandlerTest {
 
     val runCtx = (context.mock(classOf[RunContext])).asInstanceOf[RunContext]
     context.checking (new Expectations {
-        one(runCtx).println(output5)
+        one(runCtx).kprintln(output5)
       })
 
     val outputHandler = new InterpOutputHandler(runCtx)
@@ -210,7 +210,7 @@ class InterpOutputHandlerTest {
 
     val runCtx = (context.mock(classOf[RunContext])).asInstanceOf[RunContext]
     context.checking (new Expectations {
-        one(runCtx).println(output)
+        one(runCtx).kprintln(output)
       })
 
     val outputHandler = new InterpOutputHandler(runCtx)
@@ -224,7 +224,7 @@ class InterpOutputHandlerTest {
 
     val runCtx = (context.mock(classOf[RunContext])).asInstanceOf[RunContext]
     context.checking (new Expectations {
-        one(runCtx).println(output)
+        one(runCtx).kprintln(output)
       })
 
     val outputHandler = new InterpOutputHandler(runCtx)
@@ -257,7 +257,7 @@ class InterpOutputHandlerTest {
 
     val runCtx = (context.mock(classOf[RunContext])).asInstanceOf[RunContext]
     context.checking (new Expectations {
-        one(runCtx).println(output5)
+        one(runCtx).kprintln(output5)
       })
 
     val outputHandler = new InterpOutputHandler(runCtx)

@@ -38,7 +38,7 @@ trait RunContext {
   def onCompileError(): Unit
   def onCompileSuccess(): Unit
 
-  def println(outText: String)
+  def kprintln(outText: String)
   def reportOutput(outText: String)
   def reportErrorMsg(errMsg: String)
   def reportErrorText(errText: String)
