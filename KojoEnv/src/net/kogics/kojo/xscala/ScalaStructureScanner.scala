@@ -19,15 +19,12 @@ import org.netbeans.modules.csl.spi._
 import StructureScanner._
 
 class ScalaStructureScanner extends StructureScanner {
-  println("ScalaStructureScanner created")
 
   override def scan(result: ParserResult): java.util.List[StructureItem] = {
-    println("scan")
     java.util.Collections.emptyList[StructureItem]
   }
 
   override def folds(result: ParserResult): java.util.Map[String, java.util.List[OffsetRange]] = {
-    println("folds")
     java.util.Collections.emptyMap[String, java.util.List[OffsetRange]]  
   }
 

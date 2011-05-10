@@ -80,8 +80,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   var puzzlers: List[Turtle] = Nil
   var figures: List[Figure] = Nil
 
-  getCamera.addLayer(Turtle.handleLayer)
-
   var showAxes = false
   var showGrid = false
 
