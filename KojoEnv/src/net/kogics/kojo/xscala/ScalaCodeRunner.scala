@@ -32,7 +32,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
   val outputHandler = new InterpOutputHandler(ctx)
   val codeRunner = startCodeRunner()
 
-  def println(s: String) = ctx.println(s)
+  def kprintln(s: String) = ctx.kprintln(s)
 
   def runCode(code: String) {
     // Runs on swing thread
@@ -100,7 +100,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
         return
       }
 
-      println("Attempting to stop Script...\n")
+      kprintln("Attempting to stop Script...\n")
 
       if (interpreterThread.isDefined) {
         Log.info("Interrupting Interpreter thread...")
@@ -108,13 +108,13 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
             // don't need to clean out interrupt state because Kojo needs to be shut down anyway
             // and in fact, cleaning out the interrupt state will mess with a delayed interruption
             Log.info("Interrupt timer fired")
-            println("Unable to stop script.\nPlease restart the Kojo Environment unless you see a 'Script Stopped' message soon.\n")
+            kprintln("Unable to stop script.\nPlease restart the Kojo Environment unless you see a 'Script Stopped' message soon.\n")
           })
         outputHandler.interpOutputSuppressed = true
         stoppable.get.stop(interpreterThread.get)
       }
       else {
-        println("Animation Stopped.\n")
+        kprintln("Animation Stopped.\n")
       }
     }
 
@@ -137,7 +137,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
         interruptTimer.get.stop
         interruptTimer = None
         outputHandler.interpOutputSuppressed = false
-        println("Script Stopped.\n")
+        kprintln("Script Stopped.\n")
       }
       interpreterThread = None
       stoppable = None

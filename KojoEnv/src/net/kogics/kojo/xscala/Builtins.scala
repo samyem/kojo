@@ -389,7 +389,7 @@ Here's a partial list of the available commands:
 
   def println(s: String): Unit = {
     // Runs on Actor pool (interpreter) thread
-    scalaCodeRunner.println(s + "\n")
+    scalaCodeRunner.kprintln(s + "\n")
     Throttler.throttle()
   }
 

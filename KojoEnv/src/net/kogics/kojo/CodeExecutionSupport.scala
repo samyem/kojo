@@ -90,6 +90,51 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   setSpriteListener()
   doWelcome()
+  
+  import java.io._
+  System.setOut(new PrintStream(new WriterOutputStream(new OutputWindowWriter)))
+  
+  class OutputWindowWriter extends Writer {
+    override def write(s: String) {
+      showOutput(s)
+    }
+
+    def write(cbuf: Array[Char], off: Int, len: Int) {
+      write(new String(cbuf, off, len))
+    }
+
+    def close() {}
+    def flush() {}
+  }
+  
+  class WriterOutputStream(writer: Writer) extends OutputStream {
+
+    private val buf = new Array[Byte](1)
+
+    override def close() {
+      writer.close()
+    }
+
+    override def flush() {
+      writer.flush()
+    }
+
+    override def write(b: Array[Byte]) {
+      writer.write(new String(b))
+    }
+
+    override def write(b: Array[Byte], off: Int, len: Int) {
+      writer.write(new String(b, off, len))
+    }
+
+    def write(b: Int) {
+      synchronized {
+        buf(0) = b.toByte
+        write(buf)
+      }
+    }
+  }   
+  
 
   def setCodePane(cp: JEditorPane) {
     codePane = cp;
@@ -349,7 +394,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           onRunError()
         }
 
-        def println(outText: String) {
+        def kprintln(outText: String) {
           showOutput(outText)
           runMonitor.reportOutput(outText)
         }
@@ -359,7 +404,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
             return
           }
 
-          println(outText)
+          kprintln(outText)
         }
 
         def reportErrorMsg(errMsg: String) {

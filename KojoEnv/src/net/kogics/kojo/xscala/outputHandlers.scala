@@ -49,7 +49,7 @@ class InterpOutputHandler(ctx: RunContext) {
     else {
       output0
     }
-    ctx.println(output)
+    ctx.kprintln(output)
   }
 
   private def reportNonExceptionOutput(output: String) {
@@ -71,7 +71,7 @@ class InterpOutputHandler(ctx: RunContext) {
     }
 
     if ((currMode != OutputMode) && (output == "\r\n" || output == "\n")) {
-      ctx.println(output)
+      ctx.kprintln(output)
       return
     }
 
@@ -97,7 +97,7 @@ class InterpOutputHandler(ctx: RunContext) {
         ctx.reportErrorMsg(output)
         currMode = HatMode
       case HatMode =>
-        ctx.println(output)
+        ctx.kprintln(output)
         currMode = OutputMode
     }
   }
@@ -130,18 +130,18 @@ class CompilerOutputHandler(ctx: RunContext) extends CompilerListener {
   def error(msg: String, line: Int, column: Int, offset: Int, lineContent: String) {
     ctx.reportErrorMsg("Error[%d,%d]: %s\n" format(line, column, msg))
     ctx.reportSmartErrorText("%s\n" format(lineContent), line, column, offset)
-    ctx.println(" " * (column-1) + "^\n")
+    ctx.kprintln(" " * (column-1) + "^\n")
   }
 
   def warning(msg: String, line: Int, column: Int) {
-    ctx.println("Warning: %s\n" format(msg))
+    ctx.kprintln("Warning: %s\n" format(msg))
   }
 
   def info(msg: String, line: Int, column: Int) {
-    ctx.println("Info: %s\n" format(msg))
+    ctx.kprintln("Info: %s\n" format(msg))
   }
 
   def message(msg: String) {
-    ctx.println("%s\n" format(msg))
+    ctx.kprintln("%s\n" format(msg))
   }
 }
