@@ -36,7 +36,7 @@ class Stories extends ActionListener {
     val AddFrac = BundleMessage(klass, "CTL_AddFrac")
     val Pi = BundleMessage(klass, "CTL_Pi")
     val SimpleStory = BundleMessage(klass, "CTL_Simple")
-    val LearnMore = BundleMessage(klass, "CTL_Learn")
+    val LearnMore = BundleMessage(klass, "CTL_LearnMore")
     val MathworldIntro = BundleMessage(klass, "CTL_MathworldIntro")
     val ComposingMusic = BundleMessage(klass, "CTL_ComposingMusic")
     val TurtleCommands = BundleMessage(klass, "CTL_TurtleCommands")
