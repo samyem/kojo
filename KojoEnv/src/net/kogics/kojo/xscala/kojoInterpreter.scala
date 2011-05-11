@@ -36,4 +36,6 @@ class KojoInterpreter(settings: KojoInterpreter.Settings, out: PrintWriter) exte
   def stop(interpThread: Thread) {
     interpThread.interrupt()
   }
+  
+  def evalExpr[T: Manifest](line: String): T = interp.evalExpr(line)
 }

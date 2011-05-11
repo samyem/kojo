@@ -175,7 +175,7 @@ object Utils {
     }
   }
   
-  def isScalaTestAvailable = libJars.exists { fname => fname.toLowerCase contains "scalatest"}
+  @volatile var isScalaTestAvailable = false
   
   val scalaTestHelperCode = """
 import org.scalatest.FunSuite
