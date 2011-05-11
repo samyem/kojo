@@ -13,7 +13,7 @@ val sublistStyle = "margin-left:60px;"
 
 def pgHeader(hdr: String) =
     <p style={headerStyle}>
-        {new xml.Unparsed(hdr)}
+        {xml.Unparsed(hdr)}
         <hr/>
     </p>
 
