@@ -158,4 +158,50 @@ object Utils {
       }
     }
   }
+  
+  lazy val libJars: List[String] = {
+    val userDir = System.getProperty("netbeans.user")
+    val libDir = userDir + File.separatorChar + "libk"
+    val libDirFs = new File(libDir)
+    if (libDirFs.exists) {
+      libDirFs.list(new FilenameFilter {
+          override def accept(dir: File, name: String) = {
+            name.endsWith(".jar")
+          }
+        }).toList
+    }
+    else {
+      Nil
+    }
+  }
+  
+  def isScalaTestAvailable = libJars.exists { fname => fname.toLowerCase contains "scalatest"}
+  
+  val scalaTestHelperCode = """
+import org.scalatest.FunSuite
+import org.scalatest.Shell
+import org.scalatest.matchers.ShouldMatchers
+
+val shell = new Shell()
+
+class TestRun extends FunSuite {
+    def register(name: String)(fn: => Unit) = test(name)(fn)
+    def registerIgnored(name: String)(fn: => Unit) = ignore(name)(fn)
+}
+
+def test(name: String)(fn: => Unit) {
+    val suite = new TestRun()
+    suite.register(name)(fn)
+    shell.run(suite)
+}
+
+def notest(name: String)(fn: => Unit) {
+    val suite = new TestRun()
+    suite.registerIgnored(name)(fn)
+    shell.run(suite)
+}
+
+val helper = new Object with ShouldMatchers
+import helper._
+  """
 }

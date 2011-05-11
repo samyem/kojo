@@ -54,6 +54,9 @@ class TestRunContext(val base: StagingTestBase) extends RunContext {
   def onRunInterpError() {
     base.latch.countDown()
   }
+  def onInternalCompilerError() {
+    base.latch.countDown()
+  }
 
   def reportErrorMsg(errMsg: String) {
     currOutput.append(errMsg)
