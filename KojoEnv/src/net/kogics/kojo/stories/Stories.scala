@@ -40,6 +40,7 @@ class Stories extends ActionListener {
     val MathworldIntro = BundleMessage(klass, "CTL_MathworldIntro")
     val ComposingMusic = BundleMessage(klass, "CTL_ComposingMusic")
     val TurtleCommands = BundleMessage(klass, "CTL_TurtleCommands")
+    val ScalatestSetup = BundleMessage(klass, "CTL_ScalaTestSetup")
 
     e.getActionCommand match {
       case KojoOverview(_) => Utils.readFile(storyStream("kojo-overview.kojo"))
@@ -50,6 +51,7 @@ class Stories extends ActionListener {
       case MathworldIntro(_) => Utils.readFile(storyStream("mathworld-intro.kojo"))
       case ComposingMusic(_) => Utils.readFile(storyStream("composing-music.kojo"))
       case  TurtleCommands(_) => Utils.readFile(storyStream("turtle-commands.kojo"))
+      case  ScalatestSetup(_) => Utils.readFile(storyStream("scalatest-setup.kojo"))
     }
   }
 
