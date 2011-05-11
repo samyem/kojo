@@ -394,6 +394,12 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           onRunError()
         }
 
+        def onInternalCompilerError() = {
+          showErrorMsg("Kojo is unable to process your script. Please modify your code and try again.\n")
+          showOutput("More information about the problem - can be viewed - by clicking the red icon at the bottom right of the Kojo screen.\n")
+          onCompileError()
+        }
+
         def kprintln(outText: String) {
           showOutput(outText)
           runMonitor.reportOutput(outText)

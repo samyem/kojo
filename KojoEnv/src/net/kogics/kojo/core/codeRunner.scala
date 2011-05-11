@@ -37,6 +37,7 @@ trait RunContext {
   def onCompileStart(): Unit
   def onCompileError(): Unit
   def onCompileSuccess(): Unit
+  def onInternalCompilerError(): Unit
 
   def kprintln(outText: String)
   def reportOutput(outText: String)

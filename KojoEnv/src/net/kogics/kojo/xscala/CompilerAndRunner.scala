@@ -44,14 +44,16 @@ trait CompilerListener {
 // This class borrows code and ideas from scala.tools.nsc.Interpreter
 class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends StoppableCodeRunner {
   var counter = 0
-
-  val prefix = """object Wrapper%d {
+  
+  val prefix0 = """object Wrapper%d {
   val builtins = net.kogics.kojo.xscala.Builtins.instance
   import builtins._
   val Staging = net.kogics.kojo.staging.API
   val Mw = net.kogics.kojo.mathworld.MathWorld.instance
 
-"""
+""" 
+
+  val prefix = if (Utils.isScalaTestAvailable) prefix0 + Utils.scalaTestHelperCode else prefix0
 
   val prefixLines = prefix.lines.size
 

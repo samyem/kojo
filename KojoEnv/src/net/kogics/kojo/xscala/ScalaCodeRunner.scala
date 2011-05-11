@@ -202,8 +202,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
               }
             }
             catch {
-              case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
-                ctx.onRunInterpError
+              case t: Throwable => Log.log(Level.SEVERE, "Compiler Problem", t)
+                ctx.onInternalCompilerError()
             }
             finally {
               Log.info("CodeRunner actor doing final handling for code.")
@@ -282,8 +282,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
               }
             }
             catch {
-              case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
-                ctx.onRunInterpError
+              case t: Throwable => Log.log(Level.SEVERE, "Compiler Problem", t)
+                ctx.onInternalCompilerError()
             }
             finally {
               Log.info("CodeRunner actor doing final handling for code.")
@@ -338,6 +338,9 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 //        interp.bind("Staging", "net.kogics.kojo.staging.Facade$", staging.Facade)
 //        interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
         interp.interpret("val Mw = net.kogics.kojo.mathworld.MathWorld.instance")
+        if(Utils.isScalaTestAvailable) {
+          interp.interpret(Utils.scalaTestHelperCode)
+        }
       }
 
       ctx.onInterpreterInit()
@@ -365,19 +368,12 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
       val userDir = System.getProperty("netbeans.user")
       val libDir = userDir + File.separatorChar + "libk"
       val libDirFs = new File(libDir)
-      if (libDirFs.exists) {
-        val jarFiles = libDirFs.list(new FilenameFilter {
-            override def accept(dir: File, name: String) = {
-              name.endsWith(".jar")
-            }
-          })
 
-        jarFiles.foreach {x =>
-          ourCp.append(libDir)
-          ourCp.append(File.separatorChar)
-          ourCp.append(x)
-          ourCp.append(File.pathSeparatorChar)
-        }
+      Utils.libJars.foreach {x =>
+        ourCp.append(libDir)
+        ourCp.append(File.separatorChar)
+        ourCp.append(x)
+        ourCp.append(File.pathSeparatorChar)
       }
 
       val prefix = Utils.installDir

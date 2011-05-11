@@ -64,6 +64,7 @@ abstract class CodePaneTestBase extends KojoTestBase {
       latch.countDown()
     }
     def onRunInterpError() {latch.countDown()}
+    def onInternalCompilerError() {latch.countDown()}
 
     def reportErrorMsg(errMsg: String) {
       currOutput.append(errMsg)
