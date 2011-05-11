@@ -338,6 +338,17 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 //        interp.bind("Staging", "net.kogics.kojo.staging.Facade$", staging.Facade)
 //        interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
         interp.interpret("val Mw = net.kogics.kojo.mathworld.MathWorld.instance")
+        
+        Utils.isScalaTestAvailable = interp.evalExpr[Boolean]("""
+    try {
+        Class.forName("org.scalatest.FunSuite")
+        true
+    }
+    catch {
+        case e: Throwable => false
+    }
+""")
+        
         if(Utils.isScalaTestAvailable) {
           interp.interpret(Utils.scalaTestHelperCode)
         }
