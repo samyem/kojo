@@ -215,9 +215,9 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
-            <file name="net-kogics-kojo-Stories.Learn.instance">
+            <file name="net-kogics-kojo-Stories.LearnMore.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_Learn"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_LearnMore"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
@@ -248,6 +248,12 @@
             <file name="net-kogics-kojo-Stories.Pi.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
                 <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_Pi"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+            <file name="net-kogics-kojo-Stories.ScalaTestSetup.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_ScalaTestSetup"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
@@ -409,9 +415,16 @@
                     <attr name="position" intvalue="4"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.TurtleCommands.instance"/>
                 </file>
-                <file name="net-kogics-kojo-Stories.Learn.shadow">
+                <file name="net-kogics-kojo-Stories.LearnMore.shadow">
                     <attr name="position" intvalue="5"/>
-                    <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Learn.instance"/>
+                    <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.LearnMore.instance"/>
+                </file>
+            </folder>
+            <folder name="Tools">
+                <attr name="position" intvalue="4"/>
+                <file name="net-kogics-kojo-Stories.ScalaTestSetup.shadow">
+                    <attr name="position" intvalue="1"/>
+                    <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.ScalaTestSetup.instance"/>
                 </file>
             </folder>
         </folder>

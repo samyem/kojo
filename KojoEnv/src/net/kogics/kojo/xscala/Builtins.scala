@@ -376,23 +376,6 @@ Here's a partial list of the available commands:
               """ + UserCommand.synopses)
   }
 
-  // undocumented
-  override def style: Style = turtle0.style
-  def color(r: Int, g: Int, b: Int) = new Color(r, g, b)
-  def color(rgbHex: Int) = new Color(rgbHex)
-  def clearOutput() = ctx.clearOutput()
-  override def exportImage(filePrefix: String) = tCanvas.exportImage(filePrefix)
-  override def exportThumbnail(filePrefix: String, height: Int) = tCanvas.exportThumbnail(filePrefix, height)
-  override def newPuzzler(x: Int, y: Int) = tCanvas.newPuzzler(x, y)
-  override def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double) =
-    tCanvas.zoomXY(xfactor, yfactor, cx, cy)
-
-  def println(s: String): Unit = {
-    // Runs on Actor pool (interpreter) thread
-    scalaCodeRunner.kprintln(s + "\n")
-    Throttler.throttle()
-  }
-
   override def playSound(voice: Voice) = turtle0.playSound(voice)
   UserCommand("playSound", List("voice"), "Makes the turtle play the specified melody, rhythm, or score.")
 
@@ -413,5 +396,26 @@ Here's a partial list of the available commands:
     music.MusicPlayer.instance().playMusicUntilDone(voice, n)
   }
   UserCommand("playMusicUntilDone", List("voice"), "Plays the specified melody, rhythm, or score, and waits till the music finishes.")
+
+  // undocumented
+  override def style: Style = turtle0.style
+  def color(r: Int, g: Int, b: Int) = new Color(r, g, b)
+  def color(rgbHex: Int) = new Color(rgbHex)
+  def clearOutput() = ctx.clearOutput()
+  override def exportImage(filePrefix: String) = tCanvas.exportImage(filePrefix)
+  override def exportThumbnail(filePrefix: String, height: Int) = tCanvas.exportThumbnail(filePrefix, height)
+  override def newPuzzler(x: Int, y: Int) = tCanvas.newPuzzler(x, y)
+  override def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double) =
+    tCanvas.zoomXY(xfactor, yfactor, cx, cy)
+
+  def println(s: String): Unit = {
+    // Runs on Actor pool (interpreter) thread
+    scalaCodeRunner.kprintln(s + "\n")
+    Throttler.throttle()
+  }
+  
+  def interpret(code: String) {
+    scalaCodeRunner.runCode(code)
+  }
 }
 
