@@ -57,14 +57,30 @@ val pgGetSt = Page(
 )
 
 val helperCode = """
-import org.scalatest._
-def test(name: String)(fn: => Unit) {
-    val suite = new FunSuite with matchers.ShouldMatchers {
-        test(name)(fn)
-    }
-    run(suite)
+import org.scalatest.FunSuite
+import org.scalatest.Shell
+import org.scalatest.matchers.ShouldMatchers
+
+val shell = new Shell()
+
+class TestRun extends FunSuite {
+    def register(name: String)(fn: => Unit) = test(name)(fn)
+    def registerIgnored(name: String)(fn: => Unit) = ignore(name)(fn)
 }
-val helper = new Object with matchers.ShouldMatchers
+
+def test(name: String)(fn: => Unit) {
+    val suite = new TestRun()
+    suite.register(name)(fn)
+    shell.run(suite)
+}
+
+def notest(name: String)(fn: => Unit) {
+    val suite = new TestRun()
+    suite.registerIgnored(name)(fn)
+    shell.run(suite)
+}
+
+val helper = new Object with ShouldMatchers
 import helper._
 """
 
@@ -101,7 +117,8 @@ test("sum of positives") {
     sum(1,1) should equal(2)
 }
 
-test("sum of negatives") {
+// ignore test for now
+notest("sum of negatives") {
     sum(-1,-1) should equal(-2)
 }
 """
