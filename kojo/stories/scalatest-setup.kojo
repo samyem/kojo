@@ -84,30 +84,6 @@ val helper = new Object with ShouldMatchers
 import helper._
 """
 
-val pgDefStHelpers = Page(
-    name = "",
-    body = 
-        <body style={pageStyle}>
-            {pgHeader("Setting up ScalaTest")}
-            You have the ScalaTest library available for use within Kojo. Congratulations!
-            <br/>
-            <br/>
-            If you want, Kojo can define some helper functions - to make it very easy for 
-            you to use ScalaTest within Kojo. 
-            <br/>
-            <br/>
-            Click on the Button below to define these functions. 
-            More information about these funtions is available on the next page.
-        </body>,
-    code = {
-        stAddButton ("Define Helper Functions") {
-            stNext()
-        }
-    }
-)
-
-val pg = if (isScalaTestAvailable) pgDefStHelpers else pgGetSt
-
 val sampleTest = """
 def sum(n1: Int, n2: Int) = {
     n1 + n2
@@ -123,12 +99,21 @@ notest("sum of negatives") {
 }
 """
 
-val pg2 = Page(
+
+val pgStGood = Page(
     name = "",
-    body =
+    body = 
         <body style={pageStyle}>
-            {pgHeader("ScalaTest Helper Functions")}
-            The ScalaTest helper functions allow you to write tests like this:
+            {pgHeader("Setting up ScalaTest")}
+            You have the ScalaTest library available for use within Kojo. Congratulations!
+            <br/>
+            <br/>
+            You can use all of the functionality of ScalaTest within Kojo.
+            <br/>
+            <br/>
+            Also, Kojo has defined some helper functions for ScalaTest - to make it very easy for 
+            you to write simple tests within Kojo. These helper functions allow you to write tests 
+            like this:
             <pre style={codeStyle}>
                 {xml.Unparsed(sampleTest)}
             </pre>
@@ -136,12 +121,14 @@ val pg2 = Page(
             on the button below.
         </body>,
     code = {
-        interpret(helperCode)
         stAddButton ("Copy Code") {
             stSetScript(sampleTest)
         }
     }
 )
 
+val pg = if (isScalaTestAvailable) pgStGood else pgGetSt
+
+
 stClear()
-stPlayStory(Story(pg, pg2))
+stPlayStory(Story(pg))
