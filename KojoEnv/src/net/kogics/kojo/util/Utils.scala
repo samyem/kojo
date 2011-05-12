@@ -179,10 +179,7 @@ object Utils {
   
   val scalaTestHelperCode = """
 import org.scalatest.FunSuite
-import org.scalatest.Shell
 import org.scalatest.matchers.ShouldMatchers
-
-val shell = new Shell()
 
 class TestRun extends FunSuite {
     def register(name: String)(fn: => Unit) = test(name)(fn)
@@ -192,13 +189,13 @@ class TestRun extends FunSuite {
 def test(name: String)(fn: => Unit) {
     val suite = new TestRun()
     suite.register(name)(fn)
-    shell.run(suite)
+    suite.execute()
 }
 
 def notest(name: String)(fn: => Unit) {
     val suite = new TestRun()
     suite.registerIgnored(name)(fn)
-    shell.run(suite)
+    suite.execute()
 }
 
 val helper = new Object with ShouldMatchers
