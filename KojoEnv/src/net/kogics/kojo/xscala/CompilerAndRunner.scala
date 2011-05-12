@@ -43,7 +43,13 @@ trait CompilerListener {
 
 // This class borrows code and ideas from scala.tools.nsc.Interpreter
 class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends StoppableCodeRunner {
-  var counter = 0
+  var counter = 0 
+  // The Counter above is used to define/create a new wrapper object for every run. The calling of the entry() 
+  //.method within this object results in the initialization of the object, which causes the user submitted 
+  // code to run.
+  // If we don't increment the counter, the user code will not run (an object is initialized only once)
+  // If this approach turns out to be too memory intensive, I'm sure there are other ways of running user 
+  // submitted code.'
   
   val prefix0 = """object Wrapper%d {
   val builtins = net.kogics.kojo.xscala.Builtins.instance
