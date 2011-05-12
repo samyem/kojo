@@ -56,34 +56,6 @@ val pgGetSt = Page(
     code = {}
 )
 
-val helperCode = """
-import org.scalatest.FunSuite
-import org.scalatest.Shell
-import org.scalatest.matchers.ShouldMatchers
-
-val shell = new Shell()
-
-class TestRun extends FunSuite {
-    def register(name: String)(fn: => Unit) = test(name)(fn)
-    def registerIgnored(name: String)(fn: => Unit) = ignore(name)(fn)
-}
-
-def test(name: String)(fn: => Unit) {
-    val suite = new TestRun()
-    suite.register(name)(fn)
-    shell.run(suite)
-}
-
-def notest(name: String)(fn: => Unit) {
-    val suite = new TestRun()
-    suite.registerIgnored(name)(fn)
-    shell.run(suite)
-}
-
-val helper = new Object with ShouldMatchers
-import helper._
-"""
-
 val sampleTest = """
 def sum(n1: Int, n2: Int) = {
     n1 + n2
@@ -111,7 +83,7 @@ val pgStGood = Page(
             You can use all of the functionality of ScalaTest within Kojo.
             <br/>
             <br/>
-            Also, Kojo has defined some helper functions for ScalaTest - to make it very easy for 
+            Also, Kojo defines some helper functions for ScalaTest - to make it very easy for 
             you to write simple tests within Kojo. These helper functions allow you to write tests 
             like this:
             <pre style={codeStyle}>
