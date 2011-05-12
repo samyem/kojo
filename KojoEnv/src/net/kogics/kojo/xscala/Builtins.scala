@@ -33,7 +33,7 @@ object Builtins extends InitedSingleton[Builtins] {
 import java.awt.Color
 
 class Builtins extends SCanvas with TurtleMover {
-  @volatile var astStopPhase = "selectiveanf"
+  @volatile var astStopPhase = "superaccessors"
   @volatile var scalaCodeRunner: ScalaCodeRunner = _
   lazy val tCanvas = scalaCodeRunner.tCanvas
   lazy val ctx = scalaCodeRunner.ctx
