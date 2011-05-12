@@ -178,27 +178,27 @@ object Utils {
   @volatile var isScalaTestAvailable = false
   
   val scalaTestHelperCode = """
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+  import org.scalatest.FunSuite
+  import org.scalatest.matchers.ShouldMatchers
 
-class TestRun extends FunSuite {
-    def register(name: String)(fn: => Unit) = test(name)(fn)
-    def registerIgnored(name: String)(fn: => Unit) = ignore(name)(fn)
-}
+  class TestRun extends FunSuite {
+      def register(name: String)(fn: => Unit) = test(name)(fn)
+      def registerIgnored(name: String)(fn: => Unit) = ignore(name)(fn)
+  }
 
-def test(name: String)(fn: => Unit) {
-    val suite = new TestRun()
-    suite.register(name)(fn)
-    suite.execute()
-}
+  def test(name: String)(fn: => Unit) {
+      val suite = new TestRun()
+      suite.register(name)(fn)
+      suite.execute()
+  }
 
-def notest(name: String)(fn: => Unit) {
-    val suite = new TestRun()
-    suite.registerIgnored(name)(fn)
-    suite.execute()
-}
+  def notest(name: String)(fn: => Unit) {
+      val suite = new TestRun()
+      suite.registerIgnored(name)(fn)
+      suite.execute()
+  }
 
-val helper = new Object with ShouldMatchers
-import helper._
-  """
+  val helper = new Object with ShouldMatchers
+  import helper._
+"""
 }

@@ -13,8 +13,15 @@
  *
  */
 
-package net.kogics.kojo.xscala
 
-class CompilerAndRunnerTest extends CompilerAndRunnerTestBase {
-  def makeRunner() = new CompilerAndRunner(settings, listener)
+package net.kogics.kojo
+package xscala
+
+// Tests with Scalatest helpers loaded into the compiler
+class CAndRWithSTHelpersTestHide extends CompilerAndRunnerTestBase {
+  def makeRunner() = {
+    // add scalatest jar to compilers classpath
+    util.Utils.isScalaTestAvailable = true
+    new CompilerAndRunner(settings, listener)
+  }
 }

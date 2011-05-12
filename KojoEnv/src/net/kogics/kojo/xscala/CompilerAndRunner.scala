@@ -50,14 +50,14 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends 
   import builtins._
   val Staging = net.kogics.kojo.staging.API
   val Mw = net.kogics.kojo.mathworld.MathWorld.instance
-
 """ 
 
   val prefix = if (Utils.isScalaTestAvailable) prefix0 + Utils.scalaTestHelperCode else prefix0
 
   val prefixLines = prefix.lines.size
 
-  val codeTemplate = """%s%s
+  val codeTemplate = """%s
+%s
 
   def entry() {
     // noop
@@ -104,8 +104,8 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends 
   val reporter = new Reporter {
     override def info0(position: Position, msg: String, severity: Severity, force: Boolean) = {
       severity.count += 1
-      lazy val line = position.line - prefixLines
-      lazy val offset = position.startOrPoint - offsetDelta
+      lazy val line = position.line - prefixLines - 1 // we added an extra line after the prefix in the code template. Take it off
+      lazy val offset = position.startOrPoint - offsetDelta - 1 // we added an extra newline char after the prefix
       severity match {
         case ERROR if position.isDefined =>
           listener.error(msg, line, position.column, offset, position.lineContent)
@@ -126,7 +126,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends 
     val pfx = prefix format(counter)
     offsetDelta = pfx.length
     val code = Utils.stripCR(codeTemplate format(pfx, code0))
-
+    
     compiler.settings.stop.value = stopPhase
     val run = new compiler.Run
     reporter.reset
