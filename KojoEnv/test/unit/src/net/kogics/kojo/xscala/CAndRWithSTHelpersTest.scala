@@ -21,7 +21,7 @@ package xscala
 class CAndRWithSTHelpersTestHide extends CompilerAndRunnerTestBase {
   def makeRunner() = {
     // add scalatest jar to compilers classpath
-    util.Utils.isScalaTestAvailable = true
+//    util.Utils.isScalaTestAvailable = true
     new CompilerAndRunner(settings, listener)
   }
 }
