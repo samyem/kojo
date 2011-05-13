@@ -339,15 +339,15 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 //        interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
         interp.interpret("val Mw = net.kogics.kojo.mathworld.MathWorld.instance")
         
-        Utils.isScalaTestAvailable = interp.evalExpr[Boolean]("""
-    try {
-        Class.forName("org.scalatest.FunSuite")
-        true
-    }
-    catch {
-        case e: Throwable => false
-    }
-""")
+//        Utils.isScalaTestAvailable = interp.evalExpr[Boolean]("""
+//    try {
+//        Class.forName("org.scalatest.FunSuite")
+//        true
+//    }
+//    catch {
+//        case e: Throwable => false
+//    }
+//""")
         
         if(Utils.isScalaTestAvailable) {
           interp.interpret(Utils.scalaTestHelperCode)
@@ -451,10 +451,11 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
     var _builtinsCompletions: List[String] = Nil
 
     def builtinsCompletions: List[String]  = {
-      if (_builtinsCompletions == Nil) {
-        _builtinsCompletions = completions("builtins")
-      }
-      _builtinsCompletions
+      Nil
+//      if (_builtinsCompletions == Nil) {
+//        _builtinsCompletions = completions("builtins")
+//      }
+//      _builtinsCompletions
     }
 
     def completions(identifier: String) = {
@@ -483,7 +484,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 
     def varCompletions(str: String): (List[String], Int) = {
 
-      def varFilter(s: String) = !VarDropFilter.contains(s) && !InternalVarsRe.matcher(s).matches
+      def varFilter(s: String) = GoodVars.contains(s) || 
+      (!VarDropFilter.contains(s) && !InternalVarsRe.matcher(s).matches)
 
       val (oIdentifier, oPrefix) = findIdentifier(str)
       val prefix = if(oPrefix.isDefined) oPrefix.get else ""

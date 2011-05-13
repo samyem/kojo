@@ -24,7 +24,7 @@ import org.junit.Assert._
 import scala.tools.nsc.Settings
 
 abstract class CompilerAndRunnerTestBase {
-  val jarsDir = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
+  val jarsDir = System.getProperty("nbjunit.workdir") + "../../../../../../build/cluster"
   val jars = util.Utils.kojoJars
 
   val settings = new Settings()

@@ -146,7 +146,8 @@ object CodeCompletionUtils {
 
   val MethodDropFilter = List("turtle0")
   val VarDropFilter = List("builtins", "predef")
-  val InternalVarsRe = java.util.regex.Pattern.compile("""res\d+|_.*""")
+  val GoodVars = List("Mw", "Staging", "Story")
+  val InternalVarsRe = java.util.regex.Pattern.compile("""res\d+|_.*|\p{Upper}.*|\p{Punct}.*""")
   val InternalMethodsRe = java.util.regex.Pattern.compile("""_.*|.*\$.*""")
 
   def notIdChar(c: Char): Boolean =  NotIdChars.contains(c)
