@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/1">
+        <file>file:/C:/Users/lalit/netbeans/Kojo-nb7/ScalaEditorLite/src/org/netbeans/modules/scala/editor/options/FmtOptions.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo-nb7/ScalaEditorLite/src/org/netbeans/modules/scala/editor/ScalaFormatter.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo-nb7/ScalaEditorLite/src/org/netbeans/modules/scala/editor/ScalaKeystrokeHandler.scala</file>
+        <file>file:/C:/Users/lalit/netbeans/Kojo-nb7/ScalaEditorLite/src/org/netbeans/modules/scala/core/rats/LexerScala.rats</file>
+    </open-files>
 </project-private>
