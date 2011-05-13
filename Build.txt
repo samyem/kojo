@@ -3,7 +3,7 @@ To build Kojo from source, you need to do the following:
 - Clone the Kojo Mercurial repo. This will give you a local Kojo source tree.
   Let's call the location of this tree $kojo 
   Note - the root of your source tree should be called kojo or Kojo. If it
-  isn't, you will get a runtime exception when you build and then run Kojo.
+  isn't, you might get some test failures.
   You will likely be bitten by this if you create a server-side clone of the
   Kojo repo on google-code, and then get a local copy of the clone.
   The default command suggested by google-code for getting a local copy gives
@@ -43,3 +43,5 @@ a nightmare to manage with centralized jar repositories.
 Given that development work on Kojo involves the downloading of a gazillion other
 things anyway (because of the dependence on the Netbeans Platform), 'jars in the repo'
 is probably not a big deal for the short to medium term.
+
+
