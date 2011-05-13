@@ -43,7 +43,6 @@
     </target>
 
     <property name="jar-excludes" value="**/*.java,**/*.form,**/package.html,**/doc-files/,**/*.scala"/>
-    <property name="scala.fsc" value="true"/>
 
     <target name="-do-scalac">
         <condition property="condition-scala-fsc">
@@ -65,8 +64,7 @@
         <echo message="*************************************Doing normal scalac"/>
         <scalac classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
                 encoding="UTF-8" target="jvm-${javac.target}" unchecked="${scalac.unchecked}"
-                deprecation="${scalac.deprecation}" force="true"
-                addparams="-make:transitive -dependencyfile ${build.classes.dir}/.scala_dependencies"/>
+                deprecation="${scalac.deprecation}" force="true"/>
     </target>
 
     <target name="scala-compile" depends="scala-taskdef" unless="is.jar.uptodate">

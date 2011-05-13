@@ -39,7 +39,7 @@ import net.kogics.kojo.util._
 
 // cargo coding off CodePaneTest
 class StagingTestBase extends KojoTestBase {
-  val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
+  val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../build/cluster"
   val file = new java.io.File(fileStr)
   assertTrue(file.exists)
   System.setProperty("netbeans.dirs", fileStr)

@@ -25,8 +25,8 @@ import net.kogics.kojo.util._
 
 class CodeExecutionSupportTest extends KojoTestBase {
 
-  val netbeansDir = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/cluster"
-  val userDir = System.getProperty("nbjunit.workdir") + "../../../../../../../Kojo/build/testuserdir"
+  val netbeansDir = System.getProperty("nbjunit.workdir") + "../../../../../../build/cluster"
+  val userDir = System.getProperty("nbjunit.workdir") + "../../../../../../build/testuserdir"
   val nbd = new File(netbeansDir)
   assertTrue(nbd.exists)
   // make sure user config dir exists

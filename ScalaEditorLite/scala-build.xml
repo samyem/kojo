@@ -42,7 +42,6 @@ Scala installation directory.
     </target>
 
     <property name="jar-excludes" value="**/*.java,**/*.form,**/package.html,**/doc-files/,**/*.scala"/>
-    <property name="scala.fsc" value="true"/>
 
     <target name="-do-scalac" depends="init,up-to-date,scala-taskdef">
         <condition property="condition-scala-fsc">
