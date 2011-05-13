@@ -484,8 +484,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 
     def varCompletions(str: String): (List[String], Int) = {
 
-      def varFilter(s: String) = GoodVars.contains(s) || 
-      (!VarDropFilter.contains(s) && !InternalVarsRe.matcher(s).matches)
+      def varFilter(s: String) = !VarDropFilter.contains(s) && !InternalVarsRe.matcher(s).matches
 
       val (oIdentifier, oPrefix) = findIdentifier(str)
       val prefix = if(oPrefix.isDefined) oPrefix.get else ""
