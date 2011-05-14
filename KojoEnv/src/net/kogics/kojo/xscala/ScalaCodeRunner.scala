@@ -32,6 +32,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
   val outputHandler = new InterpOutputHandler(ctx)
   val codeRunner = startCodeRunner()
 
+  if (Utils.libJars.size > 0) {
+    kprintln(Utils.libJars.mkString("\n---\nLibk jars available for use:\n * ", " * ", "\n---\n"))
+  }
+
   def kprintln(s: String) = ctx.kprintln(s)
 
   def runCode(code: String) {
