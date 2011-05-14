@@ -182,6 +182,7 @@ object Utils {
   import org.scalatest.matchers.ShouldMatchers
 
   class TestRun extends FunSuite {
+      override def suiteName = "test"
       def register(name: String)(fn: => Unit) = test(name)(fn)
       def registerIgnored(name: String)(fn: => Unit) = ignore(name)(fn)
   }
@@ -192,13 +193,12 @@ object Utils {
       suite.execute()
   }
 
-  def notest(name: String)(fn: => Unit) {
+  def ignore(name: String)(fn: => Unit) {
       val suite = new TestRun()
       suite.registerIgnored(name)(fn)
       suite.execute()
   }
 
-  val helper = new Object with ShouldMatchers
-  import helper._
+  import ShouldMatchers._
 """
 }
