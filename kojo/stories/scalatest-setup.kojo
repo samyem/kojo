@@ -66,7 +66,7 @@ test("sum of positives") {
 }
 
 // ignore test for now
-notest("sum of negatives") {
+ignore("sum of negatives") {
     sum(-1,-1) should equal(-2)
 }
 """
