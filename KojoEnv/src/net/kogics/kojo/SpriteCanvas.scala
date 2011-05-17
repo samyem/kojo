@@ -539,6 +539,19 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     eventListeners = eh :: eventListeners
     addInputEventListener(eh)
   }
+  
+  def onMouseClick(fn: (Double, Double) => Unit) = Utils.runInSwingThread {
+    val eh = new PBasicInputEventHandler {
+      override def mousePressed(event: PInputEvent) {
+        val pos = event.getPosition
+        Utils.runAsync2 {
+          fn(pos.getX, pos.getY)
+        }
+      }
+    }
+    eventListeners = eh :: eventListeners
+    addInputEventListener(eh)
+  }
 
   class CompositeListener extends TurtleListener {
     var startCount = 0
