@@ -21,7 +21,7 @@ import java.io._
 import scala.{math => Math}
 
 object Utils {
-
+  
   def loadImage(fname: String) : Image = {
     val url = getClass.getResource(fname)
     Toolkit.getDefaultToolkit.getImage(url)
@@ -201,4 +201,27 @@ object Utils {
 
   import ShouldMatchers._
 """
+  
+  def runAsync2(fn: => Unit) {
+    asyncRunner ! RunCode { () =>
+      fn
+    }
+  }
+  
+  case class RunCode(code: () => Unit)
+  import scala.actors._
+  import scala.actors.Actor._
+  val asyncRunner = actor {
+    loop {
+      react {
+        case RunCode(code) => 
+          try {
+            code()
+          }
+          catch {
+            case t: Throwable =>
+          }
+      }
+    }
+  }
 }

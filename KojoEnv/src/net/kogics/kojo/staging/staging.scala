@@ -519,7 +519,7 @@ trait Shape {
 
   def onMouseClick(fn: => Unit) = Utils.runInSwingThread {
     node.addInputEventListener(new PBasicInputEventHandler {
-        override def mouseClicked(event: PInputEvent) {
+        override def mousePressed(event: PInputEvent) {
           fn
         }
       })
@@ -527,7 +527,7 @@ trait Shape {
   import java.awt.event.KeyEvent
   def onKeyPress(fn: Int => Unit) = Utils.runInSwingThread {
     val eh = new PBasicInputEventHandler {
-      override def mouseClicked(event: PInputEvent) {
+      override def mousePressed(event: PInputEvent) {
 //        event.getInputManager().setKeyboardFocus(event.getPath())
         Impl.canvas.getRoot.getDefaultInputManager.setKeyboardFocus(this)
         event.setHandled(true)

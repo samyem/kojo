@@ -527,13 +527,11 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   
   def onKeyPress(fn: Int => Unit) = Utils.runInSwingThread {
     val eh = new PBasicInputEventHandler {
-      override def mouseClicked(event: PInputEvent) {
-//        event.getInputManager().setKeyboardFocus(event.getPath())
+      override def mousePressed(event: PInputEvent) {
         getRoot.getDefaultInputManager.setKeyboardFocus(this)
-        event.setHandled(true)
       }
       override def keyPressed(e: PInputEvent) {
-        Utils.runAsync {
+        Utils.runAsync2 {
           fn(e.getKeyCode)
         }
       }
