@@ -97,7 +97,6 @@ object Inputs {
             case ee =>
               //println("mouseClicked: e=" + ee)
           }
-          Impl.canvas.getRoot.getDefaultInputManager.setKeyboardFocus(null)
         }
         // Will be called when a drag is occurring.
         override def mouseDragged(e: PInputEvent) {
@@ -153,6 +152,7 @@ object Inputs {
             case ee =>
               //println("mousePressed: e=" + ee)
           }
+//          Impl.canvas.getRoot.getDefaultInputManager.setKeyboardFocus(null)
         }
         // Will be called when any mouse button is released.
         override def mouseReleased(e: PInputEvent) {

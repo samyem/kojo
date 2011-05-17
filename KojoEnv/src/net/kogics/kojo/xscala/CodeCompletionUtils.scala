@@ -33,7 +33,8 @@ object CodeCompletionUtils {
   )
 
   val MethodTemplates = collection.mutable.Map(
-    "switchTo" -> "switchTo()"
+    "switchTo" -> "switchTo()",
+    "onKeyPress" -> "onKeyPress { k =>\n    k match {\n    case Kc.VK_RIGHT => \n       case _ => \n    }\n}"
   )
 
   val MwMethodTemplates = collection.mutable.Map(
@@ -130,8 +131,7 @@ object CodeCompletionUtils {
     "lineTo" -> "lineTo(${x}, ${y})",
     "setFontSize" -> "setFontSize(${size})",
     "setContent" -> "setContent(${content})",
-    "onMouseClick" -> "onMouseClick {\n    ${cursor}\n}",
-    "onKeyPress" -> "onKeyPress { k =>\n    ${cursor}\n}"
+    "onMouseClick" -> "onMouseClick {\n    ${cursor}\n}"
   )
 
   @volatile var ExtraMethodTemplates = MwMethodTemplates
