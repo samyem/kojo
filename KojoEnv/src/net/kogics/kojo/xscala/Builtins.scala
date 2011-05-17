@@ -417,5 +417,7 @@ Here's a partial list of the available commands:
   def interpret(code: String) {
     scalaCodeRunner.runCode(code)
   }
+  
+  def onKeyPress(fn: Int => Unit) = tCanvas.onKeyPress(fn)
 }
 

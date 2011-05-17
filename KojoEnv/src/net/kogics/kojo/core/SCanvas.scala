@@ -30,4 +30,5 @@ trait SCanvas {
   def undo(): Unit
   def exportImage(filePrefix: String): java.io.File
   def exportThumbnail(filePrefix: String, height: Int): java.io.File
+  def onKeyPress(fn: Int => Unit)  
 }
