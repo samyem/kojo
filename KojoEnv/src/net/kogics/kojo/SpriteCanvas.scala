@@ -79,6 +79,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   var turtles: List[Turtle] = Nil
   var puzzlers: List[Turtle] = Nil
   var figures: List[Figure] = Nil
+  var eventListeners: List[PInputEventListener] = Nil
 
   var showAxes = false
   var showGrid = false
@@ -455,6 +456,10 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
       figures.foreach {f => if (f == figure) f.clear() else f.remove()}
       figures = List(figures.last)
+      
+      eventListeners.foreach {el => removeInputEventListener(el)}
+      eventListeners = Nil
+      getRoot.getDefaultInputManager.setKeyboardFocus(null)      
     }
 //    turtle.waitFor
     clearHistory()
@@ -518,6 +523,23 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   def setTurtleListener(l: TurtleListener) {
     megaListener.setListener(l)
+  }
+  
+  def onKeyPress(fn: Int => Unit) = Utils.runInSwingThread {
+    val eh = new PBasicInputEventHandler {
+      override def mouseClicked(event: PInputEvent) {
+//        event.getInputManager().setKeyboardFocus(event.getPath())
+        getRoot.getDefaultInputManager.setKeyboardFocus(this)
+        event.setHandled(true)
+      }
+      override def keyPressed(e: PInputEvent) {
+        Utils.runAsync {
+          fn(e.getKeyCode)
+        }
+      }
+    }
+    eventListeners = eh :: eventListeners
+    addInputEventListener(eh)
   }
 
   class CompositeListener extends TurtleListener {

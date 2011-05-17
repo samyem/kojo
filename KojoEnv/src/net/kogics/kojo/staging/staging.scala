@@ -296,9 +296,7 @@ object API {
     RichColor.lerpColor(from, to, amt)
   //T ColorTest ends
 
-  Utils.runInSwingThread {
-    Inputs.init()
-  }
+  Inputs.init()
 
   //W
   //W==Timekeeping==
@@ -530,14 +528,15 @@ trait Shape {
   def onKeyPress(fn: Int => Unit) = Utils.runInSwingThread {
     val eh = new PBasicInputEventHandler {
       override def mouseClicked(event: PInputEvent) {
-        event.getInputManager().setKeyboardFocus(event.getPath())
+//        event.getInputManager().setKeyboardFocus(event.getPath())
+        Impl.canvas.getRoot.getDefaultInputManager.setKeyboardFocus(this)
+        event.setHandled(true)
       }
       override def keyPressed(e: PInputEvent) {
         fn(e.getKeyCode)
       }
     }
     node.addInputEventListener(eh)
-    Impl.canvas.getRoot.getDefaultInputManager.setKeyboardFocus(eh)
   }
 //  def addActivity(a: PActivity) = Impl.canvas.getRoot.addActivity(a)
 }

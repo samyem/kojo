@@ -16,6 +16,8 @@
 package net.kogics.kojo
 package staging
 
+import util.Utils
+
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 import edu.umd.cs.piccolo.util._
@@ -47,147 +49,150 @@ object Inputs {
     stepMousePos = mousePos
   }
 
-   def init() {
-    val iel = new PBasicInputEventHandler {
-      // This method is invoked when a node gains the keyboard focus.
-      override def keyboardFocusGained(e: PInputEvent) {
-        e match {
-          case ee =>
-            //println("keyboardFocusGained: e=" + ee)
+  def init() {
+    Utils.runInSwingThread {
+      val iel = new PBasicInputEventHandler {
+        // This method is invoked when a node gains the keyboard focus.
+        override def keyboardFocusGained(e: PInputEvent) {
+          e match {
+            case ee =>
+              //println("keyboardFocusGained: e=" + ee)
+          }
+        }
+        // This method is invoked when a node loses the keyboard focus.
+        override def keyboardFocusLost(e: PInputEvent) {
+          e match {
+            case ee =>
+              //println("keyboardFocusLost: e=" + ee)
+          }
+        }
+        // Will get called whenever a key has been pressed down.
+        override def keyPressed(e: PInputEvent) {
+          e match {
+            case ee =>
+              //println("keyPressed: e=" + ee)
+          }
+        }
+        // Will get called whenever a key has been released.
+        override def keyReleased(e: PInputEvent) {
+          e match {
+            case ee =>
+              //println("keyReleased: e=" + ee)
+          }
+        }
+        // Will be called at the end of a full keystroke (down then up).
+        override def keyTyped(e: PInputEvent) {
+          e match {
+            case ee =>
+              //println("keyTyped: e=" + ee)
+          }
+        }
+        // Will be called at the end of a full click (mouse pressed followed by mouse released).
+        override def mouseClicked(e: PInputEvent) {
+          super.mouseClicked(e)
+          val p = e.getPosition
+          mousePos = Point(p.getX, p.getY)
+          mouseBtn = e.getButton
+          e match {
+            case ee =>
+              //println("mouseClicked: e=" + ee)
+          }
+          Impl.canvas.getRoot.getDefaultInputManager.setKeyboardFocus(null)
+        }
+        // Will be called when a drag is occurring.
+        override def mouseDragged(e: PInputEvent) {
+          super.mouseDragged(e)
+          val p = e.getPosition
+          mousePos = Point(p.getX, p.getY)
+          e match {
+            case ee =>
+              //println("mouseDragged: e=" + ee)
+          }
+        }
+        // Will be invoked when the mouse enters a specified region.
+        override def mouseEntered(e: PInputEvent) {
+          super.mouseEntered(e)
+          //e.pushCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR))
+          val p = e.getPosition
+          mousePos = Point(p.getX, p.getY)
+          e match {
+            case ee =>
+              //println("mouseEntered: e=" + ee)
+          }
+        }
+        // Will be invoked when the mouse leaves a specified region.
+        override def mouseExited(e: PInputEvent) {
+          super.mouseExited(e)
+          //e.popCursor
+          val p = e.getPosition
+          mousePos = Point(p.getX, p.getY)
+          mousePressedFlag = false
+          e match {
+            case ee =>
+              //println("mouseExited: e=" + ee)
+          }
+        }
+        // Will be called when the mouse is moved.
+        override def mouseMoved(e: PInputEvent) {
+          super.mouseMoved(e)
+          val p = e.getPosition
+          mousePos = Point(p.getX, p.getY)
+          e match {
+            case ee =>
+              //println("mouseMoved: e=" + ee)
+          }
+        }
+        // Will be called when a mouse button is pressed down.
+        override def mousePressed(e: PInputEvent) {
+          super.mousePressed(e)
+          val p = e.getPosition
+          mousePos = Point(p.getX, p.getY)
+          mouseBtn = e.getButton
+          mousePressedFlag = true
+          e match {
+            case ee =>
+              //println("mousePressed: e=" + ee)
+          }
+        }
+        // Will be called when any mouse button is released.
+        override def mouseReleased(e: PInputEvent) {
+          super.mouseReleased(e)
+          val p = e.getPosition
+          mousePos = Point(p.getX, p.getY)
+          mouseBtn = e.getButton
+          mousePressedFlag = false
+          e match {
+            case ee =>
+              //println("mouseReleased: e=" + ee)
+          }
+        }
+        // This method is invoked when the mouse wheel is rotated.
+        override def mouseWheelRotated(e: PInputEvent) {
+          super.mouseWheelRotated(e)
+          val p = e.getPosition
+          mousePos = Point(p.getX, p.getY)
+          e match {
+            case ee =>
+              //println("mouseWheelRotated: e=" + ee)
+          }
+        }
+        // This method is invoked when the mouse wheel is rotated by a block.
+        override def mouseWheelRotatedByBlock(e: PInputEvent) {
+          super.mouseWheelRotatedByBlock(e)
+          val p = e.getPosition
+          mousePos = Point(p.getX, p.getY)
+          e match {
+            case ee =>
+              //println("mouseWheelRotatedByBlock: e=" + ee)
+          }
         }
       }
-      // This method is invoked when a node loses the keyboard focus.
-      override def keyboardFocusLost(e: PInputEvent) {
-        e match {
-          case ee =>
-            //println("keyboardFocusLost: e=" + ee)
-        }
-      }
-      // Will get called whenever a key has been pressed down.
-      override def keyPressed(e: PInputEvent) {
-        e match {
-          case ee =>
-            //println("keyPressed: e=" + ee)
-        }
-      }
-      // Will get called whenever a key has been released.
-      override def keyReleased(e: PInputEvent) {
-        e match {
-          case ee =>
-            //println("keyReleased: e=" + ee)
-        }
-      }
-      // Will be called at the end of a full keystroke (down then up).
-      override def keyTyped(e: PInputEvent) {
-        e match {
-          case ee =>
-            //println("keyTyped: e=" + ee)
-        }
-      }
-      // Will be called at the end of a full click (mouse pressed followed by mouse released).
-      override def mouseClicked(e: PInputEvent) {
-        super.mouseClicked(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        mouseBtn = e.getButton
-        e match {
-          case ee =>
-            //println("mouseClicked: e=" + ee)
-        }
-      }
-      // Will be called when a drag is occurring.
-      override def mouseDragged(e: PInputEvent) {
-        super.mouseDragged(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        e match {
-          case ee =>
-            //println("mouseDragged: e=" + ee)
-        }
-      }
-      // Will be invoked when the mouse enters a specified region.
-      override def mouseEntered(e: PInputEvent) {
-        super.mouseEntered(e)
-        //e.pushCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR))
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        e match {
-          case ee =>
-            //println("mouseEntered: e=" + ee)
-        }
-      }
-      // Will be invoked when the mouse leaves a specified region.
-      override def mouseExited(e: PInputEvent) {
-        super.mouseExited(e)
-        //e.popCursor
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        mousePressedFlag = false
-        e match {
-          case ee =>
-            //println("mouseExited: e=" + ee)
-        }
-      }
-      // Will be called when the mouse is moved.
-      override def mouseMoved(e: PInputEvent) {
-        super.mouseMoved(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        e match {
-          case ee =>
-            //println("mouseMoved: e=" + ee)
-        }
-      }
-      // Will be called when a mouse button is pressed down.
-      override def mousePressed(e: PInputEvent) {
-        super.mousePressed(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        mouseBtn = e.getButton
-        mousePressedFlag = true
-        e match {
-          case ee =>
-            //println("mousePressed: e=" + ee)
-        }
-      }
-      // Will be called when any mouse button is released.
-      override def mouseReleased(e: PInputEvent) {
-        super.mouseReleased(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        mouseBtn = e.getButton
-        mousePressedFlag = false
-        e match {
-          case ee =>
-            //println("mouseReleased: e=" + ee)
-        }
-      }
-      // This method is invoked when the mouse wheel is rotated.
-      override def mouseWheelRotated(e: PInputEvent) {
-        super.mouseWheelRotated(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        e match {
-          case ee =>
-            //println("mouseWheelRotated: e=" + ee)
-        }
-      }
-      // This method is invoked when the mouse wheel is rotated by a block.
-      override def mouseWheelRotatedByBlock(e: PInputEvent) {
-        super.mouseWheelRotatedByBlock(e)
-        val p = e.getPosition
-        mousePos = Point(p.getX, p.getY)
-        e match {
-          case ee =>
-            //println("mouseWheelRotatedByBlock: e=" + ee)
-        }
-      }
+
+      //iel.setEventFilter(new PInputEventFilter(PInputEventFilter.ALL_MODIFIERS_MASK))
+      //InputEvent.
+      //KEY_EVENT_MASK, MOUSE_EVENT_MASK, MOUSE_MOTION_EVENT_MASK, MOUSE_WHEEL_EVENT_MASK,
+
+      Impl.canvas.addInputEventListener(iel)
     }
-
-    //iel.setEventFilter(new PInputEventFilter(PInputEventFilter.ALL_MODIFIERS_MASK))
-    //InputEvent.
-    //KEY_EVENT_MASK, MOUSE_EVENT_MASK, MOUSE_MOTION_EVENT_MASK, MOUSE_WHEEL_EVENT_MASK,
-
-    Impl.canvas.addInputEventListener(iel)
   }
-}
+}  
