@@ -515,7 +515,7 @@ trait Shape {
     val o = node.getOffset
     Point(o.getX, o.getY)
   }
-  def position = offset
+//  def position = offset
 
   def onMouseClick(fn: => Unit) = Utils.runInSwingThread {
     node.addInputEventListener(new PBasicInputEventHandler {

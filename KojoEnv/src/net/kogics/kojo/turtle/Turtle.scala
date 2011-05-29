@@ -225,6 +225,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def getWorker(action: Symbol) {
+    if (Utils.inSwingThread) {
+      throw new RuntimeException("Can't read %s from Swing Thread\n" format(action.toString))
+    }
     val latch = new CountDownLatch(1)
     val cmd = action match {
       case 'animationDelay => GetAnimationDelay(latch, cmdBool)
