@@ -188,7 +188,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends 
 
     compiler.settings.stopAfter.value = stopPhase()
     if (browseAst) {
-      compiler.settings.browse.value = List("typer")
+      compiler.settings.browse.value = stopPhase()
     }
     val run = new compiler.Run
     reporter.reset
