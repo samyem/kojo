@@ -127,13 +127,13 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends 
 
   val compiler = new Global(settings, reporter)
 
-  def compile(code0: String, stopPhase: List[String] = List("selectiveanf")) = {
+  def compile(code0: String, stopPhase: List[String] = List("refchecks")) = {
     counter += 1
     val pfx = prefix format(counter)
     offsetDelta = pfx.length
     val code = Utils.stripCR(codeTemplate format(pfx, code0))
     
-    compiler.settings.stop.value = stopPhase
+    compiler.settings.stopAfter.value = stopPhase
     val run = new compiler.Run
     reporter.reset
     run.compileSources(List(new BatchSourceFile("scripteditor", code)))
@@ -186,7 +186,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends 
     offsetDelta = pfx.length
     val code = Utils.stripCR(codeTemplate format(pfx, code0))
 
-    compiler.settings.stop.value = stopBeforePhase()
+    compiler.settings.stopAfter.value = stopPhase()
     if (browseAst) {
       compiler.settings.browse.value = List("typer")
     }
@@ -206,8 +206,8 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends 
     }
   }
 
-  // phase after the one you want to see
-  private def stopBeforePhase() = {
+  // phase after which you want to stop
+  private def stopPhase() = {
     val ret = Builtins.instance.astStopPhase
     if (ret != null && ret != "") List(ret) else Nil
   }
