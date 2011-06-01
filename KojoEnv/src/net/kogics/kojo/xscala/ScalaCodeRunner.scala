@@ -315,9 +315,12 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
     val jars = util.Utils.kojoJars
     
     def initCompiler() {
-      val iSettings = new Settings()
-      iSettings.classpath.append(createCp(jars))
-      compilerAndRunner = new CompilerAndRunner(iSettings, new CompilerOutputHandler(ctx)) {
+      def makeSettings() = {
+        val iSettings = new Settings()
+        iSettings.classpath.append(createCp(jars))
+        iSettings
+      }
+      compilerAndRunner = new CompilerAndRunner(makeSettings, new CompilerOutputHandler(ctx)) {
         override protected def parentClassLoader = classOf[ScalaCodeRunner].getClassLoader
       }
       compilerAndRunner.setContextClassLoader()

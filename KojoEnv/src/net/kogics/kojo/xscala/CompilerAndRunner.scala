@@ -42,7 +42,9 @@ trait CompilerListener {
 }
 
 // This class borrows code and ideas from scala.tools.nsc.Interpreter
-class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends StoppableCodeRunner {
+class CompilerAndRunner(makeSettings: () => Settings, listener: CompilerListener) extends StoppableCodeRunner {
+  val settings = makeSettings()
+  
   var counter = 0 
   // The Counter above is used to define/create a new wrapper object for every run. The calling of the entry() 
   //.method within this object results in the initialization of the object, which causes the user submitted 
@@ -127,7 +129,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends 
 
   val compiler = new Global(settings, reporter)
 
-  def compile(code0: String, stopPhase: List[String] = List("refchecks")) = {
+  def compile(code0: String, stopPhase: List[String] = List("selectiveanf")) = {
     counter += 1
     val pfx = prefix format(counter)
     offsetDelta = pfx.length
@@ -181,6 +183,7 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends 
   }
 
   def parse(code0: String, browseAst: Boolean) = {
+    compiler.settings = makeSettings()
     counter += 1
     val pfx = prefix format(counter)
     offsetDelta = pfx.length
@@ -192,9 +195,14 @@ class CompilerAndRunner(settings: Settings, listener: CompilerListener) extends 
     }
     val run = new compiler.Run
     reporter.reset
-    run.compileSources(List(new BatchSourceFile("scripteditor", code)))
+    try {
+      run.compileSources(List(new BatchSourceFile("scripteditor", code)))
+    }
+    finally {
+      compiler.settings = makeSettings()
+    }
 
-    compiler.settings.browse.value = List()
+//    compiler.settings.browse.value = List()
 
     if (reporter.hasErrors) {
       IR.Error
