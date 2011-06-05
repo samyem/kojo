@@ -159,14 +159,16 @@ object Utils {
     }
   }
   
-  lazy val libJars: List[String] = {
-    val userDir = System.getProperty("netbeans.user")
-    val libDir = userDir + File.separatorChar + "libk"
-    val libDirFs = new File(libDir)
-    if (libDirFs.exists) {
-      libDirFs.list(new FilenameFilter {
+  lazy val userDir = System.getProperty("netbeans.user")
+  lazy val libDir = userDir + File.separatorChar + "libk"
+  lazy val initScriptDir = userDir + File.separatorChar + "initk"
+  
+  def filesInDir(dir: String, ext: String): List[String] = {
+    val osDir = new File(dir)
+    if (osDir.exists) {
+      osDir.list(new FilenameFilter {
           override def accept(dir: File, name: String) = {
-            name.endsWith(".jar")
+            name.endsWith("." + ext)
           }
         }).toList
     }
@@ -174,6 +176,9 @@ object Utils {
       Nil
     }
   }
+  
+  lazy val libJars: List[String] = filesInDir(libDir, "jar")
+  lazy val initScripts: List[String] = filesInDir(initScriptDir, "kojo")
   
   def isScalaTestAvailable = libJars.exists { fname => fname.toLowerCase contains "scalatest"}
 
@@ -201,6 +206,15 @@ object Utils {
 
   import ShouldMatchers._
 """
+  
+  lazy val kojoInitCode: Option[String] = initScripts match {
+    case Nil => None
+    case files => Some(
+        files.map { file =>
+          "// File: %s\n%s\n" format(file, readFile(new FileInputStream(initScriptDir + File.separatorChar + file)))
+        }.mkString("\n")
+      )
+  }
   
   def runAsync2(fn: => Unit) {
     asyncRunner ! RunCode { () =>

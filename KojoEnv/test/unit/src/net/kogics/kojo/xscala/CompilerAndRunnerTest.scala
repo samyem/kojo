@@ -16,5 +16,5 @@
 package net.kogics.kojo.xscala
 
 class CompilerAndRunnerTest extends CompilerAndRunnerTestBase {
-  def makeRunner() = new CompilerAndRunner(settings, listener)
+  def makeRunner() = new CompilerAndRunner({() => settings}, None, listener)
 }

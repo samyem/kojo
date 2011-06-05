@@ -803,7 +803,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val code = codePane.getText()
 
     if (invalidCode(code)) {
-      None
+      return None
     }
     
     // now that we use the proxy code runner, disable the run button right away and change

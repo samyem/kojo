@@ -22,6 +22,6 @@ class CAndRWithSTHelpersTestHide extends CompilerAndRunnerTestBase {
   def makeRunner() = {
     // add scalatest jar to compilers classpath
 //    util.Utils.isScalaTestAvailable = true
-    new CompilerAndRunner(settings, listener)
+    new CompilerAndRunner({() => settings}, None, listener)
   }
 }

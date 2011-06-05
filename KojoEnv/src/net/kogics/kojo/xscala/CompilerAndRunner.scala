@@ -42,8 +42,7 @@ trait CompilerListener {
 }
 
 // This class borrows code and ideas from scala.tools.nsc.Interpreter
-class CompilerAndRunner(makeSettings: () => Settings, listener: CompilerListener) extends StoppableCodeRunner {
-  val settings = makeSettings()
+class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String], listener: CompilerListener) extends StoppableCodeRunner {
   
   var counter = 0 
   // The Counter above is used to define/create a new wrapper object for every run. The calling of the entry() 
@@ -60,7 +59,7 @@ class CompilerAndRunner(makeSettings: () => Settings, listener: CompilerListener
   val Mw = net.kogics.kojo.mathworld.MathWorld.instance
 """ 
 
-  val prefix = if (Utils.isScalaTestAvailable) prefix0 + Utils.scalaTestHelperCode else prefix0
+  val prefix = prefix0 + initCode.getOrElse("")
 
   val prefixLines = prefix.lines.size
 
@@ -77,9 +76,15 @@ class CompilerAndRunner(makeSettings: () => Settings, listener: CompilerListener
 
   val virtualDirectory = new VirtualDirectory("(memory)", None)
 
-  settings.outputDirs.setSingleOutput(virtualDirectory)
-  settings.deprecation.value = true
-
+  def makeSettings2() = {
+    val stng = makeSettings()
+    stng.outputDirs.setSingleOutput(virtualDirectory)
+    stng.deprecation.value = true
+    stng
+  }
+  
+  val settings = makeSettings2()
+  
   lazy val compilerClasspath: List[URL] = new PathResolver(settings) asURLs
 
   private var _classLoader: AbstractFileClassLoader = null
@@ -183,7 +188,7 @@ class CompilerAndRunner(makeSettings: () => Settings, listener: CompilerListener
   }
 
   def parse(code0: String, browseAst: Boolean) = {
-    compiler.settings = makeSettings()
+    compiler.settings = makeSettings2()
     counter += 1
     val pfx = prefix format(counter)
     offsetDelta = pfx.length
@@ -199,7 +204,7 @@ class CompilerAndRunner(makeSettings: () => Settings, listener: CompilerListener
       run.compileSources(List(new BatchSourceFile("scripteditor", code)))
     }
     finally {
-      compiler.settings = makeSettings()
+      compiler.settings = makeSettings2()
     }
 
 //    compiler.settings.browse.value = List()
