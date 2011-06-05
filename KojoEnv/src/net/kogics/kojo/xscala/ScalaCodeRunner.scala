@@ -33,7 +33,11 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
   val codeRunner = startCodeRunner()
 
   if (Utils.libJars.size > 0) {
-    kprintln(Utils.libJars.mkString("\n---\nJars (within libk) available for use:\n * ", " * ", "\n---\n"))
+    kprintln(Utils.libJars.mkString("\n---\nJars (within libk) available for use:\n * ", "\n * ", "\n---\n"))
+  }
+
+  if (Utils.initScripts.size > 0) {
+    kprintln(Utils.initScripts.mkString("\n---\nInit Scripts (within initk) loaded:\n * ", "\n * ", "\n---\n"))
   }
 
   def kprintln(s: String) = ctx.kprintln(s)
@@ -313,22 +317,30 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
     }
 
     val jars = util.Utils.kojoJars
-    
-    def initCompiler() {
-      def makeSettings() = {
-        val iSettings = new Settings()
-        iSettings.classpath.append(createCp(jars))
-        iSettings
+    val initCode: Option[String] = {
+      if (Utils.isScalaTestAvailable) {
+        Some(Utils.scalaTestHelperCode + Utils.kojoInitCode.getOrElse(""))        
       }
-      compilerAndRunner = new CompilerAndRunner(makeSettings, new CompilerOutputHandler(ctx)) {
+      else {
+        Utils.kojoInitCode
+      }
+    }
+    
+    def makeSettings() = {
+      val iSettings = new Settings()
+      iSettings.classpath.append(createCp(jars))
+      iSettings
+    }
+
+    def initCompiler() {
+      compilerAndRunner = new CompilerAndRunner(makeSettings, initCode, new CompilerOutputHandler(ctx)) {
         override protected def parentClassLoader = classOf[ScalaCodeRunner].getClassLoader
       }
       compilerAndRunner.setContextClassLoader()
     }
 
     def initInterp() {
-      val iSettings = new Settings()
-      iSettings.classpath.append(createCp(jars))
+      val iSettings = makeSettings()
 
       interp = new KojoInterpreter(iSettings, new GuiPrintWriter())
 
@@ -356,8 +368,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 //    }
 //""")
         
-        if(Utils.isScalaTestAvailable) {
-          interp.interpret(Utils.scalaTestHelperCode)
+        if (initCode.isDefined) {
+          interp.interpret(initCode.get)
         }
       }
 
@@ -383,12 +395,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
       }
 
       // add all jars in user's kojo lib dir to classpath
-      val userDir = System.getProperty("netbeans.user")
-      val libDir = userDir + File.separatorChar + "libk"
-      val libDirFs = new File(libDir)
-
       Utils.libJars.foreach {x =>
-        ourCp.append(libDir)
+        ourCp.append(Utils.libDir)
         ourCp.append(File.separatorChar)
         ourCp.append(x)
         ourCp.append(File.pathSeparatorChar)
