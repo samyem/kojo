@@ -36,10 +36,6 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
     kprintln(Utils.libJars.mkString("\n---\nJars (within libk) available for use:\n * ", "\n * ", "\n---\n"))
   }
 
-  if (Utils.initScripts.size > 0) {
-    kprintln(Utils.initScripts.mkString("\n---\nInit Scripts (within initk) loaded:\n * ", "\n * ", "\n---\n"))
-  }
-
   def kprintln(s: String) = ctx.kprintln(s)
 
   def runCode(code: String) {
@@ -366,12 +362,15 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 //        case e: Throwable => false
 //    }
 //""")
-        
-        if (initCode.isDefined) {
-          interp.interpret(initCode.get)
-        }
       }
 
+      if (Utils.initScripts.size > 0) {
+        kprintln(Utils.initScripts.mkString("\n---\nLoading Init Scripts (from initk):\n * ", "\n * ", "\n---\n"))
+      }
+      
+      if (initCode.isDefined) {
+        interp.interpret(initCode.get)
+      }
       ctx.onInterpreterInit()
     }
 
