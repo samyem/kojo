@@ -213,8 +213,9 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
       IR.Error
     }
     else {
-      val tree = run.units.next.body
-      listener.message(tree.toString)
+//      val tree = run.units.next.body
+//      listener.message(tree.toString)
+      compiler.printAllUnits()
       IR.Success
     }
   }

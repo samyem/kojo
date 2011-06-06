@@ -281,11 +281,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
               val ret = compilerAndRunner.parse(code, browseAst)
               Log.info("CodeRunner actor done parsing code. Return value %s" format (ret.toString))
 
-              if (ret != null) {
+              if (ret == IR.Success) {
                 ctx.onCompileSuccess()
               }
               else {
-                if (InterruptionManager.interruptionInProgress) ctx.onCompileSuccess()
                 ctx.onCompileError()
               }
             }
