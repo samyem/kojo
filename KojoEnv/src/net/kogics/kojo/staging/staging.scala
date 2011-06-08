@@ -500,17 +500,6 @@ trait Shape {
     }
   }
 
-  def setPosition(p: Point) {
-    setPosition(p.x, p.y)
-  }
-
-  def setPosition(x: Double, y: Double) {
-    Utils.runInSwingThread {
-      node.setOffset(x, y)
-      node.repaint()
-    }
-  }
-
   def offset = Utils.runInSwingThreadAndWait {
     val o = node.getOffset
     Point(o.getX, o.getY)
@@ -551,6 +540,21 @@ trait Rounded {
 
 trait BaseShape extends Shape {
   val origin: Point
+  def setPosition(p: Point) {
+    setPosition(p.x, p.y)
+  }
+
+  def setPosition(x: Double, y: Double) {
+    Utils.runInSwingThread {
+      node.setOffset(x - origin.x, y - origin.y)
+      node.repaint()
+    }
+  }
+  
+  def position = Utils.runInSwingThreadAndWait {
+    val o = node.getOffset
+    Point(o.getX + origin.x, o.getY + origin.y)
+  }  
 }
 
 trait StrokedShape extends BaseShape {
