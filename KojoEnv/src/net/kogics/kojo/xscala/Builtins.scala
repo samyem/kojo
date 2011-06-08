@@ -420,5 +420,8 @@ Here's a partial list of the available commands:
   
   def onKeyPress(fn: Int => Unit) = tCanvas.onKeyPress(fn)
   def onMouseClick(fn: (Double, Double) => Unit) =  tCanvas.onMouseClick(fn)
+  def reimportBuiltins() {
+    interpret("import builtins._")
+  }
 }
 
