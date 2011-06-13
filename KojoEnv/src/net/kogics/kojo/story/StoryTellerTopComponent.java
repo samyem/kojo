@@ -59,7 +59,7 @@ public final class StoryTellerTopComponent extends TopComponent {
         setName(NbBundle.getMessage(StoryTellerTopComponent.class, "CTL_StoryTellerTopComponent"));
         setToolTipText(NbBundle.getMessage(StoryTellerTopComponent.class, "HINT_StoryTellerTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
-        putClientProperty(TopComponent.PROP_SLIDING_DISABLED, Boolean.TRUE);
+//        putClientProperty(TopComponent.PROP_SLIDING_DISABLED, Boolean.TRUE);
     }
 
     /** This method is called from within the constructor to
