@@ -148,14 +148,14 @@ class TurtleUndoTest extends KojoTestBase {
     turtle.setPenThickness(1)
     turtle.setPenColor(Color.blue)
     turtle.setFillColor(Color.green)
-    turtle.setFontSize(11)
+    turtle.setPenFontSize(11)
     turtle.saveStyle()
 
     // style 2
     turtle.setPenThickness(3)
     turtle.setPenColor(Color.green)
     turtle.setFillColor(Color.blue)
-    turtle.setFontSize(15)
+    turtle.setPenFontSize(15)
     assertEquals(Style(Color.green, 3, Color.blue, 15), turtle.style)
 
     // change to style 1
@@ -207,14 +207,14 @@ class TurtleUndoTest extends KojoTestBase {
     turtle.setPenThickness(1)
     turtle.setPenColor(Color.blue)
     turtle.setFillColor(Color.green)
-    turtle.setFontSize(51)
+    turtle.setPenFontSize(51)
     turtle.saveStyle()
 
     // style 2
     turtle.setPenThickness(3)
     turtle.setPenColor(Color.green)
     turtle.setFillColor(Color.blue)
-    turtle.setFontSize(31)
+    turtle.setPenFontSize(31)
     assertEquals(Style(Color.green, 3, Color.blue, 31), turtle.style)
     assertEquals(3, turtle.penPaths.last.strokeThickness, 0.001)
  
