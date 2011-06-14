@@ -60,5 +60,5 @@ trait TurtleMover {
   def undo(): Unit
   def waitFor(): Unit = animationDelay
   def playSound(voice: Voice): Unit
-  def setFontSize(n: Int)
+  def setPenFontSize(n: Int)
 }

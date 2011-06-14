@@ -132,8 +132,8 @@ class Builtins extends SCanvas with TurtleMover {
   override def setPenThickness(t: Double) = turtle0.setPenThickness(t)
   UserCommand("setPenThickness", List("thickness"), "Specifies the width of the pen that the turtle draws with.")
 
-  override def setFontSize(n: Int) = turtle0.setFontSize(n)
-  UserCommand("setFontSize", List("n"), "Specifies the font size of the pen that the turtle writes with.")
+  override def setPenFontSize(n: Int) = turtle0.setPenFontSize(n)
+  UserCommand("setPenFontSize", List("n"), "Specifies the font size of the pen that the turtle writes with.")
 
   override def saveStyle() = turtle0.saveStyle()
   UserCommand.addCompletion("saveStyle", Nil)
@@ -393,12 +393,19 @@ Here's a partial list of the available commands:
   def playMusic(voice: Voice, n: Int = 1) {
     music.MusicPlayer.instance().playMusic(voice, n)
   }
-  UserCommand("playMusic", List("voice"), "Plays the specified melody, rhythm, or score.")
+  UserCommand("playMusic", List("score"), "Plays the specified melody, rhythm, or score.")
 
   def playMusicUntilDone(voice: Voice, n: Int = 1) {
     music.MusicPlayer.instance().playMusicUntilDone(voice, n)
   }
-  UserCommand("playMusicUntilDone", List("voice"), "Plays the specified melody, rhythm, or score, and waits till the music finishes.")
+  UserCommand("playMusicUntilDone", List("score"), "Plays the specified melody, rhythm, or score, and waits till the music finishes.")
+
+  def textExtent(text: String, fontSize: Int) = {
+    val tnode = Utils.textNode(text, 0, 0, fontSize)
+    val b = tnode.getBounds
+    new Rectangle(new Point(b.x, b.y), new Point(b.x + b.width, b.y + b.height))
+  }
+  UserCommand("textExtent", List("text", "fontSize"), "Determines the size/extent of the given text fragment for the given font size.")
 
   // undocumented
   override def style: Style = turtle0.style

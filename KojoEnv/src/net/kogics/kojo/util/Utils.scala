@@ -221,6 +221,21 @@ object Utils {
       fn
     }
   }
+
+  import edu.umd.cs.piccolo.nodes.PText
+  def textNode(text: String, x: Double, y: Double): PText = {
+    val tnode = new PText(text)
+    tnode.getTransformReference(true).setToScale(1, -1)
+    tnode.setOffset(x, y)
+    tnode
+  }
+  
+  def textNode(text: String, x: Double, y: Double, n: Int): PText = {
+    val tnode = textNode(text, x, y)
+    val font = new Font(tnode.getFont.getName, Font.PLAIN, n)
+    tnode.setFont(font)
+    tnode
+  }
   
   case class RunCode(code: () => Unit)
   import scala.actors._
