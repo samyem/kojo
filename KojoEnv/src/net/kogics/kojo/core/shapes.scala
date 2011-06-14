@@ -60,6 +60,7 @@ class Text(val content: String)
 class Rectangle(val bLeft: Point, val tRight: Point) {
   val width = tRight.x - bLeft.x
   val height = tRight.y - bLeft.y
+  override def toString = "Rectangle(%.2f, %.2f, %.2f, %.2f)" format(bLeft.x, bLeft.y, tRight.x, tRight.y)
 }
 class RoundRectangle(
   override val bLeft: Point,

@@ -215,7 +215,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
     enqueueCommand(SetPenThickness(t, cmdBool))
   }
-  def setFontSize(n: Int) = {
+  def setPenFontSize(n: Int) = {
     if (n < 0) {
       throw new IllegalArgumentException("Negative font size not allowed")
     }
@@ -590,15 +590,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realWrite(text: String, cmd: Command) {
-    val ptext = new PText(text)
-    pushHistory(UndoWrite(ptext))
-    ptext.getTransformReference(true).setToScale(1, -1)
-    ptext.setOffset(_position.x, _position.y)
-    ptext.setFont(font)
-    ptext.setTextPaint(pen.getColor)
-    layer.addChild(layer.getChildrenCount-1, ptext)
-    ptext.repaint()
-    turtle.repaint()
+    pen.write(text)
+//    turtle.repaint()
   }
 
   private def realHide(cmd: Command) {
@@ -1023,6 +1016,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     def updatePosition() {}
     def undoUpdatePosition() {}
     def undoMove() {}
+    def write(text: String) {}
   }
 
   class DownPen extends AbstractPen {
@@ -1057,6 +1051,15 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     def undoMove() {
       penPaths.last.removeLastPoint()
       penPaths.last.repaint()
+    }
+
+    def write(text: String) {
+      val ptext = Utils.textNode(text, _position.x, _position.y)
+      pushHistory(UndoWrite(ptext))
+      ptext.setFont(font)
+      ptext.setTextPaint(pen.getColor)
+      layer.addChild(layer.getChildrenCount-1, ptext)
+      ptext.repaint()
     }
   }
 }

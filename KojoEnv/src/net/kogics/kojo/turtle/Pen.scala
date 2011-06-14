@@ -37,4 +37,5 @@ trait Pen {
   def getThickness: Double
   def setFontSize(n: Int)
   def getFontSize: Int
+  def write(text: String)
 }
