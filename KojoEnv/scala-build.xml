@@ -134,7 +134,7 @@
         <mkdir dir="${build.test.unit.classes.dir}"/>
         
         <scalac srcdir="${test.unit.src.dir}" destdir="${build.test.unit.classes.dir}" excludes="${test.excludes}"
-                encoding="UTF-8">
+                encoding="UTF-8" fork="true">
             <classpath refid="test.unit.custom.cp"/>
         </scalac>
     </target>
