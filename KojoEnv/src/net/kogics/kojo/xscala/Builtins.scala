@@ -132,6 +132,9 @@ class Builtins extends SCanvas with TurtleMover {
   override def setPenThickness(t: Double) = turtle0.setPenThickness(t)
   UserCommand("setPenThickness", List("thickness"), "Specifies the width of the pen that the turtle draws with.")
 
+  override def setFontSize(n: Int) = turtle0.setFontSize(n)
+  UserCommand("setFontSize", List("n"), "Specifies the font size of the pen that the turtle writes with.")
+
   override def saveStyle() = turtle0.saveStyle()
   UserCommand.addCompletion("saveStyle", Nil)
 

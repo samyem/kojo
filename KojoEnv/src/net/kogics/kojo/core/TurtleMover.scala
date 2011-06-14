@@ -15,7 +15,7 @@
 package net.kogics.kojo.core
 import java.awt.Color
 
-case class Style(val penColor: Color, val penThickness: Double, val fillColor: Color)
+case class Style(val penColor: Color, val penThickness: Double, val fillColor: Color, val fontSize: Int)
 
 trait TurtleMover {
   def forward(n: Double): Unit
@@ -60,4 +60,5 @@ trait TurtleMover {
   def undo(): Unit
   def waitFor(): Unit = animationDelay
   def playSound(voice: Voice): Unit
+  def setFontSize(n: Int)
 }

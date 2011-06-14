@@ -148,28 +148,31 @@ class TurtleUndoTest extends KojoTestBase {
     turtle.setPenThickness(1)
     turtle.setPenColor(Color.blue)
     turtle.setFillColor(Color.green)
+    turtle.setFontSize(11)
     turtle.saveStyle()
 
     // style 2
     turtle.setPenThickness(3)
     turtle.setPenColor(Color.green)
     turtle.setFillColor(Color.blue)
-    assertEquals(Style(Color.green, 3, Color.blue), turtle.style)
+    turtle.setFontSize(15)
+    assertEquals(Style(Color.green, 3, Color.blue, 15), turtle.style)
 
     // change to style 1
     turtle.restoreStyle()
-    assertEquals(Style(Color.blue, 1, Color.green), turtle.style)
+    assertEquals(Style(Color.blue, 1, Color.green, 11), turtle.style)
 
     // undo style 1 change. Back to style 2
     turtle.undo()
-    assertEquals(Style(Color.green, 3, Color.blue), turtle.style)
+    assertEquals(Style(Color.green, 3, Color.blue, 15), turtle.style)
 
-    // undo 3 steps of setting style 2
+    // undo 4 steps of setting style 2
+    turtle.undo()
     turtle.undo()
     turtle.undo()
     turtle.undo()
     // back to style 1
-    assertEquals(Style(Color.blue, 1, Color.green), turtle.style)
+    assertEquals(Style(Color.blue, 1, Color.green, 11), turtle.style)
   }
 
   @Test
@@ -204,23 +207,25 @@ class TurtleUndoTest extends KojoTestBase {
     turtle.setPenThickness(1)
     turtle.setPenColor(Color.blue)
     turtle.setFillColor(Color.green)
+    turtle.setFontSize(51)
     turtle.saveStyle()
 
     // style 2
     turtle.setPenThickness(3)
     turtle.setPenColor(Color.green)
     turtle.setFillColor(Color.blue)
-    assertEquals(Style(Color.green, 3, Color.blue), turtle.style)
+    turtle.setFontSize(31)
+    assertEquals(Style(Color.green, 3, Color.blue, 31), turtle.style)
     assertEquals(3, turtle.penPaths.last.strokeThickness, 0.001)
  
     // change to style 1
     turtle.restoreStyle()
-    assertEquals(Style(Color.blue, 1, Color.green), turtle.style)
+    assertEquals(Style(Color.blue, 1, Color.green, 51), turtle.style)
     assertEquals(1, turtle.penPaths.last.strokeThickness, 0.001)
 
     // undo style 1 change. Back to style 2
     turtle.undo()
-    assertEquals(Style(Color.green, 3, Color.blue), turtle.style)
+    assertEquals(Style(Color.green, 3, Color.blue, 31), turtle.style)
     assertEquals(3, turtle.penPaths.last.strokeThickness, 0.001)
   }
 }

@@ -40,10 +40,6 @@ import net.kogics.kojo.core._
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
-object Turtle {
-  val writeFont = new Font(new PText().getFont.getName, Font.PLAIN, 18)
-}
-
 class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
              initY: Double = 0, bottomLayer: Boolean = false) extends core.Turtle {
 
@@ -73,6 +69,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   @volatile private var lineColor: Color = _
   @volatile private var fillColor: Color = _
   @volatile private var lineStroke: Stroke = _
+  @volatile private var font: Font = _
 
   private val pens = makePens
   private val DownPen = pens._1
@@ -218,6 +215,12 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
     enqueueCommand(SetPenThickness(t, cmdBool))
   }
+  def setFontSize(n: Int) = {
+    if (n < 0) {
+      throw new IllegalArgumentException("Negative font size not allowed")
+    }
+    enqueueCommand(SetFontSize(n, cmdBool))
+  }
 
   def remove() = {
     enqueueCommand(Remove(cmdBool))
@@ -268,7 +271,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     currStyle
   }
 
-  private def currStyle = Style(pen.getColor, pen.getThickness, pen.getFillColor)
+  private def currStyle = Style(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize)
 
   def state: SpriteState = {
     def textNodes: scala.List[PText] = {
@@ -527,17 +530,22 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realSetPenColor(color: Color, cmd: Command) {
-    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))
+    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
     pen.setColor(color)
   }
 
   private def realSetPenThickness(t: Double, cmd: Command) {
-    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))
+    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
     pen.setThickness(t)
   }
 
+  private def realSetFontSize(n: Int, cmd: Command) {
+    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
+    pen.setFontSize(n)
+  }
+
   private def realSetFillColor(color: Color, cmd: Command) {
-    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor))
+    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
     pen.setFillColor(color)
   }
 
@@ -586,7 +594,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     pushHistory(UndoWrite(ptext))
     ptext.getTransformReference(true).setToScale(1, -1)
     ptext.setOffset(_position.x, _position.y)
-    ptext.setFont(Turtle.writeFont)
+    ptext.setFont(font)
     ptext.setTextPaint(pen.getColor)
     layer.addChild(layer.getChildrenCount-1, ptext)
     ptext.repaint()
@@ -642,9 +650,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     turtle.repaint()
   }
 
-  private def undoPenAttrs(color: Color, thickness: Double, fillColor: Color) {
-    canvas.outputFn("Undoing Pen attribute (Color/Thickness/FillColor) change.\n")
-    pen.undoStyle(Style(color, thickness, fillColor))
+  private def undoPenAttrs(color: Color, thickness: Double, fillColor: Color, fontSize: Int) {
+    canvas.outputFn("Undoing Pen attribute (Color/Thickness/FillColor/FontSize) change.\n")
+    pen.undoStyle(Style(color, thickness, fillColor, fontSize))
   }
 
   private def undoPenState(apen: Pen) {
@@ -676,7 +684,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private def undoRestoreStyle(currStyle: Style, savedStyle: Style) {
     savedStyles.push(savedStyle)
-    undoPenAttrs(currStyle.penColor, currStyle.penThickness, currStyle.fillColor)
+    undoPenAttrs(currStyle.penColor, currStyle.penThickness, currStyle.fillColor, currStyle.fontSize)
   }
 
   private def resetRotation() {
@@ -758,8 +766,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         undoChangeInPos((x, y))
       case cmd @ UndoChangeInHeading(oldHeading) =>
         undoChangeInHeading(oldHeading)
-      case cmd @ UndoPenAttrs(color, thickness, fillColor) =>
-        undoPenAttrs(color, thickness, fillColor)
+      case cmd @ UndoPenAttrs(color, thickness, fillColor, fontSize) =>
+        undoPenAttrs(color, thickness, fillColor, fontSize)
       case cmd @ UndoPenState(apen) =>
         undoPenState(apen)
       case cmd @ UndoWrite(ptext) =>
@@ -855,6 +863,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
           processCommand(cmd) {
             realSetPenThickness(t, cmd)
           }
+        case cmd @ SetFontSize(n, b) =>
+          processCommand(cmd) {
+            realSetFontSize(n, cmd)
+          }
         case cmd @ SetFillColor(color, b) =>
           processCommand(cmd) {
             realSetFillColor(color, cmd)
@@ -914,11 +926,13 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     val DefaultColor = Color.red
     val DefaultFillColor = null
     val DefaultStroke = new BasicStroke(2, CapThick, JoinThick)
+    val DefaultFont = new Font(new PText().getFont.getName, Font.PLAIN, 18)
 
     def init() {
       lineColor = DefaultColor
       fillColor = DefaultFillColor
       lineStroke = DefaultStroke
+      font = DefaultFont
       addNewPath()
     }
 
@@ -946,13 +960,15 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     def getColor = lineColor
     def getFillColor = fillColor
     def getThickness = lineStroke.asInstanceOf[BasicStroke].getLineWidth
+    def getFontSize = font.getSize
 
-    private def rawSetAttrs(color: Color, thickness: Double, fColor: Color) {
+    private def rawSetAttrs(color: Color, thickness: Double, fColor: Color, fontSize: Int) {
       lineColor = color
       val Cap = if (thickness < 1) CapThin else CapThick
       val Join = if (thickness < 1) JoinThin else JoinThick
       lineStroke = new BasicStroke(thickness.toFloat, Cap, Join)
       fillColor = fColor
+      font = new Font(new PText().getFont.getName, Font.PLAIN, fontSize)
     }
 
     def setColor(color: Color) {
@@ -967,18 +983,23 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       addNewPath()
     }
 
+    def setFontSize(n: Int) {
+      font = new Font(new PText().getFont.getName, Font.PLAIN, n)
+      addNewPath()
+    }
+
     def setFillColor(color: Color) {
       fillColor = color
       addNewPath()
     }
 
     def setStyle(style: Style) {
-      rawSetAttrs(style.penColor, style.penThickness, style.fillColor)
+      rawSetAttrs(style.penColor, style.penThickness, style.fillColor, style.fontSize)
       addNewPath()
     }
 
     def undoStyle(oldStyle: Style) {
-      rawSetAttrs(oldStyle.penColor, oldStyle.penThickness, oldStyle.fillColor)
+      rawSetAttrs(oldStyle.penColor, oldStyle.penThickness, oldStyle.fillColor, oldStyle.fontSize)
       removeLastPath()
     }
 

@@ -354,13 +354,15 @@ class TurtleTest extends KojoTestBase {
     turtle.setPenThickness(1)
     turtle.setPenColor(Color.blue)
     turtle.setFillColor(Color.green)
-    assertEquals(Style(Color.blue, 1, Color.green), turtle.style)
+    turtle.setFontSize(19)
+    assertEquals(Style(Color.blue, 1, Color.green, 19), turtle.style)
     turtle.saveStyle()
     turtle.setPenThickness(3)
     turtle.setPenColor(Color.green)
     turtle.setFillColor(Color.blue)
-    assertEquals(Style(Color.green, 3, Color.blue), turtle.style)
+    turtle.setFontSize(29)
+    assertEquals(Style(Color.green, 3, Color.blue, 29), turtle.style)
     turtle.restoreStyle()
-    assertEquals(Style(Color.blue, 1, Color.green), turtle.style)
+    assertEquals(Style(Color.blue, 1, Color.green, 19), turtle.style)
   }
 }
