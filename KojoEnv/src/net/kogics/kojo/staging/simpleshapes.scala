@@ -68,7 +68,7 @@ object Line {
 
 class Rectangle(val origin: Point, val endpoint: Point) extends SimpleShape {
   // precondition endpoint > origin
-  require(width > 0 && height > 0)
+  require(width > 0 && height > 0, "A Rectangles's width and height should be more than 0.")
   val path =
     PPath.createRectangle(origin.x.toFloat, origin.y.toFloat, width.toFloat, height.toFloat)
 
@@ -88,7 +88,7 @@ class RoundRectangle(
   val curvature: Point
 ) extends SimpleShape with Rounded {
   // precondition endpoint > origin
-  require(width > 0 && height > 0)
+  require(width > 0 && height > 0, "A RoundRectangles's width and height should be more than 0.")
   val path =
     PPath.createRoundRectangle(
       origin.x.toFloat, origin.y.toFloat,
