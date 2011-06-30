@@ -509,7 +509,9 @@ trait Shape {
   def onMouseClick(fn: => Unit) = Utils.runInSwingThread {
     node.addInputEventListener(new PBasicInputEventHandler {
         override def mousePressed(event: PInputEvent) {
-          fn
+          Utils.safeProcess {
+            fn
+          }
         }
       })
   }
@@ -522,7 +524,9 @@ trait Shape {
         event.setHandled(true)
       }
       override def keyPressed(e: PInputEvent) {
-        fn(e.getKeyCode)
+        Utils.safeProcess {
+          fn(e.getKeyCode)
+        }
       }
     }
     node.addInputEventListener(eh)

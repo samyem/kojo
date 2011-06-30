@@ -24,7 +24,6 @@ import scala.actors.Actor
 import KojoInterpreter._
 
 import java.util.logging._
-import org.openide.ErrorManager;
 
 class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller: story.StoryTeller) extends CodeRunner {
   val Log = Logger.getLogger(getClass.getName)
@@ -156,16 +155,6 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 //    val varPattern = java.util.regex.Pattern.compile("\\bvar\\b")
 //    val storyPattern = java.util.regex.Pattern.compile("\\bstClear()\\b")
 
-    def safeProcess(fn: => Unit) {
-      try {
-        fn
-      }
-      catch {
-        case t: Throwable => 
-          ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
-      }
-    }
-
     def safeProcessCompletionReq(fn: => (List[String], Int)) {
       try {
         reply(CompletionResponse(fn))
@@ -184,7 +173,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
           // while(true) receive - ensures we stay on the same thread
 
           case Init =>
-            safeProcess {
+            Utils.safeProcess {
               initInterp()
               initCompiler()
             }

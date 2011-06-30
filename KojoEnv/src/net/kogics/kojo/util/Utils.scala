@@ -237,6 +237,18 @@ object Utils {
     tnode
   }
   
+  def safeProcess(fn: => Unit) {
+    try {
+      fn
+    }
+    catch {
+      case t: Throwable => 
+        println("Problem - " + t.getMessage)
+        import org.openide.ErrorManager;
+        ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
+    }
+  }
+  
   case class RunCode(code: () => Unit)
   import scala.actors._
   import scala.actors.Actor._
@@ -244,11 +256,8 @@ object Utils {
     loop {
       react {
         case RunCode(code) => 
-          try {
+          safeProcess {
             code()
-          }
-          catch {
-            case t: Throwable =>
           }
       }
     }
