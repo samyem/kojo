@@ -35,6 +35,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
     kprintln(Utils.libJars.mkString("\n---\nJars (within libk) available for use:\n * ", "\n * ", "\n---\n"))
   }
 
+  if (Utils.installLibJars.size > 0 ) {
+    kprintln(Utils.installLibJars.mkString("\n---\nJars (within install libk) available for use:\n * ", "\n * ", "\n---\n"))
+  }
+
   def kprintln(s: String) = ctx.kprintln(s)
 
   def runCode(code: String) {
@@ -355,6 +359,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
 
       if (Utils.initScripts.size > 0) {
         kprintln(Utils.initScripts.mkString("\n---\nLoading Init Scripts (from initk):\n * ", "\n * ", "\n---\n"))
+      }
+      
+      if (Utils.installInitScripts.size > 0) {
+        kprintln(Utils.installInitScripts.mkString("\n---\nLoading Init Scripts (from install initk):\n * ", "\n * ", "\n---\n"))
       }
       
       if (initCode.isDefined) {
