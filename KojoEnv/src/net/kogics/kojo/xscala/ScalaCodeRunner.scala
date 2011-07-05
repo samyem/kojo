@@ -389,6 +389,14 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller
         ourCp.append(File.pathSeparatorChar)
       }
 
+      // add all jars in kojo install lib dir to classpath
+      Utils.installLibJars.foreach {x =>
+        ourCp.append(Utils.installLibDir)
+        ourCp.append(File.separatorChar)
+        ourCp.append(x)
+        ourCp.append(File.pathSeparatorChar)
+      }
+
       val prefix = Utils.installDir
 
       xs.foreach {x =>
