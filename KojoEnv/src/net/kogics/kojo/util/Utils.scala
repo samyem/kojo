@@ -162,6 +162,9 @@ object Utils {
   lazy val userDir = System.getProperty("netbeans.user")
   lazy val libDir = userDir + File.separatorChar + "libk"
   lazy val initScriptDir = userDir + File.separatorChar + "initk"
+
+  lazy val installLibDir = installDir + File.separatorChar + "libk"
+  lazy val installInitScriptDir = installDir + File.separatorChar + "initk"
   
   def filesInDir(dir: String, ext: String): List[String] = {
     val osDir = new File(dir)
@@ -179,8 +182,10 @@ object Utils {
   
   lazy val libJars: List[String] = filesInDir(libDir, "jar")
   lazy val initScripts: List[String] = filesInDir(initScriptDir, "kojo")
-  
-  def isScalaTestAvailable = libJars.exists { fname => fname.toLowerCase contains "scalatest"}
+  lazy val installLibJars: List[String] = filesInDir(installLibDir, "jar")
+  lazy val installInitScripts: List[String] = filesInDir(installInitScriptDir, "kojo")
+
+  def isScalaTestAvailable = (libJars ++ installLibJars).exists { fname => fname.toLowerCase contains "scalatest"}
 
   val scalaTestHelperCode = """
   import org.scalatest.FunSuite
@@ -207,14 +212,19 @@ object Utils {
   import ShouldMatchers._
 """
   
-  lazy val kojoInitCode: Option[String] = initScripts match {
+  lazy val kojoInitCode0: Option[String] = codeFromScripts(initScripts, initScriptDir) 
+  lazy val kojoInitCode1: Option[String] = codeFromScripts(installInitScripts, installInitScriptDir) 
+  lazy val kojoInitCode = Some(kojoInitCode0.getOrElse("") + kojoInitCode1.getOrElse(""))
+  
+  def codeFromScripts(scripts: List[String], scriptDir: String): Option[String] = scripts match {
     case Nil => None
     case files => Some(
         files.map { file =>
-          "// File: %s\n%s\n" format(file, readFile(new FileInputStream(initScriptDir + File.separatorChar + file)))
+          "// File: %s\n%s\n" format(file, readFile(new FileInputStream(scriptDir + File.separatorChar + file)))
         }.mkString("\n")
       )
   }
+  
   
   def runAsync2(fn: => Unit) {
     asyncRunner ! RunCode { () =>
