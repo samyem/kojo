@@ -72,7 +72,6 @@
     <target name="scala-compile" depends="scala-taskdef" unless="is.jar.uptodate">
 
         <!-- javac's classpath should include scala.library and all these paths of "cp" -->
-        <!-- if I try to put this at the top level, javac fails with missing classes/packages -->
         <path id="javac.cp">
             <path refid="scala.libs"/>
             <pathelement path="${module.classpath}"/>
@@ -110,36 +109,39 @@
     </target>
 
 
+    <target name="kojo-test-init" depends="test-init, scala-taskdef">
     <!-- A hack to get tests to compile, without making the KojoEnv module dependent on the
                  test modules (which makes the test jars get bundled in the distribution).
     -->
-    <path id="kojo.test.jars">
-        <fileset dir="../JMock 2.5.1/release/modules/ext">
-            <include name="**/*.jar"/>
-        </fileset>
-        <fileset dir="../ScalaCheck/release/modules/ext">
-            <include name="**/*.jar"/>
-        </fileset>
-        <pathelement location="../JUnit4/junit-4.8.2.jar"/>
-        <pathelement location="../ScalaTest/scalatest-1.6.1.jar"/>
-    </path>
+        <path id="kojo.test.jars">
+            <fileset dir="../JMock 2.5.1/release/modules/ext">
+                <include name="**/*.jar"/>
+            </fileset>
+            <fileset dir="../ScalaCheck/release/modules/ext">
+                <include name="**/*.jar"/>
+            </fileset>
+            <pathelement location="../JUnit4/junit-4.8.2.jar"/>
+            <pathelement location="../ScalaTest/scalatest-1.6.1.jar"/>
+        </path>
 
-    <property name="kojo.test.jars" refid="kojo.test.jars"/>
-    <property name="test.unit.run.cp.extra" value="${kojo.test.jars}"/>
-
-    <target name="do-test-build" depends="test-init">
-
-        <path id="test.unit.custom.cp">
-            <path refid="test.unit.cp"/>
+        <path id="test.unit.build.cp">
+            <path refid="test.unit.cp"/> <!-- includes test.unit.compile.cp and test.unit.lib.cp props, that show up as missing in the compile output -->
             <path refid="kojo.test.jars"/>
         </path>
-        
-        <mkdir dir="${build.test.unit.classes.dir}"/>
-        
-        <scalac srcdir="${test.unit.src.dir}" destdir="${build.test.unit.classes.dir}" excludes="${test.excludes}"
-                encoding="UTF-8" fork="true">
-            <classpath refid="test.unit.custom.cp"/>
-        </scalac>
+        <path id="test.unit.run.cp">
+            <path refid="test.unit.build.cp"/>
+            <pathelement path="${build.test.unit.classes.dir}"/>
+        </path>
+
+        <path id="test.qa-functional.build.cp">
+            <path refid="test.qa-functional.cp"/>
+            <path refid="kojo.test.jars"/>
+            <pathelement path="${build.test.unit.classes.dir}"/>
+        </path>
+        <path id="test.qa-functional.run.cp">
+            <path refid="test.qa-functional.build.cp"/>
+            <pathelement path="${build.test.qa-functional.classes.dir}"/>
+        </path>
     </target>
 
 <!-- 
@@ -148,25 +150,19 @@
     To force recompilation of changed Kojo sources, make the do-light-test-build target depend
     on scala-compile instead of scala-taskdef
 -->
-    <target name="do-light-test-build" depends="test-init, scala-taskdef">
-        <path id="test.unit.custom.cp">
-            <path refid="test.unit.cp"/>
-            <path refid="kojo.test.jars"/>
-        </path>
+    <target name="do-light-test-build" depends="kojo-test-init">
         
         <mkdir dir="${build.test.unit.classes.dir}"/>
         
         <scalac srcdir="${test.unit.src.dir}" destdir="${build.test.unit.classes.dir}" excludes="${test.excludes}"
                 encoding="UTF-8" fork="true">
-            <classpath refid="test.unit.custom.cp"/>
+            <classpath refid="test.unit.build.cp"/>
         </scalac>
     </target>
 
     <target name="run-tests-custom" depends="do-light-test-build">
         <echo message="*************************************Doing custom test run"/>
-        <property name="test.config" value="default"/>
-        <property name="test.config.default.includes" value="**/*Test.class"/>
-        <metaproperty name="test.includes" value="test.config.${test.config}.includes"/>
+        <property name="test.includes" value="**/*Test.class"/>
         <mkdir dir="${build.test.unit.results.dir}"/>
         <junit showoutput="true" fork="true" failureproperty="tests.failed" errorproperty="tests.failed" filtertrace="${test.filter.trace}" tempdir="${build.test.unit.results.dir}" timeout="${test.timeout}">
             <batchtest todir="${build.test.unit.results.dir}">
@@ -192,4 +188,39 @@
         
     </target>
 
+    <target name="do-light-ftest-build" depends="kojo-test-init">
+        <mkdir dir="${build.test.qa-functional.classes.dir}"/>
+        
+        <scalac srcdir="${test.qa-functional.src.dir}" destdir="${build.test.qa-functional.classes.dir}" excludes="${test.excludes}"
+                encoding="UTF-8" fork="true">
+            <classpath refid="test.qa-functional.build.cp"/>
+        </scalac>
+    </target>
+
+    <target name="run-ftests-custom" depends="do-light-ftest-build">
+        <echo message="*************************************Doing custom functional test run"/>
+        <property name="test.includes" value="**/*Test.class"/>
+        <mkdir dir="${build.test.qa-functional.results.dir}"/>
+        <junit showoutput="true" fork="true" failureproperty="tests.failed" errorproperty="tests.failed" filtertrace="${test.filter.trace}" tempdir="${build.test.qa-functional.results.dir}" timeout="${test.timeout}">
+            <batchtest todir="${build.test.qa-functional.results.dir}">
+                <fileset dir="${build.test.qa-functional.classes.dir}" includes="${test.includes}" excludes="${test.excludes}"/>
+            </batchtest>
+            <classpath refid="test.qa-functional.run.cp"/>
+            <syspropertyset refid="test.qa-functional.properties"/>
+            <jvmarg line="${test.bootclasspath.prepend.args}"/>
+            <jvmarg line="${test.run.args}"/>
+                <!--needed to have tests NOT to steal focus when running, works in latest apple jdk update only.-->
+            <sysproperty key="apple.awt.UIElement" value="@{disable.apple.ui}"/>
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml"/>
+        </junit>
+        <fail message="Some tests failed; see details above.">
+            <condition>
+                <and>
+                    <isset property="tests.failed"/>
+                    <isfalse value="${continue.after.failing.tests}"/>
+                </and>
+            </condition>
+        </fail>
+    </target>
 </project>

@@ -14,6 +14,6 @@
     changed
     -->
     <target name="compile" depends="scala-compile"/>
-    <target name="do-test-build" depends="scala-module.do-test-build"/>
     <target name="test-unit" depends="scala-module.run-tests-custom"/>
+    <target name="test-integration" depends="scala-module.run-ftests-custom"/>
 </project>
