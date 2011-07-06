@@ -734,9 +734,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   }
 
   def stopAnimation() {
-    storyTeller.stopCallback()
     tCanvas.stop()
     musicPlayer.stopMusic()
+    Utils.stopMonitoredThreads()
   }
 
   def invalidCode(code: String): Boolean = {

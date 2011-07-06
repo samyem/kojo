@@ -45,7 +45,6 @@ class StoryTeller extends JPanel {
   @volatile var bgmp3Player: Option[Player] = None
   @volatile var currStory: Option[Story] = None
   @volatile var savedStory: Option[Story] = None
-  @volatile var buttonCallbackThread: Option[Thread] = None
   def running = currStory.isDefined
   def story = currStory.get
 
@@ -345,33 +344,14 @@ class StoryTeller extends JPanel {
     but.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
           clearStatusBar()
-          Utils.runAsync {
-            buttonCallbackThread = Some(Thread.currentThread)
-            try {
+          Utils.stopMonitoredThreads()
+          Utils.runAsyncMonitored {
               fn
-            }
-            catch {
-              case stopper: InterruptedException =>
-                showStatusMsg("Story code stopped.")
-              case swingThreadException: java.lang.reflect.InvocationTargetException =>
-                // should already be logged e.g. within fieldValue()
-              case t: Throwable =>
-                showStatusError(t.getMessage)
-            }
-            finally {
-              buttonCallbackThread = None
-            }
           }
         }
       })
 
     addUiComponent(but)
-  }
-
-  def stopCallback() {
-    if (buttonCallbackThread.isDefined) {
-      buttonCallbackThread.get.interrupt()
-    }
   }
 
   def addUiComponent(c: JComponent) {
