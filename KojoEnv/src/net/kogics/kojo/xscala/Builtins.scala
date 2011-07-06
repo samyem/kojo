@@ -407,6 +407,9 @@ Here's a partial list of the available commands:
   }
   UserCommand("textExtent", List("text", "fontSize"), "Determines the size/extent of the given text fragment for the given font size.")
 
+  def runInBackground(code: => Unit) = Utils.runAsync(code)
+  UserCommand("runInBackground", List("command"), "Runs the given code in the background, concurrently with other code that follows right after this command.")
+  
   // undocumented
   override def style: Style = turtle0.style
   def color(r: Int, g: Int, b: Int) = new Color(r, g, b)
