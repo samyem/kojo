@@ -36,7 +36,7 @@ class Page(val name: String, body: => xml.Node, code: => Unit) extends Viewable 
   def hasNextView = false
   def hasPrevView = false
   def view = {
-    Utils.runAsync {
+    Utils.runAsyncMonitored {
       code
     }
     body
@@ -71,7 +71,7 @@ class IncrPage(val name: String, style: String, body: List[Para]) extends Viewab
   }
   
   private def runCode(n: Int) {
-    Utils.runAsync {
+    Utils.runAsyncMonitored {
       body(n-1).code
     }
   }

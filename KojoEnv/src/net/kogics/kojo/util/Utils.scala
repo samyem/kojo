@@ -40,6 +40,33 @@ object Utils {
         }
       }).start
   }
+  
+  import collection.mutable.{HashSet, SynchronizedSet}
+  val threads = new HashSet[Thread] with SynchronizedSet[Thread]
+  
+  def runAsyncMonitored(fn: => Unit) {
+    lazy val t: Thread = new Thread(new Runnable {
+        def run {
+          try {
+            fn
+          }
+          catch {
+            case e: InterruptedException => // println("Background Thread Interrupted.")
+            case t: Throwable => reportException(t)
+          }
+          finally {
+            threads.remove(t)
+          }
+        }
+      })
+    threads.add(t)
+    t.start()
+  }
+  
+  def stopMonitoredThreads() {
+    threads.foreach {t => t.interrupt()}
+    threads.clear()
+  }
 
   def runInSwingThread(fn: => Unit) {
     if(inSwingThread) {
@@ -247,15 +274,18 @@ object Utils {
     tnode
   }
   
+  def reportException(t: Throwable) {
+    println("Problem - " + t.getMessage)
+    import org.openide.ErrorManager;
+    ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
+  }
+  
   def safeProcess(fn: => Unit) {
     try {
       fn
     }
     catch {
-      case t: Throwable => 
-        println("Problem - " + t.getMessage)
-        import org.openide.ErrorManager;
-        ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
+      case t: Throwable => reportException(t)
     }
   }
   
