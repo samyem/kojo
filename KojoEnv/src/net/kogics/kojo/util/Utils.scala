@@ -253,7 +253,7 @@ object Utils {
   }
   
   
-  def runAsync2(fn: => Unit) {
+  def runAsyncQueued(fn: => Unit) {
     asyncRunner ! RunCode { () =>
       fn
     }
