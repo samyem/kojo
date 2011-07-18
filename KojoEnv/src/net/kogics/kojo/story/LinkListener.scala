@@ -22,8 +22,9 @@ import javax.swing.event._
 class LinkListener(st: StoryTeller) extends HyperlinkListener {
   val linkRegex = """(?i)http://localpage/(\d+)#?(\d*)""".r
   val linkPnameRegex = """(?i)http://localpage/([\w-]+)#?(\d*)""".r
+  val handlerLinkRegex = """(?i)http://runHandler/(\w+)\/?(\w*)""".r
 
-  def location(url: String): (Int, Int) = {
+  def localpageLocation(url: String): (Int, Int) = {
     url match {
       case linkRegex(page, para) =>
         (page.toInt, if (para=="") 1 else para.toInt)
@@ -37,6 +38,16 @@ class LinkListener(st: StoryTeller) extends HyperlinkListener {
         throw new IllegalArgumentException()
     }
   }
+  
+  def handlerData(url: String): (String, String) = {
+    
+    url.trim match {
+      case handlerLinkRegex(handler, data) =>
+        (handler, data)
+      case _ =>
+        throw new IllegalArgumentException()
+    }
+  }
 
   def hyperlinkUpdate(e: HyperlinkEvent) {
     if (e.getEventType == HyperlinkEvent.EventType.ACTIVATED) {
@@ -44,12 +55,26 @@ class LinkListener(st: StoryTeller) extends HyperlinkListener {
       if (url.getProtocol == "http") {
         if (url.getHost.toLowerCase == "localpage") {
           try {
-            val loc = location(url.toString)
+            val loc = localpageLocation(url.toString)
             st.viewPage(loc._1, loc._2)
           }
           catch {
             case ex: IllegalArgumentException =>
               st.showStatusError("Invalid page/view in Link - " + url.toString)
+            case t: Throwable =>
+              st.showStatusError("Problem handling Url - " + url.toString)
+          }
+        }
+        else if (url.getHost.toLowerCase == "runhandler")  {
+          try {
+            val d = handlerData(url.toString)
+            st.handleLink(d._1, d._2)
+          }
+          catch {
+            case ex: IllegalArgumentException =>
+              st.showStatusError("Invalid RunHandler Url - " + url.toString)
+            case t: Throwable =>
+              st.showStatusError("Problem handling Url - " + url.toString)
           }
         }
         else {

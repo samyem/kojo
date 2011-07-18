@@ -192,8 +192,8 @@
         <antcall target="run-tests-helper"/>
     </target>
 
-    <target name="run-test-single">
-        <property name="test.includes" value="**/staging/*Test.class"/>
+    <target name="run-test-single" depends="jar"> <!-- depends="jar" -->
+        <property name="test.includes" value="**/story/Li*Test.class"/>
         <antcall target="run-tests-helper"/>
     </target>
 

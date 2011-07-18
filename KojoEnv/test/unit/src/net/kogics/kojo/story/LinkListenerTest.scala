@@ -25,17 +25,17 @@ class LinkListenerTest extends KojoTestBase {
   
   @Test
   def test1 {
-    assertEquals((2,1), ll.location("http://localpage/2"))
+    assertEquals((2,1), ll.localpageLocation("http://localpage/2"))
   }
 
   @Test
   def test2 {
-    assertEquals((2,3), ll.location("http://LOCALPAGE/2#3"))
+    assertEquals((2,3), ll.localpageLocation("http://LOCALPAGE/2#3"))
   }
 
   @Test
   def test3 {
-    assertEquals((12,11), ll.location("http://localpage/12#11"))
+    assertEquals((12,11), ll.localpageLocation("http://localpage/12#11"))
   }
 
   @Test
@@ -50,7 +50,7 @@ class LinkListenerTest extends KojoTestBase {
 
     ll.setStory(Story(pg))
     try {
-      ll.location("http://localpage/a#11")
+      ll.localpageLocation("http://localpage/a#11")
       fail("Invalid location not detected")
     }
     catch {
@@ -62,7 +62,7 @@ class LinkListenerTest extends KojoTestBase {
   @Test
   def test5 {
     try {
-      ll.location("http://localpage/5#x")
+      ll.localpageLocation("http://localpage/5#x")
       fail("Invalid location not detected")
     }
     catch {
@@ -107,19 +107,34 @@ class LinkListenerTest extends KojoTestBase {
     )
     
     ll.setStory(story)
-    assertEquals((1,1), ll.location("http://localpage/pg1"))
-    assertEquals((2,1), ll.location("http://localpage/pg2"))
-    assertEquals((2,1), ll.location("http://localpage/pg2#1"))
-    assertEquals((2,2), ll.location("http://localpage/pg2#2"))
-    assertEquals((3,1), ll.location("http://localpage/pg3#1"))
+    assertEquals((1,1), ll.localpageLocation("http://localpage/pg1"))
+    assertEquals((2,1), ll.localpageLocation("http://localpage/pg2"))
+    assertEquals((2,1), ll.localpageLocation("http://localpage/pg2#1"))
+    assertEquals((2,2), ll.localpageLocation("http://localpage/pg2#2"))
+    assertEquals((3,1), ll.localpageLocation("http://localpage/pg3#1"))
 
     try {
-      ll.location("http://localpage/nopage")
+      ll.localpageLocation("http://localpage/nopage")
       fail("Invalid location not detected")
     }
     catch {
       case ex: IllegalArgumentException =>
         assertTrue(true)
     }
+  }
+
+  @Test
+  def testHandlerData {
+    assertEquals(("code","5"), ll.handlerData("http://runHandler/code/5"))
+  }
+
+  @Test
+  def testHandlerData2 {
+    assertEquals(("code2","7"), ll.handlerData("http://runhandler/code2/7 "))
+  }
+
+  @Test
+  def testHandlerData3 {
+    assertEquals(("code3",""), ll.handlerData("http://runhandler/code3"))
   }
 }
