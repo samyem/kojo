@@ -16,4 +16,7 @@
     <target name="compile" depends="scala-compile"/>
     <target name="test-unit" depends="scala-module.run-tests-custom"/>
     <target name="test-integration" depends="scala-module.run-ftests-custom"/>
+    <target name="test-clean" depends="scala-module.test-clean"/>
+    <!-- Modify run-test-single target in scala-build.xml to specify which test to run -->
+    <target name="test-single" depends="scala-module.run-test-single"/> 
 </project>

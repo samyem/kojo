@@ -476,7 +476,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           }
         }
 
-      }, tCanvas, storyTeller)
+      }, tCanvas)
     codeRunner
   }
 

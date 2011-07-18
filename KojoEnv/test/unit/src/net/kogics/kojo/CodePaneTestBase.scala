@@ -87,8 +87,7 @@ abstract class CodePaneTestBase extends KojoTestBase {
     }
   }
 
-  val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance,
-                                              story.StoryTeller.instance)
+  val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance)
   val pane = new javax.swing.JEditorPane()
   val Delimiter = ""
   var latch: CountDownLatch = _

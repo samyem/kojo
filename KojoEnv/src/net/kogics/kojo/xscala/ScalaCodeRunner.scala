@@ -25,7 +25,7 @@ import KojoInterpreter._
 
 import java.util.logging._
 
-class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas, val storyTeller: story.StoryTeller) extends CodeRunner {
+class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRunner {
   val Log = Logger.getLogger(getClass.getName)
   val builtins = Builtins.initedInstance(this)
   val outputHandler = new InterpOutputHandler(ctx)
