@@ -61,7 +61,7 @@ Scala installation directory.
     <target name="-do-norm-scalac" depends="init,up-to-date,scala-taskdef" unless="condition-scala-fsc">
         <echo message="*************************************Doing normal scalac"/>
         <scalac classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
-            encoding="UTF-8" target="jvm-${javac.target}">
+            encoding="UTF-8" target="jvm-${javac.target}" fork="true">
         </scalac>
     </target>
 
