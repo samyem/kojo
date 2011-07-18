@@ -45,6 +45,9 @@ class StoryTeller extends JPanel {
   @volatile var bgmp3Player: Option[Player] = None
   @volatile var currStory: Option[Story] = None
   @volatile var savedStory: Option[Story] = None
+
+  val handlers = collection.mutable.Map[String, HandlerHolder[Any]]() 
+
   def running = currStory.isDefined
   def story = currStory.get
 
@@ -226,6 +229,7 @@ class StoryTeller extends JPanel {
       val doc = ep.getDocument.asInstanceOf[HTMLDocument]
       doc.setBase(new java.net.URL("file:///" + kojoCtx.baseDir))
       ep.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR))
+      handlers.clear()
     }
   }
 
@@ -346,7 +350,7 @@ class StoryTeller extends JPanel {
           clearStatusBar()
           Utils.stopMonitoredThreads()
           Utils.runAsyncMonitored {
-              fn
+            fn
           }
         }
       })
@@ -491,5 +495,17 @@ class StoryTeller extends JPanel {
 
   def storyAborted() {
     ep.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR))
+  }
+  
+  def addLinkHandler[T](name: String)(hm: HandlerHolder[T]) = {
+    addLinkHandler2(name)(hm)
+  }
+  
+  def addLinkHandler2[T](name: String)(hm: HandlerHolder[T]) = Utils.runInSwingThread {
+    handlers(name) = hm
+  }
+  
+  def handleLink(name: String, data: String) {
+    handlers(name).handle(data)
   }
 }

@@ -371,6 +371,20 @@ class Builtins extends SCanvas with TurtleMover {
 
   def stNext() = storyTeller.nextPage()
   UserCommand("stNext", Nil, "Moves the story to the next page/view.")
+  
+  import story.{HandlerHolder, IntHandlerHolder, StringHandlerHolder, VoidHandlerHolder}
+  implicit def toIhm(handler: Int => Unit): HandlerHolder[Int] = new IntHandlerHolder(handler)
+  implicit def toShm(handler: String => Unit): HandlerHolder[String] = new StringHandlerHolder(handler)
+  implicit def toVhm(handler: () => Unit): HandlerHolder[Unit] = new VoidHandlerHolder(handler)
+
+  def stAddLinkHandler[T](name: String)(implicit hm: HandlerHolder[T]) {
+    storyTeller.addLinkHandler(name)(hm)
+  }
+  
+  def stRunCode(code: String) = interpret(code)
+  def stClickRunButton() = Utils.runInSwingThread {
+    CodeExecutionSupport.instance.runCode()
+  }
 
   def help() = {
     println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
