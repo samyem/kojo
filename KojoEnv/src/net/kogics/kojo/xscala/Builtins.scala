@@ -37,7 +37,7 @@ class Builtins extends SCanvas with TurtleMover {
   @volatile var scalaCodeRunner: ScalaCodeRunner = _
   lazy val tCanvas = scalaCodeRunner.tCanvas
   lazy val ctx = scalaCodeRunner.ctx
-  lazy val storyTeller = scalaCodeRunner.storyTeller
+  lazy val storyTeller = story.StoryTeller.instance
   lazy val turtle0 = tCanvas.turtle0
 
   type Turtle = core.Turtle

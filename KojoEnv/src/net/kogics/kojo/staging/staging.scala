@@ -33,7 +33,6 @@ object Impl {
   val canvas = SpriteCanvas.instance
   val turtle0 = canvas.turtle0
   val figure0 = canvas.figure0
-  val Builtins = xscala.Builtins.instance
 }
 
 /** Staging API
@@ -376,8 +375,8 @@ object API {
   def animate(fn: => Unit) = loop(fn)
   def stop() = Impl.figure0.stopRefresh()
   def reset() = {
-    Impl.Builtins.clear()
-    Impl.Builtins.invisible()
+    Impl.canvas.clear()
+    Impl.canvas.turtle0.invisible()
   }
   def clear() = reset()
   def switchTo() = Impl.canvas.ensureVisible()

@@ -46,8 +46,7 @@ class StagingTestBase extends KojoTestBase {
 
   val runCtx = new TestRunContext(this)
 
-  val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance,
-                                              story.StoryTeller.instance)
+  val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance)
   val pane = new javax.swing.JEditorPane()
   val Delimiter = ""
 

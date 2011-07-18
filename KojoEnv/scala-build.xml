@@ -160,9 +160,8 @@
         </scalac>
     </target>
 
-    <target name="run-tests-custom" depends="do-light-test-build">
+    <target name="run-tests-helper" depends="do-light-test-build">
         <echo message="*************************************Doing custom test run"/>
-        <property name="test.includes" value="**/*Test.class"/>
         <mkdir dir="${build.test.unit.results.dir}"/>
         <junit showoutput="true" fork="true" failureproperty="tests.failed" errorproperty="tests.failed" filtertrace="${test.filter.trace}" tempdir="${build.test.unit.results.dir}" timeout="${test.timeout}">
             <batchtest todir="${build.test.unit.results.dir}">
@@ -186,6 +185,16 @@
             </condition>
         </fail>
         
+    </target>
+    
+    <target name="run-tests-custom">
+        <property name="test.includes" value="**/*Test.class"/>
+        <antcall target="run-tests-helper"/>
+    </target>
+
+    <target name="run-test-single">
+        <property name="test.includes" value="**/staging/*Test.class"/>
+        <antcall target="run-tests-helper"/>
     </target>
 
     <target name="do-light-ftest-build" depends="kojo-test-init">
@@ -222,5 +231,9 @@
                 </and>
             </condition>
         </fail>
+    </target>
+    <target name="test-clean" depends="kojo-test-init">
+        <delete dir="${build.test.unit.classes.dir}"/>
+        <delete dir="${build.test.qa-functional.classes.dir}"/>
     </target>
 </project>
