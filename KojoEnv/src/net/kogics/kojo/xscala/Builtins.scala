@@ -364,6 +364,14 @@ class Builtins extends SCanvas with TurtleMover {
   def stSetScript(code: String) = ctx.setScript(code)
   UserCommand("stSetScript", List("code"), "Copies the supplied code to the script editor.")
 
+  def stRunCode(code: String) = interpret(code)
+  UserCommand("stRunCode", List("code"), "Runs the supplied code (without copying it to the script editor).")
+
+  def stClickRunButton() = Utils.runInSwingThread {
+    CodeExecutionSupport.instance.runCode()
+  }
+  UserCommand("stClickRunButton", Nil, "Simulates a click of the run button")
+
   def stShowStatusError(msg: String) {
     storyTeller.showStatusError(msg)
   }
@@ -371,21 +379,8 @@ class Builtins extends SCanvas with TurtleMover {
 
   def stNext() = storyTeller.nextPage()
   UserCommand("stNext", Nil, "Moves the story to the next page/view.")
+  UserCommand.addSynopsisSeparator()
   
-  import story.{HandlerHolder, IntHandlerHolder, StringHandlerHolder, VoidHandlerHolder}
-  implicit def toIhm(handler: Int => Unit): HandlerHolder[Int] = new IntHandlerHolder(handler)
-  implicit def toShm(handler: String => Unit): HandlerHolder[String] = new StringHandlerHolder(handler)
-  implicit def toVhm(handler: () => Unit): HandlerHolder[Unit] = new VoidHandlerHolder(handler)
-
-  def stAddLinkHandler[T](name: String)(implicit hm: HandlerHolder[T]) {
-    storyTeller.addLinkHandler(name)(hm)
-  }
-  
-  def stRunCode(code: String) = interpret(code)
-  def stClickRunButton() = Utils.runInSwingThread {
-    CodeExecutionSupport.instance.runCode()
-  }
-
   def help() = {
     println("""You can press Ctrl-Space in the script window at any time to see available commands and functions.
 
@@ -449,6 +444,15 @@ Here's a partial list of the available commands:
   def onMouseClick(fn: (Double, Double) => Unit) =  tCanvas.onMouseClick(fn)
   def reimportBuiltins() {
     interpret("import builtins._")
+  }
+  
+  import story.{HandlerHolder, IntHandlerHolder, StringHandlerHolder, VoidHandlerHolder}
+  implicit def toIhm(handler: Int => Unit): HandlerHolder[Int] = new IntHandlerHolder(handler)
+  implicit def toShm(handler: String => Unit): HandlerHolder[String] = new StringHandlerHolder(handler)
+  implicit def toVhm(handler: () => Unit): HandlerHolder[Unit] = new VoidHandlerHolder(handler)
+
+  def stAddLinkHandler[T](name: String)(implicit hm: HandlerHolder[T]) {
+    storyTeller.addLinkHandler(name)(hm)
   }
 }
 

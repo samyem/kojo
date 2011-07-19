@@ -8,15 +8,16 @@
 
     <import file="scala-build.xml"/>
 
-    <!--
-    compile cleans out the classes because they seem to get zapped anyway,
-    and that creates compilation problems when we try to compile only waht has
-    changed
-    -->
     <target name="compile" depends="scala-compile"/>
+
+    <target name="test-clean" depends="scala-module.test-clean"/>
+
+    <!-- Various targets you can run for testing -->
+    <!-- From within Netbeans, open this file, right click on it, and 'Run Target' -->
+    <!-- Rerun by clicking the button on the top-left of the output window -->
+    <!-- Alt+F6 runs test-unit -->
     <target name="test-unit" depends="scala-module.run-tests-custom"/>
     <target name="test-integration" depends="scala-module.run-ftests-custom"/>
-    <target name="test-clean" depends="scala-module.test-clean"/>
     <!-- Modify run-test-single target in scala-build.xml to specify which test to run -->
     <target name="test-single" depends="scala-module.run-test-single"/> 
 </project>

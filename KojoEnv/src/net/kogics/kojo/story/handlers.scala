@@ -17,10 +17,10 @@ package net.kogics.kojo
 package story
 
 import util.Read
+import util.Read._
 
 trait HandlerHolder[+T] {
   def handle(data: String)
-  def convertArg(data: String): T
 }
   
 class IntHandlerHolder(handler: Int => Unit) extends HandlerHolder[Int] {
@@ -34,13 +34,11 @@ class StringHandlerHolder(handler: String => Unit) extends HandlerHolder[String]
   def handle(data: String) {
     handler(data)
   }
-  def convertArg(data: String): String = data
 }
 
 class VoidHandlerHolder(handler: () => Unit) extends HandlerHolder[Unit] {
   def handle(data: String) {
     handler()
   }
-  def convertArg(data: String): Unit = ()
 }
 
