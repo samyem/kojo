@@ -35,7 +35,8 @@ object CodeCompletionUtils {
   val MethodTemplates = collection.mutable.Map(
     "switchTo" -> "switchTo()",
     "onKeyPress" -> "onKeyPress { k =>\n    k match {\n    case Kc.VK_RIGHT => ${cursor}\n       case _ => \n    }\n}",
-    "onMouseClick" -> "onMouseClick { (x, y) =>\n    ${cursor}\n}"
+    "onMouseClick" -> "onMouseClick { (x, y) =>\n    ${cursor}\n}",
+    "stAddLinkHandler" -> "stAddLinkHandler(${handlerName}) {d: ${argType} =>\n    ${cursor}\n}"
   )
 
   val MwMethodTemplates = collection.mutable.Map(

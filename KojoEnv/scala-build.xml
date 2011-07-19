@@ -197,7 +197,7 @@
         <antcall target="run-tests-helper"/>
     </target>
 
-    <target name="do-light-ftest-build" depends="kojo-test-init">
+    <target name="do-light-ftest-build" depends="do-light-test-build">
         <mkdir dir="${build.test.qa-functional.classes.dir}"/>
         
         <scalac srcdir="${test.qa-functional.src.dir}" destdir="${build.test.qa-functional.classes.dir}" excludes="${test.excludes}"
