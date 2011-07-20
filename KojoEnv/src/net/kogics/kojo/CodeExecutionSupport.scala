@@ -84,6 +84,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   @volatile var showCode = false
   @volatile var verboseOutput = false
+  @volatile var retainCode = false
   val OutputDelimiter = "---\n"
   @volatile var lastOutput = ""
 
@@ -445,6 +446,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         def hideScriptInOutput() {showCode = false}
         def showVerboseOutput() {verboseOutput = true}
         def hideVerboseOutput() {verboseOutput = false}
+        def retainSingleLineCode() {retainCode = true}
+        def clearSingleLineCode() {retainCode = false}
         def readInput(prompt: String): String = CodeExecutionSupport.this.readInput(prompt)
 
         def clearOutput() = clrOutput()
@@ -825,7 +828,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
     try {
       // always add full code to history
-      historyManager.codeRun(code, (selectedCode != null) || !isSingleLine(code), (selStart, selEnd))
+      val singleLine = isSingleLine(code)
+      historyManager.codeRun(code, (selectedCode != null) 
+                             || !singleLine
+                             || (singleLine && retainCode), 
+                             (selStart, selEnd))
     }
     catch {
       case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))

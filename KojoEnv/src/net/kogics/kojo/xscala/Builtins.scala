@@ -239,6 +239,12 @@ class Builtins extends SCanvas with TurtleMover {
   UserCommand("hideVerboseOutput", Nil, "Stops the display of output from the Scala interpreter.")
   UserCommand.addSynopsisSeparator()
 
+  def retainSingleLineCode() = ctx.retainSingleLineCode()
+  UserCommand("retainSingleLineCode", Nil, "Makes Kojo retain a single line of code after running it. By default, single lines of code are cleared after running.")
+
+  def clearSingleLineCode() = ctx.clearSingleLineCode()
+  UserCommand("clearSingleLineCode", Nil, "Makes Kojo clear a single line of code after running it. This is the default behavior.")
+
   def version = println("Scala " + scala.tools.nsc.Properties.versionString)
   UserCommand.addSynopsis("version - Displays the version of Scala being used.")
 

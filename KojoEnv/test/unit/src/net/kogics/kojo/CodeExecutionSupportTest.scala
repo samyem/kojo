@@ -110,6 +110,41 @@ class CodeExecutionSupportTest extends KojoTestBase {
     assertEquals(12, pane.getSelectionStart)
     assertEquals(23, pane.getSelectionEnd)
   }
+  
+  @Test
+  def testRetainSingleLineCode {
+    val code = "val x = 10; val y = 20"
+    pane.setText(code)
+    ce.retainCode = true
+    val output = ce.runCodeWithOutputCapture()
+    assertEquals("x: Int = 10y: Int = 20", stripCrLfs(output))
+    Utils.runInSwingThreadAndWait {  /* noop */  }
+    assertEquals(code, pane.getText)
+    assertTrue(pane.getSelectionStart == pane.getSelectionEnd)
+
+    ce.retainCode = false
+    val output2 = ce.runCodeWithOutputCapture()
+    assertEquals("x: Int = 10y: Int = 20", stripCrLfs(output2))
+    Utils.runInSwingThreadAndWait {  /* noop */  }
+    assertEquals("", pane.getText)
+    assertTrue(pane.getSelectionStart == pane.getSelectionEnd)
+  }
+  
+  @Test
+  def testShowVerboseOutput {
+    val code = "val x = 10\nval y = 20"
+    pane.setText(code)
+    ce.verboseOutput = true
+    val output = ce.runCodeWithOutputCapture()
+    assertEquals("x: Int = 10y: Int = 20", stripCrLfs(output))
+
+    Utils.runInSwingThreadAndWait {  /* noop */  }
+
+    pane.setText(code)
+    ce.verboseOutput = false
+    val output2 = ce.runCodeWithOutputCapture()
+    assertEquals("", stripCrLfs(output2))
+  }
 
   def stripCrLfs(str: String): String  = {
     val str0 = str.replaceAll("\r?\n", "")
