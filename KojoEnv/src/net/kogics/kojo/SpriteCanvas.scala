@@ -76,7 +76,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 //  edu.umd.cs.piccolo.util.PDebug.debugFullBounds = true
 //  edu.umd.cs.piccolo.util.PDebug.debugPaintCalls = true
 
-  var turtles: List[Turtle] = Nil
+  @volatile var turtles: List[Turtle] = Nil
   var puzzlers: List[Turtle] = Nil
   var figures: List[Figure] = Nil
   var eventListeners: List[PInputEventListener] = Nil
@@ -385,18 +385,23 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
+  import java.io.File
   private def exportImageHelper(filePrefix: String, width: Int, height: Int): java.io.File = {
-    val image = getCamera.toImage(width, height, java.awt.Color.white)
-    val outfile = java.io.File.createTempFile(filePrefix + "-", ".png")
-    javax.imageio.ImageIO.write(image.asInstanceOf[java.awt.image.BufferedImage], "png", outfile)
+    val outfile = File.createTempFile(filePrefix + "-", ".png")
+    exportImageToFile(outfile, width, height)
     outfile
   }
 
-  def exportImage(filePrefix: String): java.io.File = {
+  private def exportImageToFile(outfile: File, width: Int, height: Int) {
+    val image = getCamera.toImage(width, height, java.awt.Color.white)
+    javax.imageio.ImageIO.write(image.asInstanceOf[java.awt.image.BufferedImage], "png", outfile)
+  }
+  
+  def exportImage(filePrefix: String): File = {
     exportImageHelper(filePrefix, getWidth, getHeight)
   }
 
-  def exportThumbnail(filePrefix: String, height: Int): java.io.File = {
+  def exportThumbnail(filePrefix: String, height: Int): File = {
     exportImageHelper(filePrefix, (getWidth.toFloat/getHeight * height).toInt, height)
   }
 
@@ -446,10 +451,19 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def ensureVisible() {
     kojoCtx.makeCanvasVisible()
   }
+  
+  def forceClear() {
+    stop()
+    clearHelper()
+  }
 
   def clear() {
     ensureVisible()
-    stop()
+    turtles.foreach {t => t.waitFor()}
+    clearHelper()
+  }
+  
+  private def clearHelper() {
     Utils.runInSwingThreadAndWait {
       turtles.foreach {t => if (t == turtle) t.clear() else t.remove()}
       turtles = List(turtles.last)
@@ -614,11 +628,27 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         }
       })
     add(gridItem)
+    
+    addSeparator()
+
+    val saveAsImage = new JMenuItem("Save as Image")
+    saveAsImage.addActionListener(new ActionListener {
+        val saveAs = new SaveAs()
+        override def actionPerformed(e: ActionEvent) {
+          val file = saveAs.chooseFile("PNG Image File", "png")
+          if (file != null) {
+            exportImageToFile(file, SpriteCanvas.this.getWidth, SpriteCanvas.this.getHeight)
+          }
+        }
+      })
+    add(saveAsImage)
+
+    addSeparator()
 
     val clearItem = new JMenuItem("Clear")
     clearItem.addActionListener(new ActionListener {
         override def actionPerformed(e: ActionEvent) {
-          clear()
+          forceClear()
         }
       })
     add(clearItem)

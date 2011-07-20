@@ -22,13 +22,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public final class SaveAs implements ActionListener {
 
-    public void actionPerformed(ActionEvent e) {
+    public File chooseFile(String desc, String ext) {
         CodeEditorTopComponent cetc = CodeEditorTopComponent.findInstance();
-        CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
 
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "Kojo Files", "kojo");
+                desc, ext);
         chooser.setFileFilter(filter);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
@@ -44,13 +43,25 @@ public final class SaveAs implements ActionListener {
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             cetc.setLastLoadStoreDir(chooser.getSelectedFile().getParent());
-            if (!chooser.getSelectedFile().getName().endsWith(".kojo")) {
-                File newFile = new File(chooser.getSelectedFile().getAbsolutePath() + ".kojo");
-                chooser.setSelectedFile(newFile);
+            File selectedFile = chooser.getSelectedFile();
+            if (!selectedFile.getName().endsWith("." + ext)) {
+                selectedFile = new File(selectedFile.getAbsolutePath() + "." + ext);
             }
+            return selectedFile;
+        } else {
+            return null;
+        }
+    }
+
+    public void actionPerformed(ActionEvent e) {
+
+        File selectedFile = chooseFile("Kojo Files", "kojo");
+
+        if (selectedFile != null) {
             try {
-                ces.saveAs(chooser.getSelectedFile());
-                ces.openFileWithoutClose(chooser.getSelectedFile());
+                CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
+                ces.saveAs(selectedFile);
+                ces.openFileWithoutClose(selectedFile);
             } catch (RuntimeException ex) {
                 // user cancelled save
             }
