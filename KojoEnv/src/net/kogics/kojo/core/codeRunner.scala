@@ -51,6 +51,8 @@ trait RunContext {
   def hideScriptInOutput(): Unit
   def showVerboseOutput(): Unit
   def hideVerboseOutput(): Unit
+  def retainSingleLineCode(): Unit
+  def clearSingleLineCode(): Unit
   def clearOutput(): Unit
   def setScript(code: String): Unit
 
