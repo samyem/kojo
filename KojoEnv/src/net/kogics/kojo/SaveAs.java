@@ -62,7 +62,12 @@ public final class SaveAs implements ActionListener {
                 CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
                 ces.saveAs(selectedFile);
                 ces.openFileWithoutClose(selectedFile);
-            } catch (RuntimeException ex) {
+            } catch (IllegalArgumentException ex) {
+                // user said no to over-writing selected file
+                // try again
+                actionPerformed(e);
+            }
+            catch (RuntimeException ex) {
                 // user cancelled save
             }
         }
