@@ -928,7 +928,10 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       if (doSave == JOptionPane.CANCEL_OPTION) {
         throw new RuntimeException("Cancel File SaveAs")
       }
-      if (doSave == JOptionPane.YES_OPTION) {
+      else if (doSave == JOptionPane.NO_OPTION) {
+        throw new IllegalArgumentException("Redo 'Save As' to select new file")
+      }
+      else if (doSave == JOptionPane.YES_OPTION) {
         saveTo(file)
       }
     }
