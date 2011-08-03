@@ -30,6 +30,8 @@ class TestRunContext(val base: StagingTestBase) extends RunContext {
   def hideScriptInOutput() {}
   def showVerboseOutput() {}
   def hideVerboseOutput() {}
+  def retainSingleLineCode() {}
+  def clearSingleLineCode() {}
   def reportRunError() {}
   def readInput(prompt: String) = ""
 
