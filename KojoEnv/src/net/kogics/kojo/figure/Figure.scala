@@ -98,6 +98,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
 
   def clear() {
     Utils.runInSwingThread {
+      stop()
       bgLayer.removeAllChildren()
       fgLayer.removeAllChildren()
       init()
@@ -168,41 +169,40 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
   def refresh(fn: => Unit) {
     
     Utils.runInSwingThread {
-      if (figAnimation != null ) {
-        return
-      }
-      
-      figAnimation = new PActivity(-1) {
-        override def activityStep(elapsedTime: Long) {
-          currLayer = fgLayer
-          try {
-            staging.Inputs.activityStep
-            fn
-            if (isStepping) {
-              listener.hasPendingCommands()
+      if (figAnimation == null ) {
+        // need to extend this to allow multiple animations
+        figAnimation = new PActivity(-1) {
+          override def activityStep(elapsedTime: Long) {
+            currLayer = fgLayer
+            try {
+              staging.Inputs.activityStep
+              fn
+              if (isStepping) {
+                listener.hasPendingCommands()
+              }
+            }
+            catch {
+              case t: Throwable =>
+                canvas.outputFn("Problem: " + t.toString())
+                stop()
+            }
+            finally {
+              repaint()
+              currLayer = bgLayer
             }
           }
-          catch {
-            case t: Throwable =>
-              canvas.outputFn("Problem: " + t.toString())
-              stop()
-          }
-          finally {
-            repaint()
-            currLayer = bgLayer
-          }
         }
+
+        figAnimation.setDelegate(new PActivityDelegate {
+            override def activityStarted(activity: PActivity) {}
+            override def activityStepped(activity: PActivity) {}
+            override def activityFinished(activity: PActivity) {
+              listener.pendingCommandsDone()
+            }
+          })
+
+        canvas.getRoot.addActivity(figAnimation)
       }
-
-      figAnimation.setDelegate(new PActivityDelegate {
-          override def activityStarted(activity: PActivity) {}
-          override def activityStepped(activity: PActivity) {}
-          override def activityFinished(activity: PActivity) {
-            listener.pendingCommandsDone()
-          }
-        })
-
-      canvas.getRoot.addActivity(figAnimation)
     }
   }
 
