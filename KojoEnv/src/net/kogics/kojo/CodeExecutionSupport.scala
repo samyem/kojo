@@ -454,6 +454,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
         def setScript(code: String) {
           Utils.runInSwingThread {
+            closeFileAndClrEditor()
             codePane.setText(code)
           }
         }
