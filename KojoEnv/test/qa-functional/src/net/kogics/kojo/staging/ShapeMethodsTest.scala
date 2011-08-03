@@ -48,105 +48,110 @@ class ShapeMethodsTest extends StagingTestBase {
   // a leak in the Scala interpreter/compiler subsystem. So we run (mostly)
   // everything in one test
   def test1 = {
-  //W
-  //W==Shape methods==
-  //W
-  //WAll drawn shapes have the following methods and accessors.
-  //W
-  //W{{{
-  //'undocumented'
+    //W
+    //W==Shape methods==
+    //W
+    //WAll drawn shapes have the following methods and accessors.
+    //W
+    //W{{{
+    //'undocumented'
     Tester(
       "import Staging._ ; val a = dot(10, 15) ; val b = a.node ; " +
       "val c = a.sizeFactor ; val d = a.orientation ; " +
       "val e = a.fill ; a.fill = black",
       Some("$import Staging._" +
-      "a: net.kogics.kojo.staging.Dot = Staging.Dot\\(Point\\(10[.,]00, 15[.,]00\\)\\)" +
-      "b: edu.umd.cs.piccolo.nodes.PPath = edu.umd.cs.piccolo.nodes.PPath@.*" +
-      "c: Double = 1.0" +
-      "d: Double = 90.0" +
-      "e: java.awt.Paint = null")
+           "a: net.kogics.kojo.staging.Dot = Staging.Dot\\(Point\\(10[.,]00, 15[.,]00\\)\\)" +
+           "b: edu.umd.cs.piccolo.nodes.PPath = edu.umd.cs.piccolo.nodes.PPath@.*" +
+           "c: Double = 1.0" +
+           "d: Double = 90.0" +
+           "e: java.awt.Paint = null" +
+           "a.fill: java.awt.Paint = java.awt.Color\\[r=0,g=0,b=0\\]"
+      )
     )
 
-  //Whide
-  //Wshow
+    //Whide
+    //Wshow
     Tester(
       "import Staging._ ; val a = dot(10, 15) ; a.hide ; a.show",
       Some("$import Staging._a: net.kogics.kojo.staging.Dot = Staging.Dot\\(Point\\(10[.,]00, 15[.,]00\\)\\)")
     )
 
-  //W}}}
-  //W
-  //WMakes the shape invisible / visible.
-  //W
-  //W{{{
-  //Wrotate(amount)
-  //W}}}
-  //W
-  //WRotates the shape _amount_ degrees counterclockwise (for positive amounts)
-  //Wor clockwise (for negative amounts).
-  //W
-  //W{{{
-  //WrotateTo(angle)
+    //W}}}
+    //W
+    //WMakes the shape invisible / visible.
+    //W
+    //W{{{
+    //Wrotate(amount)
+    //W}}}
+    //W
+    //WRotates the shape _amount_ degrees counterclockwise (for positive amounts)
+    //Wor clockwise (for negative amounts).
+    //W
+    //W{{{
+    //WrotateTo(angle)
     Tester(
       "import Staging._ ; val a = line(10, 15, 20, 40) ; a.rotate(20) ; a.rotateTo(90)",
       Some("$import Staging._" +
            "a: net.kogics.kojo.staging.Line = Staging.Line\\(Point\\(10[.,]00, 15[.,]00\\), Point\\(20[.,]00, 40[.,]00\\)\\)")
     )
 
-  //W}}}
-  //W
-  //WRotates the shape to the specified angle; rotating to 90 degrees yields the
-  //Woriginal orientation.
-  //W
-  //W{{{
-  //Wscale(amount)
-  //W}}}
-  //W
-  //WScales the shape by _amount_; 2 means doubling of each dimension, 0.5 means
-  //Whalving them.
-  //W
-  //W{{{
-  //WscaleTo(size)
+    //W}}}
+    //W
+    //WRotates the shape to the specified angle; rotating to 90 degrees yields the
+    //Woriginal orientation.
+    //W
+    //W{{{
+    //Wscale(amount)
+    //W}}}
+    //W
+    //WScales the shape by _amount_; 2 means doubling of each dimension, 0.5 means
+    //Whalving them.
+    //W
+    //W{{{
+    //WscaleTo(size)
     Tester(
       "import Staging._ ; val a = line(10, 15, 20, 40) ; a.scale(2.5) ; a.scaleTo(0.5)",
       Some("$import Staging._a: net.kogics.kojo.staging.Line = Staging.Line\\(Point\\(10[.,]00, 15[.,]00\\), Point\\(20[.,]00, 40[.,]00\\)\\)")
     )
 
-  //W}}}
-  //W
-  //WScales the shape to the specified size; scaling to 1.0 yields the
-  //Woriginal size.
-  //W
-  //W{{{
-  //Wtranslate(amount)
-  //W}}}
-  //W
-  //WTranslates (moves) the shape by _amount_, which is a `Point`.  The _x_
-  //Wcomponent of the point specifies the amount of horizontal movement, while
-  //Wthe _y_ component specifies the vertical.
-  //W
-  //W{{{
-  //Woffset
+    //W}}}
+    //W
+    //WScales the shape to the specified size; scaling to 1.0 yields the
+    //Woriginal size.
+    //W
+    //W{{{
+    //Wtranslate(amount)
+    //W}}}
+    //W
+    //WTranslates (moves) the shape by _amount_, which is a `Point`.  The _x_
+    //Wcomponent of the point specifies the amount of horizontal movement, while
+    //Wthe _y_ component specifies the vertical.
+    //W
+    //W{{{
+    //Woffset
     Tester(
       "import Staging._ ; val a = line(10, 15, 20, 40) ; a.translate(point(20, 0)) ; a.offset",
-      Some("$import Staging._a: net.kogics.kojo.staging.Line = Staging.Line\\(Point\\(10[.,]00, 15[.,]00\\), Point\\(20[.,]00, 40[.,]00\\)\\)")
+      Some("$import Staging._a: net.kogics.kojo.staging.Line = Staging.Line\\(Point\\(10[.,]00, 15[.,]00\\), Point\\(20[.,]00, 40[.,]00\\)\\)" +
+           "res.*: net.kogics.kojo.core.Point = Point\\(20.00, 0.00\\)"
+      )
     )
 
-  //W}}}
-  //W
-  //WYields the _x_ / _y_ distance the shape has traveled.
-  //W
+    //W}}}
+    //W
+    //WYields the _x_ / _y_ distance the shape has traveled.
+    //W
 
-  //'undocumented'
+    //'undocumented'
     Tester(
       "import Staging._ ; val a = line(10, 15, 20, 40) ; " +
       "val b = a.stroke ; a.stroke = black",
       Some("$import Staging._" +
            "a: net.kogics.kojo.staging.Line = " +
            "Staging.Line\\(Point\\(10[.,]00, 15[.,]00\\), Point\\(20[.,]00, 40[.,]00\\)\\)" +
-           "b: java.awt.Paint = java.awt.Color\\[r=255,g=0,b=0\\]")
+           "b: java.awt.Paint = java.awt.Color\\[r=255,g=0,b=0\\]" +
+           "a.stroke: java.awt.Paint = java.awt.Color\\[r=0,g=0,b=0\\]"
+      )
     )
-
   }
 }
 
