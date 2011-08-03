@@ -16,6 +16,7 @@
 package net.kogics.kojo.story
 
 import java.awt.Desktop
+import java.net.URL
 import javax.swing._
 import javax.swing.event._
 
@@ -39,8 +40,8 @@ class LinkListener(st: StoryTeller) extends HyperlinkListener {
     }
   }
   
+  // extract handler and data from runhandler url.
   def handlerData(url: String): (String, String) = {
-    
     url.trim match {
       case handlerLinkRegex(handler, data) =>
         (handler, data)
@@ -48,42 +49,46 @@ class LinkListener(st: StoryTeller) extends HyperlinkListener {
         throw new IllegalArgumentException()
     }
   }
-
-  def hyperlinkUpdate(e: HyperlinkEvent) {
-    if (e.getEventType == HyperlinkEvent.EventType.ACTIVATED) {
-      val url = e.getURL
-      if (url.getProtocol == "http") {
-        if (url.getHost.toLowerCase == "localpage") {
-          try {
-            val loc = localpageLocation(url.toString)
-            st.viewPage(loc._1, loc._2)
-          }
-          catch {
-            case ex: IllegalArgumentException =>
-              st.showStatusError("Invalid page/view in Link - " + url.toString)
-            case t: Throwable =>
-              st.showStatusError("Problem handling Url - " + url.toString)
-          }
+  
+  // satisfy url click
+  def gotoUrl(url: URL) {
+    if (url.getProtocol == "http") {
+      if (url.getHost.toLowerCase == "localpage") {
+        try {
+          val loc = localpageLocation(url.toString)
+          st.viewPage(loc._1, loc._2)
         }
-        else if (url.getHost.toLowerCase == "runhandler")  {
-          try {
-            val d = handlerData(url.toString)
-            st.handleLink(d._1, d._2)
-          }
-          catch {
-            case ex: IllegalArgumentException =>
-              st.showStatusError("Invalid RunHandler Url - " + url.toString)
-            case t: Throwable =>
-              st.showStatusError("Problem handling Url - " + url.toString)
-          }
+        catch {
+          case ex: IllegalArgumentException =>
+            st.showStatusError("Invalid page/view in Link - " + url.toString)
+          case t: Throwable =>
+            st.showStatusError("Problem handling Url - " + url.toString)
         }
-        else {
-          Desktop.getDesktop().browse(url.toURI)
+      }
+      else if (url.getHost.toLowerCase == "runhandler")  {
+        try {
+          val d = handlerData(url.toString)
+          st.handleLink(d._1, d._2)
+        }
+        catch {
+          case ex: IllegalArgumentException =>
+            st.showStatusError("Invalid RunHandler Url - " + url.toString)
+          case t: Throwable =>
+            st.showStatusError("Problem handling Url - " + url.toString)
         }
       }
       else {
-        st.showStatusError("Trying to use link with unsupported protocol - " + url.getProtocol)
+        Desktop.getDesktop().browse(url.toURI)
       }
+    }
+    else {
+      st.showStatusError("Trying to use link with unsupported protocol - " + url.getProtocol)
+    }
+  }
+
+  def hyperlinkUpdate(e: HyperlinkEvent) {
+    if (e.getEventType == HyperlinkEvent.EventType.ACTIVATED) {
+      gotoUrl(e.getURL)
     }
     else if (e.getEventType == HyperlinkEvent.EventType.ENTERED) {
       st.showStatusMsg(e.getURL.toString, false)
