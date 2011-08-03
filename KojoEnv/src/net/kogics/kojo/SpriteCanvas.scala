@@ -464,6 +464,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
   
   private def clearHelper() {
+    gridOff()
+    axesOff()
     Utils.runInSwingThreadAndWait {
       turtles.foreach {t => if (t == turtle) t.clear() else t.remove()}
       turtles = List(turtles.last)
