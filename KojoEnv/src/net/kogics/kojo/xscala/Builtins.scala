@@ -17,6 +17,7 @@ package net.kogics.kojo
 package xscala
 
 import core._
+import javax.swing.JComponent
 import util._
 
 object Builtins extends InitedSingleton[Builtins] {
@@ -460,5 +461,13 @@ Here's a partial list of the available commands:
   def stAddLinkHandler[T](name: String)(implicit hm: HandlerHolder[T]) {
     storyTeller.addLinkHandler(name)(hm)
   }
-}
+  
+  def stAddUiComponent(c: JComponent) {
+    storyTeller.addUiComponent(c)
+  }
 
+  val urlHandler = new story.LinkListener(storyTeller)
+  def gotoUrl(url: String) {
+    urlHandler.gotoUrl(new java.net.URL(url))
+  }
+}
