@@ -1054,7 +1054,7 @@ pages += IncrPage(
         ),
         Para(
             <ul style={sublistStyle}>
-                <li>Digging deeper to understanding the concept better.</li>
+                <li>Digging deeper to understand the concept better.</li>
             </ul>
         ),
         Para(
