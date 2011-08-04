@@ -91,6 +91,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   setSpriteListener()
   doWelcome()
+  activateTw()
   
   import java.io._
   System.setOut(new PrintStream(new WriterOutputStream(new OutputWindowWriter)))
@@ -1036,6 +1037,35 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       codePane.requestFocusInWindow();
     }
   }
+  
+  class CodingMode
+  case object TwMode extends CodingMode
+  case object MwMode extends CodingMode
+  case object StagingMode extends CodingMode
+  
+  @volatile var codingMode: CodingMode = _
+  
+  def activateTw() {
+    codingMode = TwMode
+    codeRunner.activateTw()
+    xscala.CodeCompletionUtils.activateTw()
+  }
+  
+  def activateStaging() {
+    codingMode = StagingMode
+    codeRunner.activateStaging()
+    xscala.CodeCompletionUtils.activateStaging()
+  }
+
+  def activateMw() {
+    codingMode = MwMode
+    codeRunner.activateMw()
+    xscala.CodeCompletionUtils.activateMw()
+  }
+
+  def isTwActive = codingMode == TwMode
+  def isStagingActive = codingMode == StagingMode
+  def isMwActive = codingMode == MwMode
 
   class OutputCapturingRunner extends RunMonitor {
     val outputx: StringBuilder = new StringBuilder()

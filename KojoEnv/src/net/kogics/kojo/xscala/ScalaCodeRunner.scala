@@ -73,6 +73,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
   case class VarCompletionRequest(str: String)
   case class KeywordCompletionRequest(str: String)
   case class CompletionResponse(data: (List[String], Int))
+  case object ActivateTw
+  case object ActivateStaging
+  case object ActivateMw
+  
   
   def methodCompletions(str: String): (List[String], Int) = {
     val resp = (codeRunner !? MethodCompletionRequest(str)).asInstanceOf[CompletionResponse]
@@ -95,7 +99,19 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     actor ! Init
     actor
   }
+  
+  def activateTw() {
+    codeRunner ! ActivateTw
+  }
 
+  def activateStaging() {
+    codeRunner ! ActivateStaging
+  }
+
+  def activateMw() {
+    codeRunner ! ActivateMw
+  }
+  
   object InterruptionManager {
     @volatile var interpreterThread: Option[Thread] = None
     @volatile var interruptTimer: Option[javax.swing.Timer] = None
@@ -182,10 +198,31 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
 
           case Init =>
             Utils.safeProcess {
-              initInterp()
-              initCompiler()
+              loadInterp()
+              loadCompiler()
+            }
+            
+          case ActivateTw =>
+            interp.reset()
+            initInterp()
+            outputHandler.withOutputSuppressed {
+              interp.interpret("import TSCanvas._; import Tw._")
             }
 
+          case ActivateStaging =>
+            interp.reset()
+            initInterp()
+            outputHandler.withOutputSuppressed {
+              interp.interpret("import TSCanvas._; import Staging._")
+            }
+            
+          case ActivateMw =>
+            interp.reset()
+            initInterp()
+            outputHandler.withOutputSuppressed {
+              interp.interpret("import Mw._")
+            }
+            
           case CompileCode(code) =>
             try {
               Log.info("CodeRunner actor compiling code:\n---\n%s\n---\n" format(code))
@@ -324,7 +361,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       iSettings
     }
 
-    def initCompiler() {
+    def loadCompiler() {
       compilerAndRunner = new CompilerAndRunner(makeSettings, initCode, new CompilerOutputHandler(ctx)) {
         override protected def parentClassLoader = classOf[ScalaCodeRunner].getClassLoader
       }
@@ -332,10 +369,6 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     }
 
     def initInterp() {
-      val iSettings = makeSettings()
-
-      interp = new KojoInterpreter(iSettings, new GuiPrintWriter())
-
       outputHandler.withOutputSuppressed {
         interp.bind("predef", "net.kogics.kojo.xscala.ScalaCodeRunner", ScalaCodeRunner.this)
         interp.interpret("val builtins = predef.builtins")
@@ -372,7 +405,13 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       if (initCode.isDefined) {
         interp.interpret(initCode.get)
       }
-      
+    }
+    
+    def loadInterp() {
+      val iSettings = makeSettings()
+
+      interp = new KojoInterpreter(iSettings, new GuiPrintWriter())
+      initInterp()
       // for debugging only
       kojointerp = interp.interp
       

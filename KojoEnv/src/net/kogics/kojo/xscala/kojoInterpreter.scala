@@ -37,6 +37,7 @@ class KojoInterpreter(settings: KojoInterpreter.Settings, out: PrintWriter) exte
   def stop(interpThread: Thread) {
     interp.lineManager.cancel()
   }
+  def reset() = interp.reset()
   
 //  def evalExpr[T: Manifest](line: String): T = false
 }

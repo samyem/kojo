@@ -45,10 +45,13 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.StyledDocument;
+import net.kogics.kojo.codingmode.SwitchMode;
 import org.netbeans.api.options.OptionsDisplayer;
 import org.openide.awt.UndoRedo.Manager;
 import org.openide.util.NbBundle;
@@ -114,7 +117,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         setToolTipText(NbBundle.getMessage(CodeEditorTopComponent.class, "HINT_CodeEditorTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
-        
+
         // The following code should have been good to provide Scala support 
         // within the script editor.
         // This code works great - except that we (sometimes) get exceptions related to 
@@ -122,7 +125,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         // The exceptions seem related to the code pane getting focus too early on startup!
         // Intstead of trying to chase that down, I've gone with the code that's worked
         // well over most of Kojo's life.
-        
+
 //        JEditorPane pane = new JEditorPane();
 //        EditorKit ek = org.openide.text.CloneableEditorSupport.getEditorKit("text/x-scala");
 //        pane.setEditorKit(ek);
@@ -147,7 +150,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 //
 //        setLayout(new BorderLayout());
 //        add(panel, BorderLayout.CENTER);
-        
+
     }
 
     public String getLastLoadStoreDir() {
@@ -411,7 +414,6 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 //        private String getMimeType() {
 //            return "text/x-scala";
 //        }
-
         @Override
         protected StyledDocument createStyledDocument(EditorKit kit) {
             // see CslEditorKit.createDefaultDocument()
@@ -512,6 +514,21 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-Save.instance");
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-SaveAs.instance");
             add(new JSeparator());
+            final SwitchMode switcher = new SwitchMode();
+            final JCheckBoxMenuItem twCb = new JCheckBoxMenuItem(switcher);
+            twCb.setText("Switch to Turtle Mode");
+            twCb.setToolTipText("Makes Turtle commands and code-completions active, and hides Staging and MathWorld commands and code-completions");
+            twCb.setActionCommand("Tw");
+            add(twCb);
+            final JCheckBoxMenuItem stagingCb = new JCheckBoxMenuItem(switcher);
+            stagingCb.setText("Switch to Staging Mode");
+            stagingCb.setActionCommand("Staging");
+            add(stagingCb);
+            final JCheckBoxMenuItem mwCb = new JCheckBoxMenuItem(switcher);
+            mwCb.setText("Switch to MathWorld Mode");
+            mwCb.setActionCommand("Mw");
+            add(mwCb);
+            add(new JSeparator());
             addMenu(configRoot, "Menu/Edit", "Edit");
             add(new JSeparator());
             addMenu(configRoot, "Menu/Source", "Source");
@@ -523,6 +540,21 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             clr.setAccelerator(Utilities.stringToKey("D-L")); // shows ctrl-l in menu; functionality added in tweakActions
             add(clr);
 
+            addPopupMenuListener(new PopupMenuListener() {
+
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                    switcher.updateCb(twCb);
+                    switcher.updateCb(stagingCb);
+                    switcher.updateCb(mwCb);
+                }
+
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                }
+
+                public void popupMenuCanceled(PopupMenuEvent e) {
+                }
+            });
+            
         }
 
         private void addPopupPresenterActionMenuItem(FileObject configRoot, String action) {
