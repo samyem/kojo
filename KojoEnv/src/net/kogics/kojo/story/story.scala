@@ -199,4 +199,14 @@ case class Story(pages: Viewable*) extends Viewable {
   def currView = throw new UnsupportedOperationException
   val name = ""
   def scrollToEnd = pages(currPage).scrollToEnd
+
+  val handlers = collection.mutable.Map[String, HandlerHolder[Any]]() 
+
+  def addLinkHandler[T](name: String)(hm: HandlerHolder[T]) = Utils.runInSwingThread {
+    handlers(name) = hm
+  }
+  
+  def handleLink(name: String, data: String) {
+    handlers(name).handle(data)
+  }
 }

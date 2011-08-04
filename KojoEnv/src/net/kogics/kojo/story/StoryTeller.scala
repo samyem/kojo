@@ -46,8 +46,6 @@ class StoryTeller extends JPanel {
   @volatile var currStory: Option[Story] = None
   @volatile var savedStory: Option[Story] = None
 
-  val handlers = collection.mutable.Map[String, HandlerHolder[Any]]() 
-
   def running = currStory.isDefined
   def story = currStory.get
 
@@ -229,7 +227,6 @@ class StoryTeller extends JPanel {
       val doc = ep.getDocument.asInstanceOf[HTMLDocument]
       doc.setBase(new java.net.URL("file:///" + kojoCtx.baseDir))
       ep.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR))
-      handlers.clear()
     }
   }
 
@@ -497,15 +494,11 @@ class StoryTeller extends JPanel {
     ep.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR))
   }
   
-  def addLinkHandler[T](name: String)(hm: HandlerHolder[T]) = {
-    addLinkHandler2(name)(hm)
-  }
-  
-  def addLinkHandler2[T](name: String)(hm: HandlerHolder[T]) = Utils.runInSwingThread {
-    handlers(name) = hm
+  def addLinkHandler[T](name: String, story0: Story)(hm: HandlerHolder[T]) = {
+    story0.addLinkHandler(name)(hm)
   }
   
   def handleLink(name: String, data: String) {
-    handlers(name).handle(data)
+    story.handleLink(name, data)
   }
 }
