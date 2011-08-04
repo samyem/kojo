@@ -26,8 +26,6 @@ public final class Samples implements ActionListener {
         ces.codePane().setText(SampleCode.get(e).trim());
         ces.codePane().setCaretPosition(0);
         CodeEditorTopComponent.findInstance().requestActive();
-        Utils.schedule(0.1) {
-            ces.runCode()
-        }
+        ces.runCode();
     }
 }
