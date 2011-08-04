@@ -522,10 +522,12 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             add(twCb);
             final JCheckBoxMenuItem stagingCb = new JCheckBoxMenuItem(switcher);
             stagingCb.setText("Switch to Staging Mode");
+            stagingCb.setToolTipText("Makes Staging commands and code-completions active, and hides Turtle and MathWorld commands and code-completions");
             stagingCb.setActionCommand("Staging");
             add(stagingCb);
             final JCheckBoxMenuItem mwCb = new JCheckBoxMenuItem(switcher);
             mwCb.setText("Switch to MathWorld Mode");
+            mwCb.setToolTipText("Makes MathWorld commands and code-completions active, and hides Turtle and Staging commands and code-completions");
             mwCb.setActionCommand("Mw");
             add(mwCb);
             add(new JSeparator());

@@ -22,7 +22,6 @@ import javax.swing.JCheckBoxMenuItem
 
 class SwitchMode extends AbstractAction {
   def actionPerformed(e: ActionEvent) {
-    println("Action performed: " + e)
     e.getActionCommand match {
       case "Tw" => CodeExecutionSupport.instance.activateTw()
       case "Staging" => CodeExecutionSupport.instance.activateStaging()
