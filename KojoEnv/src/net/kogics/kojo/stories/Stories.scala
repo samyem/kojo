@@ -28,6 +28,7 @@ class Stories extends ActionListener {
     ces.codePane.setText(getCode(e).trim())
     ces.codePane.setCaretPosition(0)
     CodeEditorTopComponent.findInstance().requestActive()
+    ces.runCode()
   }
 
   def getCode(e: ActionEvent) = {
