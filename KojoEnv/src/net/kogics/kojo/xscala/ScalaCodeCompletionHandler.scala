@@ -76,7 +76,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
   val scalaImageIcon = Utils.loadIcon("/images/scala16x16.png")
 
   def methodTemplate(completion: String) = {
-    CodeCompletionUtils.MethodTemplates.getOrElse(
+    CodeCompletionUtils.BuiltinsMethodTemplates.getOrElse(
       completion,
       CodeCompletionUtils.ExtraMethodTemplates.getOrElse(completion, null)
     )

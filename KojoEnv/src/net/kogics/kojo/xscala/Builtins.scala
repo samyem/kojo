@@ -447,6 +447,9 @@ Here's a partial list of the available commands:
     scalaCodeRunner.runCode(code)
   }
   
+  // for debugging only
+  def kojoInterp = scalaCodeRunner.kojointerp
+  
   def onKeyPress(fn: Int => Unit) = tCanvas.onKeyPress(fn)
   def onMouseClick(fn: (Double, Double) => Unit) =  tCanvas.onMouseClick(fn)
   def reimportBuiltins() {

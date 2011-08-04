@@ -19,7 +19,7 @@ object UserCommand {
   val synopses = new scala.collection.mutable.StringBuilder
 
   def addCompletion(name: String, args: String) {
-    CodeCompletionUtils.MethodTemplates(name) = name + args
+    CodeCompletionUtils.BuiltinsMethodTemplates(name) = name + args
   }
 
   def addCompletion(name: String, args: Seq[String]) {

@@ -375,11 +375,11 @@ object API {
   def animate(fn: => Unit) = loop(fn)
   def stop() = Impl.figure0.stopRefresh()
   def reset() = {
-    Impl.canvas.clear()
+    Impl.canvas.clearStaging()
     Impl.canvas.turtle0.invisible()
   }
   def clear() = reset()
-  def switchTo() = Impl.canvas.ensureVisible()
+  def switchTo() = Impl.canvas.makeStagingVisible()
   def wipe() = Impl.figure0.fgClear()
   def draw(fn: => Unit) = Utils.runInSwingThread {
     fn
