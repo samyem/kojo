@@ -128,4 +128,4 @@ loop {
 }
 
 // reset builtin commands/functions that we clobbered by importing Staging
-import builtins._
+reimportBuiltins()

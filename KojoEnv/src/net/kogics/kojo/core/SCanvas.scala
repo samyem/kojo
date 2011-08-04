@@ -15,21 +15,8 @@
 
 package net.kogics.kojo.core
 
-trait SCanvas {
+trait SCanvas extends TSCanvasFeatures {
   val turtle0: Turtle
   def clear(): Unit
-  def clearPuzzlers(): Unit
-  def newTurtle(x: Int, y: Int): Turtle
-  def newPuzzler(x: Int, y: Int): Turtle
-  def axesOn(): Unit
-  def axesOff(): Unit
-  def gridOn(): Unit
-  def gridOff(): Unit
-  def zoom(factor: Double, cx: Double, cy: Double)
-  def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double)
   def undo(): Unit
-  def exportImage(filePrefix: String): java.io.File
-  def exportThumbnail(filePrefix: String, height: Int): java.io.File
-  def onKeyPress(fn: Int => Unit)  
-  def onMouseClick(fn: (Double, Double) => Unit)
 }

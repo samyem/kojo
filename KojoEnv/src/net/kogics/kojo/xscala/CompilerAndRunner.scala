@@ -55,6 +55,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
   val prefix0 = """object Wrapper%d {
   val builtins = net.kogics.kojo.xscala.Builtins.instance
   import builtins._
+  import TSCanvas._; import Tw._
   val Staging = net.kogics.kojo.staging.API
   val Mw = net.kogics.kojo.mathworld.MathWorld.instance
 """ 
