@@ -458,16 +458,16 @@ Here's a partial list of the available commands:
   implicit def toShm(handler: String => Unit): HandlerHolder[String] = new StringHandlerHolder(handler)
   implicit def toVhm(handler: () => Unit): HandlerHolder[Unit] = new VoidHandlerHolder(handler)
 
-  def stAddLinkHandler[T](name: String)(implicit hm: HandlerHolder[T]) {
-    storyTeller.addLinkHandler(name)(hm)
+  def stAddLinkHandler[T](name: String, story: Story)(implicit hm: HandlerHolder[T]) {
+    storyTeller.addLinkHandler(name, story)(hm)
   }
   
   def stAddUiComponent(c: JComponent) {
     storyTeller.addUiComponent(c)
   }
 
-  val urlHandler = new story.LinkListener(storyTeller)
-  def gotoUrl(url: String) {
+  private val urlHandler = new story.LinkListener(storyTeller)
+  def stGotoUrl(url: String) {
     urlHandler.gotoUrl(new java.net.URL(url))
   }
 }
