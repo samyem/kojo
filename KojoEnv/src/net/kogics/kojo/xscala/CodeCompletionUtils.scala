@@ -32,14 +32,21 @@ object CodeCompletionUtils {
     "if" -> "if (${condition}) {\n    ${cursor}\n}"
   )
 
-  val MethodTemplates = collection.mutable.Map(
+  // UserCommand adds to this
+  val BuiltinsMethodTemplates = collection.mutable.Map(
     "switchTo" -> "switchTo()",
     "onKeyPress" -> "onKeyPress { k =>\n    k match {\n    case Kc.VK_RIGHT => ${cursor}\n       case _ => \n    }\n}",
     "onMouseClick" -> "onMouseClick { (x, y) =>\n    ${cursor}\n}",
     "stAddLinkHandler" -> "stAddLinkHandler(${handlerName}) {d: ${argType} =>\n    ${cursor}\n}"
   )
+  
+  // TODO
+  // Play with the following idea
+  // Move turtle templates to the map below
+  // On a clear from any of Tw, Mw, and Staging, reset the interp, and import the appropriate stuff
+  val TwMethodTemplates = Map[String, String]() 
 
-  val MwMethodTemplates = collection.mutable.Map(
+  val MwMethodTemplates = Map(
     "figure" -> "figure(${name})",
     "point" -> "point(${x}, ${y}, ${optionalLabel})",
     "pointOn" -> "pointOn(${line}, ${x}, ${y})",
@@ -77,7 +84,7 @@ object CodeCompletionUtils {
     "hideExternalAngles" -> "hideExternalAngles()"
   )
 
-  val StagingMethodTemplates = collection.mutable.Map(
+  val StagingMethodTemplates = Map(
     "point" -> "point(${x}, ${y})",
     "line" -> "line(${x0}, ${y0}, ${x1}, ${y1})",
     "rectangle" -> "rectangle(${x0}, ${y0}, ${width}, ${height})",
@@ -136,7 +143,11 @@ object CodeCompletionUtils {
     "onMouseClick" -> "onMouseClick {\n    ${cursor}\n}"
   )
 
-  @volatile var ExtraMethodTemplates = MwMethodTemplates
+  @volatile var ExtraMethodTemplates: collection.Map[String, String] = TwMethodTemplates
+
+  def activateTw() {
+    ExtraMethodTemplates = TwMethodTemplates
+  }
 
   def activateMw() {
     ExtraMethodTemplates = MwMethodTemplates

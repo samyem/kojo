@@ -16,7 +16,8 @@
 package net.kogics.kojo.core
 
 trait KojoCtx {
-  def makeCanvasVisible()
+  def makeStagingVisible()
+  def makeTurtleWorldVisible()
   def makeMathWorldVisible()
   def makeStoryTellerVisible()
   def baseDir: String

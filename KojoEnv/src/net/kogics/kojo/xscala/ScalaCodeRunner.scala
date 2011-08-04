@@ -29,6 +29,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
   val Log = Logger.getLogger(getClass.getName)
   val builtins = Builtins.initedInstance(this)
   val outputHandler = new InterpOutputHandler(ctx)
+  
+  // for debugging only!
+  @volatile var kojointerp: scala.tools.nsc.interpreter.IMain = _
+  
   val codeRunner = startCodeRunner()
 
   if (Utils.libJars.size > 0) {
@@ -368,6 +372,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       if (initCode.isDefined) {
         interp.interpret(initCode.get)
       }
+      
+      // for debugging only
+      kojointerp = interp.interp
+      
       ctx.onInterpreterInit()
     }
 

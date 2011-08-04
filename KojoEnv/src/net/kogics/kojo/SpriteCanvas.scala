@@ -448,17 +448,26 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   def hasUndoHistory = synchronized {history.size > 0}
 
-  def ensureVisible() {
-    kojoCtx.makeCanvasVisible()
-  }
-  
   def forceClear() {
     stop()
     clearHelper()
   }
+  
+  def makeStagingVisible() {
+    kojoCtx.makeStagingVisible()
+  }
+  
+  def clearStaging() {
+    makeStagingVisible()
+    clearHelper0()
+  }
 
   def clear() {
-    ensureVisible()
+    kojoCtx.makeTurtleWorldVisible()
+    clearHelper0()
+  }
+  
+  private def clearHelper0() {
     turtles.foreach {t => t.waitFor()}
     clearHelper()
   }

@@ -33,7 +33,16 @@ class KojoCtx extends core.KojoCtx {
     tc.requestActive()
   }
 
-  def makeCanvasVisible() {
+  def makeTurtleWorldVisible() {
+    Utils.runInSwingThreadAndWait {
+      val tc = SCanvasTopComponent.findInstance()
+      activate(tc)
+    }
+    activateCodeEditor()
+    xscala.CodeCompletionUtils.activateTw()
+  }
+
+  def makeStagingVisible() {
     Utils.runInSwingThreadAndWait {
       val tc = SCanvasTopComponent.findInstance()
       activate(tc)

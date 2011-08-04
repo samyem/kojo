@@ -461,7 +461,7 @@ class StoryTeller extends JPanel {
   def playStory(story: Story) {
     if (savedStory.isDefined) {
       showCurrStory()
-      throw new IllegalArgumentException("Can't run more than two stories")
+      throw new IllegalArgumentException("Can't run more than two stories. Stop the currently active story and try again.")
     }
 
     if (currStory.isDefined) {
