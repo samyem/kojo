@@ -32,11 +32,13 @@ abstract class CompilerAndRunnerTestBase {
 
   var errLine = 0
   var errColumn = 0
+  var errOffset = 0
 
   val listener = new CompilerListener {
     def error(msg: String, line: Int, column: Int, offset: Int, lineContent: String) {
       errLine = line
       errColumn = column
+      errOffset = offset
     }
 
     def warning(msg: String, line: Int, column: Int) {
@@ -57,6 +59,7 @@ abstract class CompilerAndRunnerTestBase {
   def reset() {
     errLine = 0
     errColumn = 0
+    errOffset = 0
   }
 
   @Test
@@ -66,6 +69,7 @@ abstract class CompilerAndRunnerTestBase {
     runner.compile(code)
     assertEquals(1, errLine)
     assertEquals(9, errColumn)
+    assertEquals(8, errOffset)
   }
 
   @Test
@@ -88,6 +92,7 @@ inspect(data)
     runner.compile(code)
     assertEquals(10, errLine)
     assertEquals(5, errColumn)
+    assertEquals(215, errOffset)
   }
 
   @Test
@@ -117,6 +122,7 @@ tree(90)
     runner.compile(code)
     assertEquals(8, errLine)
     assertEquals(14, errColumn)
+    assertEquals(255, errOffset)
   }
 
   @Test
@@ -212,6 +218,7 @@ t10.invisible()
     runner.compile(code)
     assertEquals(79, errLine)
     assertEquals(4, errColumn)
+    assertEquals(1294, errOffset)
   }
 
   @Test
@@ -304,6 +311,24 @@ t8.invisible()
 t9.invisible()
 t10.invisible()
       """
+    runner.compile(code)
+    assertEquals(0, errLine)
+    assertEquals(0, errColumn)
+  }
+  
+  @Test
+  def testStaging() {
+    val code = """import Staging._
+import Staging.{clear, setPenColor}
+clear()
+
+setPenColor(blue)
+val c = circle(0, 0, 50)
+animate {
+    c.translate(4, 0)
+}
+    """
+  
     runner.compile(code)
     assertEquals(0, errLine)
     assertEquals(0, errColumn)

@@ -17,11 +17,22 @@
 package net.kogics.kojo
 package xscala
 
-// Tests with Scalatest helpers loaded into the compiler
-class CAndRWithSTHelpersTestHide extends CompilerAndRunnerTestBase {
+// Tests with User supplied init code loaded into the compiler
+class CAndRWithSTHelpersTest extends CompilerAndRunnerTestBase {
+  
+  def userCode = """class X {
+    val x1 = 10
+    var x2 = 20
+    
+    def m1() = x1 + x2
+}
+
+val x = new X
+x.m1()
+def fwd(n: Double) = forward(n)
+"""
+
   def makeRunner() = {
-    // add scalatest jar to compilers classpath
-//    util.Utils.isScalaTestAvailable = true
-    new CompilerAndRunner({() => settings}, None, listener)
+    new CompilerAndRunner({() => settings}, Some(userCode), listener)
   }
 }
