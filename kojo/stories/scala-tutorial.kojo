@@ -1,3 +1,5 @@
+// This story will Auto-Run in a moment (if it is loaded via the Stories Menu)
+
 /*
  * Copyright (C) 2009 Anthony Bagwell
  * Copyright (C) 2009 Phil Bagwell

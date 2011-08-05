@@ -1,3 +1,5 @@
+// This story will Auto-Run in a moment (if it is loaded via the Stories Menu)
+
 val S = Staging
 
 val pageStyle = "color:white;background:green;margin:15px;"

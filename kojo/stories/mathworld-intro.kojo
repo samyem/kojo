@@ -1,3 +1,5 @@
+// This story will Auto-Run in a moment (if it is loaded via the Stories Menu)
+
 val pageStyle = "color:#f0f0f0; margin:15px;background-image: url(blue-bg.png);"
 val centerStyle = "text-align:center;"
 val headerStyle = "text-align:center;font-size:110%;color:maroon;"
