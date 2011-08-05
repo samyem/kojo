@@ -62,7 +62,7 @@ class Builtins {
   val Kc = new staging.KeyCodes
   
   // Turtle World
-  val Tw = new TurtleMover {
+  class TwC extends TurtleMover {
     def forward() = println("Please provide the distance to move forward - e.g. forward(100)")
     override def forward(n: Double) = turtle0.forward(n)
     UserCommand("forward", List("numSteps"), "Moves the turtle forward a given number of steps.")
@@ -179,9 +179,12 @@ class Builtins {
 
     override def style: Style = turtle0.style
   }
+  // Define class and then define value - to get around:
+  // Problem finding completions: assertion failed: fatal: <refinement> has non-class owner value Tw after flatten.
+  val Tw = new TwC()
   
   // Turtle and Staging Canvas
-  val TSCanvas = new TSCanvasFeatures {
+  class TSCanvasC extends TSCanvasFeatures {
     
     override def zoom(factor: Double, cx: Double, cy: Double) = tCanvas.zoom(factor, cx, cy)
     UserCommand("zoom", List("factor", "cx", "cy"), "Zooms in by the given factor, and positions (cx, cy) at the center of the turtle canvas.")
@@ -247,6 +250,7 @@ class Builtins {
     def onKeyPress(fn: Int => Unit) = tCanvas.onKeyPress(fn)
     def onMouseClick(fn: (Double, Double) => Unit) =  tCanvas.onMouseClick(fn)
   }
+  val TSCanvas = new TSCanvasC()
 
   def showScriptInOutput() = ctx.showScriptInOutput()
   UserCommand("showScriptInOutput", Nil, "Enables the display of scripts in the output window when they run.")
@@ -462,7 +466,7 @@ Here's a partial list of the available commands:
   // for debugging only
   def kojoInterp = scalaCodeRunner.kojointerp
   
-  def reimportBuiltins() {
+  def reimportBuiltins() { 
     interpret("import TSCanvas._; import Tw._")
   }
   def reimportDefaults() = reimportBuiltins()
