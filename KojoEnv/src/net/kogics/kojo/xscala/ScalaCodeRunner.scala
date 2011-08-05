@@ -200,7 +200,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
             Utils.safeProcess {
               loadInterp()
               outputHandler.withOutputSuppressed {
-                interp.interpret("import TSCanvas._; import Tw._")
+                interp.interpret("import TSCanvas._")
+                interp.interpret("import Tw._")
               }
               printInitScriptsLoadMsg()
               loadInitScripts()
@@ -210,27 +211,34 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
             }
             
           case ActivateTw =>
-            interp.reset()
-            initInterp()
-            outputHandler.withOutputSuppressed {
-              interp.interpret("import TSCanvas._; import Tw._")
-              loadInitScripts()
+            Utils.safeProcess {
+              interp.reset()
+              initInterp()
+              outputHandler.withOutputSuppressed {
+                interp.interpret("import TSCanvas._")
+                interp.interpret("import Tw._")
+                loadInitScripts()
+              }
             }
 
           case ActivateStaging =>
-            interp.reset()
-            initInterp()
-            outputHandler.withOutputSuppressed {
-              interp.interpret("import TSCanvas._; import Staging._")
-              loadInitScripts()
+            Utils.safeProcess {
+              interp.reset()
+              initInterp()
+              outputHandler.withOutputSuppressed {
+                interp.interpret("import TSCanvas._; import Staging._")
+                loadInitScripts()
+              }
             }
             
           case ActivateMw =>
-            interp.reset()
-            initInterp()
-            outputHandler.withOutputSuppressed {
-              interp.interpret("import Mw._")
-              loadInitScripts()
+            Utils.safeProcess {
+              interp.reset()
+              initInterp()
+              outputHandler.withOutputSuppressed {
+                interp.interpret("import Mw._")
+                loadInitScripts()
+              }
             }
             
           case CompileCode(code) =>
