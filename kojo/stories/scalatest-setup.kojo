@@ -1,4 +1,4 @@
-// Click the Run button in the toolbar above to start the story
+// This story will Auto-Run in a moment (if it is loaded via the Stories Menu)
 //
 // =================================================================
 //

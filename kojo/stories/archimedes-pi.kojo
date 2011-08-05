@@ -1,6 +1,6 @@
-// Contributed by Saurabh Kapoor
+// This story will Auto-Run in a moment (if it is loaded via the Stories Menu)
 //
-// Click the Run button in the toolbar above to start the story
+// Contributed by Saurabh Kapoor
 //
 // =================================================================
 //
@@ -10,7 +10,7 @@
 val S = Staging
 val unit = 100
 
-def rads(degree: Double) = degree * Math.Pi / 180.0
+def rads(degree: Double) = degree * math.Pi / 180.0
 val headerStyle = "text-align:center;font-size:110%;color:maroon;"
 
 var page: StoryPage = _
@@ -100,8 +100,8 @@ def getPolygonPoints(center: Point,
 
     def createPoint(count: Int) : Point = {
         var theta = rads(360.0/nSides * count + initialAngle);
-        var cosTheta = Math.cos(theta)
-        var sinTheta = Math.sin(theta)
+        var cosTheta = math.cos(theta)
+        var sinTheta = math.sin(theta)
         var newX = initialPt.x * cosTheta - initialPt.y * sinTheta
         var newY = initialPt.x * sinTheta + initialPt.y * cosTheta
         new Point(newX + center.x, newY + center.y)
@@ -114,12 +114,12 @@ def getPolygonPoints(center: Point,
 def drawCircleAndPoly(radius: Double, nSides: Int) =
 {
     val initialAngle = 180.0 / nSides
-    val radiusOuter = radius / Math.cos(rads(initialAngle))
+    val radiusOuter = radius / math.cos(rads(initialAngle))
     gridOff()
     axesOff()
 
-    val innerPerimeter = Math.sin(rads(initialAngle)) * nSides
-    val outerPerimeter = Math.tan(rads(initialAngle)) * nSides
+    val innerPerimeter = math.sin(rads(initialAngle)) * nSides
+    val outerPerimeter = math.tan(rads(initialAngle)) * nSides
 
     S.text("%1.10f < pi < %1.10f" format(innerPerimeter, outerPerimeter), -110, 160)
     S.text("pi ~ %1.10f" format((innerPerimeter + outerPerimeter)/2), -110, 140)
