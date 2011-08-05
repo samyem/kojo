@@ -431,7 +431,7 @@
                 </file>
             </folder>
             <folder name="Tools">
-                <attr name="position" intvalue="4"/>
+                <attr name="position" intvalue="5"/>
                 <file name="net-kogics-kojo-Stories.ScalaTestSetup.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.ScalaTestSetup.instance"/>
