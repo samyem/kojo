@@ -12,20 +12,22 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo;
+package net.kogics.kojo
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+import util.Utils
 
-import net.kogics.kojo.sample.SampleCode;
+import sample.SampleCode
 
-public final class Samples implements ActionListener {
-
-    public void actionPerformed(ActionEvent e) {
-        CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
-        ces.codePane().setText(SampleCode.get(e).trim());
-        ces.codePane().setCaretPosition(0);
-        CodeEditorTopComponent.findInstance().requestActive();
-        ces.runCode();
+class Samples extends ActionListener {
+  def actionPerformed(e: ActionEvent) {
+    val ces = CodeExecutionSupport.instance()
+    ces.codePane.setText(SampleCode.get(e).trim())
+    ces.codePane.setCaretPosition(0)
+    CodeEditorTopComponent.findInstance().requestActive()
+    Utils.schedule(0.1) {
+      ces.runCode()
     }
+  }
 }
