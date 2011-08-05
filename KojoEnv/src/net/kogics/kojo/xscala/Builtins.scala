@@ -465,6 +465,7 @@ Here's a partial list of the available commands:
   def reimportBuiltins() {
     interpret("import TSCanvas._; import Tw._")
   }
+  def reimportDefaults() = reimportBuiltins()
   
   import story.{HandlerHolder, IntHandlerHolder, StringHandlerHolder, VoidHandlerHolder}
   implicit def toIhm(handler: Int => Unit): HandlerHolder[Int] = new IntHandlerHolder(handler)
