@@ -409,7 +409,9 @@ class Builtins {
   }
   UserCommand("stShowStatusError", List("msg"), "Shows the specified error message in the Story Teller status bar.")
 
-  def stNext() = storyTeller.nextPage()
+  def stNext() = Utils.runInSwingThread {
+    storyTeller.nextPage()
+  }
   UserCommand("stNext", Nil, "Moves the story to the next page/view.")
   UserCommand.addSynopsisSeparator()
   
@@ -485,7 +487,7 @@ Here's a partial list of the available commands:
   }
 
   private val urlHandler = new story.LinkListener(storyTeller)
-  def stGotoUrl(url: String) {
+  def stGotoUrl(url: String) = Utils.runInSwingThread {
     urlHandler.gotoUrl(new java.net.URL(url))
   }
 }
