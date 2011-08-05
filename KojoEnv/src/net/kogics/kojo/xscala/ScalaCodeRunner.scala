@@ -199,6 +199,13 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
           case Init =>
             Utils.safeProcess {
               loadInterp()
+              outputHandler.withOutputSuppressed {
+                interp.interpret("import TSCanvas._; import Tw._")
+              }
+              printInitScriptsLoadMsg()
+              loadInitScripts()
+              ctx.onInterpreterInit()
+
               loadCompiler()
             }
             
@@ -207,6 +214,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
             initInterp()
             outputHandler.withOutputSuppressed {
               interp.interpret("import TSCanvas._; import Tw._")
+              loadInitScripts()
             }
 
           case ActivateStaging =>
@@ -214,6 +222,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
             initInterp()
             outputHandler.withOutputSuppressed {
               interp.interpret("import TSCanvas._; import Staging._")
+              loadInitScripts()
             }
             
           case ActivateMw =>
@@ -221,6 +230,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
             initInterp()
             outputHandler.withOutputSuppressed {
               interp.interpret("import Mw._")
+              loadInitScripts()
             }
             
           case CompileCode(code) =>
@@ -382,18 +392,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
 //        interp.bind("Staging", "net.kogics.kojo.staging.Facade$", staging.Facade)
 //        interp.bind("Mw", "net.kogics.kojo.core.GeomCanvas", geomCanvas)
         interp.interpret("val Mw = net.kogics.kojo.mathworld.MathWorld.instance")
-        
-//        Utils.isScalaTestAvailable = interp.evalExpr[Boolean]("""
-//    try {
-//        Class.forName("org.scalatest.FunSuite")
-//        true
-//    }
-//    catch {
-//        case e: Throwable => false
-//    }
-//""")
       }
-
+    }
+    
+    def printInitScriptsLoadMsg() {
       if (Utils.initScripts.size > 0) {
         kprintln(Utils.initScripts.mkString("\n---\nLoading Init Scripts (from initk):\n * ", "\n * ", "\n---\n"))
       }
@@ -401,7 +403,9 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       if (Utils.installInitScripts.size > 0) {
         kprintln(Utils.installInitScripts.mkString("\n---\nLoading Init Scripts (from install initk):\n * ", "\n * ", "\n---\n"))
       }
-      
+    }
+    
+    def loadInitScripts() {
       if (initCode.isDefined) {
         interp.interpret(initCode.get)
       }
@@ -414,8 +418,6 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       initInterp()
       // for debugging only
       kojointerp = interp.interp
-      
-      ctx.onInterpreterInit()
     }
 
     def createCp(xs: List[String]): String = {
