@@ -27,6 +27,7 @@ class Samples extends ActionListener {
     ces.codePane.setCaretPosition(0)
     CodeEditorTopComponent.findInstance().requestActive()
     Utils.schedule(0.1) {
+      ces.activateTw()
       ces.runCode()
     }
   }
