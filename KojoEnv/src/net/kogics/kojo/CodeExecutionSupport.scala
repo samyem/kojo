@@ -982,6 +982,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
             codePane.setSelectionStart(selRange._1)
             codePane.setSelectionEnd(selRange._2)
           }
+          else {
+            codePane.setCaretPosition(0)
+          }
         }
         else {
           codePane.setText(null)
