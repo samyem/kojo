@@ -529,7 +529,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def loadCodeFromHistoryPrev() = historyManager.historyMoveBack
   def loadCodeFromHistoryNext() = historyManager.historyMoveForward
-  def loadCodeFromHistory(historyIdx: Int) = historyManager.setCode(historyIdx)
+  def loadCodeFromHistory(historyIdx: Int) = historyManager.setCode(historyIdx, 0)
 
   def smartUndo() {
     if (codePane.getText.trim() == "") {
@@ -818,6 +818,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
     val selStart = codePane.getSelectionStart
     val selEnd = codePane.getSelectionEnd
+    val caretPos = codePane.getCaretPosition
 
     val selectedCode = codePane.getSelectedText
     val codeToRun = if (selectedCode == null) code else selectedCode
@@ -833,7 +834,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       historyManager.codeRun(code, (selectedCode != null) 
                              || !singleLine
                              || (singleLine && retainCode), 
-                             (selStart, selEnd))
+                             (selStart, selEnd), caretPos)
     }
     catch {
       case ioe: java.io.IOException => showOutput("Unable to save history to disk: %s\n" format(ioe.getMessage))
@@ -943,6 +944,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   class HistoryManager {
     var _selRange = (0, 0)
+    var _caretPos = 0
 
     def historyMoveBack {
       // depend on history listener mechanism to move back
@@ -962,7 +964,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       commandHistory.ensureLastEntryVisible()
     }
 
-    def setCode(historyIdx: Int, selRange: (Int, Int) = (0,0)) {
+    def setCode(historyIdx: Int, caretPos: Int, selRange: (Int, Int) = (0,0)) {
       if (commandHistory.size > 0 && historyIdx != 0)
         hPrevButton.setEnabled(true)
       else
@@ -981,9 +983,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
             codePane.setSelectionStart(selRange._1)
             codePane.setSelectionEnd(selRange._2)
           }
-          else {
-            codePane.setCaretPosition(0)
-          }
+          codePane.setCaretPosition(caretPos)
         }
         else {
           codePane.setText(null)
@@ -993,12 +993,14 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     }
 
     def codeRunError() = {
-      setCode(commandHistory.size-1, (_selRange._1, _selRange._2))
+      setCode(commandHistory.size-1, _caretPos, (_selRange._1, _selRange._2))
       _selRange = (0,0)
+      _caretPos = 0
     }
 
-    def codeRun(code: String, stayPut: Boolean, selRange: (Int, Int)) {
+    def codeRun(code: String, stayPut: Boolean, selRange: (Int, Int), caretPos: Int) {
       _selRange = selRange
+      _caretPos = caretPos
       val tcode = code.trim()
       val undo = (tcode == "undo"
                   || tcode == "undo()"
@@ -1015,7 +1017,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         _selRange = (0, 0)
       }
       if (stayPut || undo) {
-        setCode(commandHistory.size-1, (_selRange._1, _selRange._2))
+        setCode(commandHistory.size-1, _caretPos, (_selRange._1, _selRange._2))
       }
       if (commandHistory.hIndex == prevIndex + 1) {
         // the last entry within history was selected
