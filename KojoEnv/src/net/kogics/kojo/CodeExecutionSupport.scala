@@ -1049,21 +1049,27 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   @volatile var codingMode: CodingMode = _
   
   def activateTw() {
-    codingMode = TwMode
-    codeRunner.activateTw()
-    xscala.CodeCompletionUtils.activateTw()
+    if (codingMode != TwMode) {
+      codingMode = TwMode
+      codeRunner.activateTw()
+      xscala.CodeCompletionUtils.activateTw()
+    }
   }
   
   def activateStaging() {
-    codingMode = StagingMode
-    codeRunner.activateStaging()
-    xscala.CodeCompletionUtils.activateStaging()
+    if (codingMode != StagingMode) {
+      codingMode = StagingMode
+      codeRunner.activateStaging()
+      xscala.CodeCompletionUtils.activateStaging()
+    }
   }
 
   def activateMw() {
-    codingMode = MwMode
-    codeRunner.activateMw()
-    xscala.CodeCompletionUtils.activateMw()
+    if (codingMode != MwMode) {
+      codingMode = MwMode
+      codeRunner.activateMw()
+      xscala.CodeCompletionUtils.activateMw()
+    }
   }
 
   def isTwActive = codingMode == TwMode
