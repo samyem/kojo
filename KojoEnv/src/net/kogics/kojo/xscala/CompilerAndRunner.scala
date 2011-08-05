@@ -137,7 +137,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
 
   def compile(code0: String, stopPhase: List[String] = List("selectiveanf")) = {
     counter += 1
-    val pfx = prefix format(counter)
+    val pfx = Utils.stripCR(prefix format(counter))
     offsetDelta = pfx.length
     val code = Utils.stripCR(codeTemplate format(pfx, code0))
     
