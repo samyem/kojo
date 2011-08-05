@@ -91,7 +91,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   setSpriteListener()
   doWelcome()
-  activateTw()
   
   import java.io._
   System.setOut(new PrintStream(new WriterOutputStream(new OutputWindowWriter)))
@@ -1046,7 +1045,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   case object MwMode extends CodingMode
   case object StagingMode extends CodingMode
   
-  @volatile var codingMode: CodingMode = _
+  @volatile var codingMode: CodingMode = TwMode // default mode for interp
   
   def activateTw() {
     if (codingMode != TwMode) {
