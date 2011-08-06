@@ -825,6 +825,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
     if (isStory(codeToRun)) {
       // a story
+      activateTw()
       storyTeller.storyComing()
     }
 
