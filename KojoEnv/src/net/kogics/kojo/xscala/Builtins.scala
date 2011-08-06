@@ -175,7 +175,7 @@ class Builtins {
     UserCommand("undo", Nil, "Undoes the last turtle command.")
 
     override def clear() = tCanvas.clear()
-    UserCommand("clear", Nil, "Clears the screen. To bring the turtle to the center of the window after this command, just resize the turtle canvas.")
+    UserCommand("clear", Nil, "Clears the screen, and brings the turtle to the center of the window.")
 
     override def style: Style = turtle0.style
   }
