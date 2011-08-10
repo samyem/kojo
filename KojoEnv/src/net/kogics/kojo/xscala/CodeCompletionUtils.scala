@@ -140,7 +140,7 @@ object CodeCompletionUtils {
     "lineTo" -> "lineTo(${x}, ${y})",
     "setFontSize" -> "setFontSize(${size})",
     "setContent" -> "setContent(${content})",
-    "onMouseClick" -> "onMouseClick {\n    ${cursor}\n}",
+    "onMouseDrag" -> "onMouseDrag { (x, y) =>\n    ${cursor}\n}",
     "show" -> "show()",
     "hide" -> "hide()",
     "erase" -> "erase()"

@@ -521,12 +521,14 @@ trait Shape {
   }
   
   def onMouseDrag(fn: (Double, Double) => Unit) = Utils.runInSwingThread {
+    Impl.canvas.setPanEventHandler(null)
     node.addInputEventListener(new PBasicInputEventHandler {
         override def mouseDragged(event: PInputEvent) {
           val pos = event.getPosition
           Utils.safeProcess {
             fn(pos.getX, pos.getY)
           }
+//          event.setHandled(true)
         }
       })
   }
@@ -537,7 +539,7 @@ trait Shape {
       override def mousePressed(event: PInputEvent) {
 //        event.getInputManager().setKeyboardFocus(event.getPath())
         Impl.canvas.getRoot.getDefaultInputManager.setKeyboardFocus(this)
-//        event.setHandled(truell )
+//        event.setHandled(true)
       }
       override def keyPressed(e: PInputEvent) {
         Utils.safeProcess {

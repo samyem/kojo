@@ -476,6 +476,11 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     gridOff()
     axesOff()
     Utils.runInSwingThreadAndWait {
+      if (getPanEventHandler == null) {
+        // clobbered by drag handling
+        setPanEventHandler(panHandler)
+      }
+
       turtles.foreach {t => if (t == turtle) t.clear() else t.remove()}
       turtles = List(turtles.last)
 
