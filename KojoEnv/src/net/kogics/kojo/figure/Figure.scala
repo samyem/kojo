@@ -164,6 +164,11 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
     currLayer.repaint
     node
   }
+  
+  def removePnode(node: PNode): Unit = Utils.runInSwingThread {
+    currLayer.removeChild(node)
+    currLayer.repaint
+  }
 
 
   def refresh(fn: => Unit) {
