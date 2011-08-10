@@ -140,7 +140,10 @@ object CodeCompletionUtils {
     "lineTo" -> "lineTo(${x}, ${y})",
     "setFontSize" -> "setFontSize(${size})",
     "setContent" -> "setContent(${content})",
-    "onMouseClick" -> "onMouseClick {\n    ${cursor}\n}"
+    "onMouseClick" -> "onMouseClick {\n    ${cursor}\n}",
+    "show" -> "show()",
+    "hide" -> "hide()",
+    "erase" -> "erase()"
   )
 
   @volatile var ExtraMethodTemplates: collection.Map[String, String] = TwMethodTemplates

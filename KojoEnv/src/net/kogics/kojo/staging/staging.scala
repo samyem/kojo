@@ -452,6 +452,9 @@ trait Shape {
     }
     Impl.canvas.repaint()
   }
+  def erase() {
+    Impl.figure0.removePnode(node)
+  }
   def fill_=(color: Color) {
     Utils.runInSwingThread {
       node.setPaint(color)
@@ -506,22 +509,35 @@ trait Shape {
   }
 //  def position = offset
 
-  def onMouseClick(fn: => Unit) = Utils.runInSwingThread {
+  def onMouseClick(fn: (Double, Double) => Unit) = Utils.runInSwingThread {
     node.addInputEventListener(new PBasicInputEventHandler {
         override def mousePressed(event: PInputEvent) {
+          val pos = event.getPosition
           Utils.safeProcess {
-            fn
+            fn(pos.getX, pos.getY)
           }
         }
       })
   }
+  
+  def onMouseDrag(fn: (Double, Double) => Unit) = Utils.runInSwingThread {
+    node.addInputEventListener(new PBasicInputEventHandler {
+        override def mouseDragged(event: PInputEvent) {
+          val pos = event.getPosition
+          Utils.safeProcess {
+            fn(pos.getX, pos.getY)
+          }
+        }
+      })
+  }
+  
   import java.awt.event.KeyEvent
   def onKeyPress(fn: Int => Unit) = Utils.runInSwingThread {
     val eh = new PBasicInputEventHandler {
       override def mousePressed(event: PInputEvent) {
 //        event.getInputManager().setKeyboardFocus(event.getPath())
         Impl.canvas.getRoot.getDefaultInputManager.setKeyboardFocus(this)
-        event.setHandled(true)
+//        event.setHandled(truell )
       }
       override def keyPressed(e: PInputEvent) {
         Utils.safeProcess {
