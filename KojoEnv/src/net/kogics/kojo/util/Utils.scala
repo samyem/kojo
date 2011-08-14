@@ -138,6 +138,8 @@ object Utils {
   
   val kojoJars = List("modules/ext/scala-library.jar",
                       "modules/ext/scala-compiler.jar",
+                      "modules/ext/scala-swing.jar",
+                      "modules/ext/group-panel.jar",
                       "modules/net-kogics-kojo.jar",
                       "modules/ext/piccolo2d-core-1.3.jar",
                       "modules/ext/piccolo2d-extras-1.3.jar",
