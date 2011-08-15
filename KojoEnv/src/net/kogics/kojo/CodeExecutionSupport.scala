@@ -868,7 +868,10 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   var openedFile: Option[File] = None
   var fileData: String = _
-  def fileChanged = fileData != codePane.getText
+  def saveFileData(d: String) {
+    fileData = Utils.stripCR(d)
+  }
+  def fileChanged = fileData != Utils.stripCR(codePane.getText)
 
   def hasOpenFile = openedFile.isDefined
 
@@ -879,7 +882,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     codePane.setText(script)
     codePane.setCaretPosition(0)
     CodeEditorTopComponent.findInstance.fileOpened(file)
-    fileData = script
+    saveFileData(script)
   }
   
   def openFile(file: java.io.File) {
@@ -919,7 +922,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     import util.RichFile._
     val script = codePane.getText()
     file.write(script)
-    fileData = script
+    saveFileData(script)
   }
 
   def saveAs(file: java.io.File) {
