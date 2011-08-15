@@ -220,7 +220,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         case HistoryPrev =>
           loadCodeFromHistoryPrev()
         case ClearEditor =>
-          closeFileAndClrEditor()
+          closeFileAndClrEditorIgnoringCancel()
         case ClearOutput =>
           clrOutput()
         case UndoCommand =>
@@ -453,7 +453,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         def clearOutput() = clrOutput()
 
         def setScript(code: String) {
-          Utils.runInSwingThread {
+          Utils.runInSwingThreadAndWait {
             closeFileAndClrEditor()
             codePane.setText(code)
           }
@@ -638,21 +638,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       codePane.requestFocusInWindow
     }
     lastOutput = ""
-  }
-
-  def closeFileAndClrEditor() {
-    Utils.runInSwingThread {
-      try {
-        closeFileIfOpen()
-        this.codePane.setText(null)
-        clearSButton.setEnabled(false)
-        CodeEditorTopComponent.findInstance.fileClosed()
-        codePane.requestFocusInWindow
-      }
-      catch {
-        case e: RuntimeException =>
-      }
-    }
   }
 
   val listener = new OutputListener() {
@@ -911,6 +896,23 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       }
       openedFile = None
     }
+  }
+
+  def closeFileAndClrEditorIgnoringCancel() {
+    try {
+      closeFileAndClrEditor()
+    }
+    catch {
+      case e: RuntimeException => // ignore user cancel
+    }
+  }  
+  
+  def closeFileAndClrEditor() {
+    closeFileIfOpen() // can throw runtime exception if user cancels
+    this.codePane.setText(null)
+    clearSButton.setEnabled(false)
+    CodeEditorTopComponent.findInstance.fileClosed()
+    codePane.requestFocusInWindow
   }
 
   def saveFile() {

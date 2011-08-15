@@ -23,12 +23,18 @@ import sample.SampleCode
 class Samples extends ActionListener {
   def actionPerformed(e: ActionEvent) {
     val ces = CodeExecutionSupport.instance()
-    ces.codePane.setText(SampleCode.get(e).trim())
-    ces.codePane.setCaretPosition(0)
-    CodeEditorTopComponent.findInstance().requestActive()
-    Utils.schedule(0.1) {
-      ces.activateTw()
-      ces.runCode()
+    try {
+      ces.closeFileAndClrEditor()
+      ces.codePane.setText(SampleCode.get(e).trim())
+      ces.codePane.setCaretPosition(0)
+      CodeEditorTopComponent.findInstance().requestActive()
+      Utils.schedule(0.1) {
+        ces.activateTw()
+        ces.runCode()
+      }
+    }
+    catch {
+      case e: RuntimeException => // user cancelled
     }
   }
 }

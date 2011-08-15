@@ -25,11 +25,17 @@ import util.Utils.BundleMessage
 class Stories extends ActionListener {
   def actionPerformed(e: ActionEvent) {
     val ces = CodeExecutionSupport.instance()
-    ces.codePane.setText(getCode(e).trim())
-    ces.codePane.setCaretPosition(0)
-    CodeEditorTopComponent.findInstance().requestActive()
-    Utils.schedule(0.1) {
-      ces.runCode()
+    try {
+      ces.closeFileAndClrEditor()
+      ces.codePane.setText(getCode(e).trim())
+      ces.codePane.setCaretPosition(0)
+      CodeEditorTopComponent.findInstance().requestActive()
+      Utils.schedule(0.1) {
+        ces.runCode()
+      }
+    }
+    catch {
+      case e: RuntimeException => // user cancelled
     }
   }
 
