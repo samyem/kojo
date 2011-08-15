@@ -905,11 +905,11 @@ pages += Page(
             row("""\r""", "carriage return","""\" """, "double quote", """\'""", "single quote","""\\""", "backslash")
         ),
 		"Concatenation".h3,
-		"Strings can be cocatenated using the + symbol. The original Strins are left unaffected.".p,
+		"Strings can be concatenated using the + symbol. The original strings are left unaffected. Strings are immutable.".p,
 		"""val a = "Big"
 val b = "Bang"
 val c = a + " " + b		
-Println( a,b,c)
+println( a,b,c)
 """.c,
 "Nearly all objects have a toString method to create a character representation.".p,
 """val x = (2).toString + " " + (3.1F).toString
