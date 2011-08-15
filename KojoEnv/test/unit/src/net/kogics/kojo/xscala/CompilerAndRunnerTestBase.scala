@@ -24,11 +24,11 @@ import org.junit.Assert._
 import scala.tools.nsc.Settings
 
 abstract class CompilerAndRunnerTestBase {
-  val jarsDir = System.getProperty("nbjunit.workdir") + "../../../../../../build/cluster"
+  val jarsDir = KojoTestUtil.nbDirs
   val jars = util.Utils.kojoJars
 
   val settings = new Settings()
-  settings.classpath.append(jars.map {"%s/%s;" format(jarsDir, _)}.mkString)
+  settings.classpath.append(jars.map {"%s/%s%s" format(jarsDir, _, java.io.File.pathSeparator)}.mkString)
 
   var errLine = 0
   var errColumn = 0

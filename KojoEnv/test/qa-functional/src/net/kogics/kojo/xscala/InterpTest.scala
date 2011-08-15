@@ -27,12 +27,12 @@ import scala.tools.nsc.interpreter._
 @RunWith(classOf[JUnitRunner])
 class InterpTest extends FunSuite with ShouldMatchers {
   
-  val jarsDir = System.getProperty("nbjunit.workdir") + "../../../../../../build/cluster"
+  val jarsDir = KojoTestUtil.nbDirs
   val jars = util.Utils.kojoJars.filter(j => j.contains("scala") || j.contains("kojo"))
   
   def fixture = new {
     val settings = new Settings()
-    settings.classpath.append(jars.map {"%s/%s;" format(jarsDir, _)}.mkString)
+    settings.classpath.append(jars.map {"%s/%s%s" format(jarsDir, _, java.io.File.pathSeparator)}.mkString)
     val interp = new IMain(settings) {
       override protected def parentClassLoader = classOf[InterpTest].getClassLoader
     }
@@ -81,18 +81,8 @@ object builtins {
     val context = fixture
     SpriteCanvas.initedInstance(KojoCtx.instance())
     story.StoryTeller.initedInstance(KojoCtx.instance())
-    
-    import java.io.File
-    val netbeansDir = System.getProperty("nbjunit.workdir") + "../../../../../../build/cluster"
-    val userDir = System.getProperty("nbjunit.workdir") + "../../../../../../build/testuserdir"
-    val nbd = new File(netbeansDir)
-    nbd.exists should be(true)
-    // make sure user config dir exists
-    val configDir = new File(userDir + File.separator + "config")
-    if (!configDir.exists) configDir.mkdirs()
 
-    System.setProperty("netbeans.dirs", netbeansDir)
-    System.setProperty("netbeans.user", userDir)
+    KojoTestUtil.initNetbeansDirs()
     
     val ce = CodeExecutionSupport.initedInstance(new javax.swing.JEditorPane(), new org.openide.awt.UndoRedo.Manager)
     ce.codeRunner.asInstanceOf[core.ProxyCodeRunner].latch.await()

@@ -26,10 +26,7 @@ import net.kogics.kojo.core.RunContext
 
 abstract class CodePaneTestBase extends KojoTestBase {
 
-  val fileStr = System.getProperty("nbjunit.workdir") + "../../../../../../build/cluster"
-  val file = new java.io.File(fileStr)
-  assertTrue(file.exists)
-  System.setProperty("netbeans.dirs", fileStr)
+  initNetbeansDirs()
 
   val runCtx = new RunContext {
     val currOutput = new StringBuilder()

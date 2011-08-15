@@ -16,7 +16,11 @@
 package net.kogics.kojo
 
 class KojoTestBase {
+  def nbDirs = KojoTestUtil.nbDirs
+  def userDir = KojoTestUtil.userDir
+  def initNetbeansDirs() = KojoTestUtil.initNetbeansDirs()
   SpriteCanvas.initedInstance(KojoCtx.instance())
   mathworld.GeoGebraCanvas.initedInstance(KojoCtx.instance())
   story.StoryTeller.initedInstance(KojoCtx.instance())
 }
+
