@@ -93,6 +93,7 @@ var codeID = 0
 class SHtm (var s:String){
     def h2=new SHtm("<h2>" + s + "</h2>")    
     def h3=new SHtm("<h3>" + s + "</h3>")
+    def h4=new SHtm("<h4>" + s + "</h4>")
     def i=new SHtm("<i>" + s + "</i>")    
     def h1=new SHtm("<h1>" + s + "</h1>")
     def p=new SHtm("<p>" + s + "</p>")
@@ -134,7 +135,7 @@ pages += Page(
 		<a href={link("MF")}>Mathematical Functions</a> <br/>
 		<a href={link("OPA")}>Operator Precedence and Associativity</a> <br/>
 		<a href={link("US")}>Using Strings</a> <br/>
-		<a href={link("UM")}>Using Lists</a> <br/>
+		<a href={link("UL")}>Using Lists</a> <br/>
 		<a href={link("UT")}>Using the Turtle</a> <br/>
 		<a href={link("GAG")}>Graphics and Games</a> <br/>
 		<a href={link("LM")}>Learning More</a> <br/>
@@ -187,7 +188,7 @@ println(height)""".c,
                  """pixel=10 // this gives an error, trying to change a val""".c,
                  """height+=4
 println(height)""".c,
-                 """Comments  can be added to code at the end of a line with // or over several lines using a /* and */ pair. All comments will be ignored. 'println' can also output text. Text is has type String and can be used in expressions too. A string literal is enclosed with quotes.""".p,
+                 """Comments  can be added to code at the end of a line with // or over several lines using a /* and */ pair. All comments will be ignored. 'println' can also output text. Text is of type String and can be used in expressions too. A string literal is enclosed with quotes.""".p,
                  """
 /*
   Example of multi-line comments
@@ -365,21 +366,21 @@ pages += Page(
 pages += Page(
     name = "Functions",
     body = tPage("Functions",
-                 """Functions give you the capability to define a set of commands or calculations that you wish to reuse or repeatand refer to them by a name. A function is defined using the "def" key word followed by its name. The example that follows creates a function that returns an integer, the max value for the two integer arguments.""".p,
+                 """Functions give you the capability to define a set of commands or calculations that you wish to reuse or repeat - and refer to them by a name. A function is defined using the "def" key word followed by its name. The example that follows creates a function that returns an integer, the max value for the two integer arguments.""".p,
                  """def max(x: Int, y: Int): Int = {
     if (x > y) x
     else y
-    }
+}
 """.c,
-                 """The name of the function,"max" in this case,  follows the "def" then the parameters with their associated types within parentheses. Type annotation is added after the parameter name and preceded by a colon.This function has two parameters of type Int. Then the return type is defined following the colon, again Int in this case. Finally there is an equal sign and the function body enclosed in curly brackets.""".p,
+                 """The name of the function,"max" in this case,  follows the "def", and then come the parameters with their associated types within parentheses. A type annotation is added after each parameter name and preceded by a colon. This function has two parameters of type Int. Then the return type is defined following a colon, and it's again Int in this case. Finally there is an equal sign and the function body enclosed in curly brackets.""".p,
 				 """Once you have defined a function you can use it by calling it with the appropriate parameters.""".p,
                  "max(6,7)".c,
-				 "Typically a function will return a value of some type. However, for some functions no return value is expected, they are only used to cause a side effect, printing or writing to a file for example. In this case the return will be often be of type 'Unit' meaning no value or void. This type of function is called a procedure and here are some examples you may have already seen.".p,
+				 "Typically a function will return a value of some type. However, for some functions no return value is expected; they are only used to cause a side effect, printing or writing to a file for example. In this case the return will often be of type 'Unit' meaning no value or void. This type of function is called a procedure and here are some examples you may have already seen.".p,
 				 """clear
 forward(100)
 println("a procedure")
 """.c,
-"Functions that have no side-effects are called pure functions and provide the basis for functional programming, a style of programming that closely resembles the mathematical use of functions.".p,
+"Functions that have no side-effects are called pure functions, and closely resemble mathematical functions. Pure functions provide the basis for a style of programming called functional programming.".p,
 "Recursive Functions".h3, 
                  "Functions can make recursive calls to themselves. Recursive functions form an alternative way of controlling iterations. In the following function that computes the Greatest Common Divisor no variables are required for intermediate values.".p,
 
@@ -388,7 +389,7 @@ println("a procedure")
 """.c,
                  """Compare this to the earlier version written with a "while" loop.""".p,
                  "gcd(96,128)".c,
-                 "Now here is another recursive function, it calls itself twice to create the branches of a rather pretty binary tree using the Turtle. The recursions stop when the distance is less than or equals to 4.".p,
+                 "Now here is another recursive function, it calls itself twice to create the branches of a rather pretty binary tree using the Turtle. The recursions stop when the distance is less than or equal to 4.".p,
                  """def tree(distance: Double) {
     if (distance > 4) {
         setPenThickness(distance/7)
@@ -418,9 +419,9 @@ pages += Page(
     name = "OandC",
     body = tPage("Objects and Classes",
                  "Everything is an Object".h2,
-                 "Scala is an Object Oriented language. The underlying premis, like other Object Oriented languages, is that there are objects that contain state and this state is manipulated or accessed by means of Methods. Kojo is in fact is a collection of objects that interpret the commands or procedures you write in the Script Editor to move the Turtle, draw lines on the Turtle Canvas or print in the Output Pane.".p, 
-                 "New types of object can be created by describing their class. The class specification details what fields it will contain and the Methods it will implement. Methods are the names the class designer gives to the code that make it carry out the command you give it. You create methods by defininging them in a class with 'def', just as you have done for functions.".p,  
-				 "Objects are defined by the means of a class hierarchy. When you define a class you are also defining a new type of object. This new type and those already defined such as Int or Double are treated in a uniform way. The benefits of this uniformity, everything is an object, will soon become apparent.".p, 
+                 "Scala is an Object Oriented language. The underlying premis, like other Object Oriented languages, is that there are objects that contain state and this state is manipulated or accessed by means of Methods. Kojo is in fact a collection of objects that interpret the commands or procedures that you use in the Script Editor to move the Turtle, draw lines on the Turtle Canvas or print in the Output Pane.".p, 
+                 "New types of object can be defined by describing their class. The class specification details what fields an object will contain, and the Methods that it will implement. Methods are functions that run within the context of an object, and have access to all the fields of the object. You create methods by defining them within a class with 'def', just as you have done for regular functions. Methods can be commands or pure functions.".p,  
+				 "When you define a class you are also defining a new type of object. This new type and those already defined such as Int or Double are treated in a uniform way. The benefits of this uniformity, everything is an object, will soon become apparent.".p, 
 				 "You can start by defining an object that represents a point with two fields. It is conventional to start class names with an capital letter while variable names and method names start with a small one".p,
 
                  """class Point {
@@ -488,9 +489,9 @@ val p3=Point(-2,2)
 """.c,
                  "p1+p2-p3".c,
 
-                 """You see that the "new" is not required to create a new instance. The Scala compiler recognises that the new instance is required and creates it for you. Too note that in this case the curly brackets have been dropped in the "def". They are not required as the right hand side of the "def" is a simple expression and not statements. This is a general property of "def" and not just limited to case classes. Lastly see that the return type has been dropped in the function. Scala can infer what this is from the function definition.""".p,
+                 """You see that the "new" is not required to create a new instance. The Scala compiler recognises that the new instance is required and creates it for you. Also note that in this case the curly brackets have been dropped in the "def". They are not required as the right hand side of the "def" is a simple expression and not a sequence of statements. This is a general property of "def" and not just limited to case classes. Lastly see that the return type has been dropped in the method definitions. Scala can infer this from the method body.""".p,
                 "Everything is an object. As such, you may have wondered why the example above was not written more in Java style.".p,
-                "p1.+(p2.-(p3))".c,
+                "p1.+(p2.-(p3)) // p1.+(p2).-(p3) ?".c,
                 "This is one of the nice syntactic features of Scala that helps to give clarity and uniformity to your code. You may leave out the parentheses and dots as Scala can infer where they belong. It is this carefully thought out syntax that allows you to implement Domain Specific Languages (DSLs). So all objects, including numbers are just objects with methods. For example you can perform the + method on the number 1 with the extended syntax too. In Scala the mathematical operators like '+' , '-' , '*' and '/' are just methods too.".p,
                 "(1).+(2)".c,
                 "All the base types are in fact objects too that can be used and extended just like any other object.".p, 
@@ -503,7 +504,7 @@ pages += Page(
     name = "PMS",
     body =tPage("Pattern Matching and switch/case",
                 "Pattern Matching".h2,
-                "You may already be familiar with the 'switch' with 'case' form used in many languages to allow multi-way branching on value. In Scala this concept is extended to provide full algebraic pattern matching using 'match'. However, the simple switch on value can also be represented easily with match.".p,
+                "You may already be familiar with the 'switch' with 'case' form used in many languages to allow multi-way branching based on a value. In Scala this concept is extended to provide full algebraic pattern matching using 'match'. However, the simple switch on value can also be represented easily with match.".p,
 
                 """def  decode(n:Int){
   n match {
@@ -558,13 +559,26 @@ println(whatIs("text"),whatIs(2),whatIs(2F)) // the F makes the 2 a type Float""
 pages += Page(
     name = "BTree",
     body =tPage("More Advanced Matching - Binary Tree",
-                "For the next example a binary tree is defined with internal nodes and values stored on leaf nodes. A function is created to find the value in the tree associated with the given key. Now see how the case pattern matching is used to determine the node type and bind names to the parameters, the lower case letters k,l,r and v. These are called pattern variables. They may also be constants, indicated by a starting uppercase letters or a literal. In which case the constant value is matched directly with the instances field value.".p,
-                "The structure has been created by defining an abstract class and defining the internal and external nodes as subclasses. To inherit the properties of a class the sub-class uses the 'extends' keyword to show that the class is a sub class of the other. Both the internal and external nodes are TreeN nodes.".p,
-                "The keyword 'abstract' defines a class as not being able to be created as an instance using.".p,     
-                """abstract class TreeN
+                "The next example, a binary tree, shows you how to construct a tree for storing and looking up integer values for string keys. The design has internal nodes for the upper tree and leaf nodes for the the key/value pairs. A function will be created to find the value in the tree associated with the given key. In this design the internal nodes contain pointers to two children and a key. While leaf nodes contain no pointers but just the key and its related value.".p,
+"""
+/*       [b]
+         / \
+       [a] c,3
+       / \
+     a,1 b,2 
+*/	 
+""".c,				
+"The first task is to create classes that describe the node objects. Immediately we see a problem with the internal node at the top of the tree. The pointer to the sub-tree may be either an internal node type or a leaf node type. We want to say that the pointer is one of these two types but not any other. It could not be an Int for example. In Scala you can do this by creating a class hierarchy. First a general tree node class is specified and then each of the possible nodes types is derived from it using the 'extends' keyword. The sub-class is said to inherit the properties of the parent class.".p,
+                """class TreeN
 case class InterN(key:String,left:TreeN,right:TreeN) extends TreeN
 case class LeafN(key:String,value:Int) extends TreeN
-
+""".c,
+"The 'extend' means that the newly defined class inherits all the fields and methods from the parent class, also called super class, as well as defining it's own. It also becomes a sub-type of that class, meaning that a sub-type object can be saved in a super-type variable as the following example illustrates.".p,
+"""val tn:TreeN=LeafN("abc",13)""".c,
+"Now we can see how the internal node can be defined using the type 'TreeN' to mean either a 'InterN' or 'LeafN' type.".p,
+"Next we need to create the search function for such a tree. This is where pattern matching provides a type safe solution for finding what type of node we are dealing with and therefore take the appropriate action.".p,  				
+				"In the 'find' function that follows, see how pattern matching with the case classes defined above is used to determine the node type and bind names to the parameters, the lower case letters k,l,r and v. These are called pattern variables.".p,
+"""
 def find(t:TreeN,key:String):Int={
      t match {
          case InterN(k,l,r) => find((if(k>=key)l else r),key)
@@ -584,8 +598,8 @@ val t=InterN("b",InterN("a",LeafN("a",1),LeafN("b",2)),LeafN("c",3))
                 """find(t,"a")""".c,
                 """find(t,"c")""".c,
                 "You may like to try wrapping this up into a Binary tree class, including member methods for adding, finding and deleting entries.".p, 
-
-                "Suppose, for some reason, you would like to hide the key 'c' during the find. A simple modification to the find function does this nicely and illustrates the use of a constant match.".p,    
+                "Patterns may also be constants, indicated by a starting uppercase letter or a literal. Constant patterns match values that are equal to them.".p,
+                "Suppose, for some reason, you would like to hide the key 'c' during the find. A simple modification to the find function does this nicely, and also illustrates the use of a constant pattern.".p,    
                 """def find(t:TreeN,key:String):Int={
      t match {
          case InterN(k,l,r) => find((if(k>=key)l else r),key)
@@ -595,7 +609,8 @@ val t=InterN("b",InterN("a",LeafN("a",1),LeafN("b",2)),LeafN("c",3))
 }
 """.c,
 
-                "Notice the use of '_' as a wild card to match any value and remember that the case statements are evaluated in order.".p) 
+                "Notice the use of '_' as a wild card to match any value and remember that the case statements are evaluated in order.".p,
+"Inheritance and class heirarchy is one of the fundemental concepts that underpins Object Oriented programming. Pattern matching gives you a type safe way of dealing with objects created in that way.".p) 
 )
 pages += Page(
     name = "STI",
@@ -604,7 +619,7 @@ pages += Page(
 
                  "For example, if you write 'val x=3' then the compiler infers that 'x' must be type Int as '3' is a integer literal. In a few situations the compiler will not be able to decide what you intended and will generate a type ambiguity error. In these cases you simply add the intended type annotation.".p,
 
-                 "In general you must define function parameter types, however the compiler can usually infer the return type so it can usually be omitted. The exception to this rule is if you define recursive functions, ones that call themselves, you must define the return type.".p,
+                 "In general you must define function parameter types; however the compiler can usually infer the return type - so it can usually be omitted. The exception to this rule is if you define recursive functions, ones that call themselves. For these, you must define the return type.".p,
 
                  "Type inferencing dramatically reduces the amount of typing you must do and gives a great deal more clarity to the code. It is this type inferencing that gives Scala the feel of being dynamically typed.".p
 
@@ -615,41 +630,53 @@ pages += Page(
     name = "FAO",
     body = tPage("Functions are Objects",
                  "Functions are Objects too".h2,
-                 "In Scala everything is an object and so are functions. They may be passed as arguments, returned from other functions or stored in variables. This feature of Scala enables some very concise and elegant solutions to common programming problems as well as allowing extremely flexible program flow control structures.  The Scala Actors make heavy use of this capability for supporting concurrent programming. However, list manipulation provides a good starting point for an introduction. For example, how do you find all the odd integers in a list? Here is a suitable list.".p,
+                 "In Scala everything is an object and so are functions. They may be passed as arguments, returned from other functions or stored in variables. This feature of Scala enables some very concise and elegant solutions to common programming problems as well as allowing extremely flexible program flow control structures.  The Scala Actors make heavy use of this capability for supporting concurrent programming. However, list manipulation provides a good starting point for an introduction. ".p,
+				 "Lists are a very natural and common way people think about working with things. Scala provides a type of object called a List that allows you to represent lists of objects very easily. Lists keep things in a sequential order and provide a large number of methods or commands to enable you to create and manipulate lists. One way to create a list is to use the class constructor as we did for Point earlier. The constructor accepts any number of arguments and creates a List object containing those items. Here is an example that creates an integer list. The type will be designated by List[Int] - the [] encloses the element type information. Because each of the elements is an Int, Scala infers that the type of 'lst' is List[Int] - and you do not have to specify this explicitly.".p,  
                  "val lst=List(1,7,2,8,5,6,3,9,14,12,4,10)".c,
-                 "Three list methods head,tail and :: will be used in these examples. From these you will see how many other useful list functions can be created. 'head' returns the first or leftmost element '1' in the above list, 'tail' returns the list with the first element, the '1' removed and :: returns a new list with an element added.".p,  
+                 "Let's get started by using just three List methods - 'head', 'tail' and '::'. You will find more in the section 'Using Lists'.".p,
+                 "'head' returns the first or leftmost item, '1' in our list above.".p,
+				"println(lst.head)".c,
+"'tail' returns the list with the first item, the '1', removed.".p,
+				"println(lst.tail)".c,
+"'::' returns a new list with an item added.".p,
+				"println(23::lst)".c,
+"Notice that the methods do not change or mutate the original list but return a new one. For this reason Lists are called immutable data structures.".p,
+"With these three basic methods, you can create other ones to do almost anything you need with lists.  For example, here is how you find all the odd integers in a list:".p,
+
                  """def odd(inLst:List[Int]):List[Int]={
   if(inLst==Nil) Nil 
   else if(inLst.head%2==1) inLst.head::odd(inLst.tail) 
   else odd(inLst.tail)
 }""".c,
+"Notice how recursion and 'tail' are used to walk down the list to examine each item. 'Nil' represents the empty list and can also be written as List[Int]() in this case. Once the end of the list is reached the recursion is stopped and the list of odd items constructed and passed back to the caller.".p,
+"Now try it".p,
                  "odd(lst)".c,  
-                 "A simple solution and to change this to return a list of the even integers is simple too.".p,
+                 "That's a simple solution, and to change this to return a list of the even integers is also simple.".p,
                  """def even(inLst:List[Int]):List[Int]={
   if(inLst==Nil) Nil 
   else if(inLst.head%2==0) inLst.head::even(inLst.tail) 
   else even(inLst.tail)
 }""".c,
                  "even(lst)".c,     
-                 "However, by passing a function that encapsulates the filtering condition as an argument a more general solution appears.".p,
+                 "However, there is duplication here (do you see it?). A more general solution appears by passing a function that encapsulates the filtering condition as an argument.".p,
                  "First the filter condition function is defined.".p,
                  "def isodd(v:Int)= v%2==1".c,
-                 "And then the modified filter function itself, a parameter is added to pass the function, just like any other object. Notice the form of the type declaration. The type will be a function with one Int parameter and will return a Boolean. Only functions of this type can be passed as arguments. In the function body 'cond' is used just like any other function.".p,
+                 "And then the modified filter function itself is defined, with an extra parameter to pass the filter condition function, just like any other object. Notice the form of the type declaration. The type is a function that takes one Int parameter and returns a Boolean. Only functions of this type can be passed as arguments. In the function body 'cond' is used just like any other function.".p,
                  """def filter(inLst:List[Int],cond:(Int)=>Boolean):List[Int]={
   if(inLst==Nil) Nil 
   else if(cond(inLst.head)) inLst.head::filter(inLst.tail,cond) 
   else filter(inLst.tail,cond)
 }""".c,
                  "filter(lst,isodd)".c,
-                 "Although the even case can be added in the same way a more concise version can be created using Anonymous functions. The def and name are dropped, creating an anonymous function definition that can be used directly as an argument. Notice the use of the => to separate the function parameter list from the body of the function.".p,
+                 "Although the even case can be added in the same way, a more concise version can be created using Anonymous functions. The def and name are dropped, creating an anonymous function definition that can be used directly as an argument. Notice the use of the => to separate the function parameter list from the body of the function.".p,
                  "filter(lst,(v:Int)=> v%2==0)".c,
                  "This filter function now does just what was required.".p, 
-                 "Taste of Generic Programming".h2,
+                 "A Taste of Generic Programming".h3,
                  "Suppose you now want to create a filter for type Double. You could go through the code and simply replace all the type definitions of Int with Double. You would perhaps then call the new function filterD. For each new type you would go through the same exercise and end up with many versions of the same thing.".p,
 
-                 "In Scala you can avoid this duplicated effort nicely by using a generic type in place of the actual ones. It is like using a variable to represent the type instead of the an actual type. The actual types get filled in later by the compiler where you make a call to the function.".p,
+                 "In Scala you can avoid this duplicated effort nicely by using a generic type in place of the actual ones. It is like using a variable to represent the type instead of an actual type. The actual types get filled in later by the compiler where you make a call to the function.".p,
 
-                 "Here 'T' is used, though any letters will do, in place of Int in filter and the function name is annotated with [T] to indicate that this is a generic function then the example becomes. The returned list has been reversed to give the same order as the input list.".p,
+                 "Here 'T' is used, though any letters will do, in place of Int in filter and the function name is annotated with [T] to indicate that this is a generic function. Then the example becomes".p,
 
                  """def filter[T](inLst:List[T],cond:(T)=>Boolean):List[T]={
   if(inLst==Nil) Nil 
@@ -666,7 +693,7 @@ filter(lsts,(v:String)=> v.length>3)""".c,
                  "In the reference you will find that lists have a filter function so you could equally write.".p, 
                  "lsts.filter((v:String)=> v.length>3)".c,
                  "Generics will be explored more later but now, more about functions as objects.".p,
-                 "More on 'Functions are objects'".p,
+                 "More on 'Functions are objects'".h3,
                  "The ability to carry out comprehensions, namely applying a function(s) for all members of a collection, is very powerful and leads to some very compact coding.".p, 
 
                  "Many times you will want to pass quite simple functions as arguments and Scala has some nice shorthand that you will find useful. You have already seen that inferencing can help. The lst.filter example can be simplified as the compiler knows the argument must be a function with a String type. This allows you to drop the parentheses and type annotation.".p,   
@@ -676,10 +703,10 @@ filter(lsts,(v:String)=> v.length>3)""".c,
                  "Reading other peoples Scala code you will come across these short forms quite often. Sometimes you must use the longer forms.".p,
  
                  "Here are some more examples of list manipulations with functions as arguments taken from the Reference section.".p,
-                 "flatMap".h3,
+                 "flatMap".h4,
                  "lsts.flatMap(_.toList)".c,
                  "You see that flatMap takes a list and uses your given function to create a new list. In this case it 'flattens' your list of words into characters and concatenates these sublists to produce the result.".p,
-                 "sort".h3,
+                 "sort".h4,
                  "The words could be sorted in ascending order using the sort method.".p,
                  "lsts.sortWith(_<_)".c, 
                  "Or descending order".p,
@@ -687,20 +714,20 @@ filter(lsts,(v:String)=> v.length>3)""".c,
                  "Or ignoring the case of the characters.".p,
                  "lsts.sortWith(_.toUpperCase<_.toUpperCase)".c,
                  "By passing the appropriate function you can create a whole family of sorts without having to re-code the sort itself. This is a really neat way to vary behavior without rewriting the whole method.".p,
-                 "fold".h3,
-                 "foldLeft and foldRight allow you to combine adjacent list elements using an arbitrary function you pass. The process either starts from the left of the list or the right and provide a starting value. The option to start left or right allows you to choose which order you want to pass through the list.".p,
+                 "fold".h4,
+                 "foldLeft and foldRight allow you to combine adjacent list elements using an arbitrary function that you pass in. The process either starts from the left of the list or the right, and you provide a starting value. The option to start left or right allows you to choose which order you want to pass through the list.".p,
 				 "Fold takes two arguments but the Scala syntax allows these to be passed individually for clarity. See the section below on 'Creating your own flow control' for more details on the syntax.".p,
 				 "Now starting with the list.".p,
                  """val lst=List(1,7,2,8,5,6,3,9,14,12,4,10)
 lst.foldLeft(0)(_+_)""".c,
                  "With the passed '_+_' function the foldLeft function starts with 0 adds 1 to it. Next 7 is then added to this result and so on through the rest of the list.".p,
-                 "removeDuplicates".h3,
+                 "removeDuplicates".h4,
                  "Suppose you wish to know the unique letters that are in a list of words such as:-".p,
                  """val lstw=List("Once","more","unto","the","breach")
-lstw.flatMap(_.toList).map(_.toUpperCase).removeDuplicates.sort(_<_)""".c,
+lstw.flatMap(_.toList).map(_.toUpperCase).removeDuplicates.sortWith(_<_)""".c,
                  "'flatMap' flattens all the words into a list of letters. 'map' converts them all to uppercase. All the duplicates are then removed and the result sorted into ascending order.".p,
 				 
-"Creating your own flow control".h3,
+"Creating your own flow control".h4,
 "The ability to pass functions or blocks of code as arguments to functions gives you the ability to create your own flow control structures. For example, to draw a box it would be nice to be able repeat a set of Turtle commands. This could be done using 'for' ".p,
 """clear
 for(i<- 1 to 4){forward(100);right()}
@@ -713,20 +740,18 @@ def myrepeat(rc:Int,rb: =>Any){
   for(i<-1 to rc)rb      
 }
 """.c,
-"Up until now all the functions we have defined have been 'pass by value'. This means that the argument expression is evaluated before the function is called. The => symbol in the above function definition specifies a 'call by name'. This means that the argument expression is not evaluated until it is actually needed in the function. In our repeat function the for loop will cause the expression passed as an argument to be evaluated the repeat count number of times".p,  
+"Up until now all the functions we have defined have been 'pass by value'. This means that arguments to the functions are evaluated before the function is called. The => symbol in the above function definition specifies a 'call by name'. This means that the argument to the function is not evaluated until it is actually needed within the function body. In our repeat function, the for loop will cause the expression passed as an argument to be evaluated the repeat count number of times".p,  
 "myrepeat(4,{forward(130);right()})".c,
-"This is close to what we wanted but there are still two extra brackets and a comma. Scala provides a function definition where the arguments can be passed one at a time. This is called curried function and allows the definition to be changed as follows.".p,
+"This is close to what we wanted, but there are still two extra brackets and a comma that we can get rid of. Scala provides a way of defining functions where the arguments can be passed in one at a time. This is called a curried function and allows the definition to be changed as follows.".p,
 """def myrep(rc:Int)(rb: =>Any){
   for(i<-1 to rc)rb      
-  }
+}
 """.c,
-"Now you can write the concise style you wanted,".p,
+"Now you can write the concise style you wanted:".p,
 "myrep(4) {forward(160);right()}".c,
-"Earlier you will have used fold which uses this same technique to give a more readable syntax.".p,  
-"You will find this ability to treat functions as objects is very useful in all sorts of programming tasks, for example, passing callback functions in event driven IO, passing tasks to Actors in concurrent processing environments or in scheduling work loads. They often result in far more concise code as you see.".p, 
-
-                 "You will find the ability to use immutable data functions simplifies concurrent applications. It is well worth learning how to create them.".p,
-"Repeated Arguments in a Function".h3,
+"Earlier you used the fold function, which employs this same technique to provide a more readable syntax.".p,  
+"You will find that this ability to treat functions as objects is very useful in all sorts of programming tasks - for example - passing callback functions in event driven IO, passing tasks to Actors in concurrent processing environments, or in scheduling work loads. This often results in far more concise code, as you just saw.".p, 
+"Repeated Arguments in a Function".h4,
 "Sometimes it is useful to define a function that can accept any number of arguments. 'println' is one that has already been used extensively in this tutorial. Here is a function to sum any number of integer arguments.".p,
 """def sumInt(n:Int*)=n.reduce(_ + _)
 println(sumInt(1,2,3),sumInt(4,5,6,7,8))
@@ -740,39 +765,43 @@ pages += Page(
     name = "Tup",
     body = tPage("Tuples",
                  "Tuples".h3,
-                 "It is often useful to return more than one value from a function or make up collections of things with more than one value for each item. You can of course always create a class to do this but the typing overhead of making the definition becomes onerous. Scala allows you to create what are in effect anonymous classes in line. A tuple is simply a set of values enclosed in paretheses. A tuple can contain a mixture of types.".p,
+                 "It is often useful to return more than one value from a function or make up collections of things with more than one value for each item. You can of course always create a class to do this but the typing overhead of making the definition becomes onerous. Scala allows you to create what are in effect objects with anonymous fields - inline, using Tuples. A tuple is simply a set of values enclosed in paretheses. A tuple can contain a mixture of types.".p,
                  "(3,'c')".c,  
-                 "The Tuple is an object so can accessed using the dot notation but since the fields have no names they are accessed using a name created with an underscore followed by the position index.".p, 
+                 "The Tuple is an object, and so can be accessed using the dot notation; but since tuple fields have no names they are accessed using a name created with an underscore followed by the position index.".p, 
                  """println((3,'c')._1)
 println((3,'c')._2)""".c,
-                 "However the tuple deconstruction is more frequently used. The Scala compiler associates or binds the variable names in the left of the assignemnt with the corresponding values in the tuple. For example,".p,
+                 "However, tuple deconstruction is more frequently used to access the fields of a Tuple. In an assignment involving a tuple, the Scala compiler associates or binds the variable names in the left of the assignemnt with the corresponding values in the tuple. For example,".p,
                  "val (i,c)=(3,'a')".c,
-                 "You will see how this is used in the following program to create a letter frequency table from our words list.First create the list.".p,
-"""val wl=List("quick","brown","fox","jumps","over","the","lazy","dog")""".c,
+                 "You will see how this is used in the following program to create a letter frequency table from a words list. First create the list.".p,
+"""val wl=List("kojo","is","a","great","way","to","learn","scala")""".c,
                  "The approach taken is to first flatten 'wl', convert to upper case and then sort the the list of characters.".p,
                  "Then a fold will be used to count the duplicate letters. You have already seen that a fold takes an input value and combines it successively with each list element to produce a new input value. In our case while the characters are the same a count needs to be incremented and when they differ the character and count need to be added to the freqency table.".p,
 
-                 "The objective is to produce a list of tuples with two entries letter, Count. First create a sorted list of characters.".p, 
+                 "The objective is to produce a list of tuples with two entries - a letter, and a count. This is our frequency table.".p, 
+                 "First create a sorted list of characters.".p, 
     
                  "val ltrs=wl.flatMap(_.toList).map(_.toUpperCase).sortWith(_<_)".c,
                  "Now the fold. The initial condition is an empty output frequency table, a list of tuples. The fold will expect a function that takes a list of tuples combines with a Char, the next character in the list, and returns a list of tuples.".p,
 
                  """	
 ltrs.foldLeft(List[(Char,Int)]()){
-  case ((prevchr,cnt)::tl,chr) if(prevchr==chr) =>(prevchr,cnt+1)::tl
-  case (tbl,chr) => (chr,1)::tbl
-}""".c,
+    case ((prevchr, cnt) :: tl, chr) if(prevchr==chr) => (prevchr,cnt+1) :: tl
+    case (tbl, chr) => (chr, 1) :: tbl
+}
+""".c,
 
-                 "To understand what is happening here perhaps some new pieces of Scala syntax need to be understood.".p,
+                 "To understand what is happening here, some new pieces of Scala syntax need to be understood.".p,
 
                  "First, a sequence of cases (i.e. alternatives) in curly braces can be used anywhere a function literal can be used. It acts as a function with input parameter(s) and an implied match at the begining of the block. You can consider this as a convenient shorthand for the standard anonymous function form which would have been:-".p, 
-                 "(a,b)=>(a,b) match {case ...}".p,    
+                 "(a,b)=>(a,b) match {case ...} // would be good to see the precise type of the above, which the compiler is able to infer because it knows the type expected by foldLeft".p,    
 
                  "Second, you saw earlier that case is used to pattern match. Here that pattern matching is used to deconstruct our arguments and the list of tuples. '(prevchr,cnt)::tl' matches a list with a head element and tail and associates the names with those items. While 'chr' refers to the second fold arguement, the next list character.".p,
 
-                 "Third, case syntactic pattern matches may not be a precise constraint, as is the case here so a pattern guard can be used. The guard starts with an if and can contain an arbitrary boolean expression. In this case the guard is used to restrict the case to just those where the previous character is the same as the current one.".p,
+                 "Third, case syntactic pattern matches may not be a precise constraint, as is the case here so a pattern guard can be used. The guard starts with an if and can contain an arbitrary boolean expression. In this case the guard is used to restrict the case to just those calls where the previous character is the same as the current one.".p,
 
-                 "So now we can read the expression as: For each character in the input list, if there is already an entry for it in the head of the frequency table, replace the head with a new head with the count incremented. In the other case simply add a new entry to the frequency table with a count of one.".p,        
+                 "So now we can read the expression as: For each character in the (sorted) input list, if there is already an entry for it in the head of the frequency table, replace the head with a new head with the count incremented. In the other case simply add a new entry to the frequency table with a count of one.".p,        
+
+                 "Pretty neat and powerful, right?".p,
 
                  "Of course you could always use a more Java like approach too.".p,
 
@@ -868,8 +897,7 @@ pages += Page(
 pages += Page(
     name = "US",
     body = tPage("Using Strings",
-                 "Functions".h2,
-                 "Strings".h3,
+                 "Strings".h2,
                  "String manipulation is a frequent task. Here are some useful functions and definitions. In the descriptions all the function parameters are labeled in order so will be of the form P1.functionName(P2,P3...). You will find that other sequences like lists have similar methods.".p,  
                  "Escape characters for strings.".h3,
                  table(
@@ -943,7 +971,7 @@ pages += Page(
                  "Lists".h2,
                  "Lists provide a common sequence structure that is used for many functional style algorithms. The following functions enable Lists to be manipulated easily and effectively. The first example creates the List that is used for other examples.".p,
  
-                 "Note:  _+_ is a shorthand for an anonymous function x,y=>x+y. Since binary operators are frequently used this is a nice abbreviation. Similarly _.Method is shorthand for v=>v.Method".p,
+                 "Note:  _+_ is a shorthand for an anonymous function x,y=>x+y. Since binary operators are frequently used this is a nice abbreviation. Similarly _.Method is shorthand for v=>v.Method. When there is more than one argument, the first underscore represents the first argument, the second underscore the second one, and so on.".p,
  
                  table(
             row("""val lst = "Tempus" :: "fugit" ::
@@ -1148,15 +1176,17 @@ pages += Page(
     body = tPage("Learning More",
 
                  "Next Steps".h2,
-                 "This tutorial has covered part of what is a very deep language. By now, you are familiar the some essential Scala language features. Already you can write quite sophisticated programs in Scala and have fun with the graphical environment offered by Kojo.".p,
+                 "This tutorial has covered part of what is a very deep language. By now, you are familiar with the essential Scala language features. Already you can write quite sophisticated programs in Scala and have fun with the graphical environment offered by Kojo.".p,
 				 "If you are already a Java programmer you can no doubt already see how you can use Scala with all the libraries from your existing Java environment too. Scala and Java integrate seamlessly.".p,
 
                  "To learn more a good book is invaluable. Programming in Scala by Martin Odersky, Lex Spoon and Bill Venners is one excellent place to continue.".p,
-"It can be found clicking here.".link("www.artima.com/shop/programming_in_scala"),
+"It can be found by clicking here.".link("www.artima.com/shop/programming_in_scala"),
  "The Scala community site has a lot of good material and references to other learning materials.".p,
 "Click here to go to Scala-lang.org.".link("www.scala-lang.org"), 
-"For the professional programmer you can also download Scala, Akka and an the Eclipse IDE".p,
+"For the professional programmer, you can also download Scala, Akka and the Eclipse IDE.".p,
 "They can be found here.".link("typesafe.com"),
+"The Netbeans IDE also has good Scala support (and Kojo itself uses the Netbeans Rich-Client Platform).".p,
+"More information here".link("wiki.netbeans.org/Scala"),
 "A small subset of the Scala library functions have been used in this tutorial".p,
 "Click here to see a complete list of all the Scala library available.".link("www.scala-lang.org/api/current/index.html"),
 "We wish you lots of fun using Scala!".p
