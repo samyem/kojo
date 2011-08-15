@@ -78,6 +78,7 @@ class StoryTeller extends JPanel {
   ep.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20))
   ep.setEditable(false)
   ep.addHyperlinkListener(new LinkListener(this))
+  ep.setBackground(Color.white)
   val sp = new JScrollPane(ep)
   sp.setBorder(BorderFactory.createEmptyBorder())
   add(sp, BorderLayout.CENTER)
