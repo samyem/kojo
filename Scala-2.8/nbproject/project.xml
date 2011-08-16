@@ -119,6 +119,14 @@
                 <runtime-relative-path>ext/scala-library.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/scala-library.jar</binary-origin>
             </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/group-panel.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/group-panel.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/scala-swing.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/scala-swing.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>
