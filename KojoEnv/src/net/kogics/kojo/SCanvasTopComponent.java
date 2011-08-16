@@ -44,34 +44,7 @@ public final class SCanvasTopComponent extends TopComponent {
 
     private static final String PREFERRED_ID = "SCanvasTopComponent";
 
-    public void changeApplicationIcon() {
-        // need to do this here because this does not work when done in the branding
-        // module installer. something must be clobbering it between then and now
-        // also - this needs to be done via invokeLater, otherwise it does not work
-        // so the clobbering must actually be happening between now and the invokeLater time
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                Frame frame = WindowManager.getDefault().getMainWindow();
-                List<Image> images = new ArrayList<Image>();
-                URL url = getClass().getResource("/images/kojo16.png");
-                Image image = Toolkit.getDefaultToolkit().getImage(url);
-                images.add(image);
-
-                url = getClass().getResource("/images/kojo32.png");
-                image = Toolkit.getDefaultToolkit().getImage(url);
-                images.add(image);
-
-                url = getClass().getResource("/images/kojo48.png");
-                image = Toolkit.getDefaultToolkit().getImage(url);
-                images.add(image);
-
-                frame.setIconImages(images);
-            }
-        });
-    }
-
     public SCanvasTopComponent() {
-        changeApplicationIcon();
         initComponents();
         setFocusable(true);
 
