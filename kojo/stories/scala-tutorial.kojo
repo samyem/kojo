@@ -872,11 +872,11 @@ pages += Page(
             row("ceil(3.12)".c,"closest integer-valued double which is equal to or greater than P1."),
             row("rint(3.51)".c,"closest integer-valued double to P1."),
             row("round(3.48)".c,"long which is closest in value to the double P1."),
-            row("round(2.6)".c,"int which is closest in value to the float P1.")
+            row("round(2.6F)".c,"int which is closest in value to the float P1.")
         ),
                  "Random Numbers".h3,
                  table(
-            row("random".c,"Returns a pseudo random number in the range, 0.1 to 1.0")
+            row("random".c,"returns a Double pseudo-random number between 0.0 and 1.0")
         )
     )
 )
@@ -922,7 +922,6 @@ println(x)
             row(""""four".length""".c,"length of the string P1.")
         ),
                  "Comparison".h3, 
-                 "note: use these instead of == and !=".p,
                  table(
             row(""""high".compareTo("higher")""".c,"compares to P1. returns <0 if P1 < P2, 0 if ==, >0 if P1>P2"),
             row(""""high".compareToIgnoreCase("High")""".c,"same as above, but upper and lower case are same"),
