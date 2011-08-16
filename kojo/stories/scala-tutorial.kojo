@@ -792,8 +792,8 @@ ltrs.foldLeft(List[(Char,Int)]()){
 
                  "To understand what is happening here, some new pieces of Scala syntax need to be understood.".p,
 
-                 "First, a sequence of cases (i.e. alternatives) in curly braces can be used anywhere a function literal can be used. It acts as a function with input parameter(s) and an implied match at the begining of the block. You can consider this as a convenient shorthand for the standard anonymous function form which would have been:-".p, 
-                 "(a,b)=>(a,b) match {case ...} // would be good to see the precise type of the above, which the compiler is able to infer because it knows the type expected by foldLeft".p,    
+                 "First, a sequence of cases (i.e. alternatives) in curly braces can be used anywhere a function literal can be used. It acts as a function with input parameter(s) and an implied match at the begining of the block. You can consider this as a convenient shorthand for the standard anonymous function form which would have been:".p, 
+                 "(a,b)=>(a,b) match {case ...}".p,    
 
                  "Second, you saw earlier that case is used to pattern match. Here that pattern matching is used to deconstruct our arguments and the list of tuples. '(prevchr,cnt)::tl' matches a list with a head element and tail and associates the names with those items. While 'chr' refers to the second fold arguement, the next list character.".p,
 
@@ -834,15 +834,16 @@ pages += Page(
     body = tPage("Mathematical Functions",
                  "Maths"h3,
                  "Here are some useful Maths functions. Remember to import them before using.".p,
-                 "import Math._".c,
+                 "import math._".c,
                  "Math Constants".h3,
-                 "Two common constants are defined in the Math class.".p,
+                 "Two common constants are defined in the math class.".p,
                  table(
             row("E".c,"Value of e, 2.718282..., base of the natural logarithms."),
             row("Pi".c,"Value of pi, 3.14159265 ....")
         ),
                  "Trigonometric Methods".h3,
                  "All trigonometric method parameters are measured in radians, the normal mathematical system of angles, and not in degrees, the normal human angular measurement system. Use the toRadians or toDegrees methods to convert between these systems, or use the fact that there are 2*PI radians in 360 degrees. In addition to the methods below, the arc methods are also available.".p,
+                 "Note - in the descriptions that follow, all the function parameters are labeled in order, and will be of the form functionName(P1, P2...).".p,
                  table(
             row("sin(Pi/6)".c,"sine of P1."),
             row("cos(Pi/6)".c,"cosine of P1."),
@@ -875,7 +876,7 @@ pages += Page(
         ),
                  "Random Numbers".h3,
                  table(
-            row("random(50)".c,"Returns a pseudo random number in the range, 0 to 50")
+            row("random".c,"Returns a pseudo random number in the range, 0.1 to 1.0")
         )
     )
 )
@@ -884,7 +885,7 @@ pages += Page(
     name = "OPA",
     body = tPage("Operator Precedence and Associativity",
                  "Operator Precedence".h3,
-                 "Operators are any valid identifier but their precedence within expressions is according to table below, highest precedence first. The precedence of multi-character operators is defined by the first character. For example an operator +* would have the precedence given by the + sign.".p, 
+                 "Operators are any valid identifier, but their precedence within expressions is according to the table below, highest precedence first. The precedence of multi-character operators is defined by the first character. For example an operator +* would have the precedence given by the + sign.".p, 
                  "(all other special characters)".p,
                  """( * / % , + - : , = ! , < > , & , ^ , | ) highest precedence on left""".p, 
                  "(all letters)".p,
@@ -898,7 +899,8 @@ pages += Page(
     name = "US",
     body = tPage("Using Strings",
                  "Strings".h2,
-                 "String manipulation is a frequent task. Here are some useful functions and definitions. In the descriptions all the function parameters are labeled in order so will be of the form P1.functionName(P2,P3...). You will find that other sequences like lists have similar methods.".p,  
+                 "String manipulation is a frequent task. Here are some useful functions and definitions. You will find that other sequences like lists have similar methods.".p,  
+                 "Note once again that - in the descriptions that follow, all the function parameters are labeled in order, and so will be of the form P1.functionName(P2, P3...).".p,
                  "Escape characters for strings.".h3,
                  table(
             row("""\n""", "line feed","""\b""", "backspace","""\t""",      "tab","""\f""", "form feed"),
@@ -959,7 +961,7 @@ println(x)
         ),
                  "Methods for Converting to String".h3,
                  table(
-            row("String.valueOf(List(1,2,3))".c,"Converts P2 to String, where P2 is any type value (primitive or object).")
+            row("String.valueOf(List(1,2,3))".c,"Converts P1 to String, where P1 is any value (primitive or object).")
         )
     )
 )
@@ -971,7 +973,7 @@ pages += Page(
                  "Lists".h2,
                  "Lists provide a common sequence structure that is used for many functional style algorithms. The following functions enable Lists to be manipulated easily and effectively. The first example creates the List that is used for other examples.".p,
  
-                 "Note:  _+_ is a shorthand for an anonymous function x,y=>x+y. Since binary operators are frequently used this is a nice abbreviation. Similarly _.Method is shorthand for v=>v.Method. When there is more than one argument, the first underscore represents the first argument, the second underscore the second one, and so on.".p,
+                 "Note:  _+_ is a shorthand for an anonymous function x,y=>x+y. Since binary operators are frequently used, this is a nice abbreviation. Similarly _.method is a shorthand for v => v.method. When there is more than one argument, the first underscore represents the first argument, the second underscore the second one, and so on.".p,
  
                  table(
             row("""val lst = "Tempus" :: "fugit" ::
