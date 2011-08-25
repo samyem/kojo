@@ -190,7 +190,7 @@ class Builtins {
     UserCommand("zoom", List("factor", "cx", "cy"), "Zooms in by the given factor, and positions (cx, cy) at the center of the turtle canvas.")
     UserCommand.addSynopsisSeparator()
 
-    def listPuzzles = PuzzleLoader.listPuzzles
+    def listPuzzles() = PuzzleLoader.listPuzzles
     UserCommand("listPuzzles", Nil, "Shows the names of the puzzles available in the system.")
 
     def loadPuzzle(name: String) {
