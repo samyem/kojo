@@ -22,25 +22,6 @@ import core._
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 
-
-class Sprite(val origin: Point, fname: String) extends BaseShape {
-  val image =
-    new PImage(fname)
-  val imageHolder = new PNode
-
-  val width = image.getWidth
-  val height = image.getHeight
-
-  image.getTransformReference(true).setToScale(1, -1)
-  image.setOffset(-width/2, height/2)
-
-  imageHolder.addChild(image)
-  imageHolder.setOffset(origin.x, origin.y)
-
-  def node = imageHolder
-
-  override def toString = "Staging.Image(" + origin + ", " + fname + ")"
-}
 object Sprite {
   def apply(p1: Point, fname: String) = {
     if (!new java.io.File(fname).exists) {
@@ -53,4 +34,23 @@ object Sprite {
       shape
     }
   }
+}
+
+class Sprite(val origin: Point, fname: String) extends BaseShape {
+  val image =
+    new PImage(fname)
+  val imageHolder = new PNode
+
+  val width = image.getWidth
+  val height = image.getHeight
+  
+  image.getTransformReference(true).setToScale(1, -1)
+  image.setOffset(-width/2, height/2)
+
+  imageHolder.addChild(image)
+  imageHolder.setOffset(origin.x, origin.y)
+
+  def node = imageHolder
+
+  override def toString = "Staging.Image(" + origin + ", " + fname + ")"
 }

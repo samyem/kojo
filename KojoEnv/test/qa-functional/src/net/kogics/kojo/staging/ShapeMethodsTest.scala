@@ -63,7 +63,7 @@ class ShapeMethodsTest extends StagingTestBase {
            "a: net.kogics.kojo.staging.Dot = Staging.Dot\\(Point\\(10[.,]00, 15[.,]00\\)\\)" +
            "b: edu.umd.cs.piccolo.nodes.PPath = edu.umd.cs.piccolo.nodes.PPath@.*" +
            "c: Double = 1.0" +
-           "d: Double = 90.0" +
+           "d: Double = 0.0" +
            "e: java.awt.Paint = null" +
            "a.fill: java.awt.Paint = java.awt.Color\\[r=0,g=0,b=0\\]"
       )

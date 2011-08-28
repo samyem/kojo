@@ -438,7 +438,6 @@ object Point {
 trait Shape {
   def node: PNode
   var sizeFactor = 1.
-  var orientation = 90.
 
   def hide() {
     Utils.runInSwingThread {
@@ -469,18 +468,12 @@ trait Shape {
   }
   def setFillColor(color: Color) = fill(color)
 
-  def rotate(amount: Double) = {
-    Utils.runInSwingThread {
-      val p = node.getFullBounds.getCenter2D
-      node.rotateAboutPoint(amount.toRadians, p)
-      node.repaint()
-    }
-    orientation = (orientation + amount + 360) % 360
-  }
+  def rotate(amount: Double) = turn(amount)
+  
   def rotateTo(angle: Double) = {
-    rotate(angle - orientation)
+    turn(angle - _theta.toDegrees)
   }
-
+  
   def scale(amount: Double) = {
     Utils.runInSwingThread {
       node.scale(amount)
@@ -549,7 +542,23 @@ trait Shape {
     }
     node.addInputEventListener(eh)
   }
-//  def addActivity(a: PActivity) = Impl.canvas.getRoot.addActivity(a)
+
+  import turtle.TurtleHelper._
+  protected var _theta: Double = 0
+
+  def turn(angle: Double) {
+    Utils.runInSwingThread {
+      _theta = thetaAfterTurn(angle, _theta)
+      node.setRotation(_theta)
+      node.repaint()
+    }
+  }
+  
+  def heading = Utils.runInSwingThreadAndWait {
+    _theta.toDegrees
+  }
+  def orientation = heading
+  def setHeading(angle: Double) = rotateTo(angle)
 }
 //T ShapeMethodsTest ends
 
@@ -560,8 +569,9 @@ trait Rounded {
 }
 
 
-trait BaseShape extends Shape {
+trait BaseShape extends Shape with core.RichTurtleCommands {
   val origin: Point
+  import turtle.TurtleHelper._
   def setPosition(p: Point) {
     setPosition(p.x, p.y)
   }
@@ -577,6 +587,23 @@ trait BaseShape extends Shape {
     val o = node.getOffset
     Point(o.getX + origin.x, o.getY + origin.y)
   }  
+  
+  def forward(n: Double) {
+    Utils.runInSwingThread {
+      val pos = position
+      val xy = posAfterForward(pos.x, pos.y, _theta, n)
+      setPosition(xy._1, xy._2)
+    }
+  }
+  
+  def towards(x: Double, y: Double) {
+    Utils.runInSwingThread {
+      val pos = position
+      _theta = thetaTowards(pos.x, pos.y, x, y, _theta)
+      node.setRotation(_theta)
+      node.repaint()
+    }
+  }
 }
 
 trait StrokedShape extends BaseShape {

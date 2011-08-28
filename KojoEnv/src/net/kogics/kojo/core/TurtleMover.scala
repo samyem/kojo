@@ -17,14 +17,9 @@ import java.awt.Color
 
 case class Style(val penColor: Color, val penThickness: Double, val fillColor: Color, val fontSize: Int)
 
-trait TurtleMover {
+trait TurtleMover extends RichTurtleCommands {
   def forward(n: Double): Unit
-  def back(n: Double) = forward(-n)
   def turn(angle: Double): Unit
-  def right(angle: Double): Unit = turn(-angle)
-  def left(angle: Double): Unit = turn(angle)
-  def right(): Unit = right(90)
-  def left(): Unit = left(90)
   def penUp(): Unit
   def penDown(): Unit
   def setPenColor(color: Color): Unit
