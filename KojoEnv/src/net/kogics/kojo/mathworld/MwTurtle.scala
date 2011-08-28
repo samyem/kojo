@@ -18,7 +18,7 @@ package mathworld
 
 import util.Utils
 
-class MwTurtle(x: Double, y: Double) {
+class MwTurtle(x: Double, y: Double) extends core.RichTurtleCommands {
   import turtle.TurtleHelper._
   import java.awt.Color
 
@@ -105,16 +105,10 @@ class MwTurtle(x: Double, y: Double) {
     }
   }
 
-  private def _forwardXy(p0: MwPoint, theta: Double, n: Double) = {
-    val delX = math.cos(theta) * n
-    val delY = math.sin(theta) * n
-    (p0.x + delX, p0.y + delY)
-  }
-
   def forward(n: Double) {
     Utils.runInSwingThread {
       val p0 = _position
-      val xy = _forwardXy(p0, _theta, n)
+      val xy = posAfterForward(p0.x, p0.y, _theta, n)
       _forwardLine(p0, point(xy._1, xy._2))
     }
   }
@@ -126,7 +120,7 @@ class MwTurtle(x: Double, y: Double) {
   }
 
   private def _updateHMarker() {
-    val xy = _forwardXy(_position, _theta, _MarkerSize)
+    val xy = posAfterForward(_position.x, _position.y, _theta, _MarkerSize)
     _headingMarker.moveTo(xy._1, xy._2)
   }
 
@@ -252,13 +246,6 @@ class MwTurtle(x: Double, y: Double) {
       Utils.rad2degrees(_theta)
     }
   }
-
-  def left(angle: Double) = turn(angle)
-  def right(angle: Double) = turn(-angle)
-  def left(): Unit = left(90)
-  def right(): Unit = right(90)
-
-  def back(n: Double) = forward(-n)
 
   def beginPoly() {
     Utils.runInSwingThread {

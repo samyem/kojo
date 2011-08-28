@@ -19,6 +19,12 @@ package turtle
 import util.Utils
 
 object TurtleHelper {
+  
+  def posAfterForward(x: Double, y: Double, theta: Double, n: Double): (Double, Double) = {
+    val delX = math.cos(theta) * n
+    val delY = math.sin(theta) * n
+    (x + delX, y + delY)
+  }
 
   def thetaTowards(px: Double, py: Double, x: Double, y: Double, oldTheta: Double): Double = {
     val (x0, y0) = (px, py)

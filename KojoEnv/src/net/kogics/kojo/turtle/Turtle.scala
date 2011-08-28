@@ -372,9 +372,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
     def newPoint = {
       val p0 = _position
-      val delX = Math.cos(theta) * n
-      val delY = Math.sin(theta) * n
-      new Point2D.Double(p0.x + delX, p0.y + delY)
+      val p1 = posAfterForward(p0.x, p0.y, theta, n)
+      new Point2D.Double(p1._1, p1._2)
     }
 
     def endMove(pf: Point2D.Double) {
@@ -445,9 +444,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private def realTurn(angle: Double, cmd: Command) {
     pushHistory(UndoChangeInHeading(theta))
-    var newTheta = theta + Utils.deg2radians(angle)
-    if (newTheta < 0) newTheta = newTheta % (2*Math.Pi) + 2*Math.Pi
-    else if (newTheta > 2*Math.Pi) newTheta = newTheta % (2*Math.Pi)
+    val newTheta = thetaAfterTurn(angle, theta)
     changeHeading(newTheta)
     turtle.repaint()
   }
@@ -456,6 +453,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     pen.clear()
     layer.removeAllChildren() // get rid of stuff not written by pen, like text nodes
     init()
+    // showWorker() - if we want an invisible turtle to show itself after a clear
     turtle.repaint()
     canvas.afterClear()
   }
