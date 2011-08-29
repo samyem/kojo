@@ -33,7 +33,7 @@ object Builtins extends InitedSingleton[Builtins] {
 
 import java.awt.Color
 
-class Builtins {
+class Builtins extends RepeatCommands {
   @volatile var astStopPhase = "typer"
   @volatile var scalaCodeRunner: ScalaCodeRunner = _
   lazy val tCanvas = scalaCodeRunner.tCanvas
@@ -273,24 +273,6 @@ class Builtins {
 
   def version = println("Scala " + scala.tools.nsc.Properties.versionString)
   UserCommand.addSynopsis("version - Displays the version of Scala being used.")
-
-  def repeat(n: Int) (fn: => Unit) {
-    for (i <- 1 to n) {
-      fn
-      Throttler.throttle()
-    }
-  }
-  UserCommand.addCompletion("repeat", " (${n}) {\n    ${cursor}\n}")
-  UserCommand.addSynopsis("repeat(n) {} - Repeats the commands within braces n number of times.")
-
-  def repeati(n: Int) (fn: Int => Unit) {
-    for (i <- 1 to n) {
-      fn(i)
-      Throttler.throttle()
-    }
-  }
-  UserCommand.addCompletion("repeati", " (${n}) {i => \n    ${cursor}\n}")
-  UserCommand.addSynopsis("repeat(n) {} - Repeats the commands within braces n number of times. The current repeat index is available within the braces.")
 
   def print(obj: Any): Unit = println(obj)
   UserCommand.addCompletion("print", List("obj"))
