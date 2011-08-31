@@ -58,14 +58,15 @@ Scala installation directory.
         </fsc>
     </target>
 
-    <target name="-do-norm-scalac" depends="init,up-to-date,scala-taskdef" unless="condition-scala-fsc">
+    <target name="-do-norm-scalac" unless="condition-scala-fsc">
         <echo message="*************************************Doing normal scalac"/>
         <scalac classpathref="scalac.cp" srcdir="${src.dir}" destdir="${build.classes.dir}"
-            encoding="UTF-8" target="jvm-${javac.target}" fork="true">
-        </scalac>
+                encoding="UTF-8" target="jvm-${javac.target}" 
+                addparams="-dependencyfile ${build.classes.dir}/.scala_dependencies"
+                force="false" fork="true" scalacdebugging="false" />
     </target>
 
-    <target name="scala-compile" depends="init,up-to-date,scala-taskdef" unless="is.jar.uptodate">
+    <target name="scala-compile" depends="scala-taskdef" unless="is.jar.uptodate">
 
         <!-- javac's classpath should include scala.library and all these paths of "cp" -->
         <!-- if I try to put this at the top level, javac fails with missing classes/packages -->
