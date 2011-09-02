@@ -11,7 +11,7 @@ To build Kojo from source, you need to do the following:
 
 - Download and install Scala. This involves having scala on your path, and having
   SCALA_HOME pointing to your Scala install dir.
-  The currently supported version of Scala is: Scala version 2.8.1
+  The currently supported version of Scala is: Scala version 2.9.1
 
 - Download and install Ant 1.7.1 or later.
 
@@ -20,8 +20,8 @@ To build Kojo from source, you need to do the following:
   things like Window-System and Code-Editor functionality.
 
 - Install the Netbeans Scala Plugin:
-    http://plugins.netbeans.org/plugin/36598/scala-2-8-x-for-netbeans-7-0
     https://github.com/dcaoyuan/nbscala
+    http://sourceforge.net/projects/erlybird/files/nb-scala/
 
   Note: if you're interested in doing any development on Kojo, Netbeans
   (with the Scala Plugin installed) is the only supported IDE at this time.
