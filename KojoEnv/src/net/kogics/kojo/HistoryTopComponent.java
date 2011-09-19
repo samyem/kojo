@@ -17,6 +17,7 @@ package net.kogics.kojo;
 import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.openide.util.NbBundle;
@@ -88,14 +89,20 @@ public final class HistoryTopComponent extends TopComponent {
 
     private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
         if (!evt.getValueIsAdjusting() && jList1.getSelectedIndex() != -1) {
-            CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
-            ces.loadCodeFromHistory(jList1.getSelectedIndex());
-            SwingUtilities.invokeLater(new Runnable() {
+            try {
+                CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
+                ces.loadCodeFromHistory(jList1.getSelectedIndex());
+                SwingUtilities.invokeLater(new Runnable() {
 
-                public void run() {
-                    CodeEditorTopComponent.findInstance().requestActive();
-                }
-            });
+                    public void run() {
+                        CodeEditorTopComponent.findInstance().requestActive();
+                    }
+                });
+            } catch (Exception e) {
+                Logger.getLogger(HistoryTopComponent.class.getName()).log(Level.WARNING, "Exception while loading code via History - {0}", e.getMessage());
+                // Stop the (instance not inited) exception from going on and messing up the event thread
+                // this is an attempted fix based on a stack trace from KLC
+            }
         }
 }//GEN-LAST:event_jList1ValueChanged
 

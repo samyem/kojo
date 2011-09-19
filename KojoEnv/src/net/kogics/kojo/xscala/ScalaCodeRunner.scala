@@ -178,6 +178,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     
 //    val varPattern = java.util.regex.Pattern.compile("\\bvar\\b")
 //    val storyPattern = java.util.regex.Pattern.compile("\\bstClear()\\b")
+    val lblPattern = java.util.regex.Pattern.compile("""^\s*//\s*#line-by-line""")
 
     def safeProcessCompletionReq(fn: => (List[String], Int)) {
       try {
@@ -510,8 +511,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     }
 
     def needsLineByLineInterpretation(code: String): Boolean = {
-      false
-//      varPattern.matcher(code).find()
+      lblPattern.matcher(code).find()
+//      false
     }
 
     def showIncompleteCodeMsg(code: String) {
