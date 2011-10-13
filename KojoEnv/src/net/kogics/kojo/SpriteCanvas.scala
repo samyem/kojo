@@ -120,7 +120,12 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   val zoomHandler = new PZoomEventHandler {
     override def dragActivityStep(event: PInputEvent) {
+      if (event.isHandled) {
+        return
+      }
+      
       super.dragActivityStep(event)
+      event.setHandled(true)
       Utils.schedule(0.05) {
         updateAxesAndGrid()
       }
