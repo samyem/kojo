@@ -491,7 +491,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         override def keyPressed(evt: KeyEvent) {
           evt.getKeyCode match {
             case KeyEvent.VK_ENTER =>
-              if(evt.isControlDown && isRunningEnabled) {
+              if(evt.isControlDown && (isRunningEnabled || evt.isShiftDown)) {
                 runCode()
                 evt.consume
               }
