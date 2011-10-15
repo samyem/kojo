@@ -666,6 +666,13 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
     addSeparator()
 
+    val resetPanZoomItem = new JMenuItem("Reset Pan and Zoom")
+    resetPanZoomItem.addActionListener(new ActionListener {
+        override def actionPerformed(e: ActionEvent) {
+          initCamera()
+        }
+      })
+    add(resetPanZoomItem)
     val clearItem = new JMenuItem("Clear")
     clearItem.addActionListener(new ActionListener {
         override def actionPerformed(e: ActionEvent) {
