@@ -663,6 +663,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       IOColorPrint.print(IO, " " * promptSpaces + "Provide Input Below\n", promptMarkColor);
       IOColorPrint.print(IO, " " * outText.length + "V\n", promptMarkColor);
       IOColorPrint.print(IO, outText, promptColor);
+      OutputTopComponent.findInstance().scrollToEnd()
     }
 
     IO.setInputVisible(true)
