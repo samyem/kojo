@@ -116,6 +116,9 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
       proposals.add(new ScalaCompletionProposal(caretOffset, "               ", ElementKind.OTHER))
 
     val completionResult = new DefaultCompletionResult(proposals, false)
+    // the line of code below seems to fix the completion filtering problem, 
+    // in which more specific completions disappeared as you typed more
+    completionResult.setFilterable(false) 
 //    Log.info("Completion Result: " + proposals)
     return completionResult
   }
