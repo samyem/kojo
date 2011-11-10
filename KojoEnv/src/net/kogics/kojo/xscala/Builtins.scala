@@ -296,6 +296,9 @@ class Builtins extends RepeatCommands {
   def randomDouble(upperBound: Int) = Random.nextDouble * upperBound
   UserCommand("randomDouble", List("upperBound"), "Returns a random Double-precision Real between 0 (inclusive) and upperBound (exclusive).")
 
+  def color(r: Int, g: Int, b: Int) = new Color(r, g, b)
+  UserCommand("color", List("red", "green", "blue"), "Creates a new color based on the specified red, green, and blue levels.")
+  
   def inspect(obj: AnyRef) = ctx.inspect(obj)
   UserCommand("inspect", List("obj"), "Explores the internal fields of the given object.")
 
@@ -431,9 +434,9 @@ Here's a partial list of the available commands:
 
   def runInBackground(code: => Unit) = Utils.runAsyncMonitored(code)
   UserCommand("runInBackground", List("command"), "Runs the given code in the background, concurrently with other code that follows right after this command.")
-  
+
   // undocumented
-  def color(r: Int, g: Int, b: Int) = new Color(r, g, b)
+  def color(r: Int, g: Int, b: Int, a: Int) = new Color(r, g, b, a)
   def color(rgbHex: Int) = new Color(rgbHex)
   def clearOutput() = ctx.clearOutput()
 
