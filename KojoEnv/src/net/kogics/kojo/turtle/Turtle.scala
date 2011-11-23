@@ -49,6 +49,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   Log.info("Turtle being created in thread: " + Thread.currentThread.getName)
 
   private val layer = new PLayer
+  def tlayer: PLayer = layer
   private val camera = canvas.getCamera
   // the zeroth layer is for the grid etc
   // bottom sprite layer is at index 1

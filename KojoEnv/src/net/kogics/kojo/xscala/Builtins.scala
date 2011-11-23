@@ -475,4 +475,23 @@ Here's a partial list of the available commands:
   def stGotoUrl(url: String) = Utils.runInSwingThread {
     urlHandler.gotoUrl(new java.net.URL(url))
   }
+  
+  type Picture = picture.Picture
+  type Painter = picture.Painter
+  type Pic = picture.Pic
+  val Pic = picture.Pic
+  type HPics = picture.HPics
+  val HPics = picture.HPics
+  type VPics = picture.VPics
+  val VPics = picture.VPics
+
+  type Rot = picture.Rot
+  val Rot = picture.Rot
+  type Scale = picture.Scale
+  val Scale = picture.Scale
+  type Fill = picture.Fill
+  val Fill = picture.Fill
+  type Stroke = picture.Stroke
+  val Stroke = picture.Stroke
+  implicit val seq2Pics = picture.seq2Pics _
 }
