@@ -503,27 +503,30 @@ trait Shape {
 //  def position = offset
 
   def onMouseClick(fn: (Double, Double) => Unit) = Utils.runInSwingThread {
-    node.addInputEventListener(new PBasicInputEventHandler {
-        override def mousePressed(event: PInputEvent) {
-          val pos = event.getPosition
-          Utils.safeProcess {
-            fn(pos.getX, pos.getY)
-          }
+    val h = new PBasicInputEventHandler {
+      override def mousePressed(event: PInputEvent) {
+        val pos = event.getPosition
+        Utils.safeProcess {
+          fn(pos.getX, pos.getY)
         }
-      })
+      }
+    }
+    h.setEventFilter(new PInputEventFilter(java.awt.event.InputEvent.BUTTON1_MASK))
+    node.addInputEventListener(h)
   }
   
   def onMouseDrag(fn: (Double, Double) => Unit) = Utils.runInSwingThread {
     Impl.canvas.setPanEventHandler(null)
-    node.addInputEventListener(new PBasicInputEventHandler {
-        override def mouseDragged(event: PInputEvent) {
-          val pos = event.getPosition
-          Utils.safeProcess {
-            fn(pos.getX, pos.getY)
-          }
-//          event.setHandled(true)
+    val h = new PBasicInputEventHandler {
+      override def mouseDragged(event: PInputEvent) {
+        val pos = event.getPosition
+        Utils.safeProcess {
+          fn(pos.getX, pos.getY)
         }
-      })
+      }
+    }
+    h.setEventFilter(new PInputEventFilter(java.awt.event.InputEvent.BUTTON1_MASK))
+    node.addInputEventListener(h)
   }
   
   import java.awt.event.KeyEvent

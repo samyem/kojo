@@ -139,6 +139,18 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   setZoomEventHandler(zoomHandler)
 
   addInputEventListener(new PBasicInputEventHandler {
+      val popup = new Popup()
+      
+      def showPopup(e: PInputEvent) {
+        if(e.isPopupTrigger) {
+          val pos = e.getCanvasPosition
+          popup.show(SpriteCanvas.this, pos.getX.toInt, pos.getY.toInt);
+        }
+      }
+      
+      override def mousePressed(e: PInputEvent) = showPopup(e)
+      override def mouseReleased(e: PInputEvent) = showPopup(e)
+      
       override def mouseMoved(e: PInputEvent) {
         val pos = e.getPosition
         val prec0 = Math.round(getCamera.getViewTransformReference.getScale) - 1
@@ -152,7 +164,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       }
     })
 
-  setComponentPopupMenu(new Popup())
+  // setComponentPopupMenu(new Popup())
 
   private def initCamera() {
     val size = getSize(null)
