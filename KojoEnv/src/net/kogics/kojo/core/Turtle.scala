@@ -15,6 +15,9 @@
 
 package net.kogics.kojo.core
 
+import edu.umd.cs.piccolo.PLayer
+
 trait Turtle extends TurtleMover {
   def remove(): Unit
+  def tlayer: PLayer
 }
