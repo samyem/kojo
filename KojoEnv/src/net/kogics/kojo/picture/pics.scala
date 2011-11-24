@@ -125,7 +125,7 @@ case class Stroke(color: Color)(pic: Picture) extends Deco(pic)({ t =>
   })
 
 abstract class BasePicList(pics: Picture *) extends Picture {
-  @volatile var _offsetX, _offsetY = 0.0
+  @volatile var _offsetX, _offsetY, padding = 0.0
   def offsetX = Utils.runInSwingThreadAndWait { _offsetX }
   def offsetY = Utils.runInSwingThreadAndWait { _offsetY }
     
@@ -135,11 +135,6 @@ abstract class BasePicList(pics: Picture *) extends Picture {
       b.add(pic.bounds)
     }        
     b
-//    var rect = pics(0).bounds.getBounds2D
-//    pics.tail.foreach { pic =>
-//      rect = pic.bounds.getBounds2D.createUnion(rect)
-//    }        
-//    new PBounds(rect)
   }
   
   def rotate(angle: Double) {
@@ -165,6 +160,11 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     }
   }
   
+  def withGap(n: Int): Picture = {
+    padding = n
+    this
+  }
+  
   def dumpInfo() {
     println("--- ")
     println("Pic List Bounds: " + bounds)
@@ -187,7 +187,7 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(ox, offsetY)
       pic.show()
-      ox = pic.bounds.x + pic.bounds.width
+      ox = pic.bounds.x + pic.bounds.width + padding
     }
   }
   override def dumpInfo() {
@@ -207,7 +207,7 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(offsetX, oy)
       pic.show()
-      oy = pic.bounds.y + pic.bounds.height
+      oy = pic.bounds.y + pic.bounds.height + padding
     }
   }
   override def dumpInfo() {
