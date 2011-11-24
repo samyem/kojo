@@ -17,7 +17,6 @@ package net.kogics.kojo
 package picture
 
 import util.Utils
-import net.kogics.kojo.core.Turtle
 import edu.umd.cs.piccolo.util.PBounds 
 import net.kogics.kojo.SpriteCanvas
 
@@ -38,6 +37,7 @@ trait Picture {
   def bounds(): PBounds
   def rotate(angle: Double)
   def scale(angle: Double)
+  def translate(x: Double, y: Double)
   def dumpInfo(): Unit
 }
 
@@ -47,27 +47,28 @@ case class Pic(painter: Painter) extends Picture {
   def show() = {
     painter(t)
     t.waitFor()
-    Utils.runInSwingThread {
-      t.tlayer.setBounds(t.tlayer.computeFullBounds(null))
-    }
+//    Utils.runInSwingThread {
+//      t.tlayer.setBounds(t.tlayer.computeFullBounds(null))
+//    }
   }
   
   def offsetX = Utils.runInSwingThreadAndWait {
     t.tlayer.getOffset.getX
   }
-  def offsetX_=(n: Double) = Utils.runInSwingThread {
-    t.tlayer.offset(n, 0)
-  }
+  def offsetX_=(n: Double) = translate(n, 0)
   
   def offsetY = Utils.runInSwingThreadAndWait {
     t.tlayer.getOffset.getY
   }
-  def offsetY_=(n: Double) = Utils.runInSwingThread {
-//    println("Picture %d being offsety by %f" format(System.identityHashCode(this), n))
-    t.tlayer.offset(0, n)
+  def offsetY_=(n: Double) = translate(0, n)
+  
+  def translate(x: Double, y: Double) = Utils.runInSwingThread {
+    t.tlayer.offset(x, y)
+    t.tlayer.repaint()
   }
+  
   def bounds = Utils.runInSwingThreadAndWait {
-    t.tlayer.getBounds
+    t.tlayer.getFullBounds
   }
   
   def rotate(angle: Double) = Utils.runInSwingThread {
@@ -99,14 +100,8 @@ abstract class Transform(pic: Picture) extends Picture {
   def dumpInfo() = pic.dumpInfo()
   def rotate(angle: Double) = pic.rotate(angle)
   def scale(factor: Double) = pic.scale(factor)
+  def translate(x: Double, y: Double) = pic.translate(x, y)
   def decorateWith(painter: Painter) = pic.decorateWith(painter)
-  
-//  def * (other: Transform) = new Transform(this) {
-//    def show() {
-//      other.show()
-//      pic.show()
-//    }
-//  }
 }
 
 case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
@@ -123,7 +118,18 @@ case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
   }
 }
 
-case class Deco(pic: Picture)(painter: Painter) extends Transform(pic) {
+case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
+  def show() {
+    pic.show()
+    pic.translate(x, y)
+  }
+}
+
+object Deco {
+  def apply(pic: Picture)(painter: Painter): Deco = Deco(pic)(painter)
+}
+
+class Deco(pic: Picture)(painter: Painter) extends Transform(pic) {
   def show() {
     pic.decorateWith(painter) 
     pic.show() 
@@ -132,12 +138,12 @@ case class Deco(pic: Picture)(painter: Painter) extends Transform(pic) {
 
 import java.awt.Color
 case class Fill(color: Color)(pic: Picture) extends Deco(pic)({ t =>
-  t.setFillColor(color)
-})
+    t.setFillColor(color)
+  })
 
 case class Stroke(color: Color)(pic: Picture) extends Deco(pic)({ t =>
-  t.setPenColor(color)
-})
+    t.setPenColor(color)
+  })
 
 abstract class BasePicList(pics: Picture *) extends Picture {
   def offsetX = pics(0).offsetX
@@ -174,6 +180,12 @@ abstract class BasePicList(pics: Picture *) extends Picture {
       pic.scale(angle)
     }
   }
+  
+  def translate(x: Double, y: Double) {
+    pics.foreach { pic =>
+      pic.translate(x, y)
+    }
+  }
 
   def decorateWith(painter: Painter) {
     pics.foreach { pic =>
@@ -193,6 +205,10 @@ abstract class BasePicList(pics: Picture *) extends Picture {
   }
 }
 
+object HPics {
+  def apply(pics: List[Picture]):HPics = HPics(pics:_*)
+}
+
 case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
     var offset = 0.0
@@ -208,6 +224,10 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
     println("<<< HPics End\n\n")
   }
 } 
+
+object VPics {
+  def apply(pics: List[Picture]):VPics = VPics(pics:_*)
+}
 
 case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
