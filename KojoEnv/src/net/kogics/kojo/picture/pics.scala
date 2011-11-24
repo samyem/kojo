@@ -16,6 +16,8 @@
 package net.kogics.kojo
 package picture
 
+import java.awt.geom.Point2D
+
 import util.Utils
 import edu.umd.cs.piccolo.util.PBounds 
 import net.kogics.kojo.SpriteCanvas
@@ -30,11 +32,15 @@ object Impl {
 trait Picture {
   def decorateWith(painter: Painter): Unit
   def show()
-  def bounds(): PBounds
+  def offset: Point2D
+  def bounds: PBounds
   def rotate(angle: Double)
   def scale(angle: Double)
   def translate(x: Double, y: Double)
   def dumpInfo(): Unit
+//  todo
+//  def clean() // for multiple shows
+//  def copy()
 }
 
 case class Pic(painter: Painter) extends Picture {
@@ -49,6 +55,10 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.offset(x, y)
     t.tlayer.repaint()
   }
+  
+  def offset = Utils.runInSwingThreadAndWait {
+    t.tlayer.getOffset
+  }  
   
   def bounds = Utils.runInSwingThreadAndWait {
     t.tlayer.getFullBounds
@@ -75,7 +85,8 @@ case class Pic(painter: Painter) extends Picture {
 }
 
 abstract class Transform(pic: Picture) extends Picture {
-  def bounds(): PBounds = pic.bounds
+  def offset = pic.offset
+  def bounds = pic.bounds
   def dumpInfo() = pic.dumpInfo()
   def rotate(angle: Double) = pic.rotate(angle)
   def scale(factor: Double) = pic.scale(factor)
@@ -126,6 +137,7 @@ case class Stroke(color: Color)(pic: Picture) extends Deco(pic)({ t =>
 
 abstract class BasePicList(pics: Picture *) extends Picture {
   @volatile var _offsetX, _offsetY, padding = 0.0
+  def offset = Utils.runInSwingThreadAndWait { new Point2D.Double(_offsetX, _offsetY) }
   def offsetX = Utils.runInSwingThreadAndWait { _offsetX }
   def offsetY = Utils.runInSwingThreadAndWait { _offsetY }
     
@@ -187,7 +199,8 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(ox, offsetY)
       pic.show()
-      ox = pic.bounds.x + pic.bounds.width + padding
+      // ox = pic.bounds.x + pic.bounds.width + padding
+      ox = pic.offset.getX + pic.bounds.width + padding
     }
   }
   override def dumpInfo() {
@@ -207,7 +220,8 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(offsetX, oy)
       pic.show()
-      oy = pic.bounds.y + pic.bounds.height + padding
+      // oy = pic.bounds.y + pic.bounds.height + padding
+      oy = pic.offset.getY + pic.bounds.height + padding
     }
   }
   override def dumpInfo() {
