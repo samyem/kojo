@@ -55,7 +55,10 @@ case class Pic(painter: Painter) extends Picture {
   def offsetX = Utils.runInSwingThreadAndWait {
     t.tlayer.getOffset.getX
   }
-  def offsetX_=(n: Double) = translate(n, 0)
+  def offsetX_=(n: Double) = {
+    println("Picture %d being offsetx by %f" format(System.identityHashCode(this), n))
+    translate(n, 0)
+  }
   
   def offsetY = Utils.runInSwingThreadAndWait {
     t.tlayer.getOffset.getY
@@ -146,27 +149,28 @@ case class Stroke(color: Color)(pic: Picture) extends Deco(pic)({ t =>
   })
 
 abstract class BasePicList(pics: Picture *) extends Picture {
-  def offsetX = pics(0).offsetX
-  def offsetX_=(n: Double) {
-    pics.foreach { pic =>
-      pic.offsetX = n
-    }
+  @volatile var _offsetX, _offsetY = 0.0
+  def offsetX = Utils.runInSwingThreadAndWait { _offsetX }
+  def offsetX_=(n: Double) = Utils.runInSwingThread {
+    _offsetX = n
   }
     
-  def offsetY = pics(0).offsetY
-  def offsetY_=(n: Double) {
-//    println("Picture List %d being offsety by %f" format(System.identityHashCode(this), n))
-    pics.foreach { pic =>
-      pic.offsetY = n
-    }
+  def offsetY = Utils.runInSwingThreadAndWait { _offsetY }
+  def offsetY_=(n: Double) = Utils.runInSwingThread {
+    _offsetY = n
   }
-
+    
   def bounds(): PBounds = Utils.runInSwingThreadAndWait {
-    var rect = pics(0).bounds.getBounds2D
+    val b = pics(0).bounds
     pics.tail.foreach { pic =>
-      rect = pic.bounds.getBounds2D.createUnion(rect)
+      b.add(pic.bounds)
     }        
-    new PBounds(rect)
+    b
+//    var rect = pics(0).bounds.getBounds2D
+//    pics.tail.foreach { pic =>
+//      rect = pic.bounds.getBounds2D.createUnion(rect)
+//    }        
+//    new PBounds(rect)
   }
   
   def rotate(angle: Double) {
@@ -211,11 +215,12 @@ object HPics {
 
 case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
-    var offset = 0.0
+    var ox = offsetX
     pics.foreach { pic =>
-      pic.offsetX = offset
+      pic.offsetX = ox
+      pic.offsetY = offsetY
       pic.show()
-      offset += pic.bounds.width
+      ox = pic.bounds.x + pic.bounds.width
     }
   }
   override def dumpInfo() {
@@ -231,11 +236,12 @@ object VPics {
 
 case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
-    var offset = 0.0
+    var oy = offsetY
     pics.foreach { pic =>
-      pic.offsetY = offset
+      pic.offsetY = oy
+      pic.offsetX = offsetX
       pic.show()
-      offset += pic.bounds.height
+      oy = pic.bounds.y + pic.bounds.height
     }
   }
   override def dumpInfo() {
