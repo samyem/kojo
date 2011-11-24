@@ -489,6 +489,8 @@ Here's a partial list of the available commands:
   val Rot = picture.Rot
   type Scale = picture.Scale
   val Scale = picture.Scale
+  type Trans = picture.Trans
+  val Trans = picture.Trans
   type Fill = picture.Fill
   val Fill = picture.Fill
   type Stroke = picture.Stroke

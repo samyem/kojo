@@ -46,7 +46,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   import TurtleHelper._
 
   private val Log = Logger.getLogger(getClass.getName)
-  Log.info("Turtle being created in thread: " + Thread.currentThread.getName)
+//  Log.info("Turtle being created in thread: " + Thread.currentThread.getName)
 
   private val layer = new PLayer
   def tlayer: PLayer = layer
