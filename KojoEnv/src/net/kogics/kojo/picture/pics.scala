@@ -30,10 +30,6 @@ object Impl {
 trait Picture {
   def decorateWith(painter: Painter): Unit
   def show()
-  def offsetX: Double
-  def offsetX_=(n: Double)
-  def offsetY: Double
-  def offsetY_=(n: Double)
   def bounds(): PBounds
   def rotate(angle: Double)
   def scale(angle: Double)
@@ -47,23 +43,7 @@ case class Pic(painter: Painter) extends Picture {
   def show() = {
     painter(t)
     t.waitFor()
-//    Utils.runInSwingThread {
-//      t.tlayer.setBounds(t.tlayer.computeFullBounds(null))
-//    }
   }
-  
-  def offsetX = Utils.runInSwingThreadAndWait {
-    t.tlayer.getOffset.getX
-  }
-  def offsetX_=(n: Double) = {
-    println("Picture %d being offsetx by %f" format(System.identityHashCode(this), n))
-    translate(n, 0)
-  }
-  
-  def offsetY = Utils.runInSwingThreadAndWait {
-    t.tlayer.getOffset.getY
-  }
-  def offsetY_=(n: Double) = translate(0, n)
   
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
     t.tlayer.offset(x, y)
@@ -95,10 +75,6 @@ case class Pic(painter: Painter) extends Picture {
 }
 
 abstract class Transform(pic: Picture) extends Picture {
-  def offsetX = pic.offsetX
-  def offsetX_=(n: Double) = pic.offsetX_=(n)
-  def offsetY: Double = pic.offsetY
-  def offsetY_=(n: Double) = pic.offsetY_=(n)
   def bounds(): PBounds = pic.bounds
   def dumpInfo() = pic.dumpInfo()
   def rotate(angle: Double) = pic.rotate(angle)
@@ -151,14 +127,7 @@ case class Stroke(color: Color)(pic: Picture) extends Deco(pic)({ t =>
 abstract class BasePicList(pics: Picture *) extends Picture {
   @volatile var _offsetX, _offsetY = 0.0
   def offsetX = Utils.runInSwingThreadAndWait { _offsetX }
-  def offsetX_=(n: Double) = Utils.runInSwingThread {
-    _offsetX = n
-  }
-    
   def offsetY = Utils.runInSwingThreadAndWait { _offsetY }
-  def offsetY_=(n: Double) = Utils.runInSwingThread {
-    _offsetY = n
-  }
     
   def bounds(): PBounds = Utils.runInSwingThreadAndWait {
     val b = pics(0).bounds
@@ -185,10 +154,9 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     }
   }
   
-  def translate(x: Double, y: Double) {
-    pics.foreach { pic =>
-      pic.translate(x, y)
-    }
+  def translate(x: Double, y: Double) = Utils.runInSwingThread {
+    _offsetX = x
+    _offsetY = y
   }
 
   def decorateWith(painter: Painter) {
@@ -217,8 +185,7 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
     var ox = offsetX
     pics.foreach { pic =>
-      pic.offsetX = ox
-      pic.offsetY = offsetY
+      pic.translate(ox, offsetY)
       pic.show()
       ox = pic.bounds.x + pic.bounds.width
     }
@@ -238,8 +205,7 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
     var oy = offsetY
     pics.foreach { pic =>
-      pic.offsetY = oy
-      pic.offsetX = offsetX
+      pic.translate(offsetX, oy)
       pic.show()
       oy = pic.bounds.y + pic.bounds.height
     }
