@@ -154,6 +154,7 @@ case class Stroke(color: Color)(pic: Picture) extends Deco(pic)({ t =>
 
 abstract class BasePicList(pics: Picture *) extends Picture {
   @volatile var _offsetX, _offsetY, padding = 0.0
+  @volatile var shown = false
   def offset = Utils.runInSwingThreadAndWait { new Point2D.Double(_offsetX, _offsetY) }
   def offsetX = Utils.runInSwingThreadAndWait { _offsetX }
   def offsetY = Utils.runInSwingThreadAndWait { _offsetY }
@@ -179,8 +180,14 @@ abstract class BasePicList(pics: Picture *) extends Picture {
   }
   
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
-    _offsetX = x
-    _offsetY = y
+    _offsetX += x
+    _offsetY += y
+
+    if (shown) {
+      pics.foreach { pic =>
+        pic.translate(x, y)
+      }
+    }
   }
 
   def decorateWith(painter: Painter) {
@@ -189,10 +196,15 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     }
   }
   
+  def show() = Utils.runInSwingThread {
+    shown = true
+  }
+  
   def clear() {
     Utils.runInSwingThread {
       _offsetX = 0
       _offsetY = 0
+      shown = false
     }
     pics.foreach { pic =>
       pic.clear()
@@ -223,7 +235,8 @@ object HPics {
 }
 
 case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
-  def show() {
+  override def show() {
+    super.show()
     var ox = offsetX
     pics.foreach { pic =>
       pic.translate(ox, offsetY)
@@ -247,7 +260,8 @@ object VPics {
 }
 
 case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
-  def show() {
+  override def show() {
+    super.show()
     var oy = offsetY
     pics.foreach { pic =>
       pic.translate(offsetX, oy)
