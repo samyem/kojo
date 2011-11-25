@@ -92,66 +92,6 @@ case class Pic(painter: Painter) extends Picture {
   }
 }
 
-abstract class Transform(pic: Picture) extends Picture {
-  def offset = pic.offset
-  def bounds = pic.bounds
-  def dumpInfo() = pic.dumpInfo()
-  def rotate(angle: Double) = pic.rotate(angle)
-  def scale(factor: Double) = pic.scale(factor)
-  def translate(x: Double, y: Double) = pic.translate(x, y)
-  def decorateWith(painter: Painter) = pic.decorateWith(painter)
-  def clear() = pic.clear()
-}
-
-case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
-  def show() {
-    pic.show()
-    pic.rotate(angle)
-  }
-  def copy = Rot(angle)(pic.copy)
-}
-
-case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
-  def show() {
-    pic.show()
-    pic.scale(factor)
-  }
-  def copy = Scale(factor)(pic.copy)
-}
-
-case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
-  def show() {
-    pic.show()
-    pic.translate(x, y)
-  }
-  def copy = Trans(x, y)(pic.copy)
-}
-
-object Deco {
-  def apply(pic: Picture)(painter: Painter): Deco = Deco(pic)(painter)
-}
-
-class Deco(pic: Picture)(painter: Painter) extends Transform(pic) {
-  def show() {
-    pic.decorateWith(painter) 
-    pic.show() 
-  }
-  def copy = Deco(pic.copy)(painter)
-}
-
-import java.awt.Color
-case class Fill(color: Color)(pic: Picture) extends Deco(pic)({ t =>
-    t.setFillColor(color)
-  }) {
-  override def copy = Fill(color)(pic.copy)
-}
-
-case class Stroke(color: Color)(pic: Picture) extends Deco(pic)({ t =>
-    t.setPenColor(color)
-  }) {
-  override def copy = Stroke(color)(pic.copy)
-}
-
 abstract class BasePicList(pics: Picture *) extends Picture {
   @volatile var _offsetX, _offsetY, padding = 0.0
   @volatile var shown = false
