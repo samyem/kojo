@@ -495,4 +495,11 @@ Here's a partial list of the available commands:
   val Fill = picture.Fill
   type Stroke = picture.Stroke
   val Stroke = picture.Stroke
+  val rot = picture.rot _
+  val scale = picture.scale _
+  val trans = picture.trans _
+  val fill = picture.fill _
+  val stroke = picture.stroke _
+  val pen = picture.stroke _
+  val deco = picture.deco _
 }
