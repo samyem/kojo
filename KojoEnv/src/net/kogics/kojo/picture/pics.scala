@@ -31,7 +31,7 @@ object Impl {
 
 trait Picture {
   def decorateWith(painter: Painter): Unit
-  def show()
+  def show(): Unit
   def offset: Point2D
   def bounds: PBounds
   def rotate(angle: Double)
@@ -39,14 +39,15 @@ trait Picture {
   def translate(x: Double, y: Double)
   def dumpInfo(): Unit
 //  todo
-//  def clean() // for multiple shows
-//  def copy()
+  def clear(): Unit
+  def copy: Picture
 }
 
 case class Pic(painter: Painter) extends Picture {
   val t = Impl.canvas.newTurtle(0, 0)
   def decorateWith(painter: Painter) = painter(t)
   def show() = {
+    clear()
     painter(t)
     t.waitFor()
   }
@@ -76,6 +77,14 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.repaint()
   }
   
+  def copy = Pic(painter)
+  def clear() {
+    t.tlayer.setOffset(0, 0)
+    t.tlayer.setRotation(0)
+    t.tlayer.setScale(1)
+    t.clear()
+  }
+    
   def dumpInfo() = Utils.runInSwingThreadAndWait {
     println(">>> Pic Start - " +  System.identityHashCode(this))
     println("Bounds: " + bounds)
@@ -92,27 +101,34 @@ abstract class Transform(pic: Picture) extends Picture {
   def scale(factor: Double) = pic.scale(factor)
   def translate(x: Double, y: Double) = pic.translate(x, y)
   def decorateWith(painter: Painter) = pic.decorateWith(painter)
+  def clear() = pic.clear()
 }
 
 case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
   def show() {
+    clear()
     pic.show()
     pic.rotate(angle)
   }
+  def copy = Rot(angle)(pic.copy)
 }
 
 case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
   def show() {
+    clear()
     pic.show()
     pic.scale(factor)
   }
+  def copy = Scale(factor)(pic.copy)
 }
 
 case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
   def show() {
+    clear()
     pic.show()
     pic.translate(x, y)
   }
+  def copy = Trans(x, y)(pic.copy)
 }
 
 object Deco {
@@ -121,19 +137,25 @@ object Deco {
 
 class Deco(pic: Picture)(painter: Painter) extends Transform(pic) {
   def show() {
+    clear()
     pic.decorateWith(painter) 
     pic.show() 
   }
+  def copy = Deco(pic.copy)(painter)
 }
 
 import java.awt.Color
 case class Fill(color: Color)(pic: Picture) extends Deco(pic)({ t =>
     t.setFillColor(color)
-  })
+  }) {
+  override def copy = Fill(color)(pic.copy)
+}
 
 case class Stroke(color: Color)(pic: Picture) extends Deco(pic)({ t =>
     t.setPenColor(color)
-  })
+  }) {
+  override def copy = Stroke(color)(pic.copy)
+}
 
 abstract class BasePicList(pics: Picture *) extends Picture {
   @volatile var _offsetX, _offsetY, padding = 0.0
@@ -172,10 +194,22 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     }
   }
   
+  def clear() {
+    Utils.runInSwingThread {
+      _offsetX = 0
+      _offsetY = 0
+    }
+    pics.foreach { pic =>
+      pic.clear()
+    }
+  }
+  
   def withGap(n: Int): Picture = {
     padding = n
     this
   }
+  
+  protected def picsCopy: List[Picture] = pics.map {_ copy}.toList
   
   def dumpInfo() {
     println("--- ")
@@ -195,6 +229,7 @@ object HPics {
 
 case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
+    clear()
     var ox = offsetX
     pics.foreach { pic =>
       pic.translate(ox, offsetY)
@@ -203,6 +238,9 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
       ox = pic.offset.getX + pic.bounds.width + padding
     }
   }
+
+  def copy = HPics(picsCopy)
+
   override def dumpInfo() {
     println(">>> HPics Start - " + System.identityHashCode(this))
     super.dumpInfo()
@@ -216,6 +254,7 @@ object VPics {
 
 case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
+    clear()
     var oy = offsetY
     pics.foreach { pic =>
       pic.translate(offsetX, oy)
@@ -224,6 +263,9 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
       oy = pic.offset.getY + pic.bounds.height + padding
     }
   }
+
+  def copy = VPics(picsCopy)
+
   override def dumpInfo() {
     println(">>> VPics Start - " + System.identityHashCode(this))
     super.dumpInfo()

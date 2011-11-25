@@ -495,5 +495,4 @@ Here's a partial list of the available commands:
   val Fill = picture.Fill
   type Stroke = picture.Stroke
   val Stroke = picture.Stroke
-  implicit val seq2Pics = picture.seq2Pics _
 }
