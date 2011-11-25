@@ -47,7 +47,6 @@ case class Pic(painter: Painter) extends Picture {
   val t = Impl.canvas.newTurtle(0, 0)
   def decorateWith(painter: Painter) = painter(t)
   def show() = {
-    clear()
     painter(t)
     t.waitFor()
   }
@@ -106,7 +105,6 @@ abstract class Transform(pic: Picture) extends Picture {
 
 case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
   def show() {
-    clear()
     pic.show()
     pic.rotate(angle)
   }
@@ -115,7 +113,6 @@ case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
 
 case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
   def show() {
-    clear()
     pic.show()
     pic.scale(factor)
   }
@@ -124,7 +121,6 @@ case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
 
 case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
   def show() {
-    clear()
     pic.show()
     pic.translate(x, y)
   }
@@ -137,7 +133,6 @@ object Deco {
 
 class Deco(pic: Picture)(painter: Painter) extends Transform(pic) {
   def show() {
-    clear()
     pic.decorateWith(painter) 
     pic.show() 
   }
@@ -229,7 +224,6 @@ object HPics {
 
 case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
-    clear()
     var ox = offsetX
     pics.foreach { pic =>
       pic.translate(ox, offsetY)
@@ -254,7 +248,6 @@ object VPics {
 
 case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
-    clear()
     var oy = offsetY
     pics.foreach { pic =>
       pic.translate(offsetX, oy)
