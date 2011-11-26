@@ -38,7 +38,6 @@ trait Picture {
   def scale(angle: Double)
   def translate(x: Double, y: Double)
   def dumpInfo(): Unit
-//  todo
   def clear(): Unit
   def copy: Picture
 }

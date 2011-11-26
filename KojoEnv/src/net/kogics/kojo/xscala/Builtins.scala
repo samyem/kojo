@@ -500,6 +500,10 @@ Here's a partial list of the available commands:
   val trans = picture.trans _
   val fill = picture.fill _
   val stroke = picture.stroke _
-  val pen = picture.stroke _
+  val penColor = picture.stroke _
+  val penWidth = picture.strokeWidth _
   val deco = picture.deco _
+  
+  def pict(painter: Painter) = Pic(painter)
+  def show(picture: Picture) = picture.show()
 }
