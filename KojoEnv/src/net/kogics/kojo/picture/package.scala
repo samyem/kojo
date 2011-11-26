@@ -9,5 +9,6 @@ package object picture {
   def trans(x: Double, y: Double) = Transc(x, y)
   def fill(color: Color) = Fillc(color)
   def stroke(color: Color) = Strokec(color)
+  def strokeWidth(w: Double) = StrokeWidthc(w)
   def deco(painter: Painter) = Decoc(painter)
 }

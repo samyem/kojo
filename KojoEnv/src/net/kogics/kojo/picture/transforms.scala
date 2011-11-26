@@ -75,6 +75,11 @@ case class Stroke(color: Color)(pic: Picture) extends Deco(pic)({ t =>
   override def copy = Stroke(color)(pic.copy)
 }
 
+case class StrokeWidth(w: Double)(pic: Picture) extends Deco(pic)({ t =>
+    t.setPenThickness(w)
+  }) {
+  override def copy = StrokeWidth(w)(pic.copy)
+}
 
 abstract class ComposableTransform extends Function1[Picture,Picture] {outer =>
   def apply(p: Picture): Picture
@@ -104,6 +109,10 @@ case class Fillc(color: Color) extends ComposableTransform {
 
 case class Strokec(color: Color) extends ComposableTransform {
   def apply(p: Picture) = Stroke(color)(p)
+}
+
+case class StrokeWidthc(w: Double) extends ComposableTransform {
+  def apply(p: Picture) = StrokeWidth(w)(p)
 }
 
 case class Decoc(painter: Painter) extends ComposableTransform {

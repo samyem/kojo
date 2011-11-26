@@ -37,14 +37,23 @@ object CodeCompletionUtils {
     "switchTo" -> "switchTo()",
     "onKeyPress" -> "onKeyPress { k =>\n    k match {\n    case Kc.VK_RIGHT => ${cursor}\n       case _ => \n    }\n}",
     "onMouseClick" -> "onMouseClick { (x, y) =>\n    ${cursor}\n}",
-    "stAddLinkHandler" -> "stAddLinkHandler(${handlerName}) {d: ${argType} =>\n    ${cursor}\n}"
+    "stAddLinkHandler" -> "stAddLinkHandler(${handlerName}) {d: ${argType} =>\n    ${cursor}\n}",
+    "VPics" -> "VPics(\n      p,\n      p\n)",
+    "HPics" -> "HPics(\n      p,\n      p\n)",
+    // Todo - remove stuff below from staging templates
+    "trans" -> "trans(${x}, ${y})",
+    "rot" -> "rot(${angle})",
+    "scale" -> "scale(${factor})",
+    "fill" -> "fill(${color})",
+    "stroke" -> "stroke(${color})",
+    "penColor" -> "penColor(${color})",
+    "penWidth" -> "penWidth(${n})",
+    "show" -> "show(${pic})"
   )
   
-  // TODO
-  // Play with the following idea
-  // Move turtle templates to the map below
-  // On a clear from any of Tw, Mw, and Staging, reset the interp, and import the appropriate stuff
-  val TwMethodTemplates = Map[String, String]() 
+  val TwMethodTemplates = Map(
+    "pict" -> "pict { t =>\n    import t._\n    ${cursor}\n}"
+  ) 
 
   val MwMethodTemplates = Map(
     "figure" -> "figure(${name})",
