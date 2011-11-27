@@ -20,8 +20,6 @@ import java.awt.geom.Point2D
 
 import util.Utils
 import edu.umd.cs.piccolo.util.PBounds 
-import net.kogics.kojo.SpriteCanvas
-
 
 object Impl {
   val canvas = SpriteCanvas.instance
@@ -43,7 +41,14 @@ trait Picture {
 }
 
 case class Pic(painter: Painter) extends Picture {
-  val t = Impl.canvas.newTurtle(0, 0)
+  @volatile var _t: turtle.Turtle = _
+  def t = Utils.runInSwingThreadAndWait {
+    if (_t == null) {
+      _t = Impl.canvas.newTurtle(0, 0)
+    }
+    _t
+  }
+
   def decorateWith(painter: Painter) = painter(t)
   def show() = {
     painter(t)
