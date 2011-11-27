@@ -180,8 +180,8 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(ox, offsetY)
       pic.show()
-      // ox = pic.bounds.x + pic.bounds.width + padding
-      ox = pic.offset.getX + pic.bounds.width + padding
+      ox = pic.bounds.x + pic.bounds.width + padding
+//      ox = pic.offset.getX + pic.bounds.width + padding
     }
   }
 
@@ -205,8 +205,8 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(offsetX, oy)
       pic.show()
-      // oy = pic.bounds.y + pic.bounds.height + padding
-      oy = pic.offset.getY + pic.bounds.height + padding
+      oy = pic.bounds.y + pic.bounds.height + padding
+//      oy = pic.offset.getY + pic.bounds.height + padding
     }
   }
 
