@@ -504,6 +504,10 @@ Here's a partial list of the available commands:
   val penWidth = picture.strokeWidth _
   val deco = picture.deco _
   
+  type Spin = picture.Spin
+  val Spin = picture.Spin
+  val spin = picture.spin _
+
   def pict(painter: Painter) = Pic(painter)
   def show(picture: Picture) = picture.show()
 }

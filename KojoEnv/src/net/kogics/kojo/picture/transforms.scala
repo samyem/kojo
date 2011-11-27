@@ -15,15 +15,20 @@
 
 package net.kogics.kojo.picture
 
-abstract class Transform(pic: Picture) extends Picture {
-  def offset = pic.offset
-  def bounds = pic.bounds
-  def dumpInfo() = pic.dumpInfo()
-  def rotate(angle: Double) = pic.rotate(angle)
-  def scale(factor: Double) = pic.scale(factor)
-  def translate(x: Double, y: Double) = pic.translate(x, y)
-  def decorateWith(painter: Painter) = pic.decorateWith(painter)
-  def clear() = pic.clear()
+trait Transformer {
+  val tpic: Picture
+  def offset = tpic.offset
+  def bounds = tpic.bounds
+  def dumpInfo() = tpic.dumpInfo()
+  def rotate(angle: Double) = tpic.rotate(angle)
+  def scale(factor: Double) = tpic.scale(factor)
+  def translate(x: Double, y: Double) = tpic.translate(x, y)
+  def decorateWith(painter: Painter) = tpic.decorateWith(painter)
+  def clear() = tpic.clear()
+}
+
+abstract class Transform(pic: Picture) extends Picture with Transformer {
+  val tpic = pic
 }
 
 case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
@@ -81,41 +86,41 @@ case class StrokeWidth(w: Double)(pic: Picture) extends Deco(pic)({ t =>
   override def copy = StrokeWidth(w)(pic.copy)
 }
 
-abstract class ComposableTransform extends Function1[Picture,Picture] {outer =>
+abstract class ComposableTransformer extends Function1[Picture,Picture] {outer =>
   def apply(p: Picture): Picture
   def ->(p: Picture) = apply(p)
-  def * (other: ComposableTransform) = new ComposableTransform {
+  def * (other: ComposableTransformer) = new ComposableTransformer {
     def apply(p: Picture): Picture = {
       outer.apply(other.apply(p))
     }
   }
 }
 
-case class Rotc(angle: Double) extends ComposableTransform {
+case class Rotc(angle: Double) extends ComposableTransformer {
   def apply(p: Picture) = Rot(angle)(p)
 }
 
-case class Scalec(factor: Double) extends ComposableTransform {
+case class Scalec(factor: Double) extends ComposableTransformer {
   def apply(p: Picture) = Scale(factor)(p)
 }
 
-case class Transc(x: Double, y: Double) extends ComposableTransform {
+case class Transc(x: Double, y: Double) extends ComposableTransformer {
   def apply(p: Picture) = Trans(x, y)(p)
 }
 
-case class Fillc(color: Color) extends ComposableTransform {
+case class Fillc(color: Color) extends ComposableTransformer {
   def apply(p: Picture) = Fill(color)(p)
 }
 
-case class Strokec(color: Color) extends ComposableTransform {
+case class Strokec(color: Color) extends ComposableTransformer {
   def apply(p: Picture) = Stroke(color)(p)
 }
 
-case class StrokeWidthc(w: Double) extends ComposableTransform {
+case class StrokeWidthc(w: Double) extends ComposableTransformer {
   def apply(p: Picture) = StrokeWidth(w)(p)
 }
 
-case class Decoc(painter: Painter) extends ComposableTransform {
+case class Decoc(painter: Painter) extends ComposableTransformer {
   def apply(p: Picture) = Deco(p)(painter)
 }
 
