@@ -222,4 +222,26 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
     super.dumpInfo()
     println("<<< VPics End\n\n")
   }
+}
+  
+object GPics {
+  def apply(pics: List[Picture]):GPics = GPics(pics:_*)
+}
+
+case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
+  override def show() {
+    super.show()
+    pics.foreach { pic =>
+      pic.translate(offsetX, offsetY)
+      pic.show()
+    }
+  }
+
+  def copy = GPics(picsCopy)
+
+  override def dumpInfo() {
+    println(">>> GPics Start - " + System.identityHashCode(this))
+    super.dumpInfo()
+    println("<<< GPics End\n\n")
+  }
 } 

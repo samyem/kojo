@@ -11,4 +11,6 @@ package object picture {
   def stroke(color: Color) = Strokec(color)
   def strokeWidth(w: Double) = StrokeWidthc(w)
   def deco(painter: Painter) = Decoc(painter)
+  
+  def spin(n: Int) = Spinc(n)
 }
