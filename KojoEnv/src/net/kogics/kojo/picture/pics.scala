@@ -16,6 +16,7 @@
 package net.kogics.kojo
 package picture
 
+import java.awt.geom.AffineTransform
 import java.awt.geom.Point2D
 
 import util.Utils
@@ -35,6 +36,7 @@ trait Picture {
   def rotate(angle: Double)
   def scale(angle: Double)
   def translate(x: Double, y: Double)
+  def transformBy(trans: AffineTransform)
   def dumpInfo(): Unit
   def clear(): Unit
   def copy: Picture
@@ -80,6 +82,11 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.repaint()
   }
   
+  def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
+    t.tlayer.transformBy(trans)
+    t.tlayer.repaint()
+  }
+    
   def copy = Pic(painter)
   def clear() {
     t.tlayer.setOffset(0, 0)
@@ -120,6 +127,12 @@ abstract class BasePicList(pics: Picture *) extends Picture {
   def scale(angle: Double) {
     pics.foreach { pic =>
       pic.scale(angle)
+    }
+  }
+  
+  def transformBy(trans: AffineTransform) {
+    pics.foreach { pic =>
+      pic.transformBy(trans)
     }
   }
   

@@ -484,6 +484,8 @@ Here's a partial list of the available commands:
   val HPics = picture.HPics
   type VPics = picture.VPics
   val VPics = picture.VPics
+  type GPics = picture.GPics
+  val GPics = picture.GPics
 
   type Rot = picture.Rot
   val Rot = picture.Rot
@@ -491,6 +493,8 @@ Here's a partial list of the available commands:
   val Scale = picture.Scale
   type Trans = picture.Trans
   val Trans = picture.Trans
+  type Flip = picture.Flip
+  val Flip = picture.Flip
   type Fill = picture.Fill
   val Fill = picture.Fill
   type Stroke = picture.Stroke
@@ -498,6 +502,7 @@ Here's a partial list of the available commands:
   val rot = picture.rot _
   val scale = picture.scale _
   val trans = picture.trans _
+  val flip = picture.flip
   val fill = picture.fill _
   val stroke = picture.stroke _
   val penColor = picture.stroke _
@@ -507,6 +512,9 @@ Here's a partial list of the available commands:
   type Spin = picture.Spin
   val Spin = picture.Spin
   val spin = picture.spin _
+  type Reflect = picture.Reflect
+  val Reflect = picture.Reflect
+  val reflect = picture.reflect _
 
   def pict(painter: Painter) = Pic(painter)
   def show(picture: Picture) = picture.show()

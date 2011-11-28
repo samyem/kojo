@@ -22,8 +22,8 @@ abstract class Effect extends Picture with Transformer {
 }
 
 case class Spin(n: Int)(pic: Picture) extends Effect {
-  val tpic = spunP(pic, n)
-  def spunP(p: => Picture, n: Int) = {
+  val tpic = spunP
+  def spunP = {
     val lb = new collection.mutable.ListBuffer[Picture]
     lb += pic
     var angle = 360.0 / n
@@ -37,6 +37,19 @@ case class Spin(n: Int)(pic: Picture) extends Effect {
   def copy = Spin(n)(pic.copy)
 }
 
+case class Reflect(n: Int)(pic: Picture) extends Effect {
+  val tpic = reflectedP
+  def reflectedP = {
+    HPics(pic, trans(n, 0) * flip -> pic.copy)
+  }
+  
+  def copy = Reflect(n)(pic.copy)
+}
+
 case class Spinc(n: Int) extends ComposableTransformer {
   def apply(p: Picture) = Spin(n)(p)
+}
+
+case class Reflectc(n: Int) extends ComposableTransformer {
+  def apply(p: Picture) = Reflect(n)(p)
 }

@@ -40,7 +40,8 @@ object CodeCompletionUtils {
     "stAddLinkHandler" -> "stAddLinkHandler(${handlerName}) {d: ${argType} =>\n    ${cursor}\n}",
     "VPics" -> "VPics(\n      p,\n      p\n)",
     "HPics" -> "HPics(\n      p,\n      p\n)",
-    // Todo - remove stuff below from staging templates
+    "GPics" -> "GPics(\n      p,\n      p\n)",
+    // Todo - is there any commonality here with the staging templates
     "trans" -> "trans(${x}, ${y})",
     "rot" -> "rot(${angle})",
     "scale" -> "scale(${factor})",
@@ -48,11 +49,14 @@ object CodeCompletionUtils {
     "stroke" -> "stroke(${color})",
     "penColor" -> "penColor(${color})",
     "penWidth" -> "penWidth(${n})",
+    "spin" -> "spin(${n})",
+    "reflect" -> "reflect(${gap})",
     "show" -> "show(${pic})"
   )
   
   val TwMethodTemplates = Map(
-    "pict" -> "pict { t =>\n    import t._\n    ${cursor}\n}"
+    "pict" -> "pict { t =>\n    import t._\n    ${cursor}\n}",
+    "Pic" -> "Pic { t =>\n    import t._\n    ${cursor}\n}"
   ) 
 
   val MwMethodTemplates = Map(
