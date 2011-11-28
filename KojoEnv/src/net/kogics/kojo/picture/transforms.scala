@@ -15,6 +15,8 @@
 
 package net.kogics.kojo.picture
 
+import java.awt.geom.AffineTransform
+
 trait Transformer {
   val tpic: Picture
   def offset = tpic.offset
@@ -22,6 +24,7 @@ trait Transformer {
   def dumpInfo() = tpic.dumpInfo()
   def rotate(angle: Double) = tpic.rotate(angle)
   def scale(factor: Double) = tpic.scale(factor)
+  def transformBy(trans: AffineTransform) = tpic.transformBy(trans)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
   def decorateWith(painter: Painter) = tpic.decorateWith(painter)
   def clear() = tpic.clear()
@@ -53,6 +56,16 @@ case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
     pic.translate(x, y)
   }
   def copy = Trans(x, y)(pic.copy)
+}
+
+case class Flip(pic: Picture) extends Transform(pic) {
+  def show() {
+    pic.show()
+    val transform = AffineTransform.getScaleInstance(-1, 1)
+    pic.transformBy(transform)
+    pic.translate(pic.bounds.width, 0)
+  }
+  def copy = Flip(pic.copy)
 }
 
 object Deco {
@@ -106,6 +119,10 @@ case class Scalec(factor: Double) extends ComposableTransformer {
 
 case class Transc(x: Double, y: Double) extends ComposableTransformer {
   def apply(p: Picture) = Trans(x, y)(p)
+}
+
+case object Flipc extends ComposableTransformer {
+  def apply(p: Picture) = Flip(p)
 }
 
 case class Fillc(color: Color) extends ComposableTransformer {
