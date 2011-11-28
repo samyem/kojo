@@ -36,7 +36,7 @@ trait Picture {
   def rotate(angle: Double, x: Double, y: Double)
   def scale(factor: Double, x: Double, y: Double)
   def translate(x: Double, y: Double)
-  def transformBy(trans: AffineTransform)
+  def transformBy(trans: AffineTransform, x: Double, y: Double)
   def dumpInfo(): Unit
   def clear(): Unit
   def copy: Picture
@@ -71,10 +71,6 @@ case class Pic(painter: Painter) extends Picture {
   }
   
   def rotate(angle: Double, x: Double, y: Double) = Utils.runInSwingThread {
-//    val savedOffset = t.tlayer.getOffset
-//    t.tlayer.rotateInPlace(angle.toRadians)
-//    t.tlayer.setOffset(savedOffset)
-
     t.tlayer.rotateAboutPoint(angle.toRadians, x, y)
     t.tlayer.repaint()
   }
@@ -84,8 +80,11 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.repaint()
   }
   
-  def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    t.tlayer.transformBy(trans)
+  def transformBy(trans: AffineTransform, x: Double, y: Double) = Utils.runInSwingThread {
+    val transform = AffineTransform.getTranslateInstance(x, y)
+    transform.concatenate(trans)
+    transform.concatenate(AffineTransform.getTranslateInstance(-x, -y))
+    t.tlayer.transformBy(transform)
     t.tlayer.repaint()
   }
     
@@ -134,9 +133,10 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     }
   }
   
-  def transformBy(trans: AffineTransform) {
+  def transformBy(trans: AffineTransform, x: Double, y: Double) {
     pics.foreach { pic =>
-      pic.transformBy(trans)
+      val o = pic.offset
+      pic.transformBy(trans, - (x + o.getX), - (y + o.getY))
     }
   }
   
