@@ -34,7 +34,7 @@ trait Picture {
   def offset: Point2D
   def bounds: PBounds
   def rotate(angle: Double, x: Double, y: Double)
-  def scale(factor: Double)
+  def scale(factor: Double, x: Double, y: Double)
   def translate(x: Double, y: Double)
   def transformBy(trans: AffineTransform)
   def dumpInfo(): Unit
@@ -79,8 +79,8 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.repaint()
   }
   
-  def scale(factor: Double) = Utils.runInSwingThread {
-    t.tlayer.scale(factor)
+  def scale(factor: Double, x: Double, y: Double) = Utils.runInSwingThread {
+    t.tlayer.scaleAboutPoint(factor, x, y)
     t.tlayer.repaint()
   }
   
@@ -127,9 +127,10 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     }
   }
   
-  def scale(angle: Double) {
+  def scale(factor: Double, x: Double, y: Double) {
     pics.foreach { pic =>
-      pic.scale(angle)
+      val o = pic.offset
+      pic.scale(factor, - (x + o.getX), - (y + o.getY))
     }
   }
   
