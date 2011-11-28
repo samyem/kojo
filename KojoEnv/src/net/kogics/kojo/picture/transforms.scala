@@ -23,7 +23,7 @@ trait Transformer {
   def bounds = tpic.bounds
   def dumpInfo() = tpic.dumpInfo()
   def rotate(angle: Double, x: Double, y: Double) = tpic.rotate(angle, x, y)
-  def scale(factor: Double) = tpic.scale(factor)
+  def scale(factor: Double, x: Double, y: Double) = tpic.scale(factor, x, y)
   def transformBy(trans: AffineTransform) = tpic.transformBy(trans)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
   def decorateWith(painter: Painter) = tpic.decorateWith(painter)
@@ -46,7 +46,8 @@ case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
 case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
   def show() {
     pic.show()
-    pic.scale(factor)
+    val o = pic.offset
+    pic.scale(factor, - o.getX, - o.getY)
   }
   def copy = Scale(factor)(pic.copy)
 }
