@@ -22,7 +22,7 @@ trait Transformer {
   def offset = tpic.offset
   def bounds = tpic.bounds
   def dumpInfo() = tpic.dumpInfo()
-  def rotate(angle: Double) = tpic.rotate(angle)
+  def rotate(angle: Double, x: Double, y: Double) = tpic.rotate(angle, x, y)
   def scale(factor: Double) = tpic.scale(factor)
   def transformBy(trans: AffineTransform) = tpic.transformBy(trans)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
@@ -37,7 +37,8 @@ abstract class Transform(pic: Picture) extends Picture with Transformer {
 case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
   def show() {
     pic.show()
-    pic.rotate(angle)
+    val o = pic.offset
+    pic.rotate(angle, - o.getX, - o.getY)
   }
   def copy = Rot(angle)(pic.copy)
 }

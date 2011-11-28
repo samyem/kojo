@@ -33,8 +33,8 @@ trait Picture {
   def show(): Unit
   def offset: Point2D
   def bounds: PBounds
-  def rotate(angle: Double)
-  def scale(angle: Double)
+  def rotate(angle: Double, x: Double, y: Double)
+  def scale(factor: Double)
   def translate(x: Double, y: Double)
   def transformBy(trans: AffineTransform)
   def dumpInfo(): Unit
@@ -70,10 +70,12 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.getFullBounds
   }
   
-  def rotate(angle: Double) = Utils.runInSwingThread {
-    val savedOffset = t.tlayer.getOffset
-    t.tlayer.rotateInPlace(angle.toRadians)
-    t.tlayer.setOffset(savedOffset)
+  def rotate(angle: Double, x: Double, y: Double) = Utils.runInSwingThread {
+//    val savedOffset = t.tlayer.getOffset
+//    t.tlayer.rotateInPlace(angle.toRadians)
+//    t.tlayer.setOffset(savedOffset)
+
+    t.tlayer.rotateAboutPoint(angle.toRadians, x, y)
     t.tlayer.repaint()
   }
   
@@ -118,9 +120,10 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     b
   }
   
-  def rotate(angle: Double) {
+  def rotate(angle: Double, x: Double, y: Double) {
     pics.foreach { pic =>
-      pic.rotate(angle)
+      val o = pic.offset
+      pic.rotate(angle, - (x + o.getX), - (y + o.getY))
     }
   }
   
