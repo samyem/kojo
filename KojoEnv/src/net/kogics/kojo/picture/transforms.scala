@@ -24,7 +24,7 @@ trait Transformer {
   def dumpInfo() = tpic.dumpInfo()
   def rotate(angle: Double, x: Double, y: Double) = tpic.rotate(angle, x, y)
   def scale(factor: Double, x: Double, y: Double) = tpic.scale(factor, x, y)
-  def transformBy(trans: AffineTransform) = tpic.transformBy(trans)
+  def transformBy(trans: AffineTransform, x: Double, y: Double) = tpic.transformBy(trans, x, y)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
   def decorateWith(painter: Painter) = tpic.decorateWith(painter)
   def clear() = tpic.clear()
@@ -63,8 +63,9 @@ case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
 case class Flip(pic: Picture) extends Transform(pic) {
   def show() {
     pic.show()
+    val o = pic.offset
     val transform = AffineTransform.getScaleInstance(-1, 1)
-    pic.transformBy(transform)
+    pic.transformBy(transform, - o.getX, - o.getY)
     pic.translate(pic.bounds.width, 0)
   }
   def copy = Flip(pic.copy)
