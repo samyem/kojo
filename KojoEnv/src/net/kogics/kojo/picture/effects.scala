@@ -15,7 +15,9 @@
 
 package net.kogics.kojo.picture
 
-abstract class Effect extends Picture with Transformer {
+abstract class Effect extends Transformer {
+  // Todo - should behave similar to transform?
+  @volatile var parent: Picture = _
   def show() {
     tpic.show()
   }
@@ -23,6 +25,7 @@ abstract class Effect extends Picture with Transformer {
 
 case class Spin(n: Int)(pic: Picture) extends Effect {
   val tpic = spunP
+  parent = tpic.parent
   def spunP = {
     val lb = new collection.mutable.ListBuffer[Picture]
     lb += pic
@@ -39,8 +42,9 @@ case class Spin(n: Int)(pic: Picture) extends Effect {
 
 case class Reflect(n: Int)(pic: Picture) extends Effect {
   val tpic = reflectedP
+  parent = tpic.parent
   def reflectedP = {
-      HPics(pic, trans(n, 0) * flip -> pic.copy)
+    HPics(pic, trans(n, 0) * flip -> pic.copy)
   }
   
   def copy = Reflect(n)(pic.copy)
