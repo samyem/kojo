@@ -29,14 +29,18 @@ object Impl {
 }
 
 trait Picture {
+  def parent: Picture
+  def parent_=(p: Picture): Unit
   def decorateWith(painter: Painter): Unit
   def show(): Unit
   def offset: Point2D
   def bounds: PBounds
-  def rotate(angle: Double, x: Double, y: Double)
-  def scale(factor: Double, x: Double, y: Double)
+  def rotate(angle: Double)
+  def rotateWithParent(angle: Double, px: Double, py: Double)
+  def scale(factor: Double)
+  def scaleWithParent(factor: Double, px: Double, py: Double)
   def translate(x: Double, y: Double)
-  def transformBy(trans: AffineTransform, x: Double, y: Double)
+  def transformBy(trans: AffineTransform)
   def dumpInfo(): Unit
   def clear(): Unit
   def copy: Picture
@@ -44,6 +48,9 @@ trait Picture {
 
 case class Pic(painter: Painter) extends Picture {
   @volatile var _t: turtle.Turtle = _
+  @volatile var parent: Picture = _
+  val oTran = new AffineTransform
+  
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
       _t = Impl.canvas.newTurtle(0, 0)
@@ -70,20 +77,44 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.getFullBounds
   }
   
-  def rotate(angle: Double, x: Double, y: Double) = Utils.runInSwingThread {
-    t.tlayer.rotateAboutPoint(angle.toRadians, x, y)
+  def relativeOffset(px: Double, py: Double) = {
+    val o = offset
+    (o.getX - px, o.getY - py)
+  }
+  
+  def rotate(angle: Double) = Utils.runInSwingThread {
+    t.tlayer.rotate(angle.toRadians)
+    oTran.concatenate(AffineTransform.getRotateInstance(-angle.toRadians))
     t.tlayer.repaint()
   }
   
-  def scale(factor: Double, x: Double, y: Double) = Utils.runInSwingThread {
-    t.tlayer.scaleAboutPoint(factor, x, y)
+  def rotateWithParent(angle: Double, px: Double, py: Double) = Utils.runInSwingThread {
+    val (x,y) = relativeOffset(px, py)
+    val newO = oTran.transform(new Point2D.Double(-x, -y), null)
+    t.tlayer.rotateAboutPoint(angle.toRadians, newO.getX, newO.getY)
+    oTran.concatenate(AffineTransform.getRotateInstance(-angle.toRadians))
+    t.tlayer.repaint()
+  }
+
+  def scale(factor: Double) = Utils.runInSwingThread {
+    t.tlayer.scale(factor)
+    oTran.concatenate(AffineTransform.getScaleInstance(1/factor, 1/factor))
     t.tlayer.repaint()
   }
   
-  def transformBy(trans: AffineTransform, x: Double, y: Double) = Utils.runInSwingThread {
-    val transform = AffineTransform.getTranslateInstance(x, y)
+  def scaleWithParent(factor: Double, px: Double, py: Double) = Utils.runInSwingThread {
+    val (x,y) = relativeOffset(px, py)
+    val newO = oTran.transform(new Point2D.Double(-x, -y), null)
+    t.tlayer.scaleAboutPoint(factor, newO.getX, newO.getY)
+    oTran.concatenate(AffineTransform.getScaleInstance(1/factor, 1/factor))
+    t.tlayer.repaint()
+  }
+  
+  def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
+    val (x,y) = relativeOffset(0,0)
+    val transform = AffineTransform.getTranslateInstance(-x, -y)
     transform.concatenate(trans)
-    transform.concatenate(AffineTransform.getTranslateInstance(-x, -y))
+    transform.concatenate(AffineTransform.getTranslateInstance(x, y))
     t.tlayer.transformBy(transform)
     t.tlayer.repaint()
   }
@@ -105,12 +136,19 @@ case class Pic(painter: Painter) extends Picture {
 }
 
 abstract class BasePicList(pics: Picture *) extends Picture {
-  @volatile var _offsetX, _offsetY, padding = 0.0
-  @volatile var shown = false
+  var _offsetX, _offsetY = 0.0
+  @volatile var padding = 0.0
+  var shown = false
+  @volatile var parent: Picture = _
+
+  pics.foreach { pic =>
+    pic.parent = this
+  }
+
   def offset = Utils.runInSwingThreadAndWait { new Point2D.Double(_offsetX, _offsetY) }
   def offsetX = Utils.runInSwingThreadAndWait { _offsetX }
   def offsetY = Utils.runInSwingThreadAndWait { _offsetY }
-    
+
   def bounds(): PBounds = Utils.runInSwingThreadAndWait {
     val b = pics(0).bounds
     pics.tail.foreach { pic =>
@@ -119,31 +157,40 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     b
   }
   
-  def rotate(angle: Double, x: Double, y: Double) {
+  def rotate(angle: Double) {
     pics.foreach { pic =>
-      val o = pic.offset
-      pic.rotate(angle, - (x + o.getX), - (y + o.getY))
+      pic.rotateWithParent(angle, _offsetX, _offsetY)
+    }
+  }
+
+  def rotateWithParent(angle: Double, px: Double, py: Double) {
+    pics.foreach { pic =>
+      pic.rotateWithParent(angle, px, py)
     }
   }
   
-  def scale(factor: Double, x: Double, y: Double) {
+  def scale(factor: Double) {
     pics.foreach { pic =>
-      val o = pic.offset
-      pic.scale(factor, - (x + o.getX), - (y + o.getY))
+      pic.scaleWithParent(factor, _offsetX, _offsetY)
     }
   }
   
-  def transformBy(trans: AffineTransform, x: Double, y: Double) {
+  def scaleWithParent(factor: Double, px: Double, py: Double) {
     pics.foreach { pic =>
-      val o = pic.offset
-      pic.transformBy(trans, - (x + o.getX), - (y + o.getY))
+      pic.scaleWithParent(factor, px, py)
+    }
+  }
+  
+  def transformBy(trans: AffineTransform) {
+    pics.foreach { pic =>
+      pic.transformBy(trans)
     }
   }
   
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
     _offsetX += x
     _offsetY += y
-
+    
     if (shown) {
       pics.foreach { pic =>
         pic.translate(x, y)

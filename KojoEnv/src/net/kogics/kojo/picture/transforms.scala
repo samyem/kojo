@@ -17,28 +17,35 @@ package net.kogics.kojo.picture
 
 import java.awt.geom.AffineTransform
 
-trait Transformer {
+trait Transformer extends Picture {
   val tpic: Picture
   def offset = tpic.offset
   def bounds = tpic.bounds
   def dumpInfo() = tpic.dumpInfo()
-  def rotate(angle: Double, x: Double, y: Double) = tpic.rotate(angle, x, y)
-  def scale(factor: Double, x: Double, y: Double) = tpic.scale(factor, x, y)
-  def transformBy(trans: AffineTransform, x: Double, y: Double) = tpic.transformBy(trans, x, y)
+  def rotate(angle: Double) = tpic.rotate(angle)
+  def rotateWithParent(angle: Double, px: Double, py: Double) = tpic.rotateWithParent(angle, px, py)
+  def scale(factor: Double) = tpic.scale(factor)
+  def scaleWithParent(factor: Double, px: Double, py: Double) = tpic.scaleWithParent(factor, px, py)
+  def transformBy(trans: AffineTransform) = tpic.transformBy(trans)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
   def decorateWith(painter: Painter) = tpic.decorateWith(painter)
   def clear() = tpic.clear()
 }
 
-abstract class Transform(pic: Picture) extends Picture with Transformer {
+abstract class Transform(pic: Picture) extends Transformer {
   val tpic = pic
+  @volatile var _parent: Picture = _
+  def parent = _parent
+  def parent_=(par: Picture) {
+    _parent = par
+    pic.parent = par
+  }
 }
 
 case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
   def show() {
     pic.show()
-    val o = pic.offset
-    pic.rotate(angle, - o.getX, - o.getY)
+    pic.rotate(angle)
   }
   def copy = Rot(angle)(pic.copy)
 }
@@ -46,8 +53,7 @@ case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
 case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
   def show() {
     pic.show()
-    val o = pic.offset
-    pic.scale(factor, - o.getX, - o.getY)
+    pic.scale(factor)
   }
   def copy = Scale(factor)(pic.copy)
 }
@@ -63,10 +69,9 @@ case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
 case class Flip(pic: Picture) extends Transform(pic) {
   def show() {
     pic.show()
-    val o = pic.offset
     val transform = AffineTransform.getScaleInstance(-1, 1)
-    pic.transformBy(transform, - o.getX, - o.getY)
-    pic.translate(pic.bounds.width, 0)
+    pic.transformBy(transform)
+//    pic.translate(pic.offset.getX * 2 + pic.bounds.width, 0)
   }
   def copy = Flip(pic.copy)
 }
