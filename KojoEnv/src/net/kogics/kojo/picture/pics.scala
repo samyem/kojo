@@ -39,6 +39,7 @@ trait Picture {
   def rotateWithParent(angle: Double, px: Double, py: Double)
   def scale(factor: Double)
   def scaleWithParent(factor: Double, px: Double, py: Double)
+  def flipp(): Unit
   def translate(x: Double, y: Double)
   def transformBy(trans: AffineTransform)
   def transformByWithParent(trans: AffineTransform, px: Double, py: Double)
@@ -110,6 +111,17 @@ case class Pic(painter: Painter) extends Picture {
     val (x,y) = relativeOffset(px, py)
     val newO = srTran.transform(new Point2D.Double(-x, -y), null)
     t.tlayer.scaleAboutPoint(factor, newO.getX, newO.getY)
+    t.tlayer.repaint()
+  }
+  
+  def flipp() {
+    val trans = AffineTransform.getScaleInstance(-1, 1)
+    val ct = t.tlayer.getTransform()
+    ct.invert()
+    t.tlayer.transformBy(ct)
+    t.tlayer.transformBy(trans)
+    ct.invert()
+    t.tlayer.transformBy(ct)
     t.tlayer.repaint()
   }
   
@@ -212,6 +224,12 @@ abstract class BasePicList(pics: Picture *) extends Picture {
   def transformByWithParent(trans: AffineTransform, px: Double, py: Double) {
     pics.foreach { pic =>
       pic.transformByWithParent(trans, px, py)
+    }
+  }
+  
+  def flipp() {
+    pics.foreach { pic =>
+      pic.flipp()
     }
   }
   
