@@ -115,7 +115,12 @@ case class Pic(painter: Painter) extends Picture {
   }
   
   def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
+    val ct = t.tlayer.getTransform()
+    ct.invert()
+    t.tlayer.transformBy(ct)
     t.tlayer.transformBy(trans)
+    ct.invert()
+    t.tlayer.transformBy(ct)
     val it = trans.clone.asInstanceOf[AffineTransform]
     it.invert
     oTran.concatenate(it)
@@ -125,10 +130,12 @@ case class Pic(painter: Painter) extends Picture {
   def transformByWithParent(trans: AffineTransform, px: Double, py: Double) = Utils.runInSwingThread {
     val (x,y) = relativeOffset(px,py)
     val newO = oTran.transform(new Point2D.Double(-x, -y), null)
-    val transform = AffineTransform.getTranslateInstance(newO.getX, newO.getY)
-    transform.concatenate(trans)
-    transform.concatenate(AffineTransform.getTranslateInstance(-newO.getX, -newO.getY))
-    t.tlayer.transformBy(transform)
+    val ct = t.tlayer.getTransform()
+    ct.invert()
+    t.tlayer.transformBy(ct)
+    t.tlayer.transformBy(trans)
+    ct.invert()
+    t.tlayer.transformBy(ct)
     val it = trans.clone.asInstanceOf[AffineTransform]
     it.invert
     oTran.concatenate(it)

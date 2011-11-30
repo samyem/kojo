@@ -72,7 +72,7 @@ case class Flip(pic: Picture) extends Transform(pic) {
     pic.show()
     val transform = AffineTransform.getScaleInstance(-1, 1)
     pic.transformBy(transform)
-//    pic.translate(pic.bounds.width, 0)
+    pic.translate(pic.offset.getX * 2 + pic.bounds.width, 0)
   }
   def copy = Flip(pic.copy)
 }
