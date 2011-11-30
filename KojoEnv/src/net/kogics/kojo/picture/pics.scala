@@ -65,7 +65,7 @@ case class Pic(painter: Painter) extends Picture {
   }
   
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
-    t.tlayer.offset(x, y)
+    t.tlayer.translate(x, y)
     t.tlayer.repaint()
   }
   
@@ -77,7 +77,7 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.getFullBounds
   }
   
-  def relativeOffset(px: Double, py: Double) = {
+  private def relativeOffset(px: Double, py: Double) = {
     val o = offset
     (o.getX - px, o.getY - py)
   }
@@ -121,9 +121,11 @@ case class Pic(painter: Painter) extends Picture {
     
   def copy = Pic(painter)
   def clear() {
-    t.tlayer.setOffset(0, 0)
-    t.tlayer.setRotation(0)
-    t.tlayer.setScale(1)
+    Utils.runInSwingThread {
+      t.tlayer.setOffset(0, 0)
+      t.tlayer.setRotation(0)
+      t.tlayer.setScale(1)
+    }
     t.clear()
   }
     
@@ -157,7 +159,7 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     b
   }
   
-  def rotate(angle: Double) {
+  def rotate(angle: Double) = Utils.runInSwingThread {
     pics.foreach { pic =>
       pic.rotateWithParent(angle, _offsetX, _offsetY)
     }
@@ -169,7 +171,7 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     }
   }
   
-  def scale(factor: Double) {
+  def scale(factor: Double) = Utils.runInSwingThread {
     pics.foreach { pic =>
       pic.scaleWithParent(factor, _offsetX, _offsetY)
     }
