@@ -27,6 +27,7 @@ trait Transformer extends Picture {
   def scale(factor: Double) = tpic.scale(factor)
   def scaleWithParent(factor: Double, px: Double, py: Double) = tpic.scaleWithParent(factor, px, py)
   def transformBy(trans: AffineTransform) = tpic.transformBy(trans)
+  def transformByWithParent(trans: AffineTransform, px: Double, py: Double) = tpic.transformByWithParent(trans, px, py)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
   def decorateWith(painter: Painter) = tpic.decorateWith(painter)
   def clear() = tpic.clear()
@@ -71,7 +72,7 @@ case class Flip(pic: Picture) extends Transform(pic) {
     pic.show()
     val transform = AffineTransform.getScaleInstance(-1, 1)
     pic.transformBy(transform)
-//    pic.translate(pic.offset.getX * 2 + pic.bounds.width, 0)
+//    pic.translate(pic.bounds.width, 0)
   }
   def copy = Flip(pic.copy)
 }

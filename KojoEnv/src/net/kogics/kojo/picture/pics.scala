@@ -41,6 +41,7 @@ trait Picture {
   def scaleWithParent(factor: Double, px: Double, py: Double)
   def translate(x: Double, y: Double)
   def transformBy(trans: AffineTransform)
+  def transformByWithParent(trans: AffineTransform, px: Double, py: Double)
   def dumpInfo(): Unit
   def clear(): Unit
   def copy: Picture
@@ -64,11 +65,6 @@ case class Pic(painter: Painter) extends Picture {
     t.waitFor()
   }
   
-  def translate(x: Double, y: Double) = Utils.runInSwingThread {
-    t.tlayer.translate(x, y)
-    t.tlayer.repaint()
-  }
-  
   def offset = Utils.runInSwingThreadAndWait {
     t.tlayer.getOffset
   }  
@@ -80,6 +76,14 @@ case class Pic(painter: Painter) extends Picture {
   private def relativeOffset(px: Double, py: Double) = {
     val o = offset
     (o.getX - px, o.getY - py)
+  }
+  
+  def translate(x: Double, y: Double) = Utils.runInSwingThread {
+    val newt = oTran.transform(new Point2D.Double(x, y), null)
+//    println("Translating Pic %d. Original (x,y)=(%f,%f); New (x,y)=(%f,%f)" format(System.identityHashCode(this), x,y,newt.getX, newt.getY))
+    t.tlayer.translate(newt.getX, newt.getY)
+//    t.tlayer.translate(x, y)
+    t.tlayer.repaint()
   }
   
   def rotate(angle: Double) = Utils.runInSwingThread {
@@ -111,11 +115,23 @@ case class Pic(painter: Painter) extends Picture {
   }
   
   def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    val (x,y) = relativeOffset(0,0)
-    val transform = AffineTransform.getTranslateInstance(-x, -y)
+    t.tlayer.transformBy(trans)
+    val it = trans.clone.asInstanceOf[AffineTransform]
+    it.invert
+    oTran.concatenate(it)
+    t.tlayer.repaint()
+  }
+    
+  def transformByWithParent(trans: AffineTransform, px: Double, py: Double) = Utils.runInSwingThread {
+    val (x,y) = relativeOffset(px,py)
+    val newO = oTran.transform(new Point2D.Double(-x, -y), null)
+    val transform = AffineTransform.getTranslateInstance(newO.getX, newO.getY)
     transform.concatenate(trans)
-    transform.concatenate(AffineTransform.getTranslateInstance(x, y))
+    transform.concatenate(AffineTransform.getTranslateInstance(-newO.getX, -newO.getY))
     t.tlayer.transformBy(transform)
+    val it = trans.clone.asInstanceOf[AffineTransform]
+    it.invert
+    oTran.concatenate(it)
     t.tlayer.repaint()
   }
     
@@ -183,9 +199,15 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     }
   }
   
-  def transformBy(trans: AffineTransform) {
+  def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
     pics.foreach { pic =>
-      pic.transformBy(trans)
+      pic.transformByWithParent(trans, _offsetX, _offsetY)
+    }
+  }
+  
+  def transformByWithParent(trans: AffineTransform, px: Double, py: Double) {
+    pics.foreach { pic =>
+      pic.transformByWithParent(trans, px, py)
     }
   }
   
