@@ -250,7 +250,7 @@ abstract class BasePicList(pics: Picture *) extends Picture {
     }
   }
   
-  def withGap(n: Int): Picture = {
+  def withGap(n: Double): Picture = {
     padding = n
     this
   }
@@ -285,7 +285,7 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
     }
   }
 
-  def copy = HPics(picsCopy)
+  def copy = HPics(picsCopy).withGap(padding)
 
   override def dumpInfo() {
     println(">>> HPics Start - " + System.identityHashCode(this))
@@ -310,7 +310,7 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
     }
   }
 
-  def copy = VPics(picsCopy)
+  def copy = VPics(picsCopy).withGap(padding)
 
   override def dumpInfo() {
     println(">>> VPics Start - " + System.identityHashCode(this))
@@ -332,7 +332,7 @@ case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
     }
   }
 
-  def copy = GPics(picsCopy)
+  def copy = GPics(picsCopy).withGap(padding)
 
   override def dumpInfo() {
     println(">>> GPics Start - " + System.identityHashCode(this))
