@@ -50,7 +50,6 @@ trait Picture {
 case class Pic(painter: Painter) extends Picture {
   @volatile var _t: turtle.Turtle = _
   @volatile var parent: Picture = _
-  val oTran = new AffineTransform
   
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
@@ -78,39 +77,39 @@ case class Pic(painter: Painter) extends Picture {
     (o.getX - px, o.getY - py)
   }
   
+  def srTran = {
+    val ct = t.tlayer.getTransform()
+    ct.invert()
+    new AffineTransform(ct.getScaleX, ct.getShearY, ct.getShearX, ct.getScaleY, 0, 0)
+  }
+  
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
-    val newt = oTran.transform(new Point2D.Double(x, y), null)
-//    println("Translating Pic %d. Original (x,y)=(%f,%f); New (x,y)=(%f,%f)" format(System.identityHashCode(this), x,y,newt.getX, newt.getY))
+    val newt = srTran.transform(new Point2D.Double(x, y), null)
     t.tlayer.translate(newt.getX, newt.getY)
-//    t.tlayer.translate(x, y)
     t.tlayer.repaint()
   }
   
   def rotate(angle: Double) = Utils.runInSwingThread {
     t.tlayer.rotate(angle.toRadians)
-    oTran.concatenate(AffineTransform.getRotateInstance(-angle.toRadians))
     t.tlayer.repaint()
   }
   
   def rotateWithParent(angle: Double, px: Double, py: Double) = Utils.runInSwingThread {
     val (x,y) = relativeOffset(px, py)
-    val newO = oTran.transform(new Point2D.Double(-x, -y), null)
+    val newO = srTran.transform(new Point2D.Double(-x, -y), null)
     t.tlayer.rotateAboutPoint(angle.toRadians, newO.getX, newO.getY)
-    oTran.concatenate(AffineTransform.getRotateInstance(-angle.toRadians))
     t.tlayer.repaint()
   }
 
   def scale(factor: Double) = Utils.runInSwingThread {
     t.tlayer.scale(factor)
-    oTran.concatenate(AffineTransform.getScaleInstance(1/factor, 1/factor))
     t.tlayer.repaint()
   }
   
   def scaleWithParent(factor: Double, px: Double, py: Double) = Utils.runInSwingThread {
     val (x,y) = relativeOffset(px, py)
-    val newO = oTran.transform(new Point2D.Double(-x, -y), null)
+    val newO = srTran.transform(new Point2D.Double(-x, -y), null)
     t.tlayer.scaleAboutPoint(factor, newO.getX, newO.getY)
-    oTran.concatenate(AffineTransform.getScaleInstance(1/factor, 1/factor))
     t.tlayer.repaint()
   }
   
@@ -123,13 +122,12 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.transformBy(ct)
     val it = trans.clone.asInstanceOf[AffineTransform]
     it.invert
-    oTran.concatenate(it)
     t.tlayer.repaint()
   }
     
   def transformByWithParent(trans: AffineTransform, px: Double, py: Double) = Utils.runInSwingThread {
-    val (x,y) = relativeOffset(px,py)
-    val newO = oTran.transform(new Point2D.Double(-x, -y), null)
+//    val (x,y) = relativeOffset(px,py)
+//    val newO = srTran.transform(new Point2D.Double(-x, -y), null)
     val ct = t.tlayer.getTransform()
     ct.invert()
     t.tlayer.transformBy(ct)
@@ -138,7 +136,6 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.transformBy(ct)
     val it = trans.clone.asInstanceOf[AffineTransform]
     it.invert
-    oTran.concatenate(it)
     t.tlayer.repaint()
   }
     
