@@ -90,28 +90,20 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.repaint()
   }
   
-  def rotate(angle: Double) = Utils.runInSwingThread {
-    t.tlayer.rotate(angle.toRadians)
-    t.tlayer.repaint()
+  def rotate(angle: Double) {
+    transformBy(AffineTransform.getRotateInstance(angle.toRadians))
   }
   
-  def rotateWithParent(angle: Double, px: Double, py: Double) = Utils.runInSwingThread {
-    val (x,y) = relativeOffset(px, py)
-    val newO = srTran.transform(new Point2D.Double(-x, -y), null)
-    t.tlayer.rotateAboutPoint(angle.toRadians, newO.getX, newO.getY)
-    t.tlayer.repaint()
+  def rotateWithParent(angle: Double, px: Double, py: Double) {
+    transformByWithParent(AffineTransform.getRotateInstance(angle.toRadians), px, py)
   }
 
-  def scale(factor: Double) = Utils.runInSwingThread {
-    t.tlayer.scale(factor)
-    t.tlayer.repaint()
+  def scale(factor: Double)  {
+    transformBy(AffineTransform.getScaleInstance(factor, factor))
   }
   
-  def scaleWithParent(factor: Double, px: Double, py: Double) = Utils.runInSwingThread {
-    val (x,y) = relativeOffset(px, py)
-    val newO = srTran.transform(new Point2D.Double(-x, -y), null)
-    t.tlayer.scaleAboutPoint(factor, newO.getX, newO.getY)
-    t.tlayer.repaint()
+  def scaleWithParent(factor: Double, px: Double, py: Double)  {
+    transformByWithParent(AffineTransform.getScaleInstance(factor, factor), px, py)    
   }
   
   def flipp() {
@@ -122,32 +114,26 @@ case class Pic(painter: Painter) extends Picture {
     t.tlayer.transformBy(trans)
     ct.invert()
     t.tlayer.transformBy(ct)
+    t.tlayer.invalidatePaint();
+    t.tlayer.invalidateFullBounds();
     t.tlayer.repaint()
   }
   
   def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    val ct = t.tlayer.getTransform()
-    ct.invert()
-    t.tlayer.transformBy(ct)
     t.tlayer.transformBy(trans)
-    ct.invert()
-    t.tlayer.transformBy(ct)
-    val it = trans.clone.asInstanceOf[AffineTransform]
-    it.invert
+    t.tlayer.invalidatePaint();
+    t.tlayer.invalidateFullBounds();
     t.tlayer.repaint()
   }
     
   def transformByWithParent(trans: AffineTransform, px: Double, py: Double) = Utils.runInSwingThread {
-//    val (x,y) = relativeOffset(px,py)
-//    val newO = srTran.transform(new Point2D.Double(-x, -y), null)
-    val ct = t.tlayer.getTransform()
-    ct.invert()
-    t.tlayer.transformBy(ct)
+    val (x,y) = relativeOffset(px,py)
+    val newO = srTran.transform(new Point2D.Double(-x, -y), null)
+    t.tlayer.translate(newO.getX, newO.getY)
     t.tlayer.transformBy(trans)
-    ct.invert()
-    t.tlayer.transformBy(ct)
-    val it = trans.clone.asInstanceOf[AffineTransform]
-    it.invert
+    t.tlayer.translate(-newO.getX, -newO.getY)
+    t.tlayer.invalidatePaint();
+    t.tlayer.invalidateFullBounds();
     t.tlayer.repaint()
   }
     
