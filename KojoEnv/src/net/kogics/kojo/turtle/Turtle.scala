@@ -58,8 +58,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private val turtleImage = new PImage(Utils.loadImage(fname))
   private val turtle = new PNode
-  turtleImage.getTransformReference(true).setToScale(1, -1)
-  turtleImage.setOffset(-16, 16)
+//  turtleImage.getTransformReference(true).setToScale(1, -1)
+  turtleImage.setOffset(-16, -16)
 
   private val xBeam = PPath.createLine(0, 30, 0, -30)
   xBeam.setStrokePaint(Color.gray)
