@@ -20,6 +20,7 @@ import java.awt.geom.AffineTransform
 import java.awt.geom.Point2D
 
 import util.Utils
+import edu.umd.cs.piccolo.PLayer
 import edu.umd.cs.piccolo.util.PBounds 
 
 object Impl {
@@ -46,6 +47,7 @@ trait Picture {
   def dumpInfo(): Unit
   def clear(): Unit
   def copy: Picture
+  def tnode: PLayer
 }
 
 case class Pic(painter: Painter) extends Picture {
@@ -55,9 +57,12 @@ case class Pic(painter: Painter) extends Picture {
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
       _t = Impl.canvas.newTurtle(0, 0)
+//      _t.tlayer.setParent(_t.tlayer.getCamera(0).getParent)
     }
     _t
   }
+  
+  def tnode = t.tlayer
 
   def decorateWith(painter: Painter) = painter(t)
   def show() = {
@@ -257,6 +262,8 @@ abstract class BasePicList(pics: Picture *) extends Picture {
   }
   
   protected def picsCopy: List[Picture] = pics.map {_ copy}.toList
+  
+  def tnode = throw new UnsupportedOperationException
   
   def dumpInfo() {
     println("--- ")
