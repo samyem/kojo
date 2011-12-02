@@ -21,6 +21,7 @@ import java.awt.geom.Point2D
 
 import util.Utils
 import edu.umd.cs.piccolo.PLayer
+import edu.umd.cs.piccolo.util.PAffineTransform
 import edu.umd.cs.piccolo.util.PBounds 
 
 object Impl {
@@ -30,34 +31,47 @@ object Impl {
 }
 
 trait Picture {
-  def parent: Picture
-  def parent_=(p: Picture): Unit
   def decorateWith(painter: Painter): Unit
   def show(): Unit
-  def offset: Point2D
+  def toffset: Point2D
+  def toffsetBy(x: Double, y: Double): Unit
   def bounds: PBounds
   def rotate(angle: Double)
-  def rotateWithParent(angle: Double, px: Double, py: Double)
   def scale(factor: Double)
-  def scaleWithParent(factor: Double, px: Double, py: Double)
   def flipp(): Unit
   def translate(x: Double, y: Double)
   def transformBy(trans: AffineTransform)
-  def transformByWithParent(trans: AffineTransform, px: Double, py: Double)
   def dumpInfo(): Unit
   def clear(): Unit
   def copy: Picture
   def tnode: PLayer
+  def srtransform: PAffineTransform
 }
 
-case class Pic(painter: Painter) extends Picture {
+trait TOffsetImpl {
+  var _tx = 0.0
+  var _ty = 0.0
+  def toffset = Utils.runInSwingThreadAndWait {
+    new Point2D.Double(_tx, _ty)
+  }
+  def toffsetBy(x: Double, y: Double) = Utils.runInSwingThread {
+    _tx = x
+    _ty = y
+  }
+}
+
+case class Pic(painter: Painter) extends Picture with TOffsetImpl {
   @volatile var _t: turtle.Turtle = _
-  @volatile var parent: Picture = _
+  @volatile var penWidth = 0.0
+  var _srtransform = new PAffineTransform
+  
+  def srtransform = Utils.runInSwingThreadAndWait {
+    _srtransform
+  }
   
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
       _t = Impl.canvas.newTurtle(0, 0)
-//      _t.tlayer.setParent(_t.tlayer.getCamera(0).getParent)
     }
     _t
   }
@@ -68,6 +82,7 @@ case class Pic(painter: Painter) extends Picture {
   def show() = {
     painter(t)
     t.waitFor()
+    penWidth = _t.pen.getThickness
   }
   
   def offset = Utils.runInSwingThreadAndWait {
@@ -75,40 +90,25 @@ case class Pic(painter: Painter) extends Picture {
   }  
   
   def bounds = Utils.runInSwingThreadAndWait {
-    t.tlayer.getFullBounds
-  }
-  
-  private def relativeOffset(px: Double, py: Double) = {
-    val o = offset
-    (o.getX - px, o.getY - py)
-  }
-  
-  def srTran = {
-    val ct = t.tlayer.getTransform()
-    ct.invert()
-    new AffineTransform(ct.getScaleX, ct.getShearY, ct.getShearX, ct.getScaleY, 0, 0)
+    val cb = t.tlayer.getUnionOfChildrenBounds(null)
+    new PBounds(cb.x + penWidth, cb.y + penWidth, cb.width - 2*penWidth, cb.height - 2 * penWidth)
   }
   
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
-    val newt = srTran.transform(new Point2D.Double(x, y), null)
-    t.tlayer.translate(newt.getX, newt.getY)
+    t.tlayer.translate(x, y)
     t.tlayer.repaint()
   }
   
-  def rotate(angle: Double) {
-    transformBy(AffineTransform.getRotateInstance(angle.toRadians))
+  def rotate(angle: Double) = Utils.runInSwingThread {
+    val rt = AffineTransform.getRotateInstance(angle.toRadians)
+    _srtransform.concatenate(rt)
+    transformBy(rt)
   }
   
-  def rotateWithParent(angle: Double, px: Double, py: Double) {
-    transformByWithParent(AffineTransform.getRotateInstance(angle.toRadians), px, py)
-  }
-
-  def scale(factor: Double)  {
-    transformBy(AffineTransform.getScaleInstance(factor, factor))
-  }
-  
-  def scaleWithParent(factor: Double, px: Double, py: Double)  {
-    transformByWithParent(AffineTransform.getScaleInstance(factor, factor), px, py)    
+  def scale(factor: Double) = Utils.runInSwingThread {
+    val st = AffineTransform.getScaleInstance(factor, factor)
+    _srtransform.concatenate(st)
+    transformBy(st)
   }
   
   def flipp() {
@@ -126,17 +126,6 @@ case class Pic(painter: Painter) extends Picture {
   
   def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
     t.tlayer.transformBy(trans)
-    t.tlayer.invalidatePaint();
-    t.tlayer.invalidateFullBounds();
-    t.tlayer.repaint()
-  }
-    
-  def transformByWithParent(trans: AffineTransform, px: Double, py: Double) = Utils.runInSwingThread {
-    val (x,y) = relativeOffset(px,py)
-    val newO = srTran.transform(new Point2D.Double(-x, -y), null)
-    t.tlayer.translate(newO.getX, newO.getY)
-    t.tlayer.transformBy(trans)
-    t.tlayer.translate(-newO.getX, -newO.getY)
     t.tlayer.invalidatePaint();
     t.tlayer.invalidateFullBounds();
     t.tlayer.repaint()
@@ -160,62 +149,27 @@ case class Pic(painter: Painter) extends Picture {
   }
 }
 
-abstract class BasePicList(pics: Picture *) extends Picture {
-  var _offsetX, _offsetY = 0.0
+abstract class BasePicList(pics: Picture *) extends Picture with TOffsetImpl {
   @volatile var padding = 0.0
   var shown = false
-  @volatile var parent: Picture = _
-
-  pics.foreach { pic =>
-    pic.parent = this
-  }
-
-  def offset = Utils.runInSwingThreadAndWait { new Point2D.Double(_offsetX, _offsetY) }
-  def offsetX = Utils.runInSwingThreadAndWait { _offsetX }
-  def offsetY = Utils.runInSwingThreadAndWait { _offsetY }
-
-  def bounds(): PBounds = Utils.runInSwingThreadAndWait {
-    val b = pics(0).bounds
-    pics.tail.foreach { pic =>
-      b.add(pic.bounds)
-    }        
-    b
+  var ptransform = new PAffineTransform
+  var _srtransform = new PAffineTransform
+  def srtransform = Utils.runInSwingThreadAndWait {
+    _srtransform
   }
   
   def rotate(angle: Double) = Utils.runInSwingThread {
-    pics.foreach { pic =>
-      pic.rotateWithParent(angle, _offsetX, _offsetY)
-    }
+    ptransform.rotate(angle.toRadians)
+    srtransform.rotate(angle.toRadians)
   }
 
-  def rotateWithParent(angle: Double, px: Double, py: Double) {
-    pics.foreach { pic =>
-      pic.rotateWithParent(angle, px, py)
-    }
-  }
-  
   def scale(factor: Double) = Utils.runInSwingThread {
-    pics.foreach { pic =>
-      pic.scaleWithParent(factor, _offsetX, _offsetY)
-    }
-  }
-  
-  def scaleWithParent(factor: Double, px: Double, py: Double) {
-    pics.foreach { pic =>
-      pic.scaleWithParent(factor, px, py)
-    }
+    ptransform.scale(factor, factor)
+    srtransform.scale(factor, factor)
   }
   
   def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    pics.foreach { pic =>
-      pic.transformByWithParent(trans, _offsetX, _offsetY)
-    }
-  }
-  
-  def transformByWithParent(trans: AffineTransform, px: Double, py: Double) {
-    pics.foreach { pic =>
-      pic.transformByWithParent(trans, px, py)
-    }
+    ptransform.concatenate(trans)
   }
   
   def flipp() {
@@ -223,11 +177,9 @@ abstract class BasePicList(pics: Picture *) extends Picture {
       pic.flipp()
     }
   }
-  
+
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
-    _offsetX += x
-    _offsetY += y
-    
+    ptransform.translate(x, y)
     if (shown) {
       pics.foreach { pic =>
         pic.translate(x, y)
@@ -243,12 +195,14 @@ abstract class BasePicList(pics: Picture *) extends Picture {
   
   def show() = Utils.runInSwingThread {
     shown = true
+    pics.foreach { pic =>
+      pic.transformBy(ptransform)
+    }
   }
   
   def clear() {
     Utils.runInSwingThread {
-      _offsetX = 0
-      _offsetY = 0
+      ptransform = new PAffineTransform
       shown = false
     }
     pics.foreach { pic =>
@@ -268,7 +222,7 @@ abstract class BasePicList(pics: Picture *) extends Picture {
   def dumpInfo() {
     println("--- ")
     println("Pic List Bounds: " + bounds)
-    println("Pic List Offset: (%f, %f)" format(offsetX, offsetY) )
+    println("Pic List Local Offset: %s" format(toffset) )
     println("--- ")
     
     pics.foreach { pic =>
@@ -282,14 +236,28 @@ object HPics {
 }
 
 case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
+
+  def bounds(): PBounds = Utils.runInSwingThreadAndWait {
+    var width = 0.0
+    var height = 0.0
+    pics.foreach { pic =>
+      val zx = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, 0), null)
+      val zy = pic.srtransform.transform(new Point2D.Double(0, pic.toffset.getY + pic.bounds.height), null)
+      width += zx.getX + padding
+      height = if (zy.getY > height) zy.getY else height
+    }
+    new PBounds(0,0,width,height)
+  }
+  
   override def show() {
     super.show()
-    var ox = offsetX
+    var ox = 0.0
     pics.foreach { pic =>
-      pic.translate(ox, offsetY)
+      pic.translate(ox, 0)
       pic.show()
-      ox = pic.bounds.x + pic.bounds.width + padding
-//      ox = pic.offset.getX + pic.bounds.width + padding
+      val zz = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width,0), null)
+//      println("For Picture %d, pre nextOffset is %f and post nextOffset is %f" format(System.identityHashCode(pic), pic.toffset.getX + pic.bounds.width, zz.getX))
+      ox += zz.getX + padding
     }
   }
 
@@ -307,14 +275,27 @@ object VPics {
 }
 
 case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
+
+  def bounds(): PBounds = Utils.runInSwingThreadAndWait {
+    var width = 0.0
+    var height = 0.0
+    pics.foreach { pic =>
+      val zx = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, 0), null)
+      val zy = pic.srtransform.transform(new Point2D.Double(0, pic.toffset.getY + pic.bounds.height), null)
+      height += zy.getY + padding
+      width = if (zx.getX > width) zx.getX else width
+    }
+    new PBounds(0,0,width,height)
+  }
+
   override def show() {
     super.show()
-    var oy = offsetY
+    var oy = 0.0
     pics.foreach { pic =>
-      pic.translate(offsetX, oy)
+      pic.translate(0, oy)
       pic.show()
-      oy = pic.bounds.y + pic.bounds.height + padding
-//      oy = pic.offset.getY + pic.bounds.height + padding
+      val zz = pic.srtransform.transform(new Point2D.Double(0, pic.toffset.getY + pic.bounds.height), null)
+      oy += zz.getY + padding
     }
   }
 
@@ -332,10 +313,22 @@ object GPics {
 }
 
 case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
+
+  def bounds(): PBounds = Utils.runInSwingThreadAndWait {
+    var width = 0.0
+    var height = 0.0
+    pics.foreach { pic =>
+      val zx = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, 0), null)
+      val zy = pic.srtransform.transform(new Point2D.Double(0, pic.toffset.getY + pic.bounds.height), null)
+      height = if (zy.getY > height) zy.getY else height
+      width = if (zx.getX > width) zx.getX else width
+    }
+    new PBounds(0,0,width,height)
+  }
+
   override def show() {
     super.show()
     pics.foreach { pic =>
-      pic.translate(offsetX, offsetY)
       pic.show()
     }
   }

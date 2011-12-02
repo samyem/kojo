@@ -75,7 +75,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   private val pens = makePens
   private val DownPen = pens._1
   private val UpPen = pens._2
-  @volatile private var pen: Pen = _
+  @volatile private[kojo] var pen: Pen = _
 
   @volatile private var _position: Point2D.Double = _
   @volatile private var theta: Double = _
