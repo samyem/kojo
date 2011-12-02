@@ -16,55 +16,50 @@
 package net.kogics.kojo.picture
 
 import java.awt.geom.AffineTransform
+import java.awt.geom.Point2D
 
 trait Transformer extends Picture {
   val tpic: Picture
-  def offset = tpic.offset
+  def toffset = tpic.toffset
+  def toffsetBy(x: Double, y: Double) = tpic.toffsetBy(x, y)
   def bounds = tpic.bounds
   def dumpInfo() = tpic.dumpInfo()
   def rotate(angle: Double) = tpic.rotate(angle)
-  def rotateWithParent(angle: Double, px: Double, py: Double) = tpic.rotateWithParent(angle, px, py)
   def scale(factor: Double) = tpic.scale(factor)
-  def scaleWithParent(factor: Double, px: Double, py: Double) = tpic.scaleWithParent(factor, px, py)
   def transformBy(trans: AffineTransform) = tpic.transformBy(trans)
-  def transformByWithParent(trans: AffineTransform, px: Double, py: Double) = tpic.transformByWithParent(trans, px, py)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
   def flipp() = tpic.flipp()
   def decorateWith(painter: Painter) = tpic.decorateWith(painter)
   def clear() = tpic.clear()
   def tnode = tpic.tnode
+  def srtransform = tpic.srtransform
 }
 
 abstract class Transform(pic: Picture) extends Transformer {
   val tpic = pic
-  @volatile var _parent: Picture = _
-  def parent = _parent
-  def parent_=(par: Picture) {
-    _parent = par
-    pic.parent = par
-  }
 }
 
 case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
   def show() {
-    pic.show()
     pic.rotate(angle)
+    pic.show()
   }
   def copy = Rot(angle)(pic.copy)
 }
 
 case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
   def show() {
-    pic.show()
     pic.scale(factor)
+    pic.show()
   }
   def copy = Scale(factor)(pic.copy)
 }
 
 case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
   def show() {
-    pic.show()
     pic.translate(x, y)
+    pic.toffsetBy(x, y)
+    pic.show()
   }
   def copy = Trans(x, y)(pic.copy)
 }
@@ -73,7 +68,7 @@ case class Flip(pic: Picture) extends Transform(pic) {
   def show() {
     pic.show()
     pic.flipp()
-    pic.translate(pic.offset.getX * 2 + pic.bounds.width, 0)
+//    pic.translate(pic.offset.getX * 2 + pic.bounds.width, 0)
   }
   def copy = Flip(pic.copy)
 }

@@ -16,7 +16,6 @@
 package net.kogics.kojo.picture
 
 abstract class Effect extends Transformer {
-  @volatile var parent: Picture = _
   def show() {
     tpic.show()
   }
