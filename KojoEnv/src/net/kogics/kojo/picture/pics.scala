@@ -38,7 +38,6 @@ trait Picture {
   def bounds: PBounds
   def rotate(angle: Double)
   def scale(factor: Double)
-  def flipp(): Unit
   def translate(x: Double, y: Double)
   def transformBy(trans: AffineTransform)
   def dumpInfo(): Unit
@@ -111,19 +110,6 @@ case class Pic(painter: Painter) extends Picture with TOffsetImpl {
     transformBy(st)
   }
   
-  def flipp() {
-    val trans = AffineTransform.getScaleInstance(-1, 1)
-    val ct = t.tlayer.getTransform()
-    ct.invert()
-    t.tlayer.transformBy(ct)
-    t.tlayer.transformBy(trans)
-    ct.invert()
-    t.tlayer.transformBy(ct)
-    t.tlayer.invalidatePaint();
-    t.tlayer.invalidateFullBounds();
-    t.tlayer.repaint()
-  }
-  
   def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
     t.tlayer.transformBy(trans)
     t.tlayer.invalidatePaint();
@@ -137,6 +123,7 @@ case class Pic(painter: Painter) extends Picture with TOffsetImpl {
       t.tlayer.setOffset(0, 0)
       t.tlayer.setRotation(0)
       t.tlayer.setScale(1)
+      _srtransform = new PAffineTransform
     }
     t.clear()
   }
@@ -151,7 +138,6 @@ case class Pic(painter: Painter) extends Picture with TOffsetImpl {
 
 abstract class BasePicList(pics: Picture *) extends Picture with TOffsetImpl {
   @volatile var padding = 0.0
-  var shown = false
   var ptransform = new PAffineTransform
   var _srtransform = new PAffineTransform
   def srtransform = Utils.runInSwingThreadAndWait {
@@ -172,19 +158,8 @@ abstract class BasePicList(pics: Picture *) extends Picture with TOffsetImpl {
     ptransform.concatenate(trans)
   }
   
-  def flipp() {
-    pics.foreach { pic =>
-      pic.flipp()
-    }
-  }
-
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
     ptransform.translate(x, y)
-    if (shown) {
-      pics.foreach { pic =>
-        pic.translate(x, y)
-      }
-    }
   }
 
   def decorateWith(painter: Painter) {
@@ -194,7 +169,6 @@ abstract class BasePicList(pics: Picture *) extends Picture with TOffsetImpl {
   }
   
   def show() = Utils.runInSwingThread {
-    shown = true
     pics.foreach { pic =>
       pic.transformBy(ptransform)
     }
@@ -203,7 +177,7 @@ abstract class BasePicList(pics: Picture *) extends Picture with TOffsetImpl {
   def clear() {
     Utils.runInSwingThread {
       ptransform = new PAffineTransform
-      shown = false
+      _srtransform = new PAffineTransform
     }
     pics.foreach { pic =>
       pic.clear()
@@ -242,7 +216,7 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
     var height = 0.0
     pics.foreach { pic =>
       val zx = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, 0), null)
-      val zy = pic.srtransform.transform(new Point2D.Double(0, pic.toffset.getY + pic.bounds.height), null)
+      val zy = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, pic.toffset.getY + pic.bounds.height), null)
       width += zx.getX + padding
       height = if (zy.getY > height) zy.getY else height
     }
@@ -281,7 +255,7 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
     var height = 0.0
     pics.foreach { pic =>
       val zx = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, 0), null)
-      val zy = pic.srtransform.transform(new Point2D.Double(0, pic.toffset.getY + pic.bounds.height), null)
+      val zy = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, pic.toffset.getY + pic.bounds.height), null)
       height += zy.getY + padding
       width = if (zx.getX > width) zx.getX else width
     }
@@ -294,7 +268,8 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(0, oy)
       pic.show()
-      val zz = pic.srtransform.transform(new Point2D.Double(0, pic.toffset.getY + pic.bounds.height), null)
+      val zz = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, pic.toffset.getY + pic.bounds.height), null)
+//      println("For Picture %d, pre nextOffset is %f and post nextOffset is %f" format(System.identityHashCode(pic), pic.toffset.getY + pic.bounds.height, zz.getY))
       oy += zz.getY + padding
     }
   }
@@ -319,7 +294,7 @@ case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
     var height = 0.0
     pics.foreach { pic =>
       val zx = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, 0), null)
-      val zy = pic.srtransform.transform(new Point2D.Double(0, pic.toffset.getY + pic.bounds.height), null)
+      val zy = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, pic.toffset.getY + pic.bounds.height), null)
       height = if (zy.getY > height) zy.getY else height
       width = if (zx.getX > width) zx.getX else width
     }
