@@ -59,7 +59,18 @@ trait TOffsetImpl {
   }
 }
 
-case class Pic(painter: Painter) extends Picture with TOffsetImpl {
+trait BoundsCacher {
+  @volatile var cachedBounds: PBounds = _
+  def bounds = {
+    if (cachedBounds == null) {
+      cachedBounds = boundsHelper
+    }
+    cachedBounds
+  }
+  def boundsHelper: PBounds
+}
+
+case class Pic(painter: Painter) extends Picture with TOffsetImpl with BoundsCacher {
   @volatile var _t: turtle.Turtle = _
   @volatile var penWidth = 0.0
   var _srtransform = new PAffineTransform
@@ -88,7 +99,7 @@ case class Pic(painter: Painter) extends Picture with TOffsetImpl {
     t.tlayer.getOffset
   }  
   
-  def bounds = Utils.runInSwingThreadAndWait {
+  def boundsHelper = Utils.runInSwingThreadAndWait {
     val cb = t.tlayer.getUnionOfChildrenBounds(null)
     new PBounds(cb.x + penWidth, cb.y + penWidth, cb.width - 2*penWidth, cb.height - 2 * penWidth)
   }
@@ -119,6 +130,7 @@ case class Pic(painter: Painter) extends Picture with TOffsetImpl {
     
   def copy = Pic(painter)
   def clear() {
+    cachedBounds = null
     Utils.runInSwingThread {
       t.tlayer.setOffset(0, 0)
       t.tlayer.setRotation(0)
@@ -136,10 +148,11 @@ case class Pic(painter: Painter) extends Picture with TOffsetImpl {
   }
 }
 
-abstract class BasePicList(pics: Picture *) extends Picture with TOffsetImpl {
+abstract class BasePicList(pics: Picture *) extends Picture with TOffsetImpl with BoundsCacher {
   @volatile var padding = 0.0
   var ptransform = new PAffineTransform
   var _srtransform = new PAffineTransform
+  
   def srtransform = Utils.runInSwingThreadAndWait {
     _srtransform
   }
@@ -175,6 +188,7 @@ abstract class BasePicList(pics: Picture *) extends Picture with TOffsetImpl {
   }
   
   def clear() {
+    cachedBounds = null
     Utils.runInSwingThread {
       ptransform = new PAffineTransform
       _srtransform = new PAffineTransform
@@ -211,12 +225,15 @@ object HPics {
 
 case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
 
-  def bounds(): PBounds = Utils.runInSwingThreadAndWait {
+  def boundsHelper: PBounds = {
     var width = 0.0
     var height = 0.0
     pics.foreach { pic =>
-      val zx = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, 0), null)
-      val zy = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, pic.toffset.getY + pic.bounds.height), null)
+      val ptoffset = pic.toffset
+      val pbounds = pic.bounds
+      val psrtransform = pic.srtransform
+      val zx = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, 0), null)
+      val zy = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, ptoffset.getY + pbounds.height), null)
       width += zx.getX + padding
       height = if (zy.getY > height) zy.getY else height
     }
@@ -250,12 +267,15 @@ object VPics {
 
 case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
 
-  def bounds(): PBounds = Utils.runInSwingThreadAndWait {
+  def boundsHelper: PBounds = {
     var width = 0.0
     var height = 0.0
     pics.foreach { pic =>
-      val zx = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, 0), null)
-      val zy = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, pic.toffset.getY + pic.bounds.height), null)
+      val ptoffset = pic.toffset
+      val pbounds = pic.bounds
+      val psrtransform = pic.srtransform
+      val zx = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, 0), null)
+      val zy = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, ptoffset.getY + pbounds.height), null)
       height += zy.getY + padding
       width = if (zx.getX > width) zx.getX else width
     }
@@ -289,12 +309,15 @@ object GPics {
 
 case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
 
-  def bounds(): PBounds = Utils.runInSwingThreadAndWait {
+  def boundsHelper: PBounds = {
     var width = 0.0
     var height = 0.0
     pics.foreach { pic =>
-      val zx = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, 0), null)
-      val zy = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, pic.toffset.getY + pic.bounds.height), null)
+      val ptoffset = pic.toffset
+      val pbounds = pic.bounds
+      val psrtransform = pic.srtransform
+      val zx = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, 0), null)
+      val zy = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, ptoffset.getY + pbounds.height), null)
       height = if (zy.getY > height) zy.getY else height
       width = if (zx.getX > width) zx.getX else width
     }
