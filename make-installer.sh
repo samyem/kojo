@@ -26,13 +26,16 @@ mkdir installer/licenses/
 cp kojo/licenses/* installer/licenses/
 mkdir installer/puzzles/
 cp kojo/puzzles/puzzles.jar installer/puzzles/
-cp kojo/etc/kojo.conf installer/etc
+cp kojo/etc/kojo.conf installer/etc/
 mkdir installer/icons/
 cp kojo/icons/* installer/icons/
 mkdir installer/stories/
 cp kojo/stories/* installer/stories/
 mkdir installer/stories/music-loops/
 cp kojo/stories/music-loops/* installer/stories/music-loops/
+mkdir installer/kojo/initk
+mkdir installer/kojo/libk
+
 
 # remove test jars from install
 # rm installer/kojo/modules/ext/cglib-nodep-2.1_3.jar
@@ -54,7 +57,15 @@ rm installer/licenses/scalacheck-license.txt
 # remove jni native libs that came in with NB7
 rm -rf installer/platform/modules/lib
 
+# remove seemingly unused locale and auto-update jars
+rm -rf installer/ide/modules/locale
+rm -rf installer/ide/update
+rm -rf installer/ide/update_tracking
+rm -rf installer/platform/modules/locale
+rm -rf installer/platform/update
+rm -rf installer/platform/update_tracking
 
 # run IzPack to create installer
 cd installer
-compile install.xml
+/home/lalit/IzPack/bin/compile install.xml
+
