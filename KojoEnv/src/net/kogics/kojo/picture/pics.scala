@@ -57,7 +57,8 @@ trait BoundsCacher {
 case class Pic(painter: Painter) extends Picture with BoundsCacher {
   @volatile var _t: turtle.Turtle = _
   @volatile var penWidth = 0.0
-  var _srtransform = new PAffineTransform
+  // local transform, for things done just to this pic (as opposed to this pic *and* its containers)
+  var ltransform = new PAffineTransform
   
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
@@ -81,27 +82,28 @@ case class Pic(painter: Painter) extends Picture with BoundsCacher {
   
   def boundsHelper = Utils.runInSwingThreadAndWait {
     val cb = t.tlayer.getUnionOfChildrenBounds(null)
-    new PBounds(_srtransform.transform(
+    // bounds in container's coordinates
+    new PBounds(ltransform.transform(
         new PBounds(cb.x + penWidth, cb.y + penWidth, cb.width - 2*penWidth, cb.height - 2 * penWidth), 
         null
       ))
   }
   
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
-    _srtransform.translate(x, y)
+    ltransform.translate(x, y)
     t.tlayer.translate(x, y)
     t.tlayer.repaint()
   }
   
   def rotate(angle: Double) = Utils.runInSwingThread {
     val rt = AffineTransform.getRotateInstance(angle.toRadians)
-    _srtransform.concatenate(rt)
+    ltransform.concatenate(rt)
     transformBy(rt)
   }
   
   def scale(factor: Double) = Utils.runInSwingThread {
     val st = AffineTransform.getScaleInstance(factor, factor)
-    _srtransform.concatenate(st)
+    ltransform.concatenate(st)
     transformBy(st)
   }
   
@@ -119,7 +121,7 @@ case class Pic(painter: Painter) extends Picture with BoundsCacher {
       t.tlayer.setOffset(0, 0)
       t.tlayer.setRotation(0)
       t.tlayer.setScale(1)
-      _srtransform = new PAffineTransform
+      ltransform = new PAffineTransform
     }
     t.clear()
   }
@@ -134,30 +136,28 @@ case class Pic(painter: Painter) extends Picture with BoundsCacher {
 
 abstract class BasePicList(pics: Picture *) extends Picture with BoundsCacher {
   @volatile var padding = 0.0
-  var ptransform = new PAffineTransform
-  var _srtransform = new PAffineTransform
-  
-  def srtransform = Utils.runInSwingThreadAndWait {
-    _srtransform
-  }
+  // global transform - for all things done to this container *and* its containers
+  var gtransform = new PAffineTransform
+  // local transform, for things done just to this container
+  var ltransform = new PAffineTransform
   
   def rotate(angle: Double) = Utils.runInSwingThread {
-    ptransform.rotate(angle.toRadians)
-    srtransform.rotate(angle.toRadians)
+    gtransform.rotate(angle.toRadians)
+    ltransform.rotate(angle.toRadians)
   }
 
   def scale(factor: Double) = Utils.runInSwingThread {
-    ptransform.scale(factor, factor)
-    srtransform.scale(factor, factor)
+    gtransform.scale(factor, factor)
+    ltransform.scale(factor, factor)
   }
   
   def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    ptransform.concatenate(trans)
+    gtransform.concatenate(trans)
   }
   
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
-    ptransform.translate(x, y)
-    srtransform.translate(x, y)
+    gtransform.translate(x, y)
+    ltransform.translate(x, y)
   }
 
   def decorateWith(painter: Painter) {
@@ -168,15 +168,15 @@ abstract class BasePicList(pics: Picture *) extends Picture with BoundsCacher {
   
   def show() = Utils.runInSwingThread {
     pics.foreach { pic =>
-      pic.transformBy(ptransform)
+      pic.transformBy(gtransform)
     }
   }
   
   def clear() {
     cachedBounds = null
     Utils.runInSwingThread {
-      ptransform = new PAffineTransform
-      _srtransform = new PAffineTransform
+      gtransform = new PAffineTransform
+      ltransform = new PAffineTransform
     }
     pics.foreach { pic =>
       pic.clear()
@@ -209,7 +209,7 @@ object HPics {
 
 case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
 
-  def boundsHelper: PBounds = {
+  def boundsHelper: PBounds = Utils.runInSwingThreadAndWait {
     var width = 0.0
     var height = 0.0
     pics.foreach { pic =>
@@ -218,7 +218,8 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
       val h = nbounds.getMinY + nbounds.getHeight
       height = if (h > height) h else height
     }
-    new PBounds(srtransform.transform(new PBounds(0,0, width, height), null))
+    // bounds in container's coordinates
+    new PBounds(ltransform.transform(new PBounds(0,0, width, height), null))
   }
   
   override def show() {
@@ -228,8 +229,6 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
       pic.translate(ox, 0)
       pic.show()
       val nbounds = pic.bounds
-//      println("Pic %d tr bounds: %s" format(System.identityHashCode(pic), nbounds))
-//      println("Pic %d tr bounds min x: %f, width: %f" format(System.identityHashCode(pic), nbounds.getMinX, nbounds.getWidth))
       ox = nbounds.getMinX + nbounds.getWidth + padding
     }
   }
@@ -249,7 +248,7 @@ object VPics {
 
 case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
 
-  def boundsHelper: PBounds = {
+  def boundsHelper: PBounds = Utils.runInSwingThreadAndWait {
     var width = 0.0
     var height = 0.0
     pics.foreach { pic =>
@@ -258,7 +257,7 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
       val w = nbounds.getMinX + nbounds.getWidth
       width = if (w > width) w else width
     }
-    new PBounds(srtransform.transform(new PBounds(0,0, width, height), null))
+    new PBounds(ltransform.transform(new PBounds(0,0, width, height), null))
   }
 
   override def show() {
@@ -287,7 +286,7 @@ object GPics {
 
 case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
 
-  def boundsHelper: PBounds = {
+  def boundsHelper: PBounds = Utils.runInSwingThreadAndWait {
     var width = 0.0
     var height = 0.0
     pics.foreach { pic =>
@@ -297,7 +296,7 @@ case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
       val w = nbounds.getMinX + nbounds.getWidth
       width = if (w > width) w else width
     }
-    new PBounds(srtransform.transform(new PBounds(0,0, width, height), null))
+    new PBounds(ltransform.transform(new PBounds(0,0, width, height), null))
   }
 
   override def show() {
