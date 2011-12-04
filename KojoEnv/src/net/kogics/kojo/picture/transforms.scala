@@ -20,8 +20,6 @@ import java.awt.geom.Point2D
 
 trait Transformer extends Picture {
   val tpic: Picture
-  def toffset = tpic.toffset
-  def toffsetBy(x: Double, y: Double) = tpic.toffsetBy(x, y)
   def bounds = tpic.bounds
   def dumpInfo() = tpic.dumpInfo()
   def rotate(angle: Double) = tpic.rotate(angle)
@@ -57,7 +55,6 @@ case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
 case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
   def show() {
     pic.translate(x, y)
-    pic.toffsetBy(x, y)
     pic.show()
   }
   def copy = Trans(x, y)(pic.copy)
