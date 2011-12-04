@@ -17,7 +17,6 @@ package net.kogics.kojo
 package picture
 
 import java.awt.geom.AffineTransform
-import java.awt.geom.Point2D
 
 import util.Utils
 import edu.umd.cs.piccolo.PLayer
@@ -33,8 +32,6 @@ object Impl {
 trait Picture {
   def decorateWith(painter: Painter): Unit
   def show(): Unit
-  def toffset: Point2D
-  def toffsetBy(x: Double, y: Double): Unit
   def bounds: PBounds
   def rotate(angle: Double)
   def scale(factor: Double)
@@ -45,18 +42,6 @@ trait Picture {
   def copy: Picture
   def tnode: PLayer
   def srtransform: PAffineTransform
-}
-
-trait TOffsetImpl {
-  var _tx = 0.0
-  var _ty = 0.0
-  def toffset = Utils.runInSwingThreadAndWait {
-    new Point2D.Double(_tx, _ty)
-  }
-  def toffsetBy(x: Double, y: Double) = Utils.runInSwingThread {
-    _tx = x
-    _ty = y
-  }
 }
 
 trait BoundsCacher {
@@ -70,7 +55,7 @@ trait BoundsCacher {
   def boundsHelper: PBounds
 }
 
-case class Pic(painter: Painter) extends Picture with TOffsetImpl with BoundsCacher {
+case class Pic(painter: Painter) extends Picture with BoundsCacher {
   @volatile var _t: turtle.Turtle = _
   @volatile var penWidth = 0.0
   var _srtransform = new PAffineTransform
@@ -101,10 +86,14 @@ case class Pic(painter: Painter) extends Picture with TOffsetImpl with BoundsCac
   
   def boundsHelper = Utils.runInSwingThreadAndWait {
     val cb = t.tlayer.getUnionOfChildrenBounds(null)
-    new PBounds(cb.x + penWidth, cb.y + penWidth, toffset.getX + cb.width - 2*penWidth, toffset.getY + cb.height - 2 * penWidth)
+    new PBounds(_srtransform.transform(
+        new PBounds(cb.x + penWidth, cb.y + penWidth, cb.width - 2*penWidth, cb.height - 2 * penWidth), 
+        null
+      ))
   }
   
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
+    _srtransform.translate(x, y)
     t.tlayer.translate(x, y)
     t.tlayer.repaint()
   }
@@ -148,7 +137,7 @@ case class Pic(painter: Painter) extends Picture with TOffsetImpl with BoundsCac
   }
 }
 
-abstract class BasePicList(pics: Picture *) extends Picture with TOffsetImpl with BoundsCacher {
+abstract class BasePicList(pics: Picture *) extends Picture with BoundsCacher {
   @volatile var padding = 0.0
   var ptransform = new PAffineTransform
   var _srtransform = new PAffineTransform
@@ -173,6 +162,7 @@ abstract class BasePicList(pics: Picture *) extends Picture with TOffsetImpl wit
   
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
     ptransform.translate(x, y)
+    srtransform.translate(x, y)
   }
 
   def decorateWith(painter: Painter) {
@@ -210,7 +200,6 @@ abstract class BasePicList(pics: Picture *) extends Picture with TOffsetImpl wit
   def dumpInfo() {
     println("--- ")
     println("Pic List Bounds: " + bounds)
-    println("Pic List Local Offset: %s" format(toffset) )
     println("--- ")
     
     pics.foreach { pic =>
@@ -229,15 +218,12 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
     var width = 0.0
     var height = 0.0
     pics.foreach { pic =>
-      val ptoffset = pic.toffset
-      val pbounds = pic.bounds
-      val psrtransform = pic.srtransform
-      val nbounds = psrtransform.transform(pbounds, null)
-      width += nbounds.getMinX + nbounds.getWidth + padding
+      val nbounds = pic.bounds
+      width = nbounds.getMinX + nbounds.getWidth + padding
       val h = nbounds.getMinY + nbounds.getHeight
       height = if (h > height) h else height
     }
-    new PBounds(0,0, toffset.getX + width, toffset.getY + height)
+    new PBounds(srtransform.transform(new PBounds(0,0, width, height), null))
   }
   
   override def show() {
@@ -246,11 +232,10 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(ox, 0)
       pic.show()
-      val ptoffset = pic.toffset
-      val pbounds = pic.bounds
-      val psrtransform = pic.srtransform
-      val nbounds = psrtransform.transform(pbounds, null)
-      ox +=  nbounds.getMinX + nbounds.getWidth + padding
+      val nbounds = pic.bounds
+//      println("Pic %d tr bounds: %s" format(System.identityHashCode(pic), nbounds))
+//      println("Pic %d tr bounds min x: %f, width: %f" format(System.identityHashCode(pic), nbounds.getMinX, nbounds.getWidth))
+      ox = nbounds.getMinX + nbounds.getWidth + padding
     }
   }
 
@@ -273,15 +258,12 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
     var width = 0.0
     var height = 0.0
     pics.foreach { pic =>
-      val ptoffset = pic.toffset
-      val pbounds = pic.bounds
-      val psrtransform = pic.srtransform
-      val nbounds = psrtransform.transform(pbounds, null)
-      height += nbounds.getMinY + nbounds.getHeight + padding
+      val nbounds = pic.bounds
+      height = nbounds.getMinY + nbounds.getHeight + padding
       val w = nbounds.getMinX + nbounds.getWidth
       width = if (w > width) w else width
     }
-    new PBounds(0,0, toffset.getX + width, toffset.getY + height)
+    new PBounds(srtransform.transform(new PBounds(0,0, width, height), null))
   }
 
   override def show() {
@@ -290,11 +272,8 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(0, oy)
       pic.show()
-      val ptoffset = pic.toffset
-      val pbounds = pic.bounds
-      val psrtransform = pic.srtransform
-      val nbounds = psrtransform.transform(pbounds, null)
-      oy +=  nbounds.getMinY + nbounds.getHeight + padding
+      val nbounds = pic.bounds
+      oy = nbounds.getMinY + nbounds.getHeight + padding
     }
   }
 
@@ -317,16 +296,13 @@ case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
     var width = 0.0
     var height = 0.0
     pics.foreach { pic =>
-      val ptoffset = pic.toffset
-      val pbounds = pic.bounds
-      val psrtransform = pic.srtransform
-      val nbounds = psrtransform.transform(pbounds, null)
+      val nbounds = pic.bounds
       val h = nbounds.getMinY + nbounds.getHeight
       height = if (h > height) h else height
       val w = nbounds.getMinX + nbounds.getWidth
       width = if (w > width) w else width
     }
-    new PBounds(0,0, toffset.getX + width, toffset.getY + height)
+    new PBounds(srtransform.transform(new PBounds(0,0, width, height), null))
   }
 
   override def show() {
