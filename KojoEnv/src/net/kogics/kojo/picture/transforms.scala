@@ -29,7 +29,6 @@ trait Transformer extends Picture {
   def decorateWith(painter: Painter) = tpic.decorateWith(painter)
   def clear() = tpic.clear()
   def tnode = tpic.tnode
-  def srtransform = tpic.srtransform
 }
 
 abstract class Transform(pic: Picture) extends Transformer {
