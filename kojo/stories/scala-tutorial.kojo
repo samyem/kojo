@@ -1167,10 +1167,138 @@ onKeyPress{ k  => k match {
     forward(20)            
 }
 """.c,
-                 "You can modify the actions and re-run to see what happens. Type Kc. to find out what other key events can be recognised.".p     	
+                 "You can modify the actions and re-run to see what happens. Type Kc. to find out what other key events can be recognised.".p,
+
+                 "Conway's Game of Life".h3,
+                 "The Game of Life, also known simply as Life, is a cellular automaton devised by the British mathematician John Horton Conway in 1970".p,
+"See Wikipeadia entry".link("""http://en.wikipedia.org/wiki/Conway's_Game_of_Life"""),
+"The idea is that cells grow or die according to a simple set of rules.".p,
+table(row("Any live cell with fewer than two live neighbours dies, as if caused by under-population."),
+  row("Any live cell with two or three live neighbours lives on to the next generation."),
+  row("Any live cell with more than three live neighbours dies, as if by overcrowding."),
+  row("Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.")
+  ),
+  "This implementation illustrates how the 'foldLeft' method can be used in place of the 'for' method to iterate over the cell population.".p,
+"You can choose the starting pattern from a number of well known ones by changing the init line in the program. Different starting patterns are to be found at the end of the program. Try modifying the start patterns to see what happens.".p, 
+
+"The time per generation can changed by modifying the 'mod' value on t in the animate function.".p,  
+                 """import Staging._
+clear()
+setFillColor(blue)
+// ES is edge size of 'world' 
+val ES=128; val AS=ES*ES
+// Initialize vector to all dead cells
+var v = (0 until AS).foldLeft(Vector[Int]())((x,y)=> x :+ 0 )
+
+v=init(v,glider) // Choose initial pattern from those below
+
+// animation is about 30 frames per second or 32 milliseconds per frame
+var t=0
+animate {
+   if(t%5 == 0){
+     wipe()
+     disp(v)
+     v = (0 until AS).foldLeft(Vector[Int]())((x,y)=>x :+ ns(v,y)) 
+   }  
+   t+=1
+}
+// New generation
+def ns(v:Vector[Int],ix:Int)={
+ val rule=Vector(0,0,0,1,1,0,0,0,0,0) // life rules
+ val x=ix/ES ; val y=ix%ES
+ val t = (0 until 3).foldLeft(0)((st,i)=>{
+     st + (0 until 3).foldLeft(0)((s,j)=>{
+            val xt=x+i-1 ; val yt=y+j-1
+            s+(if((xt<0)||(xt>=ES)||(yt<0)||(yt>=ES)) 0 else v(xt*ES+yt))   
+            })
+     })
+   if(v(ix)==1) rule(t) else {if (t==3) 1 else 0}
+}
+// display cells
+def disp(v:Vector[Int])= for(i<- 0 until AS)
+    if(v(i)==1)circle((i/ES)*10-ES*5,(i%ES)*10-ES*5, 5)
+// set up starting pattern   
+def init(v:Vector[Int],p:List[(Int,Int)]) = p.foldLeft(v)((x,y)=> x.updated( (y._1 + ES/2)* ES+y._2 + ES/2,1))
+
+// Some well known starting patterns  
+def fpent=List((0,1),(1,0),(1,1),(1,2),(2,2))
+def diehard=List((0,1),(1,0),(1,1),(5,0),(6,0),(7,0),(6,2))
+def acorn=List((0,0),(1,0),(1,2),(3,1),(4,0),(5,0),(6,0))
+def glider=List((-18,3),(-18,4),(-17,3),(-17,4),(-8,2),(-8,3),(-8,4),(-7,1),(-7,5),
+    (-6,0),(-6,6),(-5,0),(-5,6),(-4,3),(-3,1),(-3,5),(-2,2),(-2,3),(-2,4),
+	(-1,3),(2,4),(2,5),(2,6),(3,4),(3,5),(3,6),(4,3),(4,7),
+	(6,2),(6,3),(6,7),(6,8),(16,5),(16,6),(17,5),(17,6))
+def block1=List((0,0),(2,0),(2,1),(4,2),(4,3),(4,4),(6,3),(6,4),(6,5),(7,4)) 
+def block2=List((0,0),(0,3),(0,4),(1,1),(1,4),(2,0),(2,1),(2,4),(3,2),(4,0),
+            (4,1),(4,2),(4,4))
+def tiny=List((-18,0),(-17,0),(-16,0),(-15,0),(-14,0),(-13,0),(-12,0),(-11,0),(-9,0),(-8,0),
+        (-7,0),(-6,0),(-5,0),(-1,0),(0,0),(1,0),(8,0),(9,0),(10,0),
+	(11,0),(12,0),(13,0),(14,0),(16,0),(17,0),(18,0),(19,0),(20,0))	""".c,
+	
+"Tangle".h3,
+"Here is a game that illustrates how you can use the Scala collections and mouse drag-and-drop to create a fun game to play.".p,
+"The game was based on a game called Planarity. The idea is to use the mouse to re-arrange the circles so that none of the joining lines cross one and other. Press the left mouse button on a circle to drag it. A new game is started by clicking on the red square.".p,
+"You can increase the difficulty of the game by changing the value ES in the program. Larger values make it more difficult.".p,
+"The inspiration for Tangle is Planarity".link("http://www.planarity.net/"),
+				 
+"""import Staging._
+import math.pow,math.random
+// Tangle based on Planarity
+clear()
+// ES sets difficulty level
+val ES=4;val AS=ES*ES
+val Ra=10
+// Edge is a line between two nodes
+case class EdgeP(n1:NodeP,n2:NodeP){
+var e=line(n1.x,n1.y,n2.x,n2.y)
+}
+// edges is all the edges, initially empty
+var edges=Vector[EdgeP]()
+// Node is a circle which is dragable. Redraws edges when dragged
+case class NodeP(var x:Double,var y:Double){
+  val n=circle(x,y,Ra)
+  n.setFillColor(blue)
+  def goTo(gx:Double,gy:Double){
+   x=gx ; y=gy
+   n.setPosition(gx,gy)   
+  }
+  n.onMouseDrag{(mx, my) => {n.setPosition(mx, my);x=mx;y=my;drawEdges(edges)}}
+}
+// Create and link all nodes topologically in a square 
+val p=(0 until AS).foldLeft(Vector[NodeP]())((v,i)=>{v :+ NodeP(0,0)})
+
+// Create all edges, link to adjacent nodes   
+edges=(0 until AS).foldLeft(Vector[EdgeP]())(
+    (ev,i)=>{
+        val x=i/ES; val y=i%ES 
+        val te=if(y<ES-1) {ev :+ EdgeP(p(i),p(i+1))} else ev
+        if(x<ES-1) {te :+ EdgeP(p(i),p(i+ES))} else te
+    })
+// draw all edges
+putRand(p)
+// Button for new game
+val b=square(-ES*35,-ES*35, 20)
+b.setFillColor(red)
+b.onMouseClick { (x, y) =>putRand(p)}
+// randomise node positions
+def putRand(p:Vector[NodeP]){
+   p.foreach(tn=>tn.goTo(ES*Ra*6*(random - 0.5),ES*Ra*6*(random - 0.5)))    
+   drawEdges(edges) 
+   }    
+//draw edges between nodes and start line from circumference of circle
+def drawEdges(ev:Vector[EdgeP]){ 
+   ev.foreach(te=>{
+     val x1=te.n1.x ; val y1=te.n1.y
+     val x2=te.n2.x ; val y2=te.n2.y
+     val len=sqrt(pow(x2-x1,2) + pow(y2-y1,2))
+     val xr=Ra/len*(x2-x1) ; val yr=Ra/len*(y2-y1) 
+     te.e.erase;
+     te.e=line(x1+xr,y1+yr,x2-xr,y2-yr)
+     }) 
+   }
+""".c
     )
 )
-
 	
 pages += Page(
     name = "LM",
