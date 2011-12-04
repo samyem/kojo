@@ -101,7 +101,7 @@ case class Pic(painter: Painter) extends Picture with TOffsetImpl with BoundsCac
   
   def boundsHelper = Utils.runInSwingThreadAndWait {
     val cb = t.tlayer.getUnionOfChildrenBounds(null)
-    new PBounds(cb.x + penWidth, cb.y + penWidth, cb.width - 2*penWidth, cb.height - 2 * penWidth)
+    new PBounds(cb.x + penWidth, cb.y + penWidth, toffset.getX + cb.width - 2*penWidth, toffset.getY + cb.height - 2 * penWidth)
   }
   
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
@@ -232,12 +232,12 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
       val ptoffset = pic.toffset
       val pbounds = pic.bounds
       val psrtransform = pic.srtransform
-      val zx = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, 0), null)
-      val zy = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, ptoffset.getY + pbounds.height), null)
-      width += zx.getX + padding
-      height = if (zy.getY > height) zy.getY else height
+      val nbounds = psrtransform.transform(pbounds, null)
+      width += nbounds.getMinX + nbounds.getWidth + padding
+      val h = nbounds.getMinY + nbounds.getHeight
+      height = if (h > height) h else height
     }
-    new PBounds(0,0,width,height)
+    new PBounds(0,0, toffset.getX + width, toffset.getY + height)
   }
   
   override def show() {
@@ -246,9 +246,11 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(ox, 0)
       pic.show()
-      val zz = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width,0), null)
-//      println("For Picture %d, pre nextOffset is %f and post nextOffset is %f" format(System.identityHashCode(pic), pic.toffset.getX + pic.bounds.width, zz.getX))
-      ox += zz.getX + padding
+      val ptoffset = pic.toffset
+      val pbounds = pic.bounds
+      val psrtransform = pic.srtransform
+      val nbounds = psrtransform.transform(pbounds, null)
+      ox +=  nbounds.getMinX + nbounds.getWidth + padding
     }
   }
 
@@ -274,12 +276,12 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
       val ptoffset = pic.toffset
       val pbounds = pic.bounds
       val psrtransform = pic.srtransform
-      val zx = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, 0), null)
-      val zy = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, ptoffset.getY + pbounds.height), null)
-      height += zy.getY + padding
-      width = if (zx.getX > width) zx.getX else width
+      val nbounds = psrtransform.transform(pbounds, null)
+      height += nbounds.getMinY + nbounds.getHeight + padding
+      val w = nbounds.getMinX + nbounds.getWidth
+      width = if (w > width) w else width
     }
-    new PBounds(0,0,width,height)
+    new PBounds(0,0, toffset.getX + width, toffset.getY + height)
   }
 
   override def show() {
@@ -288,9 +290,11 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(0, oy)
       pic.show()
-      val zz = pic.srtransform.transform(new Point2D.Double(pic.toffset.getX + pic.bounds.width, pic.toffset.getY + pic.bounds.height), null)
-//      println("For Picture %d, pre nextOffset is %f and post nextOffset is %f" format(System.identityHashCode(pic), pic.toffset.getY + pic.bounds.height, zz.getY))
-      oy += zz.getY + padding
+      val ptoffset = pic.toffset
+      val pbounds = pic.bounds
+      val psrtransform = pic.srtransform
+      val nbounds = psrtransform.transform(pbounds, null)
+      oy +=  nbounds.getMinY + nbounds.getHeight + padding
     }
   }
 
@@ -316,12 +320,13 @@ case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
       val ptoffset = pic.toffset
       val pbounds = pic.bounds
       val psrtransform = pic.srtransform
-      val zx = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, 0), null)
-      val zy = psrtransform.transform(new Point2D.Double(ptoffset.getX + pbounds.width, ptoffset.getY + pbounds.height), null)
-      height = if (zy.getY > height) zy.getY else height
-      width = if (zx.getX > width) zx.getX else width
+      val nbounds = psrtransform.transform(pbounds, null)
+      val h = nbounds.getMinY + nbounds.getHeight
+      height = if (h > height) h else height
+      val w = nbounds.getMinX + nbounds.getWidth
+      width = if (w > width) w else width
     }
-    new PBounds(0,0,width,height)
+    new PBounds(0,0, toffset.getX + width, toffset.getY + height)
   }
 
   override def show() {
