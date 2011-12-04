@@ -41,7 +41,6 @@ trait Picture {
   def clear(): Unit
   def copy: Picture
   def tnode: PLayer
-  def srtransform: PAffineTransform
 }
 
 trait BoundsCacher {
@@ -59,10 +58,6 @@ case class Pic(painter: Painter) extends Picture with BoundsCacher {
   @volatile var _t: turtle.Turtle = _
   @volatile var penWidth = 0.0
   var _srtransform = new PAffineTransform
-  
-  def srtransform = Utils.runInSwingThreadAndWait {
-    _srtransform
-  }
   
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
