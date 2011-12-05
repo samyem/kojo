@@ -1169,6 +1169,43 @@ onKeyPress{ k  => k match {
 """.c,
                  "You can modify the actions and re-run to see what happens. Type Kc. to find out what other key events can be recognised.".p,
 
+                 "Clock".h3,
+                 "Here is a short example that illustrates how to use the staging graphics to display a clock.".p, 
+                 "The Date library functions are used to find current time and date.".p,
+   """import Staging._
+clear
+val Sc=100
+val Pi2=2.0*math.Pi // 2*Pi radians in a circle
+def clkFace={
+  circle(0,0,Sc)
+  for(i<-0 to 59){
+    val ra=Pi2*i/60
+    val x=Sc*sin(ra);val y=Sc*cos(ra)
+    val tks=if(i%5==0) 0.9 else 0.95
+    line(tks*x,tks*y,x,y)
+    }
+}
+// the animate function runs around 30-50 times a second
+animate{
+  var d=new java.util.Date
+  wipe
+  setPenColor(red)
+  clkFace
+  setPenColor(blue)
+
+  val s=Pi2*d.getSeconds/60
+  line(0,0,0.9*Sc*sin(s),0.9*Sc*cos(s))
+
+  val m=Pi2*d.getMinutes/60
+  line(0,0,0.8*Sc*sin(m),0.8*Sc*cos(m))
+  
+  val h=Pi2*d.getHours/12
+  line(0,0,0.6*Sc*sin(h),0.6*Sc*cos(h))
+  
+  text(d.toString, -Sc, -Sc-20)
+}
+""".c,
+
                  "Conway's Game of Life".h3,
                  "The Game of Life, also known simply as Life, is a cellular automaton devised by the British mathematician John Horton Conway in 1970".p,
 "See Wikipeadia entry".link("""http://en.wikipedia.org/wiki/Conway's_Game_of_Life"""),
