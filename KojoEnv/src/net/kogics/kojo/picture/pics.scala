@@ -37,6 +37,7 @@ trait Picture {
   def scale(factor: Double)
   def translate(x: Double, y: Double)
   def transformBy(trans: AffineTransform)
+  def preTransformBy(trans: AffineTransform)
   def dumpInfo(): Unit
   def clear(): Unit
   def copy: Picture
@@ -54,11 +55,31 @@ trait BoundsCacher {
   def boundsHelper: PBounds
 }
 
-case class Pic(painter: Painter) extends Picture with BoundsCacher {
-  @volatile var _t: turtle.Turtle = _
-  @volatile var penWidth = 0.0
+trait LocalTtransformer {self: Picture =>
   // local transform, for things done just to this pic (as opposed to this pic *and* its containers)
   var ltransform = new PAffineTransform
+
+  def doLocalTrans(t: AffineTransform) {
+    ltransform.concatenate(t)
+    transformBy(t)
+  }
+  
+  def rotate(angle: Double) = Utils.runInSwingThread {
+    doLocalTrans(AffineTransform.getRotateInstance(angle.toRadians))
+  }
+
+  def scale(factor: Double) = Utils.runInSwingThread {
+    doLocalTrans(AffineTransform.getScaleInstance(factor, factor))
+  }
+  
+  def translate(x: Double, y: Double) = Utils.runInSwingThread {
+    doLocalTrans(AffineTransform.getTranslateInstance(x, y))
+  }
+}
+
+case class Pic(painter: Painter) extends Picture with BoundsCacher with LocalTtransformer {
+  @volatile var _t: turtle.Turtle = _
+  @volatile var penWidth = 0.0
   
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
@@ -89,30 +110,17 @@ case class Pic(painter: Painter) extends Picture with BoundsCacher {
       ))
   }
   
-  def translate(x: Double, y: Double) = Utils.runInSwingThread {
-    ltransform.translate(x, y)
-    t.tlayer.translate(x, y)
+  def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
+    t.tlayer.transformBy(trans)
     t.tlayer.repaint()
   }
   
-  def rotate(angle: Double) = Utils.runInSwingThread {
-    val rt = AffineTransform.getRotateInstance(angle.toRadians)
-    ltransform.concatenate(rt)
-    transformBy(rt)
-  }
-  
-  def scale(factor: Double) = Utils.runInSwingThread {
-    val st = AffineTransform.getScaleInstance(factor, factor)
-    ltransform.concatenate(st)
-    transformBy(st)
-  }
-  
-  def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    t.tlayer.transformBy(trans)
+  def preTransformBy(trans: AffineTransform) = Utils.runInSwingThread {
+    t.tlayer.getTransformReference(true).preConcatenate(trans)
     t.tlayer.invalidatePaint();
     t.tlayer.invalidateFullBounds();
     t.tlayer.repaint()
-  }
+  }  
     
   def copy = Pic(painter)
   def clear() {
@@ -134,32 +142,28 @@ case class Pic(painter: Painter) extends Picture with BoundsCacher {
   }
 }
 
-abstract class BasePicList(pics: Picture *) extends Picture with BoundsCacher {
+abstract class BasePicList(pics: Picture *) extends Picture with BoundsCacher with LocalTtransformer {
   @volatile var padding = 0.0
   // global transform - for all things done to this container *and* its containers
   var gtransform = new PAffineTransform
-  // local transform, for things done just to this container
-  var ltransform = new PAffineTransform
-  
-  def rotate(angle: Double) = Utils.runInSwingThread {
-    gtransform.rotate(angle.toRadians)
-    ltransform.rotate(angle.toRadians)
-  }
-
-  def scale(factor: Double) = Utils.runInSwingThread {
-    gtransform.scale(factor, factor)
-    ltransform.scale(factor, factor)
-  }
+  var visible = false
   
   def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    gtransform.concatenate(trans)
-  }
-  
-  def translate(x: Double, y: Double) = Utils.runInSwingThread {
-    gtransform.translate(x, y)
-    ltransform.translate(x, y)
+    if (!visible) {
+      gtransform.concatenate(trans)
+    }
+    else {
+      preTransformBy(trans)
+    }
   }
 
+  def preTransformBy(trans: AffineTransform) = Utils.runInSwingThread {
+    gtransform.preConcatenate(trans)
+    pics.foreach { pic =>
+      pic.preTransformBy(trans)
+    }
+  }
+  
   def decorateWith(painter: Painter) {
     pics.foreach { pic =>
       pic.decorateWith(painter)
@@ -167,12 +171,14 @@ abstract class BasePicList(pics: Picture *) extends Picture with BoundsCacher {
   }
   
   def show() = Utils.runInSwingThread {
+    visible = true
     pics.foreach { pic =>
       pic.transformBy(gtransform)
     }
   }
   
   def clear() {
+    visible = false
     cachedBounds = null
     Utils.runInSwingThread {
       gtransform = new PAffineTransform
