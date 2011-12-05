@@ -51,7 +51,8 @@ object CodeCompletionUtils {
     "penWidth" -> "penWidth(${n})",
     "spin" -> "spin(${n})",
     "reflect" -> "reflect(${gap})",
-    "show" -> "show(${pic})"
+    "show" -> "show(${pic})",
+    "animate" -> "animate {\n    ${cursor}\n}"
   )
   
   val TwMethodTemplates = Map(
@@ -143,7 +144,6 @@ object CodeCompletionUtils {
     "mag" -> "mag(${x}, ${y})",
     "lerp" -> "lerp(${low}, ${high}, ${value})",
     "loop" -> "loop {\n    ${cursor}\n}",
-    "animate" -> "animate {\n    ${cursor}\n}",
     "stop" -> "stop()",
     "reset" -> "reset()",
     "wipe" -> "wipe()",
