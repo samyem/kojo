@@ -52,7 +52,9 @@ object CodeCompletionUtils {
     "spin" -> "spin(${n})",
     "reflect" -> "reflect(${gap})",
     "show" -> "show(${pic})",
-    "animate" -> "animate {\n    ${cursor}\n}"
+    "animate" -> "animate {\n    ${cursor}\n}",
+    "row" -> "row(${picture}, ${n})",
+    "col" -> "col(${picture}, ${n})"
   )
   
   val TwMethodTemplates = Map(
