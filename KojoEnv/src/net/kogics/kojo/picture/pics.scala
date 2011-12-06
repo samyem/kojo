@@ -223,6 +223,8 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
       width = nbounds.getMinX + nbounds.getWidth + padding
       val h = nbounds.getMinY + nbounds.getHeight
       height = if (h > height) h else height
+//      println("Child Pic %d has bounds %s. Parent %d rn width: %f, rn height: %f" 
+//              format(System.identityHashCode(pic), nbounds, System.identityHashCode(this), width, height))
     }
     // bounds in container's coordinates
     new PBounds(ltransform.transform(new PBounds(0,0, width, height), null))
