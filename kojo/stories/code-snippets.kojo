@@ -116,6 +116,13 @@ val pg = Page(
     body =
         <body style={pageStyle}>
             {pgHeader("Code Snippets")}
+
+            <div style="color:2E2E2E;margin:15px">
+                This story has many examples that you can run by simply clicking on them; 
+                they will be copied to the Kojo Script Editor and run for you. 
+                Within the Editor, you can modify the example code and run it again - 
+                by clicking on the <em>Run</em> button in the editor toolbar. 
+            </div>
             
             <p>This page contains snippets of code demonstrating ideas that are commonly used in Kojo programs. You can refer to this page as needed - while writing Kojo code.</p>
             <p>Things to remember:</p>
