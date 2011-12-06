@@ -215,6 +215,18 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Stories.Pictures.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_Pictures"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+            <file name="net-kogics-kojo-Stories.Snippets.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_Snippets"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
             <file name="net-kogics-kojo-Stories.Simple.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.stories.Stories"/>
                 <attr name="displayName" bundlevalue="net.kogics.kojo.stories.Bundle#CTL_Simple"/>
@@ -396,8 +408,16 @@
                 <attr name="position" intvalue="2"/>
                 <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.ScalaTut.instance"/>
             </file>
-            <folder name="Math">
+            <file name="net-kogics-kojo-Stories.Pictures.shadow">
                 <attr name="position" intvalue="3"/>
+                <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Pictures.instance"/>
+            </file>
+            <file name="net-kogics-kojo-Stories.Snippets.shadow">
+                <attr name="position" intvalue="4"/>
+                <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Snippets.instance"/>
+            </file>
+            <folder name="Math">
+                <attr name="position" intvalue="5"/>
                 <file name="net-kogics-kojo-Stories.AddFrac.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.AddFrac.instance"/>
@@ -408,7 +428,7 @@
                 </file>
             </folder>
             <folder name="Learn">
-                <attr name="position" intvalue="4"/>
+                <attr name="position" intvalue="6"/>
                 <file name="net-kogics-kojo-Stories.Simple.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Simple.instance"/>
@@ -431,7 +451,7 @@
                 </file>
             </folder>
             <folder name="Tools">
-                <attr name="position" intvalue="5"/>
+                <attr name="position" intvalue="7"/>
                 <file name="net-kogics-kojo-Stories.ScalaTestSetup.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.ScalaTestSetup.instance"/>

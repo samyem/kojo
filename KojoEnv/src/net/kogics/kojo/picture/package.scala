@@ -15,4 +15,18 @@ package object picture {
   
   def spin(n: Int) = Spinc(n)
   def reflect(n: Int) = Reflectc(n)
+  def row(p: Picture, n: Int) = {
+    val lb = collection.mutable.ListBuffer[Picture]()
+    for (i <- 1 to n) {
+      lb += p.copy
+    }
+    HPics(lb.toList)
+  }
+  def col(p: => Picture, n: Int) = {
+    val lb = collection.mutable.ListBuffer[Picture]()
+    for (i <- 1 to n) {
+      lb += p.copy
+    }
+    VPics(lb.toList)
+  }
 }

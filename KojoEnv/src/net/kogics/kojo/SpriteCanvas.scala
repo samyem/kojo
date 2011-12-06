@@ -685,7 +685,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         }
       })
     add(resetPanZoomItem)
-    val clearItem = new JMenuItem("Stop Animation and Clear ")
+    val clearItem = new JMenuItem("Clear + Stop Animation")
     clearItem.addActionListener(new ActionListener {
         override def actionPerformed(e: ActionEvent) {
           forceClear()

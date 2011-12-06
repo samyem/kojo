@@ -1199,7 +1199,7 @@ animate{
   val m=Pi2*d.getMinutes/60
   line(0,0,0.8*Sc*sin(m),0.8*Sc*cos(m))
   
-  val h=Pi2*d.getHours/12
+  val h=Pi2*d.getHours/12+m/12
   line(0,0,0.6*Sc*sin(h),0.6*Sc*cos(h))
   
   text(d.toString, -Sc, -Sc-20)
@@ -1361,12 +1361,11 @@ pages += Page(
 )
 
 val story = Story(pages: _*)
-stClear()
-stPlayStory(story)
 clearOutput
-
+stClear()
 stAddLinkHandler("example", story) {idx: Int =>
     stSetScript(codeExamples(idx))
     stClickRunButton()
     clearOutput
 }
+stPlayStory(story)

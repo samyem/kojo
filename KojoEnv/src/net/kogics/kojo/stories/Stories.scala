@@ -43,6 +43,8 @@ class Stories extends ActionListener {
     val klass = classOf[Stories]
     val KojoOverview = BundleMessage(klass, "CTL_KojoOverview")
     val ScalaTut = BundleMessage(klass, "CTL_ScalaTut")
+    val Pictures = BundleMessage(klass, "CTL_Pictures")
+    val Snippets = BundleMessage(klass, "CTL_Snippets")
     val AddFrac = BundleMessage(klass, "CTL_AddFrac")
     val Pi = BundleMessage(klass, "CTL_Pi")
     val SimpleStory = BundleMessage(klass, "CTL_Simple")
@@ -55,6 +57,8 @@ class Stories extends ActionListener {
     e.getActionCommand match {
       case KojoOverview(_) => Utils.readFile(storyStream("kojo-overview.kojo"))
       case ScalaTut(_) => Utils.readFile(storyStream("scala-tutorial.kojo"))
+      case Pictures(_) => Utils.readFile(storyStream("pictures.kojo"))
+      case Snippets(_) => Utils.readFile(storyStream("code-snippets.kojo"))
       case AddFrac(_) => Utils.readFile(storyStream("adding-fractions.kojo"))
       case Pi(_) => Utils.readFile(storyStream("archimedes-pi.kojo"))
       case SimpleStory(_) => Utils.readFile(storyStream("simple-story.kojo"))

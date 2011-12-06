@@ -515,6 +515,8 @@ Here's a partial list of the available commands:
   type Reflect = picture.Reflect
   val Reflect = picture.Reflect
   val reflect = picture.reflect _
+  val row = picture.row _
+  val col = picture.col _
 
   def pict(painter: Painter) = Pic(painter)
   def show(picture: Picture) = picture.show()
