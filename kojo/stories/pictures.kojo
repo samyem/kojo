@@ -250,13 +250,18 @@ val pg = Page(
     body =
         <body style={pageStyle}>
             {pgHeader("Pictures in Kojo")}
-
+            <div style="color:2E2E2E;margin:15px">
+                This story has many examples that you can run by simply clicking on them; 
+                they will be copied to the Kojo Script Editor and run for you. 
+                Within the Editor, you can modify the example code and run it again - 
+                by clicking on the <em>Run</em> button in the editor toolbar. 
+            </div>
             <h4 id="toc0"><span>The Basics</span></h4>
             <p>You start by creating a seed pattern. This can be anything that you can get the turtle to make (Staging shapes will come later). Here's a simple example:</p>
             
             {code(0)}
             
-            <p>Now you have a couple of functions to create seed patterns for you.</p>
+            <p>Now you have a couple of functions to create seed patterns for you (make sure that you click on the code above).</p>
             <p>You draw your pattern on the screen like this:</p>
             {code(1)}
             <p>Let's make a richer picture.</p>
