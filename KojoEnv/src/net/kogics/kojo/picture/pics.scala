@@ -19,14 +19,13 @@ package picture
 import java.awt.geom.AffineTransform
 
 import util.Utils
-import edu.umd.cs.piccolo.PLayer
-import edu.umd.cs.piccolo.util.PAffineTransform
+import edu.umd.cs.piccolo.PNode
 import edu.umd.cs.piccolo.util.PBounds 
 
 object Impl {
   val canvas = SpriteCanvas.instance
-//  val turtle0 = canvas.turtle0
-//  val figure0 = canvas.figure0
+  val camera = canvas.getCamera
+  val picLayer = canvas.pictures
 }
 
 trait Picture {
@@ -37,153 +36,117 @@ trait Picture {
   def scale(factor: Double)
   def translate(x: Double, y: Double)
   def transformBy(trans: AffineTransform)
-  def preTransformBy(trans: AffineTransform)
   def dumpInfo(): Unit
   def clear(): Unit
   def copy: Picture
-  def tnode: PLayer
+  def tnode: PNode
 }
 
-trait BoundsCacher {
-  @volatile var cachedBounds: PBounds = _
-  def bounds = {
-    if (cachedBounds == null) {
-      cachedBounds = boundsHelper
-    }
-    cachedBounds
-  }
-  def boundsHelper: PBounds
-}
-
-trait LocalTtransformer {self: Picture =>
-  // local transform, for things done just to this pic (as opposed to this pic *and* its containers)
-  var ltransform = new PAffineTransform
-
-  def doLocalTrans(t: AffineTransform) {
-    ltransform.concatenate(t)
-    transformBy(t)
-  }
-  
+trait RSTImpl {self: Picture =>
   def rotate(angle: Double) = Utils.runInSwingThread {
-    doLocalTrans(AffineTransform.getRotateInstance(angle.toRadians))
+    transformBy(AffineTransform.getRotateInstance(angle.toRadians))
   }
 
   def scale(factor: Double) = Utils.runInSwingThread {
-    doLocalTrans(AffineTransform.getScaleInstance(factor, factor))
+    transformBy(AffineTransform.getScaleInstance(factor, factor))
   }
   
   def translate(x: Double, y: Double) = Utils.runInSwingThread {
-    doLocalTrans(AffineTransform.getTranslateInstance(x, y))
+    transformBy(AffineTransform.getTranslateInstance(x, y))
   }
 }
 
-case class Pic(painter: Painter) extends Picture with BoundsCacher with LocalTtransformer {
+case class Pic(painter: Painter) extends Picture with RSTImpl {
   @volatile var _t: turtle.Turtle = _
   @volatile var penWidth = 0.0
-  
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
       _t = Impl.canvas.newTurtle(0, 0)
+      val tl = _t.tlayer
+//      println("Pic %x being inited. Tnode is %x" format(System.identityHashCode(this), System.identityHashCode(tl)))
+      Impl.camera.removeLayer(tl)
+      Impl.picLayer.addChild(tl)
+      tl.repaint()
+      Impl.picLayer.repaint
     }
     _t
   }
   
   def tnode = t.tlayer
-
+  
   def decorateWith(painter: Painter) = painter(t)
   def show() = {
+//    println("Pic %x being shown. Tnode is %x" format(System.identityHashCode(this), System.identityHashCode(tnode)))
     painter(t)
     t.waitFor()
     penWidth = _t.pen.getThickness
+    Utils.runInSwingThread {
+      val tl = tnode
+      tl.invalidateFullBounds()
+      tl.repaint()
+      Impl.picLayer.repaint
+    }
   }
   
-  def offset = Utils.runInSwingThreadAndWait {
-    t.tlayer.getOffset
-  }  
-  
-  def boundsHelper = Utils.runInSwingThreadAndWait {
-    val cb = t.tlayer.getUnionOfChildrenBounds(null)
-    // bounds in container's coordinates
-    new PBounds(ltransform.transform(
-        new PBounds(cb.x + penWidth, cb.y + penWidth, cb.width - 2*penWidth, cb.height - 2 * penWidth), 
-        null
-      ))
+  def bounds = Utils.runInSwingThreadAndWait {
+    tnode.getFullBounds
   }
   
   def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    t.tlayer.transformBy(trans)
-    t.tlayer.repaint()
+    tnode.transformBy(trans)
+    tnode.repaint()
   }
   
-  def preTransformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    t.tlayer.getTransformReference(true).preConcatenate(trans)
-    t.tlayer.invalidatePaint();
-    t.tlayer.invalidateFullBounds();
-    t.tlayer.repaint()
-  }  
-    
   def copy = Pic(painter)
   def clear() {
-    cachedBounds = null
     Utils.runInSwingThread {
-      t.tlayer.setOffset(0, 0)
-      t.tlayer.setRotation(0)
-      t.tlayer.setScale(1)
-      ltransform = new PAffineTransform
+      tnode.setOffset(0, 0)
+      tnode.setRotation(0)
+      tnode.setScale(1)
     }
-    t.clear()
+// todo    t.clear()
   }
     
   def dumpInfo() = Utils.runInSwingThreadAndWait {
     println(">>> Pic Start - " +  System.identityHashCode(this))
     println("Bounds: " + bounds)
-    println("Offset: " + t.tlayer.getOffset)
+    println("Tnode: " + System.identityHashCode(tnode))
     println("<<< Pic End\n")
   }
 }
 
-abstract class BasePicList(pics: Picture *) extends Picture with BoundsCacher with LocalTtransformer {
+abstract class BasePicList(pics: Picture *) extends Picture with RSTImpl {
   @volatile var padding = 0.0
-  // global transform - for all things done to this container *and* its containers
-  var gtransform = new PAffineTransform
-  var visible = false
+  var _tnode: PNode = _
+  def tnode = Utils.runInSwingThreadAndWait {
+    if (_tnode == null) {
+      _tnode = new PNode()
+//      println("Pic List %x being inited. Tnode is %x" format(System.identityHashCode(this), System.identityHashCode(_tnode)))
+      pics.foreach { pic =>
+        Impl.picLayer.removeChild(pic.tnode)
+        tnode.addChild(pic.tnode)
+      }
+      Impl.picLayer.addChild(tnode)
+    }
+    _tnode
+  }
+  
+  def bounds = Utils.runInSwingThreadAndWait {
+    tnode.getFullBounds
+  }
   
   def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    if (!visible) {
-      gtransform.concatenate(trans)
-    }
-    else {
-      preTransformBy(trans)
-    }
+    tnode.transformBy(trans)
+    tnode.repaint()
   }
 
-  def preTransformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    gtransform.preConcatenate(trans)
-    pics.foreach { pic =>
-      pic.preTransformBy(trans)
-    }
-  }
-  
   def decorateWith(painter: Painter) {
     pics.foreach { pic =>
       pic.decorateWith(painter)
     }
   }
   
-  def show() = Utils.runInSwingThread {
-    visible = true
-    pics.foreach { pic =>
-      pic.transformBy(gtransform)
-    }
-  }
-  
   def clear() {
-    visible = false
-    cachedBounds = null
-    Utils.runInSwingThread {
-      gtransform = new PAffineTransform
-      ltransform = new PAffineTransform
-    }
     pics.foreach { pic =>
       pic.clear()
     }
@@ -196,11 +159,14 @@ abstract class BasePicList(pics: Picture *) extends Picture with BoundsCacher wi
   
   protected def picsCopy: List[Picture] = pics.map {_ copy}.toList
   
-  def tnode = throw new UnsupportedOperationException
+  def repaint() = Utils.runInSwingThread {
+    tnode.repaint()
+  }
   
   def dumpInfo() {
     println("--- ")
     println("Pic List Bounds: " + bounds)
+    println("Pic List Tnode: " + System.identityHashCode(tnode))
     println("--- ")
     
     pics.foreach { pic =>
@@ -214,28 +180,13 @@ object HPics {
 }
 
 case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
-
-  def boundsHelper: PBounds = Utils.runInSwingThreadAndWait {
-    var width = 0.0
-    var height = 0.0
-    pics.foreach { pic =>
-      val nbounds = pic.bounds
-      width = nbounds.getMinX + nbounds.getWidth + padding
-      val h = nbounds.getMinY + nbounds.getHeight
-      height = if (h > height) h else height
-//      println("Child Pic %d has bounds %s. Parent %d rn width: %f, rn height: %f" 
-//              format(System.identityHashCode(pic), nbounds, System.identityHashCode(this), width, height))
-    }
-    // bounds in container's coordinates
-    new PBounds(ltransform.transform(new PBounds(0,0, width, height), null))
-  }
-  
-  override def show() {
-    super.show()
+  def show() {
     var ox = 0.0
+//    println("Pic List %x being shown. Tnode is %x. Tnode children are: %s" format(System.identityHashCode(this), System.identityHashCode(tnode), tnode.getChildrenReference))
     pics.foreach { pic =>
       pic.translate(ox, 0)
       pic.show()
+      repaint()
       val nbounds = pic.bounds
       ox = nbounds.getMinX + nbounds.getWidth + padding
     }
@@ -255,25 +206,12 @@ object VPics {
 }
 
 case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
-
-  def boundsHelper: PBounds = Utils.runInSwingThreadAndWait {
-    var width = 0.0
-    var height = 0.0
-    pics.foreach { pic =>
-      val nbounds = pic.bounds
-      height = nbounds.getMinY + nbounds.getHeight + padding
-      val w = nbounds.getMinX + nbounds.getWidth
-      width = if (w > width) w else width
-    }
-    new PBounds(ltransform.transform(new PBounds(0,0, width, height), null))
-  }
-
-  override def show() {
-    super.show()
+  def show() {
     var oy = 0.0
     pics.foreach { pic =>
       pic.translate(0, oy)
       pic.show()
+      repaint()
       val nbounds = pic.bounds
       oy = nbounds.getMinY + nbounds.getHeight + padding
     }
@@ -294,23 +232,10 @@ object GPics {
 
 case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
 
-  def boundsHelper: PBounds = Utils.runInSwingThreadAndWait {
-    var width = 0.0
-    var height = 0.0
-    pics.foreach { pic =>
-      val nbounds = pic.bounds
-      val h = nbounds.getMinY + nbounds.getHeight
-      height = if (h > height) h else height
-      val w = nbounds.getMinX + nbounds.getWidth
-      width = if (w > width) w else width
-    }
-    new PBounds(ltransform.transform(new PBounds(0,0, width, height), null))
-  }
-
-  override def show() {
-    super.show()
+  def show() {
     pics.foreach { pic =>
       pic.show()
+      repaint()
     }
   }
 

@@ -24,7 +24,6 @@ trait Transformer extends Picture {
   def rotate(angle: Double) = tpic.rotate(angle)
   def scale(factor: Double) = tpic.scale(factor)
   def transformBy(trans: AffineTransform) = tpic.transformBy(trans)
-  def preTransformBy(trans: AffineTransform) = tpic.preTransformBy(trans)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
   def decorateWith(painter: Painter) = tpic.decorateWith(painter)
   def clear() = tpic.clear()

@@ -100,6 +100,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val megaListener = new CompositeListener()
   val turtle = newTurtle()
   val figure = newFigure()
+  val pictures = new PLayer
+  getCamera.addLayer(pictures)
 
   val panHandler = new PPanEventHandler() {
 //    setAutopan(false)
@@ -506,7 +508,9 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       
       eventListeners.foreach {el => removeInputEventListener(el)}
       eventListeners = Nil
-      getRoot.getDefaultInputManager.setKeyboardFocus(null)      
+      getRoot.getDefaultInputManager.setKeyboardFocus(null)
+      
+      pictures.removeAllChildren()
     }
 //    turtle.waitFor
     clearHistory()
