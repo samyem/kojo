@@ -56,7 +56,18 @@ trait RSTImpl {self: Picture =>
   }
 }
 
-case class Pic(painter: Painter) extends Picture with RSTImpl {
+trait TNodeCacher {
+  def makeTnode: PNode
+  @volatile var _tnode: PNode = _
+  def tnode = {
+    if (_tnode == null) {
+      _tnode = makeTnode
+    }
+    _tnode
+  }
+}
+
+case class Pic(painter: Painter) extends Picture with RSTImpl with TNodeCacher {
   @volatile var _t: turtle.Turtle = _
   @volatile var penWidth = 0.0
   def t = Utils.runInSwingThreadAndWait {
@@ -72,7 +83,7 @@ case class Pic(painter: Painter) extends Picture with RSTImpl {
     _t
   }
   
-  def tnode = t.tlayer
+  def makeTnode = t.tlayer
   
   def decorateWith(painter: Painter) = painter(t)
   def show() = {
@@ -115,20 +126,17 @@ case class Pic(painter: Painter) extends Picture with RSTImpl {
   }
 }
 
-abstract class BasePicList(pics: Picture *) extends Picture with RSTImpl {
+abstract class BasePicList(pics: Picture *) extends Picture with RSTImpl with TNodeCacher {
   @volatile var padding = 0.0
-  var _tnode: PNode = _
-  def tnode = Utils.runInSwingThreadAndWait {
-    if (_tnode == null) {
-      _tnode = new PNode()
-//      println("Pic List %x being inited. Tnode is %x" format(System.identityHashCode(this), System.identityHashCode(_tnode)))
-      pics.foreach { pic =>
-        Impl.picLayer.removeChild(pic.tnode)
-        tnode.addChild(pic.tnode)
-      }
-      Impl.picLayer.addChild(tnode)
+  def makeTnode = Utils.runInSwingThreadAndWait {
+    val tn = new PNode()
+//      println("Pic List %x being inited. Tnode is %x" format(System.identityHashCode(this), System.identityHashCode(tn)))
+    pics.foreach { pic =>
+      Impl.picLayer.removeChild(pic.tnode)
+      tn.addChild(pic.tnode)
     }
-    _tnode
+    Impl.picLayer.addChild(tn)
+    tn
   }
   
   def bounds = Utils.runInSwingThreadAndWait {
