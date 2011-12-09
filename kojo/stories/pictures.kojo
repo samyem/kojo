@@ -289,7 +289,6 @@ val pg = Page(
                 <li>trans</li>
                 <li>flip</li>
                 <li>fillColor</li>
-                <li>stroke</li>
                 <li>penColor</li>
                 <li>penWidth</li>
             </ul>
