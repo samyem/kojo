@@ -120,7 +120,7 @@ class Pic(painter: Painter) extends Picture with RSTImpl with TNodeCacher {
     tnode.repaint()
   }
   
-  def copy = Pic(painter)
+  def copy: Picture = Pic(painter)
     
   def dumpInfo() = Utils.runInSwingThreadAndWait {
     println(">>> Pic Start - " +  System.identityHashCode(this))
