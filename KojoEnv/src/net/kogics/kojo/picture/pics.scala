@@ -37,21 +37,20 @@ trait Picture {
   def translate(x: Double, y: Double)
   def transformBy(trans: AffineTransform)
   def dumpInfo(): Unit
-  def clear(): Unit
   def copy: Picture
   def tnode: PNode
 }
 
 trait RSTImpl {self: Picture =>
-  def rotate(angle: Double) = Utils.runInSwingThread {
+  def rotate(angle: Double) {
     transformBy(AffineTransform.getRotateInstance(angle.toRadians))
   }
 
-  def scale(factor: Double) = Utils.runInSwingThread {
+  def scale(factor: Double) {
     transformBy(AffineTransform.getScaleInstance(factor, factor))
   }
   
-  def translate(x: Double, y: Double) = Utils.runInSwingThread {
+  def translate(x: Double, y: Double) {
     transformBy(AffineTransform.getTranslateInstance(x, y))
   }
 }
@@ -69,12 +68,10 @@ trait TNodeCacher {
 
 case class Pic(painter: Painter) extends Picture with RSTImpl with TNodeCacher {
   @volatile var _t: turtle.Turtle = _
-  @volatile var penWidth = 0.0
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
       _t = Impl.canvas.newTurtle(0, 0)
       val tl = _t.tlayer
-//      println("Pic %x being inited. Tnode is %x" format(System.identityHashCode(this), System.identityHashCode(tl)))
       Impl.camera.removeLayer(tl)
       Impl.picLayer.addChild(tl)
       tl.repaint()
@@ -87,10 +84,8 @@ case class Pic(painter: Painter) extends Picture with RSTImpl with TNodeCacher {
   
   def decorateWith(painter: Painter) = painter(t)
   def show() = {
-//    println("Pic %x being shown. Tnode is %x" format(System.identityHashCode(this), System.identityHashCode(tnode)))
     painter(t)
     t.waitFor()
-    penWidth = _t.pen.getThickness
     Utils.runInSwingThread {
       val tl = tnode
       tl.invalidateFullBounds()
@@ -109,14 +104,6 @@ case class Pic(painter: Painter) extends Picture with RSTImpl with TNodeCacher {
   }
   
   def copy = Pic(painter)
-  def clear() {
-    Utils.runInSwingThread {
-      tnode.setOffset(0, 0)
-      tnode.setRotation(0)
-      tnode.setScale(1)
-    }
-// todo    t.clear()
-  }
     
   def dumpInfo() = Utils.runInSwingThreadAndWait {
     println(">>> Pic Start - " +  System.identityHashCode(this))
@@ -130,7 +117,6 @@ abstract class BasePicList(pics: Picture *) extends Picture with RSTImpl with TN
   @volatile var padding = 0.0
   def makeTnode = Utils.runInSwingThreadAndWait {
     val tn = new PNode()
-//      println("Pic List %x being inited. Tnode is %x" format(System.identityHashCode(this), System.identityHashCode(tn)))
     pics.foreach { pic =>
       Impl.picLayer.removeChild(pic.tnode)
       tn.addChild(pic.tnode)
@@ -154,22 +140,12 @@ abstract class BasePicList(pics: Picture *) extends Picture with RSTImpl with TN
     }
   }
   
-  def clear() {
-    pics.foreach { pic =>
-      pic.clear()
-    }
-  }
-  
   def withGap(n: Double): Picture = {
     padding = n
     this
   }
   
   protected def picsCopy: List[Picture] = pics.map {_ copy}.toList
-  
-  def repaint() = Utils.runInSwingThread {
-    tnode.repaint()
-  }
   
   def dumpInfo() {
     println("--- ")
@@ -190,11 +166,9 @@ object HPics {
 case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
     var ox = 0.0
-//    println("Pic List %x being shown. Tnode is %x. Tnode children are: %s" format(System.identityHashCode(this), System.identityHashCode(tnode), tnode.getChildrenReference))
     pics.foreach { pic =>
       pic.translate(ox, 0)
       pic.show()
-      repaint()
       val nbounds = pic.bounds
       ox = nbounds.getMinX + nbounds.getWidth + padding
     }
@@ -219,7 +193,6 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
     pics.foreach { pic =>
       pic.translate(0, oy)
       pic.show()
-      repaint()
       val nbounds = pic.bounds
       oy = nbounds.getMinY + nbounds.getHeight + padding
     }
@@ -243,7 +216,6 @@ case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
   def show() {
     pics.foreach { pic =>
       pic.show()
-      repaint()
     }
   }
 
