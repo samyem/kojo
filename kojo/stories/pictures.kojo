@@ -83,7 +83,7 @@ clear()
 invisible()
 val pic = HPics(
     p1,
-    fill(blue) * rot(20) * scale(1.5) * trans(0, 10) -> p1,
+    fillColor(blue) * rot(20) * scale(1.5) * trans(0, 10) -> p1,
     VPics(
         p1,
         p1,
@@ -98,12 +98,12 @@ val pic = reflect(200) * spin(5) -> HPics(
     p1,
     scale(0.9) -> p1,
     scale(0.8) * rot(30) -> HPics(
-        fill(green) -> p1,
-        fill(yellow) -> p1,
+        fillColor(green) -> p1,
+        fillColor(yellow) -> p1,
         scale(0.7) * rot(30) -> HPics(
             p1,
             p1,
-            fill(blue) * rot(45) -> p1
+            fillColor(blue) * rot(45) -> p1
         )
     )
 )
@@ -118,7 +118,7 @@ def checker(p1: => Picture, p2: => Picture) = VPics(
     HPics(p1, p2),
     HPics(p2, p1)
 )
-def pc(color: Color) = Fill(color)(p1)
+def pc(color: Color) = FillColor(color)(p1)
 
 clear()
 invisible()
@@ -134,7 +134,7 @@ def checker(p1: => Picture, p2: => Picture) = VPics(
 )
 def checkerBoard(size: Int) = four(checker(pc(size, blue), pc(size, black)))
 def series(fn: Int => Picture) = HPics(fn(20), fn(40), fn(60), fn(80))
-def pc(size: Int, color: Color) = Fill(color)(p(size))
+def pc(size: Int, color: Color) = FillColor(color)(p(size))
 
 clear()
 invisible()
@@ -155,7 +155,7 @@ def rowm(p: => Picture, n: Int)(deco: (Picture, Int) => Picture): HPics = {
 clear()
 invisible()
 val pic2 = rowm(p1, 5) { (p, i) =>
-    if (i == 2) Fill(blue)(p) else p
+    if (i == 2) FillColor(blue)(p) else p
 }
 show(pic2)
 """,
@@ -178,7 +178,7 @@ invisible()
 val pics = List(p(40), p(50), p(60), p(70))
 val pic = VPics(
     HPics(pics),
-    HPics(pics.map {p => rot(10) * fill(green) -> p.copy})
+    HPics(pics.map {p => rot(10) * fillColor(green) -> p.copy})
 )
 show(pic)
 """,
@@ -203,9 +203,9 @@ invisible()
 val pics = List(p(40), p(50), p(60), p(70))
 val pic = VPics(
     HPics(pics),
-    HPics(pics map {p => rot(10) * fill(green) -> p.copy}),
+    HPics(pics map {p => rot(10) * fillColor(green) -> p.copy}),
     HPics(pics map {_ copy} filter {_.size > 50}),
-    fill(blue) -> HPics(pics map {_ copy} find {_.size == 50} get)
+    fillColor(blue) -> HPics(pics map {_ copy} find {_.size == 50} get)
 )
 show(pic)
 """,
@@ -214,12 +214,12 @@ val pic = reflect(200) * spin(5) -> HPics(
     p1,
     scale(0.9) -> p1,
     scale(0.8) * rot(30) -> HPics(
-        fill(green) -> p1,
-        fill(yellow) -> p1,
+        fillColor(green) -> p1,
+        fillColor(yellow) -> p1,
         scale(0.7) * rot(30) -> HPics(
             p1,
             p1,
-            fill(blue) * rot(45) -> p1
+            fillColor(blue) * rot(45) -> p1
         )
     )
 )
@@ -281,13 +281,14 @@ val pg = Page(
             <p>You can modify the appearance of the pattern blocks in your picture with transformations. You do this by applying a series of transformations to a block. Here's an example:</p>
             {code(6)}
             <p>You can also use function call notation with your transformations:</p>
+            <p><tt>FillColor(blue) (Rot (20) (scale(1.5) (trans(0, 10) (p1)))),</tt></p>
             <p>The available transformations are:</p>
             <ul>
                 <li>rot</li>
                 <li>scale</li>
                 <li>trans</li>
                 <li>flip</li>
-                <li>fill</li>
+                <li>fillColor</li>
                 <li>stroke</li>
                 <li>penColor</li>
                 <li>penWidth</li>
