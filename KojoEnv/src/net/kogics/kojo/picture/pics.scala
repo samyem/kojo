@@ -55,6 +55,19 @@ trait RSTImpl {self: Picture =>
   }
 }
 
+trait ReshowStopper extends Picture {
+  var shown = false
+  abstract override def show() {
+    if (shown) {
+      throw new RuntimeException("You can't reshow a picture")
+    }
+    else {
+      shown = true
+      super.show()
+    }
+  }
+}
+
 trait TNodeCacher {
   def makeTnode: PNode
   @volatile var _tnode: PNode = _
@@ -66,7 +79,11 @@ trait TNodeCacher {
   }
 }
 
-case class Pic(painter: Painter) extends Picture with RSTImpl with TNodeCacher {
+object Pic {
+  def apply(painter: Painter) = new Pic(painter) with ReshowStopper
+}
+
+class Pic(painter: Painter) extends Picture with RSTImpl with TNodeCacher {
   @volatile var _t: turtle.Turtle = _
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
@@ -113,7 +130,7 @@ case class Pic(painter: Painter) extends Picture with RSTImpl with TNodeCacher {
   }
 }
 
-abstract class BasePicList(pics: Picture *) extends Picture with RSTImpl with TNodeCacher {
+abstract class BasePicList(val pics: List[Picture]) extends Picture with RSTImpl with TNodeCacher {
   @volatile var padding = 0.0
   def makeTnode = Utils.runInSwingThreadAndWait {
     val tn = new PNode()
@@ -145,7 +162,7 @@ abstract class BasePicList(pics: Picture *) extends Picture with RSTImpl with TN
     this
   }
   
-  protected def picsCopy: List[Picture] = pics.map {_ copy}.toList
+  protected def picsCopy: List[Picture] = pics.map {_ copy}
   
   def dumpInfo() {
     println("--- ")
@@ -160,10 +177,11 @@ abstract class BasePicList(pics: Picture *) extends Picture with RSTImpl with TN
 }
 
 object HPics {
-  def apply(pics: List[Picture]):HPics = HPics(pics:_*)
+  def apply(pics: Picture *): HPics = new HPics(pics.toList) with ReshowStopper
+  def apply(pics: List[Picture]): HPics = new HPics(pics) with ReshowStopper
 }
 
-case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
+class HPics(pics: List[Picture]) extends BasePicList(pics) {
   def show() {
     var ox = 0.0
     pics.foreach { pic =>
@@ -184,10 +202,11 @@ case class HPics(pics: Picture *) extends BasePicList(pics:_*) {
 } 
 
 object VPics {
-  def apply(pics: List[Picture]):VPics = VPics(pics:_*)
+  def apply(pics: Picture *): VPics = new VPics(pics.toList) with ReshowStopper
+  def apply(pics: List[Picture]): VPics = new VPics(pics) with ReshowStopper
 }
 
-case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
+class VPics(pics: List[Picture]) extends BasePicList(pics) {
   def show() {
     var oy = 0.0
     pics.foreach { pic =>
@@ -208,11 +227,11 @@ case class VPics(pics: Picture *) extends BasePicList(pics:_*) {
 }
   
 object GPics {
-  def apply(pics: List[Picture]):GPics = GPics(pics:_*)
+  def apply(pics: Picture *): GPics = new GPics(pics.toList) with ReshowStopper
+  def apply(pics: List[Picture]): GPics = new GPics(pics) with ReshowStopper
 }
 
-case class GPics(pics: Picture *) extends BasePicList(pics:_*) {
-
+class GPics(pics: List[Picture]) extends BasePicList(pics) {
   def show() {
     pics.foreach { pic =>
       pic.show()
