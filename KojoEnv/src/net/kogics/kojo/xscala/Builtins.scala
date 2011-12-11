@@ -504,7 +504,9 @@ Here's a partial list of the available commands:
   val rot = picture.rot _
   val scale = picture.scale _
   val trans = picture.trans _
-  val flip = picture.flip
+  val flip = picture.flipY
+  val flipY = picture.flipY
+  val flipX = picture.flipX
   val fillColor = picture.fill _
   val penColor = picture.stroke _
   val penWidth = picture.strokeWidth _

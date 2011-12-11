@@ -25,7 +25,8 @@ trait Transformer extends Picture {
   def rotateAboutPoint(angle: Double, x: Double, y: Double) = tpic.rotateAboutPoint(angle, x, y)
   def scale(factor: Double) = tpic.scale(factor)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
-  def flipp() = tpic.flipp()
+  def flipX() = tpic.flipX()
+  def flipY() = tpic.flipY()
   def transformBy(trans: AffineTransform) = tpic.transformBy(trans)
   def decorateWith(painter: Painter) = tpic.decorateWith(painter)
   def tnode = tpic.tnode
@@ -61,12 +62,20 @@ case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
   def copy = Trans(x, y)(pic.copy)
 }
 
-case class Flip(pic: Picture) extends Transform(pic) {
+case class FlipY(pic: Picture) extends Transform(pic) {
   def show() {
-    pic.flipp()
+    pic.flipY()
     pic.show()
   }
-  def copy = Flip(pic.copy)
+  def copy = FlipY(pic.copy)
+}
+
+case class FlipX(pic: Picture) extends Transform(pic) {
+  def show() {
+    pic.flipX()
+    pic.show()
+  }
+  def copy = FlipX(pic.copy)
 }
 
 object Deco {
@@ -122,8 +131,12 @@ case class Transc(x: Double, y: Double) extends ComposableTransformer {
   def apply(p: Picture) = Trans(x, y)(p)
 }
 
-case object Flipc extends ComposableTransformer {
-  def apply(p: Picture) = Flip(p)
+case object FlipYc extends ComposableTransformer {
+  def apply(p: Picture) = FlipY(p)
+}
+
+case object FlipXc extends ComposableTransformer {
+  def apply(p: Picture) = FlipX(p)
 }
 
 case class Fillc(color: Color) extends ComposableTransformer {

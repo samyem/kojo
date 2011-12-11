@@ -48,7 +48,6 @@ object CodeCompletionUtils {
     "translate" -> "translate(${x}, ${y})",
     "rotate" -> "rotate(${angle})",
     "rotateAboutPoint" -> "rotateAboutPoint(${angle}, ${x}, ${y})",
-    "flipp" -> "flipp()",
     "fillColor" -> "fillColor(${color})",
     "penColor" -> "penColor(${color})",
     "penWidth" -> "penWidth(${n})",

@@ -40,7 +40,7 @@ case class Spin(n: Int)(pic: Picture) extends Effect {
 case class Reflect(n: Int)(pic: Picture) extends Effect {
   val tpic = reflectedP
   def reflectedP = {
-    HPics(pic, trans(n, 0) * flip -> pic.copy)
+    HPics(pic, trans(n, 0)(FlipY(pic.copy)))
   }
   
   def copy = Reflect(n)(pic.copy)
