@@ -20,6 +20,7 @@ import java.awt.geom.AffineTransform
 
 import util.Utils
 import edu.umd.cs.piccolo.PNode
+import edu.umd.cs.piccolo.nodes.PPath
 import edu.umd.cs.piccolo.util.PBounds 
 
 object Impl {
@@ -33,25 +34,64 @@ trait Picture {
   def show(): Unit
   def bounds: PBounds
   def rotate(angle: Double)
+  def rotateAboutPoint(angle: Double, x: Double, y: Double)
   def scale(factor: Double)
   def translate(x: Double, y: Double)
+  def flipp(): Unit
   def transformBy(trans: AffineTransform)
   def dumpInfo(): Unit
   def copy: Picture
   def tnode: PNode
+  def axesOn(): Unit
+  def axesOff(): Unit
 }
 
-trait RSTImpl {self: Picture =>
+trait CorePicOps {self: Picture =>
+  var axes: PNode = _
+  def rotateAboutPoint(angle: Double, x: Double, y: Double) {
+    translate(x, y)
+    rotate(angle)
+    translate(-x, -y)
+  }
+
   def rotate(angle: Double) {
     transformBy(AffineTransform.getRotateInstance(angle.toRadians))
   }
-
+  
   def scale(factor: Double) {
     transformBy(AffineTransform.getScaleInstance(factor, factor))
   }
   
   def translate(x: Double, y: Double) {
     transformBy(AffineTransform.getTranslateInstance(x, y))
+  }
+
+  def flipp() {
+    transformBy(AffineTransform.getScaleInstance(-1, 1))
+  }
+  
+  def reset()  = Utils.runInSwingThread {
+    tnode.setTransform(new AffineTransform)
+  }
+  
+  def axesOn() = Utils.runInSwingThread {
+    if (axes == null) {
+      axes = new PNode
+      axes.addChild(PPath.createLine(-5, 0, 30, 0))
+      axes.addChild(PPath.createLine(0, -5, 0, 30))
+      tnode.addChild(axes)
+    } 
+    else {
+      axes.setVisible(true)
+    }
+    tnode.repaint()
+  }
+
+  def axesOff() = Utils.runInSwingThread {
+    if (axes != null) {
+      axes.setVisible(false)
+      tnode.repaint()
+    }
   }
 }
 
@@ -83,7 +123,7 @@ object Pic {
   def apply(painter: Painter) = new Pic(painter) with ReshowStopper
 }
 
-class Pic(painter: Painter) extends Picture with RSTImpl with TNodeCacher {
+class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher {
   @volatile var _t: turtle.Turtle = _
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
@@ -130,7 +170,7 @@ class Pic(painter: Painter) extends Picture with RSTImpl with TNodeCacher {
   }
 }
 
-abstract class BasePicList(val pics: List[Picture]) extends Picture with RSTImpl with TNodeCacher {
+abstract class BasePicList(val pics: List[Picture]) extends Picture with CorePicOps with TNodeCacher {
   @volatile var padding = 0.0
   def makeTnode = Utils.runInSwingThreadAndWait {
     val tn = new PNode()

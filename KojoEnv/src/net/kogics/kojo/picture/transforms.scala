@@ -22,11 +22,15 @@ trait Transformer extends Picture {
   def bounds = tpic.bounds
   def dumpInfo() = tpic.dumpInfo()
   def rotate(angle: Double) = tpic.rotate(angle)
+  def rotateAboutPoint(angle: Double, x: Double, y: Double) = tpic.rotateAboutPoint(angle, x, y)
   def scale(factor: Double) = tpic.scale(factor)
-  def transformBy(trans: AffineTransform) = tpic.transformBy(trans)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
+  def flipp() = tpic.flipp()
+  def transformBy(trans: AffineTransform) = tpic.transformBy(trans)
   def decorateWith(painter: Painter) = tpic.decorateWith(painter)
   def tnode = tpic.tnode
+  def axesOn() = tpic.axesOn()
+  def axesOff() = tpic.axesOff()
 }
 
 abstract class Transform(pic: Picture) extends Transformer {
@@ -59,7 +63,7 @@ case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
 
 case class Flip(pic: Picture) extends Transform(pic) {
   def show() {
-    pic.transformBy(AffineTransform.getScaleInstance(-1, 1))
+    pic.flipp()
     pic.show()
   }
   def copy = Flip(pic.copy)
