@@ -37,7 +37,8 @@ trait Picture {
   def rotateAboutPoint(angle: Double, x: Double, y: Double)
   def scale(factor: Double)
   def translate(x: Double, y: Double)
-  def flipp(): Unit
+  def flipX(): Unit
+  def flipY(): Unit
   def transformBy(trans: AffineTransform)
   def dumpInfo(): Unit
   def copy: Picture
@@ -66,7 +67,11 @@ trait CorePicOps {self: Picture =>
     transformBy(AffineTransform.getTranslateInstance(x, y))
   }
 
-  def flipp() {
+  def flipX() {
+    transformBy(AffineTransform.getScaleInstance(1, -1))
+  }
+  
+  def flipY() {
     transformBy(AffineTransform.getScaleInstance(-1, 1))
   }
   
