@@ -493,8 +493,10 @@ Here's a partial list of the available commands:
   val Scale = picture.Scale
   type Trans = picture.Trans
   val Trans = picture.Trans
-  type Flip = picture.Flip
-  val Flip = picture.Flip
+  type FlipX = picture.FlipX
+  val FlipX = picture.FlipX
+  type FlipY = picture.FlipY
+  val FlipY = picture.FlipY
   type Fill = picture.Fill
   val FillColor = picture.Fill
   type Stroke = picture.Stroke
@@ -504,9 +506,11 @@ Here's a partial list of the available commands:
   val rot = picture.rot _
   val scale = picture.scale _
   val trans = picture.trans _
+  val offset = picture.offset _
   val flip = picture.flipY
   val flipY = picture.flipY
   val flipX = picture.flipX
+  val axes = picture.axesOn
   val fillColor = picture.fill _
   val penColor = picture.stroke _
   val penWidth = picture.strokeWidth _

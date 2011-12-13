@@ -491,7 +491,7 @@ trait Shape {
 
   def translate(x: Double, y: Double) = {
     Utils.runInSwingThread {
-      node.offset(x, y)
+      node.translate(x, y)
       node.repaint()
     }
   }

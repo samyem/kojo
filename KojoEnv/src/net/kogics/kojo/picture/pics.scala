@@ -21,6 +21,7 @@ import java.awt.geom.AffineTransform
 import util.Utils
 import edu.umd.cs.piccolo.PNode
 import edu.umd.cs.piccolo.nodes.PPath
+import edu.umd.cs.piccolo.nodes.PText
 import edu.umd.cs.piccolo.util.PBounds 
 
 object Impl {
@@ -37,6 +38,7 @@ trait Picture {
   def rotateAboutPoint(angle: Double, x: Double, y: Double)
   def scale(factor: Double)
   def translate(x: Double, y: Double)
+  def offset(x: Double, y: Double)
   def flipX(): Unit
   def flipY(): Unit
   def transformBy(trans: AffineTransform)
@@ -45,10 +47,17 @@ trait Picture {
   def tnode: PNode
   def axesOn(): Unit
   def axesOff(): Unit
+  def toggleV(): Unit
 }
 
 trait CorePicOps {self: Picture =>
   var axes: PNode = _
+  
+  def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
+    tnode.transformBy(trans)
+    tnode.repaint()
+  }
+
   def rotateAboutPoint(angle: Double, x: Double, y: Double) {
     translate(x, y)
     rotate(angle)
@@ -67,6 +76,11 @@ trait CorePicOps {self: Picture =>
     transformBy(AffineTransform.getTranslateInstance(x, y))
   }
 
+  def offset(x: Double, y: Double) = Utils.runInSwingThread {
+    tnode.offset(x, y)
+    tnode.repaint()
+  }
+  
   def flipX() {
     transformBy(AffineTransform.getScaleInstance(1, -1))
   }
@@ -84,6 +98,8 @@ trait CorePicOps {self: Picture =>
       axes = new PNode
       axes.addChild(PPath.createLine(-5, 0, 30, 0))
       axes.addChild(PPath.createLine(0, -5, 0, 30))
+      axes.addChild(Utils.textNode("x", 23, 13))
+      axes.addChild(Utils.textNode("y", 2, 30))
       tnode.addChild(axes)
     } 
     else {
@@ -97,6 +113,16 @@ trait CorePicOps {self: Picture =>
       axes.setVisible(false)
       tnode.repaint()
     }
+  }
+  
+  def toggleV() = Utils.runInSwingThread {
+    if (tnode.getVisible) {
+      tnode.setVisible(false)
+    }
+    else {
+      tnode.setVisible(true)
+    }
+    tnode.repaint()
   }
 }
 
@@ -160,11 +186,6 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher {
     tnode.getFullBounds
   }
   
-  def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    tnode.transformBy(trans)
-    tnode.repaint()
-  }
-  
   def copy: Picture = Pic(painter)
     
   def dumpInfo() = Utils.runInSwingThreadAndWait {
@@ -191,11 +212,6 @@ abstract class BasePicList(val pics: List[Picture]) extends Picture with CorePic
     tnode.getFullBounds
   }
   
-  def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    tnode.transformBy(trans)
-    tnode.repaint()
-  }
-
   def decorateWith(painter: Painter) {
     pics.foreach { pic =>
       pic.decorateWith(painter)

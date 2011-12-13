@@ -7,8 +7,10 @@ package object picture {
   def rot(angle: Double) = Rotc(angle)  
   def scale(factor: Double) = Scalec(factor)
   def trans(x: Double, y: Double) = Transc(x, y)
+  def offset(x: Double, y: Double) = Offsetc(x, y)
   val flipX = FlipXc
   val flipY = FlipYc
+  val axesOn = AxesOnc
   def fill(color: Color) = Fillc(color)
   def stroke(color: Color) = Strokec(color)
   def strokeWidth(w: Double) = StrokeWidthc(w)
