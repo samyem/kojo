@@ -46,6 +46,7 @@ object CodeCompletionUtils {
     "rot" -> "rot(${angle})",
     "scale" -> "scale(${factor})",
     "translate" -> "translate(${x}, ${y})",
+    "offset" -> "offset(${x}, ${y})",
     "rotate" -> "rotate(${angle})",
     "rotateAboutPoint" -> "rotateAboutPoint(${angle}, ${x}, ${y})",
     "fillColor" -> "fillColor(${color})",
