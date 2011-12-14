@@ -489,6 +489,8 @@ Here's a partial list of the available commands:
 
   type Rot = picture.Rot
   val Rot = picture.Rot
+  type Rotp = picture.Rotp
+  val Rotp = picture.Rotp
   type Scale = picture.Scale
   val Scale = picture.Scale
   type Trans = picture.Trans
@@ -504,6 +506,7 @@ Here's a partial list of the available commands:
   type StrokeWidth = picture.StrokeWidth
   val PenWidth = picture.StrokeWidth
   val rot = picture.rot _
+  val rotp = picture.rotp _
   val scale = picture.scale _
   val trans = picture.trans _
   val offset = picture.offset _
