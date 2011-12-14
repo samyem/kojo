@@ -5,6 +5,7 @@ import net.kogics.kojo.core.Turtle
 package object picture {
   type Painter = Turtle => Unit
   def rot(angle: Double) = Rotc(angle)  
+  def rotp(angle: Double, x: Double, y: Double) = Rotpc(angle, x, y)  
   def scale(factor: Double) = Scalec(factor)
   def trans(x: Double, y: Double) = Transc(x, y)
   def offset(x: Double, y: Double) = Offsetc(x, y)

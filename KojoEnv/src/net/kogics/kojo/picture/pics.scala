@@ -21,7 +21,6 @@ import java.awt.geom.AffineTransform
 import util.Utils
 import edu.umd.cs.piccolo.PNode
 import edu.umd.cs.piccolo.nodes.PPath
-import edu.umd.cs.piccolo.nodes.PText
 import edu.umd.cs.piccolo.util.PBounds 
 
 object Impl {

@@ -48,6 +48,14 @@ case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
   def copy = Rot(angle)(pic.copy)
 }
 
+case class Rotp(angle: Double, x: Double, y: Double)(pic: Picture) extends Transform(pic) {
+  def show() {
+    pic.rotateAboutPoint(angle, x, y)
+    pic.show()
+  }
+  def copy = Rotp(angle, x, y)(pic.copy)
+}
+
 case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
   def show() {
     pic.scale(factor)
@@ -139,6 +147,10 @@ abstract class ComposableTransformer extends Function1[Picture,Picture] {outer =
 
 case class Rotc(angle: Double) extends ComposableTransformer {
   def apply(p: Picture) = Rot(angle)(p)
+}
+
+case class Rotpc(angle: Double, x: Double, y: Double) extends ComposableTransformer {
+  def apply(p: Picture) = Rotp(angle, x, y)(p)
 }
 
 case class Scalec(factor: Double) extends ComposableTransformer {

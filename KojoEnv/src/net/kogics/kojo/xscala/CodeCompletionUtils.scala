@@ -44,6 +44,7 @@ object CodeCompletionUtils {
     // Todo - is there any commonality here with the staging templates
     "trans" -> "trans(${x}, ${y})",
     "rot" -> "rot(${angle})",
+    "rotp" -> "rotp(${angle}, ${x}, ${y})",
     "scale" -> "scale(${factor})",
     "translate" -> "translate(${x}, ${y})",
     "offset" -> "offset(${x}, ${y})",
