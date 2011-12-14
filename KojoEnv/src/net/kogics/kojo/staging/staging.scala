@@ -488,6 +488,10 @@ trait Shape {
   def translate(p: Point) {
     translate(p.x, p.y)
   }
+  
+  def offset(p: Point) {
+    offset(p.x, p.y)
+  }
 
   def translate(x: Double, y: Double) = {
     Utils.runInSwingThread {
@@ -496,11 +500,17 @@ trait Shape {
     }
   }
 
+  def offset(x: Double, y: Double) = {
+    Utils.runInSwingThread {
+      node.offset(x, y)
+      node.repaint()
+    }
+  }
+
   def offset = Utils.runInSwingThreadAndWait {
     val o = node.getOffset
     Point(o.getX, o.getY)
   }
-//  def position = offset
 
   def onMouseClick(fn: (Double, Double) => Unit) = Utils.runInSwingThread {
     val h = new PBasicInputEventHandler {
