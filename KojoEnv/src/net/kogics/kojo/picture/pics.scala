@@ -95,10 +95,14 @@ trait CorePicOps {self: Picture =>
   def axesOn() = Utils.runInSwingThread {
     if (axes == null) {
       axes = new PNode
-      axes.addChild(PPath.createLine(-5, 0, 30, 0))
-      axes.addChild(PPath.createLine(0, -5, 0, 30))
-      axes.addChild(Utils.textNode("x", 23, 13))
-      axes.addChild(Utils.textNode("y", 2, 30))
+      axes.addChild(PPath.createLine(-5, 0, 100, 0))
+      axes.addChild(PPath.createLine(0, -5, 0, 100))
+      for (i <- 1 to 10) {
+        axes.addChild(PPath.createLine(i*10, 2, i*10, -2))
+        axes.addChild(PPath.createLine(-2, i*10, 2, i*10))
+      }
+      axes.addChild(Utils.textNode("x", 93, 15))
+      axes.addChild(Utils.textNode("y", 5, 103))
       tnode.addChild(axes)
     } 
     else {
