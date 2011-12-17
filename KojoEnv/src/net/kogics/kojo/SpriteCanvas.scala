@@ -40,6 +40,11 @@ import turtle.NoopTurtleListener
 import turtle.Command
 import core.Style
 
+abstract class UnitLen
+case object Pixel extends UnitLen
+case object Cm extends UnitLen
+case object Inch extends UnitLen
+
 object SpriteCanvas extends InitedSingleton[SpriteCanvas] {
   def initedInstance(kojoCtx: KojoCtx) = synchronized {
     instanceInit()
@@ -62,6 +67,14 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val TickLabelColor = new Color(50, 50, 50)
   val TickIntegerLabelColor = Color.blue
 
+  val Dpi = Toolkit.getDefaultToolkit.getScreenResolution
+  @volatile var unitLen: UnitLen = Pixel
+
+  def setUnitLength(ul: UnitLen) {
+    unitLen = ul
+//    zoom(1, 0, 0)
+  }
+  
   var outputFn: String => Unit = { msg =>
     Log.info(msg)
   }
@@ -155,7 +168,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       
       override def mouseMoved(e: PInputEvent) {
         val pos = e.getPosition
-        val prec0 = Math.round(getCamera.getViewTransformReference.getScale) - 1
+        val prec0 = Math.round(getCamera.getViewTransformReference.getScale/camScale) - 1
         val prec = {
           if (prec0 < 0) 0
           else if (prec0 > 18) 18
@@ -166,11 +179,16 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       }
     })
 
-  // setComponentPopupMenu(new Popup())
-
+  private [kojo] def camScale = unitLen match {
+    case Pixel => 1
+    case Inch => Dpi
+    case Cm => Dpi / 2.54
+  }
+  
   private def initCamera() {
     val size = getSize(null)
-    getCamera.getViewTransformReference.setToScale(1, -1)
+    val scale = camScale
+    getCamera.getViewTransformReference.setToScale(scale, -scale)
     getCamera.setViewOffset(size.getWidth/2f, size.getHeight/2f)
     updateAxesAndGrid()
   }
@@ -222,11 +240,17 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       val d = label.toDouble
       Utils.doublesEqual(d.floor, d, 0.0000000001)
     }
+    
+    val seedDelta = unitLen match {
+      case Pixel => 50
+      case Inch => Dpi
+      case Cm => Dpi/2.54
+    }
 
     if (!(showGrid || showAxes))
       return
     
-    val scale = getCamera.getViewScale
+    val scale = getCamera.getViewScale 
     val MaxPrec = 10
     val prec0 = Math.round(scale)
     val prec = prec0 match {
@@ -238,13 +262,13 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       case _ => MaxPrec
     }
 
-    val labelPrec = if (scale % 50 == 0) math.log10(scale).round else prec
+    val labelPrec = if (scale % seedDelta == 0) math.log10(scale).round else prec
 
     val labelText = "%%.%df" format(labelPrec)
     val deltaFinder = "%%.%df" format(if (prec == 0) prec else prec-1)
     
     val delta = {
-      val d = 50
+      val d = seedDelta
       val d0 = d/scale
       if (d0 > 10) {
         math.round(d0/10) * 10
@@ -267,7 +291,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     val deltap = new Point2D.Double(delta, delta)
     val numxTicks = Math.ceil(width / deltap.getY).toInt + 4
     val numyTicks = Math.ceil(height / deltap.getX).toInt + 4
-
+    val tickSize = 3
+    
     val xStart = {
       val x = viewBounds.x
       if (x < 0) Math.floor(x/deltap.getX) * deltap.getX
@@ -302,7 +327,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       yAxis.setStrokePaint(AxesColor)
       axes.addChild(yAxis)
     }
-
+    
     // gridlines and ticks on y axis
     for (i <- 0 until numyTicks) {
       val ycoord = yStart + i * deltap.getY
@@ -315,8 +340,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         grid.addChild(gridline)
       }
       if (showAxes) {
-        val pt1 = getCamera.viewToLocal(new Point2D.Double(-3/scale, ycoord))
-        val pt2 = getCamera.viewToLocal(new Point2D.Double(3/scale, ycoord))
+        val pt1 = getCamera.viewToLocal(new Point2D.Double(-tickSize/scale, ycoord))
+        val pt2 = getCamera.viewToLocal(new Point2D.Double(tickSize/scale, ycoord))
         val tick = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
         tick.setStrokePaint(TickColor)
         axes.addChild(tick)
@@ -347,8 +372,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         grid.addChild(gridline)
       }
       if (showAxes) {
-        val pt1 = getCamera.viewToLocal(new Point2D.Double(xcoord, 3/scale))
-        val pt2 = getCamera.viewToLocal(new Point2D.Double(xcoord, -3/scale))
+        val pt1 = getCamera.viewToLocal(new Point2D.Double(xcoord, tickSize/scale))
+        val pt2 = getCamera.viewToLocal(new Point2D.Double(xcoord, -tickSize/scale))
         val tick = PPath.createLine(pt1.getX.toFloat, pt1.getY.toFloat, pt2.getX.toFloat, pt2.getY.toFloat)
         tick.setStrokePaint(TickColor)
         axes.addChild(tick)
@@ -381,9 +406,10 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 //    outputFn("Deltap: %s\n" format(deltap.toString))
   }
 
-  def zoom(factor: Double, cx: Double, cy: Double) {
+  def zoom(factor0: Double, cx: Double, cy: Double) {
     Utils.runInSwingThreadAndWait {
       val size = getSize(null)
+      val factor = factor0 * camScale
       getCamera.getViewTransformReference.setToScale(factor, -factor)
       getCamera.getViewTransformReference.setOffset(size.getWidth/2d - cx*factor, size.getHeight/2d + cy*factor)
       updateAxesAndGrid()
@@ -391,8 +417,10 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
-  def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double) {
+  def zoomXY(xfactor0: Double, yfactor0: Double, cx: Double, cy: Double) {
     Utils.runInSwingThreadAndWait {
+      val xfactor = xfactor0 * camScale
+      val yfactor = yfactor0 * camScale
       val size = getSize(null)
       getCamera.getViewTransformReference.setToScale(xfactor, -yfactor)
       getCamera.getViewTransformReference.setOffset(

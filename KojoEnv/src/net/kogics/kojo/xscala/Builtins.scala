@@ -249,6 +249,11 @@ class Builtins extends RepeatCommands {
     
     def onKeyPress(fn: Int => Unit) = tCanvas.onKeyPress(fn)
     def onMouseClick(fn: (Double, Double) => Unit) =  tCanvas.onMouseClick(fn)
+
+    val Pixel = net.kogics.kojo.Pixel
+    val Inch = net.kogics.kojo.Inch
+    val Cm = net.kogics.kojo.Cm
+    def setUnitLength(ul: UnitLen) = tCanvas.setUnitLength(ul)
   }
   val TSCanvas = new TSCanvasC()
 
