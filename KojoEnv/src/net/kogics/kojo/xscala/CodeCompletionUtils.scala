@@ -58,7 +58,8 @@ object CodeCompletionUtils {
     "show" -> "show(${pic})",
     "animate" -> "animate {\n    ${cursor}\n}",
     "row" -> "row(${picture}, ${n})",
-    "col" -> "col(${picture}, ${n})"
+    "col" -> "col(${picture}, ${n})",
+    "setUnitLength" -> "setUnitLength(${unit})"
   )
   
   val TwMethodTemplates = Map(
