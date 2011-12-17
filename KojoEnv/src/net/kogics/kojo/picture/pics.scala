@@ -16,6 +16,7 @@
 package net.kogics.kojo
 package picture
 
+import java.awt.BasicStroke
 import java.awt.geom.AffineTransform
 
 import util.Utils
@@ -94,15 +95,34 @@ trait CorePicOps {self: Picture =>
   
   def axesOn() = Utils.runInSwingThread {
     if (axes == null) {
-      axes = new PNode
-      axes.addChild(PPath.createLine(-5, 0, 100, 0))
-      axes.addChild(PPath.createLine(0, -5, 0, 100))
-      for (i <- 1 to 10) {
-        axes.addChild(PPath.createLine(i*10, 2, i*10, -2))
-        axes.addChild(PPath.createLine(-2, i*10, 2, i*10))
+      val (size, delta, num, bigt) = Impl.canvas.unitLen match {
+        case Pixel => (200.0f, 20.0f, 10, 5)
+        case Inch => (4.0f, 0.25f, 16, 4)
+        case Cm => (10f, .5f, 20, 2)
       }
-      axes.addChild(Utils.textNode("x", 93, 15))
-      axes.addChild(Utils.textNode("y", 5, 103))
+      val camScale = Impl.canvas.camScale.toFloat
+      val tickSize = 3/camScale
+      val overrun = 5/camScale
+      def line(x1: Float, y1: Float, x2: Float, y2: Float) = {
+        val l = PPath.createLine(x1, y1, x2, y2)
+        l.setStroke(new BasicStroke(2/camScale))
+        l
+      }
+      def text(s: String, x: Double, y: Double) = {
+        val t = Utils.textNode(s, x, y)
+        t.scale(1/camScale)
+        t
+      }
+      axes = new PNode
+      axes.addChild(line(-overrun, 0, size, 0))
+      axes.addChild(line(0, -overrun, 0, size))
+      for (i <- 1 to num) {
+        val ts = if (i % bigt == 0) 2* tickSize else tickSize
+        axes.addChild(line(i*delta, ts, i*delta, -ts))
+        axes.addChild(line(-ts, i*delta, ts, i*delta))
+      }
+      axes.addChild(text("x", size - delta/2, delta))
+      axes.addChild(text("y", delta/2, size))
       tnode.addChild(axes)
     } 
     else {

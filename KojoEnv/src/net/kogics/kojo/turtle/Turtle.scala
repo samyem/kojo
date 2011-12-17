@@ -58,9 +58,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private val turtleImage = new PImage(Utils.loadImage(fname))
   private val turtle = new PNode
-//  turtleImage.getTransformReference(true).setToScale(1, -1)
-  turtleImage.setOffset(-16, -16)
-
+  def camScale = canvas.camScale
+  
   private val xBeam = PPath.createLine(0, 30, 0, -30)
   xBeam.setStrokePaint(Color.gray)
   private val yBeam = PPath.createLine(-20, 0, 50, 0)
@@ -149,10 +148,16 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     history.pop()
   }
 
+  def initTImage() {
+    turtleImage.getTransformReference(true).setToScale(1/camScale, 1/camScale)
+    turtleImage.translate(-16, -16)
+  }
+  
   private [turtle] def init() {
     _animationDelay = 1000l
     clearHistory()
     changePos(initX, initY)
+    initTImage()
     layer.addChild(turtle)
 
     pen = DownPen
@@ -163,7 +168,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     beamsOffWorker()
   }
 
-  init
+  init()
 
   @volatile private var cmdBool = new AtomicBoolean(true)
   @volatile private var listener: TurtleListener = NoopTurtleListener
@@ -917,9 +922,19 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     val JoinThin = BasicStroke.JOIN_BEVEL
     val DefaultColor = Color.red
     val DefaultFillColor = null
-    val DefaultStroke = new BasicStroke(2, CapThick, JoinThick)
+    def DefaultStroke = {
+      val t = 2/camScale
+      val (cap, join) = capJoin(t)
+      new BasicStroke(t.toFloat, cap, join)
+    }
     val DefaultFont = new Font(new PText().getFont.getName, Font.PLAIN, 18)
 
+    private def capJoin(t: Double) = {
+      val Cap = if (t * camScale < 1) CapThin else CapThick
+      val Join = if (t * camScale < 1) JoinThin else JoinThick
+      (Cap, Join)
+    }
+    
     def init() {
       lineColor = DefaultColor
       fillColor = DefaultFillColor
@@ -953,12 +968,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     def getFillColor = fillColor
     def getThickness = lineStroke.asInstanceOf[BasicStroke].getLineWidth
     def getFontSize = font.getSize
-
+    
     private def rawSetAttrs(color: Color, thickness: Double, fColor: Color, fontSize: Int) {
       lineColor = color
-      val Cap = if (thickness < 1) CapThin else CapThick
-      val Join = if (thickness < 1) JoinThin else JoinThick
-      lineStroke = new BasicStroke(thickness.toFloat, Cap, Join)
+      val (cap, join) = capJoin(thickness)
+      lineStroke = new BasicStroke(thickness.toFloat, cap, join)
       fillColor = fColor
       font = new Font(new PText().getFont.getName, Font.PLAIN, fontSize)
     }
@@ -969,9 +983,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
 
     def setThickness(t: Double) {
-      val Cap = if (t < 1) CapThin else CapThick
-      val Join = if (t < 1) JoinThin else JoinThick
-      lineStroke = new BasicStroke(t.toFloat, Cap, Join)
+      val (cap, join) = capJoin(t)
+      lineStroke = new BasicStroke(t.toFloat, cap, join)
       addNewPath()
     }
 
