@@ -59,7 +59,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
   private val camera = canvas.getCamera
   val DefaultColor = Color.red
   val DefaultFillColor: Color = null
-  val DefaultStroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+  def DefaultStroke = new BasicStroke((2/canvas.camScale).toFloat, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
   @volatile private var listener: SpriteListener = NoopSpriteListener
 
   private var figAnimation: PActivity = _
