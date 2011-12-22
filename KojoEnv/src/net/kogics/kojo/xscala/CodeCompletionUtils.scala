@@ -59,7 +59,11 @@ object CodeCompletionUtils {
     "animate" -> "animate {\n    ${cursor}\n}",
     "row" -> "row(${picture}, ${n})",
     "col" -> "col(${picture}, ${n})",
-    "setUnitLength" -> "setUnitLength(${unit})"
+    "setUnitLength" -> "setUnitLength(${unit})",
+    "intersects" -> "intersects(${otherPic})",
+    "collidesWith" -> "collidesWith(${otherPic})",
+    "distanceTo" -> "distanceTo(${otherPic})",
+    "stopAnimation" -> "stopAnimation()"
   )
   
   val TwMethodTemplates = Map(

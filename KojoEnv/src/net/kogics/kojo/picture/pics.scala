@@ -19,15 +19,20 @@ package picture
 import java.awt.BasicStroke
 import java.awt.geom.AffineTransform
 
+import scala.collection.mutable.ArrayBuffer
 import util.Utils
 import edu.umd.cs.piccolo.PNode
 import edu.umd.cs.piccolo.nodes.PPath
 import edu.umd.cs.piccolo.util.PBounds 
 
+import com.vividsolutions.jts.geom._
+import com.vividsolutions.jts.geom.util.AffineTransformation
+
 object Impl {
   val canvas = SpriteCanvas.instance
   val camera = canvas.getCamera
   val picLayer = canvas.pictures
+  val Gf = new GeometryFactory
 }
 
 trait Picture {
@@ -48,12 +53,45 @@ trait Picture {
   def axesOn(): Unit
   def axesOff(): Unit
   def toggleV(): Unit
+  def intersects(other: Picture): Boolean
+  def collidesWith(other: Picture) = intersects(other)
+  def distanceTo(other: Picture): Double
+  def area: Double
+  def perimeter: Double
+  def picGeom: Geometry
 }
 
 trait CorePicOps {self: Picture =>
   var axes: PNode = _
+  var _picGeom: Geometry = _
+  val pgTransform = new AffineTransformation
   
+  def realShow(): Unit
+
+  def show() {
+    realShow()
+    showDone
+  }
+  
+  def showDone() = Utils.runInSwingThread {
+    _picGeom = initGeom()
+  }
+
   def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
+    def t2t(t: AffineTransform): AffineTransformation = {
+      val ms = Array.fill(6)(0.0)
+      val ms2 = Array.fill(6)(0.0)
+      t.getMatrix(ms)
+      ms2(0) = ms(0) // m00
+      ms2(1) = ms(2) // m01
+      ms2(2) = ms(4) // m02
+      ms2(3) = ms(1) // m10
+      ms2(4) = ms(3) // m11
+      ms2(5) = ms(5) // m12
+      new AffineTransformation(ms2)
+    }
+    pgTransform.composeBefore(t2t(trans))
+
     tnode.transformBy(trans)
     tnode.repaint()
   }
@@ -147,6 +185,32 @@ trait CorePicOps {self: Picture =>
     }
     tnode.repaint()
   }
+
+  def initGeom(): Geometry
+  def picGeom = pgTransform.transform(_picGeom)
+  def intersects(other: Picture) = Utils.runInSwingThreadAndWait {
+    picGeom.intersects(other.picGeom)
+  }
+  
+  def distanceTo(other: Picture) = Utils.runInSwingThreadAndWait {
+    picGeom.distance(other.picGeom)
+  }
+  
+  def toPolygon(g: Geometry) = {
+    val gc = g.getCoordinates
+    val ab = new ArrayBuffer[Coordinate]
+    ab ++= gc
+    ab += gc(0)
+    Impl.Gf.createPolygon(Impl.Gf.createLinearRing(ab.toArray), null)
+  }
+  
+  def area = Utils.runInSwingThreadAndWait {
+    toPolygon(picGeom).getArea
+  }
+  
+  def perimeter = Utils.runInSwingThreadAndWait {
+    picGeom.getLength
+  }
 }
 
 trait ReshowStopper extends Picture {
@@ -194,7 +258,7 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher {
   def makeTnode = t.tlayer
   
   def decorateWith(painter: Painter) = painter(t)
-  def show() = {
+  def realShow() {
     painter(t)
     t.waitFor()
     Utils.runInSwingThread {
@@ -202,6 +266,7 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher {
       tl.invalidateFullBounds()
       tl.repaint()
       Impl.picLayer.repaint
+      initGeom()
     }
   }
   
@@ -209,6 +274,17 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher {
     tnode.getFullBounds
   }
   
+  def initGeom() = {
+    val cab = new ArrayBuffer[Coordinate]
+    val pp = t.penPaths
+    pp.foreach { pl =>
+      pl.points.foreach {pt =>
+        cab += new Coordinate(pt.x, pt.y)
+      }
+    }
+    Impl.Gf.createLineString(cab.toArray)
+  }
+
   def copy: Picture = Pic(painter)
     
   def dumpInfo() = Utils.runInSwingThreadAndWait {
@@ -220,6 +296,9 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher {
 }
 
 abstract class BasePicList(val pics: List[Picture]) extends Picture with CorePicOps with TNodeCacher {
+  if (pics.size == 0) {
+    throw new IllegalArgumentException("A Picture List needs to have at least one Picture.")
+  }
   @volatile var padding = 0.0
   def makeTnode = Utils.runInSwingThreadAndWait {
     val tn = new PNode()
@@ -230,7 +309,7 @@ abstract class BasePicList(val pics: List[Picture]) extends Picture with CorePic
     Impl.picLayer.addChild(tn)
     tn
   }
-  
+
   def bounds = Utils.runInSwingThreadAndWait {
     tnode.getFullBounds
   }
@@ -246,6 +325,14 @@ abstract class BasePicList(val pics: List[Picture]) extends Picture with CorePic
     this
   }
   
+  def initGeom() = {
+    var pg = pics(0).picGeom
+    pics.tail.foreach { pic =>
+      pg = pg union pic.picGeom
+    }
+    pg
+  }
+
   protected def picsCopy: List[Picture] = pics.map {_ copy}
   
   def dumpInfo() {
@@ -266,7 +353,7 @@ object HPics {
 }
 
 class HPics(pics: List[Picture]) extends BasePicList(pics) {
-  def show() {
+  def realShow() {
     var ox = 0.0
     pics.foreach { pic =>
       pic.translate(ox, 0)
@@ -291,7 +378,7 @@ object VPics {
 }
 
 class VPics(pics: List[Picture]) extends BasePicList(pics) {
-  def show() {
+  def realShow() {
     var oy = 0.0
     pics.foreach { pic =>
       pic.translate(0, oy)
@@ -316,7 +403,7 @@ object GPics {
 }
 
 class GPics(pics: List[Picture]) extends BasePicList(pics) {
-  def show() {
+  def realShow() {
     pics.foreach { pic =>
       pic.show()
     }

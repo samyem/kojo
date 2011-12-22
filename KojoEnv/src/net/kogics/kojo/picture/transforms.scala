@@ -34,6 +34,11 @@ trait Transformer extends Picture {
   def axesOn() = tpic.axesOn()
   def axesOff() = tpic.axesOff()
   def toggleV() = tpic.toggleV()
+  def intersects(other: Picture) = tpic.intersects(other)
+  def distanceTo(other: Picture) = tpic.distanceTo(other)
+  def area = tpic.area
+  def perimeter = tpic.perimeter
+  def picGeom = tpic.picGeom
 }
 
 abstract class Transform(pic: Picture) extends Transformer {
