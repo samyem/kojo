@@ -17,6 +17,7 @@ Kojo makes use of the following third-party software:
 - JLayer (http://www.javazoom.net/javalayer/javalayer.html) to play MP3 files
 - JFugue (http://www.jfugue.org) for computer generated music
 - GroupPanel (https://bitbucket.org/asflierl/grouppanel/wiki/Home) for UI Layout
+- JTS (http://tsusiatsoftware.net/jts/main.html) for Computational Geometry
 
 Kojo also makes use of the following third-party software for unit testing:
 - JMock (this includes the CGLib, Hamcrest, and Objenesis libraries)

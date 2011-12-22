@@ -536,4 +536,5 @@ Here's a partial list of the available commands:
   def pict(painter: Painter) = Pic(painter)
   def show(picture: Picture) = picture.show()
   def animate(fn: => Unit) = staging.API.loop(fn)
+  def stopAnimation() = staging.API.stop()
 }

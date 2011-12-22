@@ -65,7 +65,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   private val yBeam = PPath.createLine(-20, 0, 50, 0)
   yBeam.setStrokePaint(Color.gray)
 
-  private [turtle] val penPaths = new mutable.ArrayBuffer[PolyLine]
+  private [kojo] val penPaths = new mutable.ArrayBuffer[PolyLine]
   @volatile private var lineColor: Color = _
   @volatile private var fillColor: Color = _
   @volatile private var lineStroke: Stroke = _
@@ -1006,10 +1006,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     def undoStyle(oldStyle: Style) {
       rawSetAttrs(oldStyle.penColor, oldStyle.penThickness, oldStyle.fillColor, oldStyle.fontSize)
       removeLastPath()
-    }
-
-    def addToLayer() = {
-      penPaths.foreach {penPath => layer.addChild(layer.getChildrenCount-1, penPath)}
     }
 
     def clear() = {

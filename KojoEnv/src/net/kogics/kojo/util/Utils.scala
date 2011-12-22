@@ -147,7 +147,8 @@ object Utils {
                       "modules/ext/geogebra_gui.jar",
                       "modules/ext/geogebra_cas.jar",
                       "modules/ext/geogebra.jar",
-                      "modules/ext/jfugue-4.1.jar"
+                      "modules/ext/jfugue-4.1.jar",
+                      "modules/ext/jts-1.12.jar"
   )
   
   def readFile(is: InputStream): String = {
