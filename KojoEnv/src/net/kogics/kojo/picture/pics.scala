@@ -21,6 +21,7 @@ import java.awt.geom.AffineTransform
 
 import scala.collection.mutable.ArrayBuffer
 import util.Utils
+import util.InputAware
 import edu.umd.cs.piccolo.PNode
 import edu.umd.cs.piccolo.nodes.PPath
 import edu.umd.cs.piccolo.util.PBounds 
@@ -35,7 +36,9 @@ object Impl {
   val Gf = new GeometryFactory
 }
 
-trait Picture {
+trait Picture extends InputAware {
+  def myCanvas = Impl.canvas
+  def myNode = tnode
   def decorateWith(painter: Painter): Unit
   def show(): Unit
   def bounds: PBounds
@@ -59,12 +62,15 @@ trait Picture {
   def area: Double
   def perimeter: Double
   def picGeom: Geometry
+  
+  def setPosition(x: Double, y: Double)
+  def position: core.Point
 }
 
 trait CorePicOps {self: Picture =>
   var axes: PNode = _
   var _picGeom: Geometry = _
-  val pgTransform = new AffineTransformation
+  var pgTransform = new AffineTransformation
   
   def realShow(): Unit
 
@@ -77,22 +83,23 @@ trait CorePicOps {self: Picture =>
     _picGeom = initGeom()
   }
 
-  def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
-    def t2t(t: AffineTransform): AffineTransformation = {
-      val ms = Array.fill(6)(0.0)
-      val ms2 = Array.fill(6)(0.0)
-      t.getMatrix(ms)
-      ms2(0) = ms(0) // m00
-      ms2(1) = ms(2) // m01
-      ms2(2) = ms(4) // m02
-      ms2(3) = ms(1) // m10
-      ms2(4) = ms(3) // m11
-      ms2(5) = ms(5) // m12
-      new AffineTransformation(ms2)
-    }
-    pgTransform.composeBefore(t2t(trans))
+  def t2t(t: AffineTransform): AffineTransformation = {
+    val ms = Array.fill(6)(0.0)
+    val ms2 = Array.fill(6)(0.0)
+    t.getMatrix(ms)
+    ms2(0) = ms(0) // m00
+    ms2(1) = ms(2) // m01
+    ms2(2) = ms(4) // m02
+    ms2(3) = ms(1) // m10
+    ms2(4) = ms(3) // m11
+    ms2(5) = ms(5) // m12
+    new AffineTransformation(ms2)
+  }
 
+  def transformBy(trans: AffineTransform) = Utils.runInSwingThread {
     tnode.transformBy(trans)
+//    pgTransform.composeBefore(t2t(trans))
+    pgTransform = t2t(tnode.getTransformReference(true))
     tnode.repaint()
   }
 
@@ -116,6 +123,18 @@ trait CorePicOps {self: Picture =>
 
   def offset(x: Double, y: Double) = Utils.runInSwingThread {
     tnode.offset(x, y)
+    pgTransform = t2t(tnode.getTransformReference(true))
+    tnode.repaint()
+  }
+  
+  def position = Utils.runInSwingThreadAndWait {
+    val o = tnode.getOffset
+    new core.Point(o.getX, o.getY)
+  }  
+  
+  def setPosition(x: Double, y: Double) = Utils.runInSwingThread {
+    tnode.setOffset(x, y)
+    pgTransform = t2t(tnode.getTransformReference(true))
     tnode.repaint()
   }
   
@@ -125,10 +144,6 @@ trait CorePicOps {self: Picture =>
   
   def flipY() {
     transformBy(AffineTransform.getScaleInstance(-1, 1))
-  }
-  
-  def reset()  = Utils.runInSwingThread {
-    tnode.setTransform(new AffineTransform)
   }
   
   def axesOn() = Utils.runInSwingThread {

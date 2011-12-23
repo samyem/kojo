@@ -18,13 +18,13 @@ package net.kogics.kojo
 package staging
 
 import util.Utils
+import util.InputAware
 import core.Point
 
 import java.awt.BasicStroke
 import edu.umd.cs.piccolo.PNode
 import edu.umd.cs.piccolo.nodes.PPath
 import edu.umd.cs.piccolo.util.PBounds
-import edu.umd.cs.piccolo.activities.PActivity
 import edu.umd.cs.piccolo.event._
 
 import java.awt.Color
@@ -435,7 +435,9 @@ object Point {
 
 
 //T ShapeMethodsTest begins
-trait Shape {
+trait Shape  extends InputAware {
+  def myCanvas = Impl.canvas
+  def myNode = node
   def node: PNode
   var sizeFactor = 1.
 
@@ -510,50 +512,6 @@ trait Shape {
   def offset = Utils.runInSwingThreadAndWait {
     val o = node.getOffset
     Point(o.getX, o.getY)
-  }
-
-  def onMouseClick(fn: (Double, Double) => Unit) = Utils.runInSwingThread {
-    val h = new PBasicInputEventHandler {
-      override def mousePressed(event: PInputEvent) {
-        val pos = event.getPosition
-        Utils.safeProcess {
-          fn(pos.getX, pos.getY)
-        }
-      }
-    }
-    h.setEventFilter(new PInputEventFilter(java.awt.event.InputEvent.BUTTON1_MASK))
-    node.addInputEventListener(h)
-  }
-  
-  def onMouseDrag(fn: (Double, Double) => Unit) = Utils.runInSwingThread {
-    Impl.canvas.setPanEventHandler(null)
-    val h = new PBasicInputEventHandler {
-      override def mouseDragged(event: PInputEvent) {
-        val pos = event.getPosition
-        Utils.safeProcess {
-          fn(pos.getX, pos.getY)
-        }
-      }
-    }
-    h.setEventFilter(new PInputEventFilter(java.awt.event.InputEvent.BUTTON1_MASK))
-    node.addInputEventListener(h)
-  }
-  
-  import java.awt.event.KeyEvent
-  def onKeyPress(fn: Int => Unit) = Utils.runInSwingThread {
-    val eh = new PBasicInputEventHandler {
-      override def mousePressed(event: PInputEvent) {
-//        event.getInputManager().setKeyboardFocus(event.getPath())
-        Impl.canvas.getRoot.getDefaultInputManager.setKeyboardFocus(this)
-//        event.setHandled(true)
-      }
-      override def keyPressed(e: PInputEvent) {
-        Utils.safeProcess {
-          fn(e.getKeyCode)
-        }
-      }
-    }
-    node.addInputEventListener(eh)
   }
 
   import turtle.TurtleHelper._
