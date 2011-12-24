@@ -24,7 +24,7 @@ import edu.umd.cs.piccolo.activities.PActivity
 import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate
 
 import javax.swing._
-import java.awt.{Point => _, _}
+import java.awt.{Point => _, List => _, _}
 
 import net.kogics.kojo.util.Utils
 import core._
@@ -62,7 +62,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
   def DefaultStroke = new BasicStroke((2/canvas.camScale).toFloat, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
   @volatile private var listener: SpriteListener = NoopSpriteListener
 
-  private var figAnimation: PActivity = _
+  private var figAnimations: List[PActivity] = Nil
   private var _lineColor: Color = _
   private var _fillColor: Color = _
   private var _lineStroke: Stroke = _
@@ -171,54 +171,50 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
   }
 
 
-  def refresh(fn: => Unit) {
-    
-    Utils.runInSwingThread {
-      if (figAnimation == null ) {
-        // need to extend this to allow multiple animations
-        figAnimation = new PActivity(-1) {
-          override def activityStep(elapsedTime: Long) {
-            currLayer = fgLayer
-            try {
-              staging.Inputs.activityStep
-              fn
-              if (isStepping) {
-                listener.hasPendingCommands()
-              }
-            }
-            catch {
-              case t: Throwable =>
-                canvas.outputFn("Problem: " + t.toString())
-                stop()
-            }
-            finally {
-              repaint()
-              currLayer = bgLayer
-            }
+  def refresh(fn: => Unit) = Utils.runInSwingThread {
+    val figAnimation = new PActivity(-1) {
+      override def activityStep(elapsedTime: Long) {
+        currLayer = fgLayer
+        try {
+          staging.Inputs.activityStep
+          fn
+          if (isStepping) {
+            listener.hasPendingCommands()
           }
         }
-
-        figAnimation.setDelegate(new PActivityDelegate {
-            override def activityStarted(activity: PActivity) {}
-            override def activityStepped(activity: PActivity) {}
-            override def activityFinished(activity: PActivity) {
-              listener.pendingCommandsDone()
-            }
-          })
-
-        canvas.getRoot.addActivity(figAnimation)
+        catch {
+          case t: Throwable =>
+            canvas.outputFn("Problem: " + t.toString())
+            terminate(PActivity.TERMINATE_AND_FINISH)
+            figAnimations = figAnimations filter {_ != this}
+        }
+        finally {
+          repaint()
+          currLayer = bgLayer
+        }
       }
     }
+
+    figAnimation.setDelegate(new PActivityDelegate {
+        override def activityStarted(activity: PActivity) {}
+        override def activityStepped(activity: PActivity) {}
+        override def activityFinished(activity: PActivity) {
+          listener.pendingCommandsDone()
+        }
+      })
+
+    figAnimations = figAnimation :: figAnimations
+    canvas.getRoot.addActivity(figAnimation)
   }
 
   def stopRefresh() = stop()
 
   def stop() {
     Utils.runInSwingThread {
-      if (figAnimation != null) {
+      figAnimations.foreach { figAnimation =>
         figAnimation.terminate(PActivity.TERMINATE_AND_FINISH)
-        figAnimation = null
       }
+      figAnimations = Nil
     }
   }
 

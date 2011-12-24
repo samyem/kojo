@@ -57,6 +57,7 @@ object CodeCompletionUtils {
     "reflect" -> "reflect(${gap})",
     "show" -> "show(${pic})",
     "animate" -> "animate {\n    ${cursor}\n}",
+    "act" -> "act { me => \n    ${cursor}\n}",
     "row" -> "row(${picture}, ${n})",
     "col" -> "col(${picture}, ${n})",
     "setUnitLength" -> "setUnitLength(${unit})",

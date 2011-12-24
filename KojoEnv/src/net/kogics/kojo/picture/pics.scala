@@ -65,6 +65,9 @@ trait Picture extends InputAware {
   
   def setPosition(x: Double, y: Double)
   def position: core.Point
+  def act(fn: Picture => Unit) = staging.API.loop {
+    fn(this)
+  }
 }
 
 trait CorePicOps {self: Picture =>
