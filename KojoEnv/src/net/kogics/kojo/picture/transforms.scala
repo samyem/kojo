@@ -41,6 +41,8 @@ trait Transformer extends Picture {
   def area = tpic.area
   def perimeter = tpic.perimeter
   def picGeom = tpic.picGeom
+  def visible() = tpic.visible()
+  def invisible() = tpic.invisible()
 }
 
 abstract class Transform(pic: Picture) extends Transformer {

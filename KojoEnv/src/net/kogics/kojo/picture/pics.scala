@@ -55,6 +55,8 @@ trait Picture extends InputAware {
   def tnode: PNode
   def axesOn(): Unit
   def axesOff(): Unit
+  def visible(): Unit
+  def invisible(): Unit
   def toggleV(): Unit
   def intersects(other: Picture): Boolean
   def collidesWith(other: Picture) = intersects(other)
@@ -194,6 +196,20 @@ trait CorePicOps {self: Picture =>
     }
   }
   
+  def visible() = Utils.runInSwingThread {
+    if (!tnode.getVisible) {
+      tnode.setVisible(true)
+      tnode.repaint()
+    }
+  }
+  
+  def invisible() = Utils.runInSwingThread {
+    if (tnode.getVisible) {
+      tnode.setVisible(false)
+      tnode.repaint()
+    }
+  }
+  
   def toggleV() = Utils.runInSwingThread {
     if (tnode.getVisible) {
       tnode.setVisible(false)
@@ -207,7 +223,12 @@ trait CorePicOps {self: Picture =>
   def initGeom(): Geometry
   def picGeom = pgTransform.transform(_picGeom)
   def intersects(other: Picture) = Utils.runInSwingThreadAndWait {
-    picGeom.intersects(other.picGeom)
+    if (tnode.getVisible && other.tnode.getVisible) {
+      picGeom.intersects(other.picGeom)
+    }
+    else {
+      false
+    }
   }
   
   def distanceTo(other: Picture) = Utils.runInSwingThreadAndWait {
