@@ -263,15 +263,15 @@ object Utils {
   }
 
   import edu.umd.cs.piccolo.nodes.PText
-  def textNode(text: String, x: Double, y: Double): PText = {
+  def textNode(text: String, x: Double, y: Double, camScale: Double): PText = {
     val tnode = new PText(text)
-    tnode.getTransformReference(true).setToScale(1, -1)
+    tnode.getTransformReference(true).setToScale(1/camScale, -1/camScale)
     tnode.setOffset(x, y)
     tnode
   }
   
-  def textNode(text: String, x: Double, y: Double, n: Int): PText = {
-    val tnode = textNode(text, x, y)
+  def textNode(text: String, x: Double, y: Double, camScale: Double, n: Int): PText = {
+    val tnode = textNode(text, x, y, camScale)
     val font = new Font(tnode.getFont.getName, Font.PLAIN, n)
     tnode.setFont(font)
     tnode

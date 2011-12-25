@@ -1062,7 +1062,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
 
     def write(text: String) {
-      val ptext = Utils.textNode(text, _position.x, _position.y)
+      val ptext = Utils.textNode(text, _position.x, _position.y, canvas.camScale)
       pushHistory(UndoWrite(ptext))
       ptext.setFont(font)
       ptext.setTextPaint(pen.getColor)

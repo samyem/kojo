@@ -179,7 +179,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       }
     })
 
-  private [kojo] def camScale = unitLen match {
+  def camScale = unitLen match {
     case Pixel => 1
     case Inch => Dpi
     case Cm => Dpi / 2.54

@@ -254,6 +254,7 @@ class Builtins extends RepeatCommands {
     val Inch = net.kogics.kojo.Inch
     val Cm = net.kogics.kojo.Cm
     def setUnitLength(ul: UnitLen) = tCanvas.setUnitLength(ul)
+    def camScale = tCanvas.camScale
   }
   val TSCanvas = new TSCanvasC()
 
@@ -431,8 +432,8 @@ Here's a partial list of the available commands:
   UserCommand("playMusicUntilDone", List("score"), "Plays the specified melody, rhythm, or score, and waits till the music finishes.")
 
   def textExtent(text: String, fontSize: Int) = {
-    val tnode = Utils.textNode(text, 0, 0, fontSize)
-    val b = tnode.getBounds
+    val tnode = Utils.textNode(text, 0, 0, tCanvas.camScale, fontSize)
+    val b = tnode.getFullBounds
     new Rectangle(new Point(b.x, b.y), new Point(b.x + b.width, b.y + b.height))
   }
   UserCommand("textExtent", List("text", "fontSize"), "Determines the size/extent of the given text fragment for the given font size.")
