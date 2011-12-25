@@ -64,7 +64,8 @@ object CodeCompletionUtils {
     "intersects" -> "intersects(${otherPic})",
     "collidesWith" -> "collidesWith(${otherPic})",
     "distanceTo" -> "distanceTo(${otherPic})",
-    "stopAnimation" -> "stopAnimation()"
+    "stopAnimation" -> "stopAnimation()",
+    "isKeyPressed" -> "isKeyPressed(Kc.VK_${cursor})"
   )
   
   val TwMethodTemplates = Map(
