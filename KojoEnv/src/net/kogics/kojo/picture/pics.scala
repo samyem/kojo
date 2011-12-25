@@ -167,9 +167,7 @@ trait CorePicOps {self: Picture =>
         l
       }
       def text(s: String, x: Double, y: Double) = {
-        val t = Utils.textNode(s, x, y)
-        t.scale(1/camScale)
-        t
+        Utils.textNode(s, x, y, camScale)
       }
       axes = new PNode
       axes.addChild(line(-overrun, 0, size, 0))

@@ -622,7 +622,7 @@ trait Elliptical extends SimpleShape with Rounded {
 
 class Text(val text: String, val origin: Point) extends BaseShape {
   import java.awt.Font
-  val tnode = Utils.textNode(text, origin.x, origin.y, 14)
+  val tnode = Utils.textNode(text, origin.x, origin.y, Impl.canvas.camScale, 14)
   def node = tnode
 
   def setPenColor(color: Color) {

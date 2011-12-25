@@ -31,4 +31,5 @@ trait TSCanvasFeatures {
   def onKeyPress(fn: Int => Unit)  
   def onMouseClick(fn: (Double, Double) => Unit)
   def setUnitLength(ul: UnitLen)
+  def camScale: Double
 }
