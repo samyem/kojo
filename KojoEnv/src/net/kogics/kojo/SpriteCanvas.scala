@@ -631,6 +631,19 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     eventListeners = eh :: eventListeners
     addInputEventListener(eh)
   }
+  
+  var globalEl: PInputEventListener = _
+  def addGlobalEventListener(l: PInputEventListener) {
+    globalEl = l
+    addInputEventListener(l)
+  }
+  
+  def activate() {
+    Utils.schedule(0.3) {
+      SCanvasTopComponent.findInstance().requestActive()
+      getRoot.getDefaultInputManager.setKeyboardFocus(globalEl)
+    }
+  }
 
   class CompositeListener extends TurtleListener {
     var startCount = 0
