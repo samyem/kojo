@@ -43,6 +43,7 @@ trait Transformer extends Picture {
   def picGeom = tpic.picGeom
   def visible() = tpic.visible()
   def invisible() = tpic.invisible()
+  def act(fn: Picture => Unit) = tpic.act(fn)
 }
 
 abstract class Transform(pic: Picture) extends Transformer {
