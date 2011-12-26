@@ -530,6 +530,10 @@ trait Shape  extends InputAware {
   }
   def orientation = heading
   def setHeading(angle: Double) = rotateTo(angle)
+
+  def act(fn: Shape => Unit) = API.loop {
+    fn(this)
+  }
 }
 //T ShapeMethodsTest ends
 
