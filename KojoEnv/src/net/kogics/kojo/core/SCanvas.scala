@@ -19,4 +19,5 @@ trait SCanvas extends TSCanvasFeatures {
   val turtle0: Turtle
   def clear(): Unit
   def undo(): Unit
+  def activate(): Unit
 }

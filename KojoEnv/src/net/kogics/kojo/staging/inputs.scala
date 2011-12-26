@@ -137,7 +137,7 @@ object Inputs {
         }
       }
 
-      Impl.canvas.addInputEventListener(iel)
+      Impl.canvas.addGlobalEventListener(iel)
     }
   }
 }  
