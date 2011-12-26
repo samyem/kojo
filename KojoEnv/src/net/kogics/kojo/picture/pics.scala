@@ -67,12 +67,10 @@ trait Picture extends InputAware {
   
   def setPosition(x: Double, y: Double)
   def position: core.Point
-  def act(fn: Picture => Unit) = staging.API.loop {
-    fn(this)
-  }
+  def act(fn: Picture => Unit)
 }
 
-trait CorePicOps {self: Picture =>
+trait CorePicOps { self: Picture with ReshowStopper =>
   var axes: PNode = _
   var _picGeom: Geometry = _
   var pgTransform = new AffineTransformation
@@ -219,7 +217,15 @@ trait CorePicOps {self: Picture =>
   }
 
   def initGeom(): Geometry
-  def picGeom = pgTransform.transform(_picGeom)
+  def picGeom = {
+    if (_picGeom == null) {
+      throw new IllegalStateException("Access geometry after show")
+    }
+    else {
+      pgTransform.transform(_picGeom)
+    }
+  }
+    
   def intersects(other: Picture) = Utils.runInSwingThreadAndWait {
     if (tnode.getVisible && other.tnode.getVisible) {
       picGeom.intersects(other.picGeom)
@@ -248,10 +254,21 @@ trait CorePicOps {self: Picture =>
   def perimeter = Utils.runInSwingThreadAndWait {
     picGeom.getLength
   }
+  
+  def act(fn: Picture => Unit) {
+    if (!isShown) {
+      throw new IllegalStateException("Ask picture to act after you show it.")
+    }
+ 
+    staging.API.loop {
+      fn(this)
+    }
+  }
 }
 
 trait ReshowStopper extends Picture {
   var shown = false
+  def isShown = Utils.runInSwingThreadAndWait {shown}
   abstract override def show() {
     if (shown) {
       throw new RuntimeException("You can't reshow a picture")
@@ -275,10 +292,10 @@ trait TNodeCacher {
 }
 
 object Pic {
-  def apply(painter: Painter) = new Pic(painter) with ReshowStopper
+  def apply(painter: Painter) = new Pic(painter) 
 }
 
-class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher {
+class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher with ReshowStopper {
   @volatile var _t: turtle.Turtle = _
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
@@ -332,7 +349,8 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher {
   }
 }
 
-abstract class BasePicList(val pics: List[Picture]) extends Picture with CorePicOps with TNodeCacher {
+abstract class BasePicList(val pics: List[Picture]) 
+extends Picture with CorePicOps with TNodeCacher with ReshowStopper {
   if (pics.size == 0) {
     throw new IllegalArgumentException("A Picture List needs to have at least one Picture.")
   }
@@ -385,8 +403,8 @@ abstract class BasePicList(val pics: List[Picture]) extends Picture with CorePic
 }
 
 object HPics {
-  def apply(pics: Picture *): HPics = new HPics(pics.toList) with ReshowStopper
-  def apply(pics: List[Picture]): HPics = new HPics(pics) with ReshowStopper
+  def apply(pics: Picture *): HPics = new HPics(pics.toList) 
+  def apply(pics: List[Picture]): HPics = new HPics(pics)
 }
 
 class HPics(pics: List[Picture]) extends BasePicList(pics) {
@@ -410,8 +428,8 @@ class HPics(pics: List[Picture]) extends BasePicList(pics) {
 } 
 
 object VPics {
-  def apply(pics: Picture *): VPics = new VPics(pics.toList) with ReshowStopper
-  def apply(pics: List[Picture]): VPics = new VPics(pics) with ReshowStopper
+  def apply(pics: Picture *): VPics = new VPics(pics.toList) 
+  def apply(pics: List[Picture]): VPics = new VPics(pics) 
 }
 
 class VPics(pics: List[Picture]) extends BasePicList(pics) {
@@ -435,8 +453,8 @@ class VPics(pics: List[Picture]) extends BasePicList(pics) {
 }
   
 object GPics {
-  def apply(pics: Picture *): GPics = new GPics(pics.toList) with ReshowStopper
-  def apply(pics: List[Picture]): GPics = new GPics(pics) with ReshowStopper
+  def apply(pics: Picture *): GPics = new GPics(pics.toList) 
+  def apply(pics: List[Picture]): GPics = new GPics(pics) 
 }
 
 class GPics(pics: List[Picture]) extends BasePicList(pics) {
