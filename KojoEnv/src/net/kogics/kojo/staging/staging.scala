@@ -28,6 +28,8 @@ import edu.umd.cs.piccolo.util.PBounds
 import edu.umd.cs.piccolo.event._
 
 import java.awt.Color
+import java.awt.Paint
+
 
 object Impl {
   val canvas = SpriteCanvas.instance
@@ -279,14 +281,14 @@ object API {
   def hsbColors(hMax: Int, sMax: Int, bMax: Int) =
     ColorMaker(HSB(hMax, sMax, bMax))
   def namedColor(s: String) = ColorMaker.color(s)
-  def fill(c: Color) = Impl.figure0.setFillColor(c)
+  def fill(c: Paint) = Impl.figure0.setFillColor(c)
   def noFill() = Impl.figure0.setFillColor(null)
   def stroke(c: Color) = Impl.figure0.setPenColor(c)
   def noStroke() = Impl.figure0.setPenColor(null)
   def strokeWidth(w: Double) = Impl.figure0.setPenThickness(w)
 
   def setPenColor(color: Color) = stroke(color)
-  def setFillColor(color: Color) = fill(color)
+  def setFillColor(color: Paint) = fill(color)
   def setPenThickness(w: Double) = strokeWidth(w)
   
   def withStyle(fc: Color, sc: Color, sw: Double)(body: => Unit) =
@@ -456,19 +458,19 @@ trait Shape  extends InputAware {
   def erase() {
     Impl.figure0.removePnode(node)
   }
-  def fill_=(color: Color) {
+  def fill_=(color: Paint) {
     Utils.runInSwingThread {
       node.setPaint(color)
       node.repaint()
     }
   }
-  def fill(color: Color) {
+  def fill(color: Paint) {
     fill = color
   }
   def fill = Utils.runInSwingThreadAndWait {
     node.getPaint
   }
-  def setFillColor(color: Color) = fill(color)
+  def setFillColor(color: Paint) = fill(color)
 
   def rotate(amount: Double) = turn(amount)
   
@@ -732,7 +734,7 @@ object Composite {
 
 object Style {
   val savedStyles =
-    new scala.collection.mutable.Stack[(Color, Color, java.awt.Stroke)]()
+    new scala.collection.mutable.Stack[(Paint, Color, java.awt.Stroke)]()
   val f = Impl.figure0
 
   def save {

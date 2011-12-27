@@ -15,9 +15,12 @@
 
 package net.kogics.kojo.core
 
+import edu.umd.cs.piccolo.util.PBounds
+
 trait SCanvas extends TSCanvasFeatures {
   val turtle0: Turtle
   def clear(): Unit
   def undo(): Unit
   def activate(): Unit
+  def cbounds: PBounds
 }

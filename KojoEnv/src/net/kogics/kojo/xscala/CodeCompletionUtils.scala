@@ -70,7 +70,7 @@ object CodeCompletionUtils {
   )
   
   val TwMethodTemplates = Map(
-    "pict" -> "pict { t =>\n    import t._\n    ${cursor}\n}",
+    "pict" -> "Pic { t =>\n    import t._\n    ${cursor}\n}",
     "Pic" -> "Pic { t =>\n    import t._\n    ${cursor}\n}"
   ) 
 
