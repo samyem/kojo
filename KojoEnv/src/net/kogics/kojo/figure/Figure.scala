@@ -64,11 +64,11 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
 
   private var figAnimations: List[PActivity] = Nil
   private var _lineColor: Color = _
-  private var _fillColor: Color = _
+  private var _fillColor: Paint = _
   private var _lineStroke: Stroke = _
 
-  camera.addLayer(camera.getLayerCount-1, bgLayer)
-  camera.addLayer(camera.getLayerCount-1, fgLayer)
+  camera.addLayer(bgLayer)
+  camera.addLayer(fgLayer)
   init()
 
   def init() {
@@ -138,7 +138,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
     }
   }
 
-  def setFillColor(color: java.awt.Color) {
+  def setFillColor(color: Paint) {
     Utils.runInSwingThread {
       _fillColor = color
     }

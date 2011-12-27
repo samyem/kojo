@@ -16,6 +16,7 @@ package net.kogics.kojo
 package turtle
 
 import java.awt.Color
+import java.awt.Paint
 import core.Style
 
 trait Pen {
@@ -28,12 +29,12 @@ trait Pen {
   def endMove(x: Double, y: Double): Unit
   def setColor(color: Color): Unit
   def setThickness(t: Double): Unit
-  def setFillColor(color: Color): Unit
+  def setFillColor(color: Paint): Unit
   def setStyle(style: Style): Unit
   def undoStyle(oldStyle: Style): Unit
   def undoMove(): Unit
   def getColor: Color
-  def getFillColor: Color
+  def getFillColor: Paint
   def getThickness: Double
   def setFontSize(n: Int)
   def getFontSize: Int

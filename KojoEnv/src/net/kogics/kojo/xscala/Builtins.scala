@@ -17,6 +17,8 @@ package net.kogics.kojo
 package xscala
 
 import core._
+import java.awt.GradientPaint
+import java.awt.Paint
 import javax.swing.JComponent
 import util._
 
@@ -31,7 +33,7 @@ object Builtins extends InitedSingleton[Builtins] {
   protected def newInstance = new Builtins
 }
 
-import java.awt.Color
+import java.awt.{Color => JColor}
 
 class Builtins extends RepeatCommands {
   @volatile var astStopPhase = "typer"
@@ -48,16 +50,16 @@ class Builtins extends RepeatCommands {
   PuzzleLoader.init()
   val Random = new java.util.Random
 
-  val blue = Color.blue
-  val red = Color.red
-  val yellow = Color.yellow
-  val green = Color.green
-  val orange = Color.orange
+  val blue = JColor.blue
+  val red = JColor.red
+  val yellow = JColor.yellow
+  val green = JColor.green
+  val orange = JColor.orange
   val purple = new Color(0x740f73)
-  val pink = Color.pink
+  val pink = JColor.pink
   val brown = new Color(0x583a0b)
-  val black = Color.black
-  val white = Color.white
+  val black = JColor.black
+  val white = JColor.white
 
   val Kc = new staging.KeyCodes
   
@@ -127,7 +129,7 @@ class Builtins extends RepeatCommands {
     UserCommand("setPenColor", List("color"), "Specifies the color of the pen that the turtle draws with.")
 
     def setFillColor() = println("Please provide the fill color for the areas drawn by the turtle - e.g setFillColor(yellow)")
-    override def setFillColor(color: Color) = turtle0.setFillColor(color)
+    override def setFillColor(color: Paint) = turtle0.setFillColor(color)
     UserCommand("setFillColor", List("color"), "Specifies the fill color of the figures drawn by the turtle.")
     UserCommand.addSynopsisSeparator()
 
@@ -442,7 +444,6 @@ Here's a partial list of the available commands:
   UserCommand("runInBackground", List("command"), "Runs the given code in the background, concurrently with other code that follows right after this command.")
 
   // undocumented
-  def color(r: Int, g: Int, b: Int, a: Int) = new Color(r, g, b, a)
   def color(rgbHex: Int) = new Color(rgbHex)
   def clearOutput() = ctx.clearOutput()
 
@@ -540,4 +541,24 @@ Here's a partial list of the available commands:
   def stopAnimation() = staging.API.stop()
   def isKeyPressed(key: Int) = staging.Inputs.isKeyPressed(key)
   def activateCanvas() = tCanvas.activate()
+  def setBackground(c: Paint) = Utils.runInSwingThread {
+    val bounds = tCanvas.cbounds
+    val rect = staging.API.rectangle(bounds.x, bounds.y, bounds.width, bounds.height)
+    rect.setFillColor(c)
+    rect.setPenColor(white)
+  }
+  def setBackgroundH(c1: Color, c2: Color) = Utils.runInSwingThread {
+    val bounds = tCanvas.cbounds
+    val paint = new GradientPaint(bounds.x.toFloat, 0, c1, (bounds.x + bounds.width).toFloat, 0, c2)
+    setBackground(paint)
+  }
+  def setBackgroundV(c1: Color, c2: Color) = Utils.runInSwingThread {
+    val bounds = tCanvas.cbounds
+    val paint = new GradientPaint(0, bounds.y.toFloat, c1, 0, (bounds.y + bounds.height).toFloat, c2)
+    setBackground(paint)
+  }
+  def Color(r: Int, g: Int, b: Int, a: Int=255) = new Color(r, g, b, a)
+  def ColorG(x1: Double, y1: Double, c1: Color, x2: Double, y2: Double, c2: Color, cyclic: Boolean = false) = {
+    new GradientPaint(x1.toFloat, y1.toFloat, c1, x2.toFloat, y2.toFloat, c2, cyclic)
+  }
 }

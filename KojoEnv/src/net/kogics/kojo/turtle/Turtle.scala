@@ -51,9 +51,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   private val layer = new PLayer
   def tlayer: PLayer = layer
   private val camera = canvas.getCamera
-  // the zeroth layer is for the grid etc
-  // bottom sprite layer is at index 1
-  if (bottomLayer) camera.addLayer(1, layer) else camera.addLayer(camera.getLayerCount-1, layer)
+  if (bottomLayer) camera.addLayer(0, layer) else camera.addLayer(layer)
   @volatile private [turtle] var _animationDelay = 0l
 
   private val turtleImage = new PImage(Utils.loadImage(fname))
@@ -67,7 +65,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private [kojo] val penPaths = new mutable.ArrayBuffer[PolyLine]
   @volatile private var lineColor: Color = _
-  @volatile private var fillColor: Color = _
+  @volatile private var fillColor: Paint = _
   @volatile private var lineStroke: Stroke = _
   @volatile private var font: Font = _
 
@@ -200,7 +198,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   def jumpTo(x: Double, y: Double) = enqueueCommand(JumpTo(x, y, cmdBool))
   def moveTo(x: Double, y: Double) = enqueueCommand(MoveTo(x, y, cmdBool))
   def setPenColor(color: Color) = enqueueCommand(SetPenColor(color, cmdBool))
-  def setFillColor(color: Color) = enqueueCommand(SetFillColor(color, cmdBool))
+  def setFillColor(color: Paint) = enqueueCommand(SetFillColor(color, cmdBool))
   def saveStyle() = enqueueCommand(SaveStyle(cmdBool))
   def restoreStyle() = enqueueCommand(RestoreStyle(cmdBool))
   def beamsOn() = enqueueCommand(BeamsOn(cmdBool))
@@ -548,7 +546,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     pen.setFontSize(n)
   }
 
-  private def realSetFillColor(color: Color, cmd: Command) {
+  private def realSetFillColor(color: Paint, cmd: Command) {
     pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
     pen.setFillColor(color)
   }
@@ -647,7 +645,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     turtle.repaint()
   }
 
-  private def undoPenAttrs(color: Color, thickness: Double, fillColor: Color, fontSize: Int) {
+  private def undoPenAttrs(color: Color, thickness: Double, fillColor: Paint, fontSize: Int) {
     canvas.outputFn("Undoing Pen attribute (Color/Thickness/FillColor/FontSize) change.\n")
     pen.undoStyle(Style(color, thickness, fillColor, fontSize))
   }
@@ -969,7 +967,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     def getThickness = lineStroke.asInstanceOf[BasicStroke].getLineWidth
     def getFontSize = font.getSize
     
-    private def rawSetAttrs(color: Color, thickness: Double, fColor: Color, fontSize: Int) {
+    private def rawSetAttrs(color: Color, thickness: Double, fColor: Paint, fontSize: Int) {
       lineColor = color
       val (cap, join) = capJoin(thickness)
       lineStroke = new BasicStroke(thickness.toFloat, cap, join)
@@ -993,7 +991,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       addNewPath()
     }
 
-    def setFillColor(color: Color) {
+    def setFillColor(color: Paint) {
       fillColor = color
       addNewPath()
     }

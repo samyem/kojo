@@ -18,6 +18,7 @@ package turtle
 import java.awt.Color
 
 import java.util.concurrent.atomic.AtomicBoolean
+import java.awt.Paint
 import java.util.concurrent.CountDownLatch
 import edu.umd.cs.piccolo.nodes.PText
 
@@ -44,7 +45,7 @@ case class GetHeading(latch: CountDownLatch, v: AtomicBoolean) extends Command(v
 case class SetPenColor(color: Color, v: AtomicBoolean) extends Command(v)
 case class SetPenThickness(t: Double, v: AtomicBoolean) extends Command(v)
 case class SetFontSize(n: Int, v: AtomicBoolean) extends Command(v)
-case class SetFillColor(color: Color, v: AtomicBoolean) extends Command(v)
+case class SetFillColor(color: Paint, v: AtomicBoolean) extends Command(v)
 case class SaveStyle(v: AtomicBoolean) extends Command(v)
 case class RestoreStyle(v: AtomicBoolean) extends Command(v)
 case class GetStyle(latch: CountDownLatch, v: AtomicBoolean) extends Command(v)
@@ -61,7 +62,7 @@ case class PlaySound(voice: core.Voice, v: AtomicBoolean) extends Command(v)
 abstract sealed class UndoCommand
 case class UndoChangeInPos(oldPos: (Double, Double)) extends UndoCommand
 case class UndoChangeInHeading(oldHeading: Double) extends UndoCommand
-case class UndoPenAttrs(color: Color, thickness: Double, fillColor: Color, fontSize: Int) extends UndoCommand
+case class UndoPenAttrs(color: Color, thickness: Double, fillColor: Paint, fontSize: Int) extends UndoCommand
 case class UndoPenState(currPen: Pen) extends UndoCommand
 case class UndoWrite(ptext: PText) extends UndoCommand
 case class UndoVisibility(visible: Boolean, beamsOn: Boolean) extends UndoCommand
@@ -72,7 +73,7 @@ case class CompositeUndoCommand(cmds: List[UndoCommand]) extends UndoCommand
 
 case class SpriteState(posx: Long, posy: Long,
                        heading: Long,
-                       color: Color, thickness: Long, fillColor: Color,
+                       color: Color, thickness: Long, fillColor: Paint,
                        currPen: Pen,
                        textNodes: List[PText],
                        visible: Boolean, beamsOn: Boolean)

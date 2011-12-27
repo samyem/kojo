@@ -111,8 +111,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     })
 
   val megaListener = new CompositeListener()
-  val turtle = newTurtle()
   val figure = newFigure()
+  val turtle = newTurtle()
   val pictures = new PLayer
   getCamera.addLayer(pictures)
 
@@ -644,6 +644,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       getRoot.getDefaultInputManager.setKeyboardFocus(globalEl)
     }
   }
+  
+  def cbounds = getCamera.getViewBounds()
 
   class CompositeListener extends TurtleListener {
     var startCount = 0
