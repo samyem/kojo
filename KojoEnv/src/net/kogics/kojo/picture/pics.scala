@@ -22,6 +22,7 @@ import java.awt.geom.AffineTransform
 import scala.collection.mutable.ArrayBuffer
 import util.Utils
 import util.InputAware
+import util.Vector2D
 import edu.umd.cs.piccolo.PNode
 import edu.umd.cs.piccolo.nodes.PPath
 import edu.umd.cs.piccolo.util.PBounds 
@@ -46,6 +47,7 @@ trait Picture extends InputAware {
   def rotateAboutPoint(angle: Double, x: Double, y: Double)
   def scale(factor: Double)
   def translate(x: Double, y: Double)
+  def transv(v: Vector2D) = translate(v.x, v.y)
   def offset(x: Double, y: Double)
   def flipX(): Unit
   def flipY(): Unit
