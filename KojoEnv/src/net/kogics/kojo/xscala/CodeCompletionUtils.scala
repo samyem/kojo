@@ -66,7 +66,12 @@ object CodeCompletionUtils {
     "distanceTo" -> "distanceTo(${otherPic})",
     "stopAnimation" -> "stopAnimation()",
     "isKeyPressed" -> "isKeyPressed(Kc.VK_${cursor})",
-    "activateCanvas" -> "activateCanvas()"
+    "activateCanvas" -> "activateCanvas()",
+    "setBackground" -> "setBackground(${paint})",
+    "setBackgroundH" -> "setBackgroundH(${color1}, ${color2})",
+    "setBackgroundV" -> "setBackgroundV(${color1}, ${color2})",
+    "Color" -> "Color(${red}, ${green}, ${blue}, ${opacity})",
+    "ColorG" -> "ColorG(${x1}, ${y1}, ${color1}, ${x2}, ${y2}, ${color2}, ${cyclic})"
   )
   
   val TwMethodTemplates = Map(
