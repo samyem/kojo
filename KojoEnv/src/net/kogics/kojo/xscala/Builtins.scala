@@ -350,15 +350,15 @@ class Builtins extends RepeatCommands {
     </div>
   UserCommand("stFormula", List("latex"), "Converts the supplied latex string into html that can be displayed in the Story Teller Window.")
 
-  def playMp3(mp3File: String) {
+  def stPlayMp3(mp3File: String) {
     storyTeller.play(mp3File)
   }
-  UserCommand("playMp3", List("fileName"), "Plays the specified MP3 file.")
+  UserCommand("stPlayMp3", List("fileName"), "Plays the specified MP3 file.")
 
-  def playMp3InBg(mp3File: String) {
-    storyTeller.playInBg(mp3File)
+  def stPlayMp3Loop(mp3File: String) {
+    storyTeller.playLoop(mp3File)
   }
-  UserCommand("playMp3InBg", List("fileName"), "Plays the specified MP3 file in the background.")
+  UserCommand("stPlayMp3Loop", List("fileName"), "Plays the specified MP3 file in the background.")
 
   def stAddButton(label: String)(fn: => Unit) {
     storyTeller.addButton(label)(fn)
@@ -564,4 +564,15 @@ Here's a partial list of the available commands:
   
   type Vector2D = util.Vector2D
   val Vector2D = util.Vector2D
+  
+  val mp3player = music.KMp3.instance
+  def playMp3(mp3File: String) {
+    mp3player.play(mp3File)
+  }
+  UserCommand("playMp3", List("fileName"), "Plays the specified MP3 file.")
+
+  def playMp3Loop(mp3File: String) {
+    mp3player.playLoop(mp3File)
+  }
+  UserCommand("playMp3Loop", List("fileName"), "Plays the specified MP3 file in the background.")
 }

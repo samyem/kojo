@@ -21,8 +21,6 @@ import java.awt.event._
 import javax.swing._
 import util.Utils
 import util.Read
-import javazoom.jl.player.Player
-import java.io._
 import javax.swing.text.html.HTMLDocument
 import java.util.logging._
 
@@ -37,12 +35,10 @@ object StoryTeller extends InitedSingleton[StoryTeller] {
   protected def newInstance = new StoryTeller
 }
 
-class StoryTeller extends JPanel {
+class StoryTeller extends JPanel with music.Mp3Player {
   val Log = Logger.getLogger(getClass.getName);
   val NoText = <span/>
   @volatile var kojoCtx: core.KojoCtx = _
-  @volatile var mp3Player: Option[Player] = None
-  @volatile var bgmp3Player: Option[Player] = None
   @volatile var currStory: Option[Story] = None
   @volatile var savedStory: Option[Story] = None
 
@@ -420,45 +416,6 @@ class StoryTeller extends JPanel {
     outputFn("[Storyteller] %s\n" format(msg))
   }
 
-  private def playHelper(mp3File: String)(fn: (FileInputStream) => Unit) {
-    val f = new File(mp3File)
-    val f2 = if (f.exists) f else new File(kojoCtx.baseDir + mp3File)
-
-    if (f2.exists) {
-      val is = new FileInputStream(f2)
-      fn(is)
-//      is.close() - player closes the stream
-    }
-    else {
-      showStatusError("MP3 file - %s does not exist" format(mp3File))
-    }
-  }
-
-
-  def play(mp3File: String) = playHelper(mp3File) {is =>
-    stopMp3Player()
-    Utils.runAsync {
-      mp3Player = Some(new Player(is))
-      mp3Player.get.play
-    }
-  }
-  
-  def playInBg(mp3File: String): Unit = playHelper(mp3File) {is =>
-    if (bgmp3Player.isDefined && !bgmp3Player.get.isComplete) {
-      showStatusError("Can't play second background mp3")
-      return
-    }
-
-    Utils.runAsync {
-      bgmp3Player = Some(new Player(is))
-      bgmp3Player.get.play
-      if (running) {
-        // loop bg music
-        playInBg(mp3File)
-      }
-    }
-  }
-
   def playStory(story: Story) {
     if (savedStory.isDefined) {
       showCurrStory()
@@ -470,20 +427,6 @@ class StoryTeller extends JPanel {
     }
     currStory = Some(story)
     showCurrStory()
-  }
-
-  def stopMp3Player() {
-    if (mp3Player.isDefined && !mp3Player.get.isComplete) {
-      mp3Player.get.close()
-      mp3Player = None
-    }
-  }
-
-  def stopBgMp3Player() {
-    if (bgmp3Player.isDefined && !bgmp3Player.get.isComplete) {
-      bgmp3Player.get.close()
-      bgmp3Player = None
-    }
   }
 
   def storyComing() {
@@ -502,4 +445,23 @@ class StoryTeller extends JPanel {
   def handleLink(name: String, data: String) {
     story.handleLink(name, data)
   }
+  
+  // mp3 player stuff
+  override def play(mp3File: String) {
+    if (running) {
+      super.play(mp3File)
+    }
+    else {
+      throw new IllegalStateException("Trying to play story music without a running story.")
+    }
+  }
+  override def playLoop(mp3File: String) {
+    if (running) {
+      super.playLoop(mp3File)
+    }
+    else {
+      throw new IllegalStateException("Trying to play story music without a running story.")
+    }
+  }
+  def showError(msg: String) = showStatusError(msg)
 }
