@@ -561,4 +561,7 @@ Here's a partial list of the available commands:
   def ColorG(x1: Double, y1: Double, c1: Color, x2: Double, y2: Double, c2: Color, cyclic: Boolean = false) = {
     new GradientPaint(x1.toFloat, y1.toFloat, c1, x2.toFloat, y2.toFloat, c2, cyclic)
   }
+  
+  type Vector2D = util.Vector2D
+  val Vector2D = util.Vector2D
 }

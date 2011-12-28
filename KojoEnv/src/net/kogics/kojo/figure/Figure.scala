@@ -177,6 +177,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
         currLayer = fgLayer
         try {
           staging.Inputs.activityStep
+          listener.hasPendingCommands()
           fn
           if (isStepping) {
             listener.hasPendingCommands()

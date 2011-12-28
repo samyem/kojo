@@ -258,7 +258,7 @@ trait CorePicOps { self: Picture with ReshowStopper =>
   }
   
   def act(fn: Picture => Unit) {
-    if (!isShown) {
+    if (!shown) {
       throw new IllegalStateException("Ask picture to act after you show it.")
     }
  
@@ -269,8 +269,7 @@ trait CorePicOps { self: Picture with ReshowStopper =>
 }
 
 trait ReshowStopper extends Picture {
-  var shown = false
-  def isShown = Utils.runInSwingThreadAndWait {shown}
+  @volatile var shown = false
   abstract override def show() {
     if (shown) {
       throw new RuntimeException("You can't reshow a picture")
