@@ -447,6 +447,7 @@ class StoryTeller extends JPanel with music.Mp3Player {
   }
   
   // mp3 player stuff
+  val pumpEvents = false
   override def play(mp3File: String) {
     if (running) {
       super.play(mp3File)

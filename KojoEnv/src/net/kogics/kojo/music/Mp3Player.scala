@@ -16,23 +16,25 @@
 package net.kogics.kojo
 package music
 
+import javax.swing.Timer
 import javazoom.jl.player.Player
 import java.io._
-import core.KojoCtx
 import util.Utils
 
 
 trait Mp3Player {
-  var kojoCtx: KojoCtx
+  val pumpEvents: Boolean
   def showError(msg: String)
-  
+  val listener = SpriteCanvas.instance().megaListener // hack!
+
   @volatile var mp3Player: Option[Player] = None
   @volatile var bgmp3Player: Option[Player] = None
   @volatile var stopBg = false
+  val baseDir = net.kogics.kojo.KojoCtx.instance.baseDir
 
   private def playHelper(mp3File: String)(fn: (FileInputStream) => Unit) {
     val f = new File(mp3File)
-    val f2 = if (f.exists) f else new File(kojoCtx.baseDir + mp3File)
+    val f2 = if (f.exists) f else new File(baseDir + mp3File)
 
     if (f2.exists) {
       val is = new FileInputStream(f2)
@@ -44,46 +46,73 @@ trait Mp3Player {
     }
   }
 
-
-  def play(mp3File: String) = playHelper(mp3File) {is =>
+  def play(mp3File: String) = synchronized {
     stopMp3Player()
-    Utils.runAsync {
+    playHelper(mp3File) { is =>
       mp3Player = Some(new Player(is))
-      mp3Player.get.play
+      Utils.runAsync {
+        mp3Player.get.play
+      }
     }
   }
   
-  def playLoop(mp3File: String): Unit = playHelper(mp3File) {is =>
-    if (bgmp3Player.isDefined && !bgmp3Player.get.isComplete) {
+  @volatile private var timer: Timer = _
+
+  def playLoop(mp3File: String): Unit = synchronized {
+    if (bgmp3Player.isDefined) {
       showError("Can't play second background mp3")
       return
     }
-
-    Utils.runAsync {
-      bgmp3Player = Some(new Player(is))
-      bgmp3Player.get.play
-      if (!stopBg) {
-        // loop bg music
-        playLoop(mp3File)
-      }
-      else {
-        stopBg = false
+    
+    def done() {
+      stopBg = false
+      bgmp3Player = None
+      if (pumpEvents) {
+        timer.stop()
+        listener.pendingCommandsDone()
       }
     }
+
+    def playLoop0() {
+      playHelper(mp3File) { is =>
+        bgmp3Player = Some(new Player(is))
+
+        Utils.runAsync {
+          if (stopBg) {
+            done()
+          }
+          else {
+            bgmp3Player.get.play
+            playLoop0()
+          }
+        }
+      }
+    }
+    
+    if (pumpEvents) {
+      listener.hasPendingCommands()
+      timer = Utils.scheduleRec(0.5) {
+        listener.hasPendingCommands()
+      }
+    }
+    playLoop0()
   }
 
-  def stopMp3Player() {
-    if (mp3Player.isDefined && !mp3Player.get.isComplete) {
-      mp3Player.get.close()
+  def stopMp3Player() = synchronized {
+    if (mp3Player.isDefined) {
+      if (!mp3Player.get.isComplete) {
+        mp3Player.get.close()
+      }
       mp3Player = None
     }
   }
 
-  def stopBgMp3Player() {
-    if (bgmp3Player.isDefined && !bgmp3Player.get.isComplete) {
+  def stopBgMp3Player()  = synchronized {
+    if (bgmp3Player.isDefined) {
       stopBg = true
-      bgmp3Player.get.close()
-      bgmp3Player = None
+      if (!bgmp3Player.get.isComplete) {
+        bgmp3Player.get.close()
+      }
     }
   }
 }
@@ -93,7 +122,7 @@ object KMp3 extends Singleton[KMp3] {
 }
 
 class KMp3 extends Mp3Player {
-  var kojoCtx: KojoCtx = net.kogics.kojo.KojoCtx.instance
+  val pumpEvents = true
   def showError(msg: String) = println(msg)
 }
 
