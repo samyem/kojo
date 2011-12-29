@@ -639,9 +639,18 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
   
   def activate() {
-    Utils.schedule(0.3) {
+    def grabFocus() {
       SCanvasTopComponent.findInstance().requestActive()
       getRoot.getDefaultInputManager.setKeyboardFocus(globalEl)
+    }
+    Utils.schedule(0) {
+      // do it right away
+      grabFocus()
+    }
+    Utils.schedule(0.3) {
+      // and also a little later, in case the history mechanism gives 
+      // the focus to the script editor
+      grabFocus()
     }
   }
   
