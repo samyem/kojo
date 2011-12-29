@@ -75,9 +75,11 @@ class KojoCtx extends core.KojoCtx {
     }
   }
 
-  def baseDir = Utils.runInSwingThreadAndWait {
-    CodeEditorTopComponent.findInstance().getLastLoadStoreDir() + "/"
+  val cetc = Utils.runInSwingThreadAndWait {
+    CodeEditorTopComponent.findInstance()
   }
+  
+  def baseDir = cetc.getLastLoadStoreDir() + "/"
 
   def stopAnimation() = Utils.runInSwingThread {
     CodeExecutionSupport.instance.stopAnimation()
