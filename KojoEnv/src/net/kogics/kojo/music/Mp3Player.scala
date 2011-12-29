@@ -30,11 +30,11 @@ trait Mp3Player {
   @volatile var mp3Player: Option[Player] = None
   @volatile var bgmp3Player: Option[Player] = None
   @volatile var stopBg = false
-  val baseDir = net.kogics.kojo.KojoCtx.instance.baseDir
+  val KojoCtx = net.kogics.kojo.KojoCtx.instance
 
   private def playHelper(mp3File: String)(fn: (FileInputStream) => Unit) {
     val f = new File(mp3File)
-    val f2 = if (f.exists) f else new File(baseDir + mp3File)
+    val f2 = if (f.exists) f else new File(KojoCtx.baseDir + mp3File)
 
     if (f2.exists) {
       val is = new FileInputStream(f2)
@@ -70,6 +70,9 @@ trait Mp3Player {
       if (pumpEvents) {
         timer.stop()
         listener.pendingCommandsDone()
+        Utils.schedule(0.5) {
+          listener.pendingCommandsDone()
+        }
       }
     }
 
@@ -89,13 +92,13 @@ trait Mp3Player {
       }
     }
     
-    if (pumpEvents) {
+    playLoop0()
+    if (bgmp3Player.isDefined && pumpEvents) {
       listener.hasPendingCommands()
       timer = Utils.scheduleRec(0.5) {
         listener.hasPendingCommands()
       }
     }
-    playLoop0()
   }
 
   def stopMp3Player() = synchronized {

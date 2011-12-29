@@ -153,11 +153,11 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 
     }
 
-    public String getLastLoadStoreDir() {
+    public synchronized String getLastLoadStoreDir() {
         return lastLoadStoreDir;
     }
 
-    public void setLastLoadStoreDir(String lastLoadStoreDir) {
+    public synchronized void setLastLoadStoreDir(String lastLoadStoreDir) {
         this.lastLoadStoreDir = lastLoadStoreDir;
     }
 

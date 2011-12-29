@@ -221,7 +221,7 @@ trait CorePicOps { self: Picture with ReshowStopper =>
   def initGeom(): Geometry
   def picGeom = {
     if (_picGeom == null) {
-      throw new IllegalStateException("Access geometry after show")
+      throw new IllegalStateException("Access geometry after show is done")
     }
     else {
       pgTransform.transform(_picGeom)
@@ -321,7 +321,6 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
       tl.invalidateFullBounds()
       tl.repaint()
       Impl.picLayer.repaint
-      initGeom()
     }
   }
   
@@ -336,6 +335,9 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
       pl.points.foreach {pt =>
         cab += new Coordinate(pt.x, pt.y)
       }
+    }
+    if (cab.size == 1) {
+      cab += cab(0)
     }
     Impl.Gf.createLineString(cab.toArray)
   }
