@@ -480,7 +480,10 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
             itc.requestActive()
           }
         }
-
+        
+        def stopAnimation() {
+          CodeExecutionSupport.this.stopAnimation()
+        }
       }, tCanvas)
     codeRunner
   }

@@ -84,6 +84,7 @@ abstract class CodePaneTestBase extends KojoTestBase {
       success.set(true)
       latch.countDown()
     }
+    def stopAnimation() {}
   }
 
   val codeRunner = new xscala.ScalaCodeRunner(runCtx, SpriteCanvas.instance)

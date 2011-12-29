@@ -60,6 +60,7 @@ trait RunContext {
   def setScript(code: String): Unit
 
   def inspect(obj: AnyRef): Unit
+  def stopAnimation(): Unit
 }
 
 class ProxyCodeRunner(codeRunnerMaker: () => CodeRunner) extends CodeRunner {
