@@ -581,6 +581,10 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       puzzlers.foreach {t => t.stop}
       turtles.foreach {t => t.stop}
       figures.foreach {f => f.stop}
+      megaListener.pendingCommandsDone()
+      Utils.schedule(0.5) {
+        megaListener.pendingCommandsDone()
+      }
     }
   }
 

@@ -42,7 +42,7 @@ trait Mp3Player {
 //      is.close() - player closes the stream
     }
     else {
-      showError("MP3 file - %s does not exist" format(mp3File))
+      showError("MP3 file - %s does not exist" format(f2.getCanonicalPath))
     }
   }
 

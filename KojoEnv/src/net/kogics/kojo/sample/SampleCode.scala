@@ -16,6 +16,7 @@ package net.kogics.kojo
 package sample
 
 import java.io._
+import util.Utils
 
 object SampleCode {
 
@@ -38,8 +39,7 @@ object SampleCode {
       case "Snowflake" => Snowflake
       case "Tree" => Tree
       case "Dragon" => Dragon
-      case "Parallel/Transversal" => ParTrans
-      case "Angles of a Triangle" => TriangleAngles
+      case "Catch me if you can!" => Catchme
       case "Inspect Object" => InspectObject
       case "Input/Output" => InputOutput
       case "Sine of an Angle" => SineAngle
@@ -675,10 +675,11 @@ println("The average is: " + sum/n)
   val Clock = util.Utils.readFile(getResource("clock.kojo"))
   val SineAngle = util.Utils.readFile(getResource("sine-angle.kojo"))
   val DiffSquares = util.Utils.readFile(getResource("diff-squares.kojo"))
-  val ParTrans = util.Utils.readFile(getResource("par-trans.kojo"))
-  val TriangleAngles = util.Utils.readFile(getResource("triangle-angles.kojo"))
+  val Catchme = util.Utils.readFile(getResource("catchme.kojo"))
 
   def getResource(name: String): InputStream = {
+    val base = Utils.installDir + File.separator + "../stories"
+    CodeEditorTopComponent.findInstance().setLastLoadStoreDir(base)
     getClass.getResourceAsStream(name)
   }
 }
