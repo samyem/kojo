@@ -71,8 +71,11 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   @volatile var unitLen: UnitLen = Pixel
 
   def setUnitLength(ul: UnitLen) {
+    throw new UnsupportedOperationException("Use clearWithUL(unit) instead of setUnitLength(unit) and clear().")
+  }
+  
+  private def realSetUnitLength(ul: UnitLen) {
     unitLen = ul
-//    zoom(1, 0, 0)
   }
   
   var outputFn: String => Unit = { msg =>
@@ -505,11 +508,31 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
   
   def clearStaging() {
+    realSetUnitLength(Pixel)
+    realClearStaging()
+  }
+  
+  def clearStagingWul(ul: UnitLen) {
+    realSetUnitLength(ul)
+    realClearStaging()
+  }
+  
+  def clear() {
+    realSetUnitLength(Pixel)
+    realClear()
+  }
+  
+  def clearWithUL(ul: UnitLen) {
+    realSetUnitLength(ul)
+    realClear()
+  }
+  
+  def realClearStaging() {
     makeStagingVisible()
     clearHelper0()
   }
 
-  def clear() {
+  def realClear() {
     kojoCtx.makeTurtleWorldVisible()
     clearHelper0()
   }

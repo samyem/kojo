@@ -381,6 +381,10 @@ object API {
     Impl.canvas.turtle0.invisible()
   }
   def clear() = reset()
+  def clearWithUL(ul: UnitLen) {
+    Impl.canvas.clearStagingWul(ul)
+    Impl.canvas.turtle0.invisible()
+  }
   def switchTo() = Impl.canvas.makeStagingVisible()
   def wipe() = Impl.figure0.fgClear()
   def draw(fn: => Unit) = Utils.runInSwingThread {

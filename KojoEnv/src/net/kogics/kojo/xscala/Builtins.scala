@@ -256,6 +256,7 @@ class Builtins extends RepeatCommands {
     val Inch = net.kogics.kojo.Inch
     val Cm = net.kogics.kojo.Cm
     def setUnitLength(ul: UnitLen) = tCanvas.setUnitLength(ul)
+    def clearWithUL(ul: UnitLen) = tCanvas.clearWithUL(ul)
     def camScale = tCanvas.camScale
   }
   val TSCanvas = new TSCanvasC()
