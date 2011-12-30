@@ -30,6 +30,7 @@ trait TSCanvasFeatures {
   def exportThumbnail(filePrefix: String, height: Int): java.io.File
   def onKeyPress(fn: Int => Unit)  
   def onMouseClick(fn: (Double, Double) => Unit)
-  def setUnitLength(ul: UnitLen)
+  def setUnitLength(ul: UnitLen): Unit
+  def clearWithUL(ul: UnitLen): Unit
   def camScale: Double
 }

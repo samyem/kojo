@@ -61,6 +61,7 @@ object CodeCompletionUtils {
     "row" -> "row(${picture}, ${n})",
     "col" -> "col(${picture}, ${n})",
     "setUnitLength" -> "setUnitLength(${unit})",
+    "clearWithUL" -> "clearWithUL(${unit})",
     "intersects" -> "intersects(${otherPic})",
     "collidesWith" -> "collidesWith(${otherPic})",
     "distanceTo" -> "distanceTo(${otherPic})",
