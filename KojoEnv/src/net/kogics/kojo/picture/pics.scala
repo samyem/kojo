@@ -85,7 +85,7 @@ trait CorePicOps { self: Picture with ReshowStopper =>
   }
   
   def showDone() = Utils.runInSwingThread {
-    _picGeom = initGeom()
+//    _picGeom = initGeom()
   }
 
   def t2t(t: AffineTransform): AffineTransformation = {
@@ -219,13 +219,23 @@ trait CorePicOps { self: Picture with ReshowStopper =>
   }
 
   def initGeom(): Geometry
-  def picGeom = {
-    if (_picGeom == null) {
+  def picGeom: Geometry = {
+    if (!shown) {
       throw new IllegalStateException("Access geometry after show is done")
     }
-    else {
-      pgTransform.transform(_picGeom)
+
+    if (_picGeom == null) {
+      try {
+        _picGeom = initGeom()
+      }
+      catch {
+        case ise: IllegalStateException => 
+          throw ise
+        case t: Throwable =>
+          throw new IllegalStateException("Unable to create geometry for picture - " + t.getMessage, t)
+      }
     }
+    pgTransform.transform(_picGeom)
   }
     
   def intersects(other: Picture) = Utils.runInSwingThreadAndWait {
