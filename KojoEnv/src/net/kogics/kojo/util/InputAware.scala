@@ -52,18 +52,18 @@ trait InputAware {
     myNode.addInputEventListener(h)
   }
   
-  import java.awt.event.KeyEvent
-  def onKeyPress(fn: Int => Unit) = Utils.runInSwingThread {
-    val eh = new PBasicInputEventHandler {
-      override def mousePressed(event: PInputEvent) {
-        myCanvas.getRoot.getDefaultInputManager.setKeyboardFocus(this)
-      }
-      override def keyPressed(e: PInputEvent) {
-        Utils.safeProcess {
-          fn(e.getKeyCode)
-        }
-      }
-    }
-    myNode.addInputEventListener(eh)
-  }
+//  import java.awt.event.KeyEvent
+//  def onKeyPress(fn: Int => Unit) = Utils.runInSwingThread {
+//    val eh = new PBasicInputEventHandler {
+//      override def mousePressed(event: PInputEvent) {
+//        myCanvas.getRoot.getDefaultInputManager.setKeyboardFocus(this)
+//      }
+//      override def keyPressed(e: PInputEvent) {
+//        Utils.safeProcess {
+//          fn(e.getKeyCode)
+//        }
+//      }
+//    }
+//    myNode.addInputEventListener(eh)
+//  }
 }

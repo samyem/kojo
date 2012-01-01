@@ -46,6 +46,13 @@ object Inputs {
   
   val pressedKeys = new collection.mutable.HashSet[Int]
   def isKeyPressed(key: Int) = pressedKeys.contains(key)
+  var keyHandler: Option[PInputEvent => Unit] = None
+  def removeKeyHandler() {
+    keyHandler = None
+  }
+  def setKeyHandler(handler: PInputEvent => Unit) {
+    keyHandler = Some(handler)
+  }
 
   def activityStep() = {
     prevMousePos = stepMousePos
@@ -64,6 +71,7 @@ object Inputs {
         // Will get called whenever a key has been pressed down.
         override def keyPressed(e: PInputEvent) {
           pressedKeys.add(e.getKeyCode)
+          keyHandler.foreach {_ apply e}
         }
         // Will get called whenever a key has been released.
         override def keyReleased(e: PInputEvent) {
