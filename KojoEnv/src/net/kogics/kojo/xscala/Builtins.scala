@@ -61,6 +61,8 @@ class Builtins extends RepeatCommands {
   val brown = new Color(0x583a0b)
   val black = JColor.black
   val white = JColor.white
+  val gray = JColor.gray
+  val lightGray = JColor.lightGray
 
   val Kc = new staging.KeyCodes
   

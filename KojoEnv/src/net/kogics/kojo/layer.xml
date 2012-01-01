@@ -171,6 +171,12 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Samples.Skier.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Skier"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
             <file name="net-kogics-kojo-Samples.Catchme.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
                 <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Catchme"/>
@@ -393,8 +399,12 @@
             </folder>
             <folder name="Pictures ">
                 <attr name="position" intvalue="6"/>
-                <file name="net-kogics-kojo-Samples.Catchme.shadow">
+                <file name="net-kogics-kojo-Samples.Skier.shadow">
                     <attr name="position" intvalue="1"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Skier.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Samples.Catchme.shadow">
+                    <attr name="position" intvalue="2"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Catchme.instance"/>
                 </file>
             </folder>
