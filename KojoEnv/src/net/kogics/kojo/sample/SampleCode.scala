@@ -39,12 +39,13 @@ object SampleCode {
       case "Snowflake" => Snowflake
       case "Tree" => Tree
       case "Dragon" => Dragon
-      case "Catch me if you can!" => Catchme
       case "Inspect Object" => InspectObject
       case "Input/Output" => InputOutput
-      case "Sine of an Angle" => SineAngle
-      case "Clock" => Clock
-      case "Difference of two Squares" => DiffSquares
+      case "Hunted (game)" => Utils.readFile(sampleStream("catchme.kojo"))
+      case "Tangram Skier (animation)" => Utils.readFile(sampleStream("skier.kojo"))
+      case "Sine of an Angle" => Utils.readFile(sampleStream("sine-angle.kojo"))
+      case "Clock" => Utils.readFile(sampleStream("clock.kojo"))
+      case "Difference of two Squares" => Utils.readFile(sampleStream("diff-squares.kojo"))
     }
   }
 
@@ -671,11 +672,6 @@ repeat (n) {
 }
 println("The average is: " + sum/n)
 """
-
-  val Clock = util.Utils.readFile(sampleStream("clock.kojo"))
-  val SineAngle = util.Utils.readFile(sampleStream("sine-angle.kojo"))
-  val DiffSquares = util.Utils.readFile(sampleStream("diff-squares.kojo"))
-  val Catchme = util.Utils.readFile(sampleStream("catchme.kojo"))
 
   def sampleStream(fname: String) = {
     val base = Utils.installDir + File.separator + "../samples"

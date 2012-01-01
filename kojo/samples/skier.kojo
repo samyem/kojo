@@ -1,0 +1,162 @@
+// a skier based on tangram pieces
+
+val len = 4
+val d = math.sqrt(2*len*len)
+val d2 = d/2
+val d4 = d/4
+
+def p1 = pict { t =>
+    import t._
+    setAnimationDelay(10)
+    invisible()
+    forward(len)
+    right(135)
+    forward(d2)
+    right()
+    forward(d2)
+}
+
+def p2 = p1
+
+def p3 = pict { t =>
+    import t._
+    invisible()
+    setAnimationDelay(10)
+    right()
+    forward(len/2)
+    left(135)
+    forward(d4)
+    left()
+    forward(d4)
+}
+
+def p4 = p3
+
+def p6 = pict { t =>
+    import t._
+    setAnimationDelay(10)
+    invisible()
+    repeat (4) {
+        forward(d4)
+        right()
+    }
+}
+
+
+def p5 = pict { t =>
+    import t._
+    setAnimationDelay(10)
+    invisible()
+    right()
+    forward(len/2)
+    left()
+    forward(len/2)
+    left(135)
+    forward(d2)
+}
+
+def p7 = pict { t =>
+    import t._
+    setAnimationDelay(10)
+    invisible()
+    right()
+    forward(len/2)
+    left(45)
+    forward(d4)
+    left(135)
+    forward(len/2)
+    left(45)
+    forward(d4)
+}
+
+val skier = penColor(black) * trans(9, 1) * scale(0.6) -> GPics(
+    fillColor(purple) * rot(-120) -> p3,
+    fillColor(yellow) * rot(150) * trans(0, -3.5) -> p1,
+    fillColor(blue) * flipY * rot(120) * trans(1.5, 0) -> p7,
+    fillColor(red) * rot(150) * trans(-1, -4.5) -> p5,
+    fillColor(green) * rot(-165) * trans(-4.47, -3.9) -> p4,
+    fillColor(orange) * rot(150) * trans(1, -6.5) -> p2,
+    fillColor(red) * trans(-1.75, 5.4) * rotp(30, d4, 0) -> p6
+)
+
+def tile = pict { t =>
+    import t._
+    setAnimationDelay(10)
+    invisible()
+    right()
+    forward(3)
+}
+
+val ground = penColor(brown) * trans(-14, -6) * rot(5) -> HPics(
+    tile,
+    trans(0, 0.5) -> tile,
+    trans(0, 1) -> tile,
+    trans(0, 1.5) -> tile,
+    trans(0, 2) -> tile,
+    trans(0, 2.5) -> tile,
+    trans(0, 3) -> tile,
+    trans(0, 3.5) -> tile
+)
+
+def toCm(p: Double) = 2.54 /96 * p
+
+def tree(t: Turtle, distance: Double) {
+    import t._
+    if (distance > toCm(4)) {
+        setPenThickness(distance/7)
+        setPenColor(color(distance.toInt, math.abs(255-distance*3).toInt, 125))
+        forward(distance)
+        right(25)
+        tree(t, distance*0.8-toCm(2))
+        left(45)
+        tree(t, distance-toCm(10))
+        right(20)
+        back(distance)
+    }
+}
+
+def tp = pict { t =>
+    import t._
+    invisible()
+    setAnimationDelay(0)
+    tree(t, 1.5)
+}
+
+def makeTrees(n: Int): Picture = {
+    def mt(n: Int, sfactor: Double): Picture = {
+        if (n == 1) {
+            scale(sfactor) -> tp
+        }
+        else {
+            scale(sfactor) -> HPics(
+                tp,
+                mt(n-1, sfactor)
+            )
+        }
+    }
+    mt(n, 0.9)
+}
+
+val trees = rot(7) * trans(-10, 0) -> makeTrees(9)
+clearWithUL(Cm)
+invisible()
+show(ground)
+show(trees)
+show(skier)
+
+animate {
+    if (skier.collidesWith(ground)) {
+        skier.translate(-0.09, 0)
+    }
+    else {
+        skier.translate(-0.09, -0.045)
+    }
+    if (skier.distanceTo(ground) > 1) {
+        skier.setPosition(9, 1)
+    }
+}
+
+skier.onMouseClick { (x, y) =>
+    print("(%f, %f" format(x,y))
+    skier.setPosition(9, 1)
+}
