@@ -72,7 +72,6 @@ class Stories extends ActionListener {
 
   def storyStream(fname: String) = {
     val base = Utils.installDir + File.separator + "../stories"
-    CodeEditorTopComponent.findInstance().setLastLoadStoreDir(base)
     new FileInputStream(base + File.separator + fname)
   }
 }

@@ -672,14 +672,13 @@ repeat (n) {
 println("The average is: " + sum/n)
 """
 
-  val Clock = util.Utils.readFile(getResource("clock.kojo"))
-  val SineAngle = util.Utils.readFile(getResource("sine-angle.kojo"))
-  val DiffSquares = util.Utils.readFile(getResource("diff-squares.kojo"))
-  val Catchme = util.Utils.readFile(getResource("catchme.kojo"))
+  val Clock = util.Utils.readFile(sampleStream("clock.kojo"))
+  val SineAngle = util.Utils.readFile(sampleStream("sine-angle.kojo"))
+  val DiffSquares = util.Utils.readFile(sampleStream("diff-squares.kojo"))
+  val Catchme = util.Utils.readFile(sampleStream("catchme.kojo"))
 
-  def getResource(name: String): InputStream = {
-    val base = Utils.installDir + File.separator + "../stories"
-    CodeEditorTopComponent.findInstance().setLastLoadStoreDir(base)
-    getClass.getResourceAsStream(name)
+  def sampleStream(fname: String) = {
+    val base = Utils.installDir + File.separator + "../samples"
+    new FileInputStream(base + File.separator + fname)
   }
 }
