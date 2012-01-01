@@ -86,6 +86,8 @@
             <file src="puzzles" targetdir="$INSTALL_PATH"/>
             <file src="icons" targetdir="$INSTALL_PATH"/>
             <file src="stories" targetdir="$INSTALL_PATH"/>
+            <file src="samples" targetdir="$INSTALL_PATH"/>
+            <file src="music-loops" targetdir="$INSTALL_PATH"/>
         </pack>
     </packs>
 

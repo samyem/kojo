@@ -117,7 +117,7 @@ val wonMsg = Pic { t =>
     
 
 clearWithUL(Cm)
-playMp3Loop("music-loops/Cave.mp3")
+playMp3Loop(installDir + "music-loops/Cave.mp3")
 invisible()
 setBackground(Color(150, 150, 255))
 show(stage)

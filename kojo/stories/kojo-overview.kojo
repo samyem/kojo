@@ -1168,5 +1168,5 @@ pages += IncrPage(
 
 val story = Story(pages: _*)
 stClear()
-// playMp3InBg("music-loops/Medieval1.mp3")
 stPlayStory(story)
+// stPlayMp3Loop(installDir + "music-loops/Cave.mp3")

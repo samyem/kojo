@@ -19,6 +19,7 @@ package xscala
 import core._
 import java.awt.GradientPaint
 import java.awt.Paint
+import java.io.File
 import javax.swing.JComponent
 import util._
 
@@ -576,4 +577,6 @@ Here's a partial list of the available commands:
     mp3player.playLoop(mp3File)
   }
   UserCommand("playMp3Loop", List("fileName"), "Plays the specified MP3 file in the background.")
+  
+  def installDir = new File(Utils.installDir).getParent + "/"
 }

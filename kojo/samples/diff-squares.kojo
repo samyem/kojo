@@ -45,7 +45,7 @@ var topline =    a
 def glide(s: String) {
   var t = text(s, column, leading)
   repeat ((topline - leading) * 5) {
-    t.translate(point(0, .2))
+    t.offset(point(0, .2))
   }
   topline -= leading
   pause(3)
@@ -101,13 +101,12 @@ glide("Draw a square a × a.")
 rectangle(O, (a, a - b))
 glide("Cut off a strip a × b.")
 
-var r1 = rectangle((0, a - b), (a, a))
+var r1 = rectangle((0, 0), (a, b))
+r1.translate(0, a - b)
 s0.hide
 repeat (100) {
-  r1.rotate(.9)
-}
-repeat (100) {
-  r1.translate(2.15, -.65)
+  r1.offset((a+b)/100.0, -(a-b)/100.0)
+  r1.rotate(0.9)
 }
 glide("Move it to this position...")
 
