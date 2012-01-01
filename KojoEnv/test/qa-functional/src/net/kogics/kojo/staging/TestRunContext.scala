@@ -72,4 +72,5 @@ class TestRunContext(val base: StagingTestBase) extends RunContext {
   def onCompileStart() {}
   def onCompileError() {}
   def onCompileSuccess() {}
+  def stopAnimation() {}
 }
