@@ -581,4 +581,5 @@ Here's a partial list of the available commands:
   UserCommand("playMp3Loop", List("fileName"), "Plays the specified MP3 file in the background.")
   
   def installDir = new File(Utils.installDir).getParent + "/"
+  def canvasBounds = tCanvas.cbounds
 }

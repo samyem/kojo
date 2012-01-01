@@ -79,29 +79,12 @@ def guy = GPics(
     trans(-1.75, 5.4) * rotp(30, d4, 0) -> p6
 )
 
-def border(size: Int) = Pic { t =>
+def border(size: Double) = Pic { t =>
     import t._
     setAnimationDelay(0)
     invisible()
     forward(size)
 }
-
-val goodguy = fillColor(yellow) * trans(5, 2) * scale(0.3) -> guy
-val badguy = fillColor(black) * scale(0.3) -> guy
-val badguy2 = fillColor(black) * trans(-10, 0) * scale(0.3) -> guy
-val badguy3 = fillColor(black) * trans(10, 0) * scale(0.3) -> guy
-
-val sleft = trans(-18, -7) -> border(14)
-val stop = trans(-18, 7) * rot(-90) -> border(36)
-val sright = trans(18, -7) -> border(14)
-val sbot = trans(-18, -7) * rot(-90) -> border(36)
-
-val stage = GPics(
-    sleft,
-    stop,
-    sright,
-    sbot
-)
 
 val lostMsg = Pic { t =>
     import t._
@@ -115,8 +98,27 @@ val wonMsg = Pic { t =>
     write("You Won!")
 }
     
-
 clearWithUL(Cm)
+val cb = canvasBounds
+val xmax = cb.x.abs
+val ymax = cb.y.abs
+val goodguy = fillColor(yellow) * trans(xmax/3, 2) * scale(0.3) -> guy
+val badguy = fillColor(black) * scale(0.3) -> guy
+val badguy2 = fillColor(black) * trans(-xmax/2, 0) * scale(0.3) -> guy
+val badguy3 = fillColor(black) * trans(2*xmax/3, 0) * scale(0.3) -> guy
+
+val sleft = trans(-xmax, -ymax) -> border(cb.height)
+val stop = trans(-xmax, ymax) * rot(-90) -> border(cb.width)
+val sright = trans(xmax, -ymax) -> border(cb.height)
+val sbot = trans(-xmax, -ymax) * rot(-90) -> border(cb.width)
+
+val stage = GPics(
+    sleft,
+    stop,
+    sright,
+    sbot
+)
+
 playMp3Loop(installDir + "music-loops/Cave.mp3")
 invisible()
 setBackground(Color(150, 150, 255))
@@ -224,5 +226,3 @@ goodguy.act { me =>
 }
 
 activateCanvas()
-
-
