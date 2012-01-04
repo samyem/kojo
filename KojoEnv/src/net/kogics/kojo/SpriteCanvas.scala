@@ -614,9 +614,20 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     ttl
   }
 
+  def newInvisibleTurtle(x: Int = 0, y: Int = 0) = {
+    val ttl = Utils.runInSwingThreadAndWait {
+      val t = new Turtle(this, "/images/turtle32.png", x, y, true)
+      t.setTurtleListener(megaListener)
+      turtles = t :: turtles
+      t
+    }
+    this.repaint()
+    ttl
+  }
+
   def newPuzzler(x: Int = 0, y: Int = 0) = {
     val pzl = Utils.runInSwingThreadAndWait {
-      val t = new Turtle(this, "/images/puzzler32.png", x, y, true)
+      val t = new Turtle(this, "/images/puzzler32.png", x, y, false, true)
       t.setTurtleListener(megaListener)
       t.setPenThickness(1)
       t.setPenColor(Color.blue)

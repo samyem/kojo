@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
-             initY: Double = 0, bottomLayer: Boolean = false) extends core.Turtle {
+             initY: Double = 0, hidden: Boolean = false, bottomLayer: Boolean = false) extends core.Turtle {
 
   import TurtleHelper._
 
@@ -162,7 +162,12 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     pen.init()
     resetRotation()
 
-    showWorker()
+    if (hidden) {
+      hideWorker()
+    }
+    else {
+      showWorker()
+    }
     beamsOffWorker()
   }
 

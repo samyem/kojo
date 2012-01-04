@@ -37,6 +37,7 @@ trait Transformer extends Picture {
   def setPosition(x: Double, y: Double) = tpic.setPosition(x, y)
   def position = tpic.position
   def intersects(other: Picture) = tpic.intersects(other)
+  def intersection(other: Picture) = tpic.intersection(other)
   def distanceTo(other: Picture) = tpic.distanceTo(other)
   def area = tpic.area
   def perimeter = tpic.perimeter
