@@ -211,10 +211,8 @@ val startTime = time
 
 val others = List(badguy, badguy2, badguy3, stage)
 
-def collidesWith(p: Picture, ps: List[Picture]) = ps.exists(p collidesWith _)
-
 goodguy.act { me => 
-    if (collidesWith(me, others)) {
+    if (me.collision(others).isDefined) {
         stopAnimation()
         lostMsg.visible()
     }
