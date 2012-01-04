@@ -11,6 +11,7 @@ import util.Utils._
 class PictureCollisionTest extends KojoTestBase with FunSuite with xscala.RepeatCommands {
   val size = 50.0
   val delta = 1e-7
+  val blue = java.awt.Color.blue
 
   def testBox0(n: Double) = Pic { t =>
     import t._
@@ -69,37 +70,85 @@ class PictureCollisionTest extends KojoTestBase with FunSuite with xscala.Repeat
   }
   
   test("box with many boxes collision") {
-    val p1 = testBox
-    val p2 = trans(size, 0) -> testBox
-    val p3 = trans(2*size, 0) -> testBox
-    val p4 = trans(3*size/2, size/2) -> testBox
+    val p1 = fill(blue) -> testBox
+    val p2 = fill(blue) * trans(size, 0) -> testBox
+    val p3 = fill(blue) * trans(2*size, 0) -> testBox
+    val p4 = fill(blue) * trans(3*size/2, size/2) -> testBox
 
     p1.show()
     p2.show()
     p3.show()
     p4.show()
 
-    val cols = p4.collisions(List(p1,p2,p3))
+    val others = Set(p1,p2,p3)
+    others.size should be(3)
+    
+    val cols = p4.collisions(others)
+    cols.size should be(2)
     cols.contains(p1) should be(false)
     cols.contains(p2) should be(true)
     cols.contains(p3) should be(true)
   }
 
-  test("box with many boxes - non collision") {
-    val p1 = testBox
-    val p2 = trans(size, 0) -> testBox
-    val p3 = trans(2*size, 0) -> testBox
-    val p4 = trans(3*size/2, size+delta) -> testBox
+  test("box with many boxes collision, option version") {
+    val p1 = fill(blue) -> testBox
+    val p2 = fill(blue) * trans(size, 0) -> testBox
+    val p3 = fill(blue) * trans(2*size, 0) -> testBox
+    val p4 = fill(blue) * trans(3*size/2, size/2) -> testBox
 
     p1.show()
     p2.show()
     p3.show()
     p4.show()
 
-    val cols = p4.collisions(List(p1,p2,p3))
+    val others = List(p1,p2,p3)
+    
+    val col = p4.collision(others)
+    col match {
+      case Some(p) if p == p2 => assert(true)
+      case _ => assert(false, "Should have found p2 as collision object")
+    }
+  }
+  
+  test("box with many boxes - non collision") {
+    val p1 = fill(blue) -> testBox
+    val p2 = fill(blue) * trans(size, 0) -> testBox
+    val p3 = fill(blue) * trans(2*size, 0) -> testBox
+    val p4 = fill(blue) * trans(3*size/2, size+delta) -> testBox
+
+    p1.show()
+    p2.show()
+    p3.show()
+    p4.show()
+
+    val others = Set(p1,p2,p3)
+    others.size should be(3)
+    
+    val cols = p4.collisions(others)
+    cols.size should be(0)
     cols.contains(p1) should be(false)
     cols.contains(p2) should be(false)
     cols.contains(p3) should be(false)
+  }
+
+  test("box with many boxes - non collision, option version") {
+    val p1 = fill(blue) -> testBox
+    val p2 = fill(blue) * trans(size, 0) -> testBox
+    val p3 = fill(blue) * trans(2*size, 0) -> testBox
+    val p4 = fill(blue) * trans(3*size/2, size+delta) -> testBox
+
+    p1.show()
+    p2.show()
+    p3.show()
+    p4.show()
+
+    val others = List(p1,p2,p3)
+    
+    val col = p4.collision(others)
+    col match {
+      case None => assert(true)
+      case _ => assert(false, "Should have found no collision object")
+    }
   }
 
   test("hvpics-hvpics non collision") {

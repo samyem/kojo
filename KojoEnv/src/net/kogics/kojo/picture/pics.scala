@@ -62,9 +62,12 @@ trait Picture extends InputAware {
   def toggleV(): Unit
   def intersects(other: Picture): Boolean
   def collidesWith(other: Picture) = intersects(other)
-  def collisions(others: Seq[Picture]): Set[Picture] = {
-    others.filter {_ intersects this}.toSet
+  def collisions(others: Set[Picture]): Set[Picture] = {
+    others.filter {this intersects _}
   }
+  def collision(others: Seq[Picture]): Option[Picture] = {
+    others.filter {this intersects _}.headOption
+  } 
   def intersection(other: Picture): Geometry
   def distanceTo(other: Picture): Double
   def area: Double
