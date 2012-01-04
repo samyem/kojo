@@ -540,7 +540,7 @@ Here's a partial list of the available commands:
   val col = picture.col _
 
   def pict(painter: Painter) = Pic(painter)
-  def show(picture: Picture) = picture.show()
+  def show(pictures: Picture *) = pictures.foreach {_ show()}
   def animate(fn: => Unit) = staging.API.loop(fn)
   def stopAnimation() = ctx.stopAnimation()
   def isKeyPressed(key: Int) = staging.Inputs.isKeyPressed(key)

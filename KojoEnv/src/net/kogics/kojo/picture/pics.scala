@@ -62,6 +62,10 @@ trait Picture extends InputAware {
   def toggleV(): Unit
   def intersects(other: Picture): Boolean
   def collidesWith(other: Picture) = intersects(other)
+  def collisions(others: Seq[Picture]): Set[Picture] = {
+    others.filter {_ intersects this}.toSet
+  }
+  def intersection(other: Picture): Geometry
   def distanceTo(other: Picture): Double
   def area: Double
   def perimeter: Double
@@ -247,6 +251,15 @@ trait CorePicOps { self: Picture with ReshowStopper =>
     }
   }
   
+  def intersection(other: Picture) = Utils.runInSwingThreadAndWait {
+    if (tnode.getVisible && other.tnode.getVisible) {
+      picGeom.intersection(other.picGeom)
+    }
+    else {
+      Impl.Gf.createGeometryCollection(null)
+    }
+  }
+  
   def distanceTo(other: Picture) = Utils.runInSwingThreadAndWait {
     picGeom.distance(other.picGeom)
   }
@@ -310,7 +323,8 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
   @volatile var _t: turtle.Turtle = _
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
-      _t = Impl.canvas.newTurtle(0, 0)
+      _t = Impl.canvas.newInvisibleTurtle(0, 0)
+      _t.setAnimationDelay(0)
       val tl = _t.tlayer
       Impl.camera.removeLayer(tl)
       Impl.picLayer.addChild(tl)
