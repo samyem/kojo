@@ -45,6 +45,8 @@ trait Transformer extends Picture {
   def visible() = tpic.visible()
   def invisible() = tpic.invisible()
   def act(fn: Picture => Unit) = tpic.act(fn)
+  override def equals(other: Any) = this eq other.asInstanceOf[AnyRef]
+  override def hashCode = System.identityHashCode(this)
 }
 
 abstract class Transform(pic: Picture) extends Transformer {
