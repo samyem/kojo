@@ -74,8 +74,11 @@ trait Picture extends InputAware {
   def perimeter: Double
   def picGeom: Geometry
   
-  def setPosition(x: Double, y: Double)
   def position: core.Point
+  def setPosition(x: Double, y: Double): Unit
+  def setPosition(p: core.Point): Unit = setPosition(p.x, p.y)
+  def heading: Double
+  def setHeading(angle: Double)
   def act(fn: Picture => Unit)
   // provide these explicitly, so that subclasses that are case
   // classes can live within sets and maps
@@ -150,6 +153,16 @@ trait CorePicOps { self: Picture with ReshowStopper =>
   
   def setPosition(x: Double, y: Double) = Utils.runInSwingThread {
     tnode.setOffset(x, y)
+    pgTransform = t2t(tnode.getTransformReference(true))
+    tnode.repaint()
+  }
+  
+  def heading = Utils.runInSwingThreadAndWait {
+    tnode.getRotation.toDegrees
+  }  
+  
+  def setHeading(angle: Double) = Utils.runInSwingThread {
+    rotate(angle-heading)
     pgTransform = t2t(tnode.getTransformReference(true))
     tnode.repaint()
   }

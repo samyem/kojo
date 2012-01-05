@@ -55,6 +55,12 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
     testPic
   )
 
+  def testLine = Pic { t =>
+    import t._
+    right()
+    forward(100)
+  }
+
   test("picture bounds") {
     val p = testPic
     p.show()
@@ -128,5 +134,37 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
     doublesEqual(b2.x, bx2 - b3.height * math.cos((90-a1).toRadians), 3.0) should be (true)
     doublesEqual(b2.width, (b3.width - math.cos((90-a2).toRadians) * h + w2) * math.cos(a1.toRadians) + b3.height * math.cos((90-a1).toRadians), 1.0) should be (true)
     doublesEqual(b2.height, b3.height * math.sin((90-a1).toRadians) + (b3.width - math.cos((90-a2).toRadians) * h + w2) * math.cos((90-a1).toRadians), 1.0) should be (true)
+  }
+  
+  test("heading 1") {
+    val pic = testLine
+    pic.rotate(390)
+    pic.heading should be(30.0 plusOrMinus 0.001)
+  }
+
+  test("heading 2") {
+    val pic = testLine
+    pic.setHeading(2*360+20)
+    pic.heading should be(20.0 plusOrMinus 0.001)
+  }
+
+  test("position 1") {
+    val pic = testLine
+    pic.translate(100, 50)
+    pic.position.x should be(100)
+    pic.position.y should be(50)
+  }
+
+  test("position + heading") {
+    val pic = testLine
+    pic.rotate(30)
+    pic.translate(100, 0)
+    pic.position.x should be(100 * math.cos(30.toRadians) plusOrMinus 0.001)
+    pic.position.y should be(100 * math.sin(30.toRadians) plusOrMinus 0.001)
+    
+    pic.setPosition(150, 50)
+    pic.position.x should be(150)
+    pic.position.y should be(50)
+    pic.heading should be(30.0 plusOrMinus 0.001)
   }
 }
