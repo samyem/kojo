@@ -78,7 +78,8 @@ object CodeCompletionUtils {
     "ColorG" -> "ColorG(${x1}, ${y1}, ${color1}, ${x2}, ${y2}, ${color2}, ${cyclic})",
     "Vector2D" -> "Vector2D(${x}, ${y})",
     "angle" -> "angle(${vector})",
-    "angleTo" -> "angleTo(${vector})"
+    "angleTo" -> "angleTo(${vector})",
+    "fastDraw" -> "fastDraw {\n    ${cursor}\n}"
   )
   
   val TwMethodTemplates = Map(

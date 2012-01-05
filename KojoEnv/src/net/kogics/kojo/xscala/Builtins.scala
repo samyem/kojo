@@ -540,7 +540,9 @@ Here's a partial list of the available commands:
   val col = picture.col _
 
   def pict(painter: Painter) = Pic(painter)
-  def show(pictures: Picture *) = pictures.foreach {_ show()}
+  def show(pictures: Picture *) = fastDraw {
+    pictures.foreach {_ show()}
+  }
   def animate(fn: => Unit) = staging.API.loop(fn)
   def stopAnimation() = ctx.stopAnimation()
   def isKeyPressed(key: Int) = staging.Inputs.isKeyPressed(key)
@@ -582,4 +584,14 @@ Here's a partial list of the available commands:
   
   def installDir = new File(Utils.installDir).getParent + "/"
   def canvasBounds = tCanvas.cbounds
+  
+  def fastDraw(fn: => Unit) {
+    Throttler.enabled = false
+    try {
+      fn
+    }
+    finally {
+      Throttler.enabled = true
+    }
+  }
 }
