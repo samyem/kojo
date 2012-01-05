@@ -77,6 +77,10 @@ trait Picture extends InputAware {
   def setPosition(x: Double, y: Double)
   def position: core.Point
   def act(fn: Picture => Unit)
+  // provide these explicitly, so that subclasses that are case
+  // classes can live within sets and maps
+  override def equals(other: Any) = this eq other.asInstanceOf[AnyRef]
+  override def hashCode = System.identityHashCode(this)
 }
 
 trait CorePicOps { self: Picture with ReshowStopper =>
