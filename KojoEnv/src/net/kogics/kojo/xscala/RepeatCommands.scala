@@ -22,7 +22,7 @@ trait RepeatCommands {
   def repeat(n: Int) (fn: => Unit) {
     for (i <- 1 to n) {
       fn
-      Throttler.throttle()
+//      Throttler.throttle()
     }
   }
   UserCommand.addCompletion("repeat", " (${n}) {\n    ${cursor}\n}")
@@ -31,7 +31,7 @@ trait RepeatCommands {
   def repeati(n: Int) (fn: Int => Unit) {
     for (i <- 1 to n) {
       fn(i)
-      Throttler.throttle()
+//      Throttler.throttle()
     }
   }
   UserCommand.addCompletion("repeati", " (${n}) {i => \n    ${cursor}\n}")
@@ -40,7 +40,7 @@ trait RepeatCommands {
   def repeatWhile(cond: => Boolean) (fn: => Unit) {
     while (cond) {
       fn
-      Throttler.throttle()
+//      Throttler.throttle()
     }
   }
   UserCommand.addCompletion("repeatWhile", " (${condition}) {\n    ${cursor}\n}")
@@ -49,7 +49,7 @@ trait RepeatCommands {
   def repeatUntil(cond: => Boolean) (fn: => Unit) {
     while (!cond) {
       fn
-      Throttler.throttle()
+//      Throttler.throttle()
     }
   }
   UserCommand.addCompletion("repeatUntil", " (${condition}) {\n    ${cursor}\n}")
