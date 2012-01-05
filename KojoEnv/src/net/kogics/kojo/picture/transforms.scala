@@ -34,8 +34,10 @@ trait Transformer extends Picture {
   def axesOn() = tpic.axesOn()
   def axesOff() = tpic.axesOff()
   def toggleV() = tpic.toggleV()
-  def setPosition(x: Double, y: Double) = tpic.setPosition(x, y)
   def position = tpic.position
+  def setPosition(x: Double, y: Double) = tpic.setPosition(x, y)
+  def heading = tpic.heading
+  def setHeading(angle: Double) = tpic.setHeading(angle)
   def intersects(other: Picture) = tpic.intersects(other)
   def intersection(other: Picture) = tpic.intersection(other)
   def distanceTo(other: Picture) = tpic.distanceTo(other)
