@@ -103,6 +103,7 @@ val cb = canvasBounds
 val xmax = cb.x.abs
 val ymax = cb.y.abs
 val goodguy = fillColor(yellow) * trans(xmax/3, 2) * scale(0.3) -> guy
+val lostGoodguy = fillColor(orange) * trans(-50, 0) * scale(0.3) -> guy
 val badguy = fillColor(black) * scale(0.3) -> guy
 val badguy2 = fillColor(black) * trans(-xmax/2, 0) * scale(0.3) -> guy
 val badguy3 = fillColor(black) * trans(2*xmax/3, 0) * scale(0.3) -> guy
@@ -124,6 +125,8 @@ invisible()
 setBackground(Color(150, 150, 255))
 show(stage)
 show(goodguy)
+show(lostGoodguy)
+lostGoodguy.invisible()
 show(badguy)
 show(badguy2)
 show(badguy3)
@@ -214,6 +217,10 @@ val others = List(badguy, badguy2, badguy3, stage)
 goodguy.act { me => 
     if (me.collision(others).isDefined) {
         stopAnimation()
+        me.invisible()
+        lostGoodguy.setPosition(me.position)
+        lostGoodguy.setHeading(me.heading)
+        lostGoodguy.visible()
         lostMsg.visible()
     }
     
