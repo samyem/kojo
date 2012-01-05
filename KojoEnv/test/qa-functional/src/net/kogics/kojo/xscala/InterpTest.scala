@@ -28,7 +28,7 @@ import scala.tools.nsc.interpreter._
 class InterpTest extends FunSuite with ShouldMatchers {
   
   val jarsDir = KojoTestUtil.nbDirs
-  val jars = util.Utils.kojoJars.filter(j => j.contains("scala") || j.contains("kojo"))
+  val jars = util.Utils.kojoJars
   
   def fixture = new {
     val settings = new Settings()
