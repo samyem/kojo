@@ -157,6 +157,5 @@ animate {
 }
 
 skier.onMouseClick { (x, y) =>
-    print("(%f, %f" format(x,y))
     skier.setPosition(9, 1)
 }
