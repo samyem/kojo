@@ -709,8 +709,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private def makeCommandProcessor() = actor {
 
-    val throttler = new Throttler(1)
-
     def processGetCommand(cmd: Command, latch: CountDownLatch)(fn: => Unit) {
       processCommandSync(cmd)(fn)
       latch.countDown()
@@ -719,8 +717,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     def processCommandSync(cmd: Command)(fn: => Unit) {
 //      Log.info("Command Being Processed: %s." format(cmd))
       if (cmd.valid.get) {
-        throttler.throttle()
-
         try {
           realWorker2 {
             fn
@@ -739,8 +735,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
     def processCommand(cmd: Command)(fn: => Unit) {
       if (cmd.valid.get) {
-        throttler.throttle()
-
         realWorker4(cmd) {
           fn
         }
@@ -752,8 +746,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
     def processCommandCustom(cmd: Command)(fn: => Unit) {
       if (cmd.valid.get) {
-        throttler.throttle()
-
         fn
       }
       else {
