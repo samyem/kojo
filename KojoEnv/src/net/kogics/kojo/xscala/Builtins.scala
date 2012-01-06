@@ -540,9 +540,13 @@ Here's a partial list of the available commands:
   val col = picture.col _
 
   def pict(painter: Painter) = Pic(painter)
-  def show(pictures: Picture *) = fastDraw {
-    pictures.foreach {_ show()}
+  def draw(pictures: Picture *) = fastDraw {
+    pictures.foreach {_ draw()}
   }
+  def drawAndHide(pictures: Picture *) = fastDraw {
+    pictures.foreach {p => p.draw(); p.invisible()}
+  }
+  
   def animate(fn: => Unit) = staging.API.loop(fn)
   def stopAnimation() = ctx.stopAnimation()
   def isKeyPressed(key: Int) = staging.Inputs.isKeyPressed(key)

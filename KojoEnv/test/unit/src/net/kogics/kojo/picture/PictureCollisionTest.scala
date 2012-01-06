@@ -55,32 +55,32 @@ class PictureCollisionTest extends KojoTestBase with FunSuite with xscala.Repeat
   test("box-box non collision") {
     val p1 = trans(-size/2, 0) -> testBox
     val p2 = trans(size/2, 0) -> testBox
-    p1.show()
-    p2.show()
+    p1.draw()
+    p2.draw()
     p1.collidesWith(p2) should be(false)
   }
 
   test("box-box collision") {
     val p1 = trans(-size/2+delta, 0) -> testBox
     val p2 = trans(size/2-delta, 0) -> testBox
-    p1.show()
-    p2.show()
+    p1.draw()
+    p2.draw()
     p1.collidesWith(p2) should be(true)
   }
 
   test("box-tri non collision") {
     val p1 = testBox
     val p2 = trans(0, -math.sin(60.toRadians) * size) -> testTriangle
-    p1.show()
-    p2.show()
+    p1.draw()
+    p2.draw()
     p1.collidesWith(p2) should be(false)
   }
 
   test("box-tri collision") {
     val p1 = testBox
     val p2 = trans(0, -math.sin(60.toRadians) * size + 10 * delta) -> testTriangle
-    p1.show()
-    p2.show()
+    p1.draw()
+    p2.draw()
     p1.collidesWith(p2) should be(true)
   }
   
@@ -90,10 +90,10 @@ class PictureCollisionTest extends KojoTestBase with FunSuite with xscala.Repeat
     val p3 = fill(blue) * trans(2*size, 0) -> testBox
     val p4 = fill(blue) * trans(3*size/2, size/2) -> testBox
 
-    p1.show()
-    p2.show()
-    p3.show()
-    p4.show()
+    p1.draw()
+    p2.draw()
+    p3.draw()
+    p4.draw()
 
     val others = Set(p1,p2,p3)
     others.size should be(3)
@@ -111,10 +111,10 @@ class PictureCollisionTest extends KojoTestBase with FunSuite with xscala.Repeat
     val p3 = fill(blue) * trans(2*size, 0) -> testBox
     val p4 = fill(blue) * trans(3*size/2, size/2) -> testBox
 
-    p1.show()
-    p2.show()
-    p3.show()
-    p4.show()
+    p1.draw()
+    p2.draw()
+    p3.draw()
+    p4.draw()
 
     val others = List(p1,p2,p3)
     
@@ -131,10 +131,10 @@ class PictureCollisionTest extends KojoTestBase with FunSuite with xscala.Repeat
     val p3 = fill(blue) * trans(2*size, 0) -> testBox
     val p4 = fill(blue) * trans(3*size/2, size+delta) -> testBox
 
-    p1.show()
-    p2.show()
-    p3.show()
-    p4.show()
+    p1.draw()
+    p2.draw()
+    p3.draw()
+    p4.draw()
 
     val others = Set(p1,p2,p3)
     others.size should be(3)
@@ -152,10 +152,10 @@ class PictureCollisionTest extends KojoTestBase with FunSuite with xscala.Repeat
     val p3 = fill(blue) * trans(2*size, 0) -> testBox
     val p4 = fill(blue) * trans(3*size/2, size+delta) -> testBox
 
-    p1.show()
-    p2.show()
-    p3.show()
-    p4.show()
+    p1.draw()
+    p2.draw()
+    p3.draw()
+    p4.draw()
 
     val others = List(p1,p2,p3)
     
@@ -169,16 +169,16 @@ class PictureCollisionTest extends KojoTestBase with FunSuite with xscala.Repeat
   test("hvpics-hvpics non collision") {
     val p1 = trans(-size/2-1-delta, 0) -> testHVPic
     val p2 = trans(size/2+1+delta, 0) -> testHVPic
-    p1.show()
-    p2.show()
+    p1.draw()
+    p2.draw()
     p1.collidesWith(p2) should be(false)
   }
 
   test("hvpics-hvpics collision") {
     val p1 = trans(-size/2-1, 0) -> testHVPic
     val p2 = trans(size/2+1, 0) -> testHVPic
-    p1.show()
-    p2.show()
+    p1.draw()
+    p2.draw()
     p1.collidesWith(p2) should be(true)
   }
 }

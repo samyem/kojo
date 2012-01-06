@@ -1,3 +1,5 @@
+// sample game - with characters made out of tangram pieces.
+
 val len = 4
 val d = math.sqrt(2*len*len)
 val d2 = d/2
@@ -5,8 +7,6 @@ val d4 = d/4
 
 def p1 = pict { t =>
     import t._
-    setAnimationDelay(10)
-    invisible()
     forward(len)
     right(135)
     forward(d2)
@@ -18,8 +18,6 @@ def p2 = p1
 
 def p3 = pict { t =>
     import t._
-    invisible()
-    setAnimationDelay(10)
     right()
     forward(len/2)
     left(135)
@@ -32,8 +30,6 @@ def p4 = p3
 
 def p6 = pict { t =>
     import t._
-    setAnimationDelay(10)
-    invisible()
     repeat (4) {
         forward(d4)
         right()
@@ -43,8 +39,6 @@ def p6 = pict { t =>
 
 def p5 = pict { t =>
     import t._
-    setAnimationDelay(10)
-    invisible()
     right()
     forward(len/2)
     left()
@@ -55,8 +49,6 @@ def p5 = pict { t =>
 
 def p7 = pict { t =>
     import t._
-    setAnimationDelay(10)
-    invisible()
     right()
     forward(len/2)
     left(45)
@@ -81,20 +73,16 @@ def guy = GPics(
 
 def border(size: Double) = Pic { t =>
     import t._
-    setAnimationDelay(0)
-    invisible()
     forward(size)
 }
 
-val lostMsg = Pic { t =>
+val lostMsg = trans(-20, 0) -> Pic { t =>
     import t._
-    invisible()
     write("You Lost!")
 }
 
-val wonMsg = Pic { t =>
+val wonMsg = trans(-20, 0) -> Pic { t =>
     import t._
-    invisible()
     write("You Won!")
 }
     
@@ -123,22 +111,8 @@ val stage = GPics(
 playMp3Loop(installDir + "music-loops/Cave.mp3")
 invisible()
 setBackground(Color(150, 150, 255))
-show(stage)
-show(goodguy)
-show(lostGoodguy)
-lostGoodguy.invisible()
-show(badguy)
-show(badguy2)
-show(badguy3)
-lostMsg.translate(-20, 0)
-wonMsg.translate(-20, 0)
-show(lostMsg)
-show(wonMsg)
-lostMsg.invisible()
-wonMsg.invisible()
-lostMsg.translate(20, 0)
-wonMsg.translate(20, 0)
-
+draw(stage, goodguy, badguy, badguy2, badguy3)
+drawAndHide(lostGoodguy, lostMsg, wonMsg)
 
 val bf = 2
 val sf = 1.5
@@ -221,11 +195,13 @@ goodguy.act { me =>
         lostGoodguy.setPosition(me.position)
         lostGoodguy.setHeading(me.heading)
         lostGoodguy.visible()
+        lostMsg.setPosition(0, 0)
         lostMsg.visible()
     }
     
     if (time - startTime > 60 * 1000) {
         stopAnimation()
+        wonMsg.setPosition(0, 0)
         wonMsg.visible()
     }
 }

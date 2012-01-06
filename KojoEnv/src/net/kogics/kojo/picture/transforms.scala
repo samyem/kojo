@@ -54,64 +54,64 @@ abstract class Transform(pic: Picture) extends Transformer {
 }
 
 case class Rot(angle: Double)(pic: Picture) extends Transform(pic) {
-  def show() {
+  def draw() {
     pic.rotate(angle)
-    pic.show()
+    pic.draw()
   }
   def copy = Rot(angle)(pic.copy)
 }
 
 case class Rotp(angle: Double, x: Double, y: Double)(pic: Picture) extends Transform(pic) {
-  def show() {
+  def draw() {
     pic.rotateAboutPoint(angle, x, y)
-    pic.show()
+    pic.draw()
   }
   def copy = Rotp(angle, x, y)(pic.copy)
 }
 
 case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
-  def show() {
+  def draw() {
     pic.scale(factor)
-    pic.show()
+    pic.draw()
   }
   def copy = Scale(factor)(pic.copy)
 }
 
 case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
-  def show() {
+  def draw() {
     pic.translate(x, y)
-    pic.show()
+    pic.draw()
   }
   def copy = Trans(x, y)(pic.copy)
 }
 
 case class Offset(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
-  def show() {
+  def draw() {
     pic.offset(x, y)
-    pic.show()
+    pic.draw()
   }
   def copy = Trans(x, y)(pic.copy)
 }
 
 case class FlipY(pic: Picture) extends Transform(pic) {
-  def show() {
+  def draw() {
     pic.flipY()
-    pic.show()
+    pic.draw()
   }
   def copy = FlipY(pic.copy)
 }
 
 case class FlipX(pic: Picture) extends Transform(pic) {
-  def show() {
+  def draw() {
     pic.flipX()
-    pic.show()
+    pic.draw()
   }
   def copy = FlipX(pic.copy)
 }
 
 case class AxesOn(pic: Picture) extends Transform(pic) {
-  def show() {
-    pic.show()
+  def draw() {
+    pic.draw()
     pic.axesOn()
   }
   def copy = AxesOn(pic.copy)
@@ -122,9 +122,9 @@ object Deco {
 }
 
 class Deco(pic: Picture)(painter: Painter) extends Transform(pic) {
-  def show() {
+  def draw() {
     pic.decorateWith(painter) 
-    pic.show() 
+    pic.draw() 
   }
   def copy = Deco(pic.copy)(painter)
 }
