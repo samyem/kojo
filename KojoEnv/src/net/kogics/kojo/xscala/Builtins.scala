@@ -546,6 +546,9 @@ Here's a partial list of the available commands:
   def drawAndHide(pictures: Picture *) = fastDraw {
     pictures.foreach {p => p.draw(); p.invisible()}
   }
+  def show(pictures: Picture *) {
+    throw new UnsupportedOperationException("Use draw(pic/s) instead of show(pic/s)")
+  }
   
   def animate(fn: => Unit) = staging.API.loop(fn)
   def stopAnimation() = ctx.stopAnimation()
