@@ -69,7 +69,13 @@ def p7 = pict { t =>
     forward(d4)
 }
 
-val skier = penColor(black) * trans(9, 1) * scale(0.6) -> GPics(
+def ski = Pic { t =>
+    import t._
+    forward(3)
+}
+
+val skier = penColor(black) * trans(10, 1) * scale(0.6) -> GPics(
+    trans(-2, -2) * rot(-75) -> ski,
     fillColor(purple) * rot(-120) -> p3,
     fillColor(yellow) * rot(150) * trans(0, -3.5) -> p1,
     fillColor(blue) * flipY * rot(120) * trans(1.5, 0) -> p7,
@@ -87,7 +93,7 @@ def tile = pict { t =>
     forward(3)
 }
 
-val ground = penColor(brown) * trans(-14, -6) * rot(5) -> HPics(
+val ground = penColor(brown) * trans(-13, -8) * rot(10) -> HPics(
     tile,
     trans(0, 0.5) -> tile,
     trans(0, 1) -> tile,
@@ -140,9 +146,7 @@ def makeTrees(n: Int): Picture = {
 val trees = rot(7) * trans(-10, 0) -> makeTrees(9)
 clearWithUL(Cm)
 invisible()
-show(ground)
-show(trees)
-show(skier)
+draw(ground, trees, skier)
 
 animate {
     if (skier.collidesWith(ground)) {
@@ -152,10 +156,10 @@ animate {
         skier.translate(-0.09, -0.045)
     }
     if (skier.distanceTo(ground) > 1) {
-        skier.setPosition(9, 1)
+        skier.setPosition(10, 1)
     }
 }
 
 skier.onMouseClick { (x, y) =>
-    skier.setPosition(9, 1)
+    skier.setPosition(10, 1)
 }

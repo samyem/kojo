@@ -16,8 +16,8 @@
 package net.kogics.kojo.picture
 
 abstract class Effect extends Transformer {
-  def show() {
-    tpic.show()
+  def draw() {
+    tpic.draw()
   }
 }
 

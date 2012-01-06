@@ -63,7 +63,7 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
 
   test("picture bounds") {
     val p = testPic
-    p.show()
+    p.draw()
     val b = p.bounds
     b.x should equal(bx)
     b.y should equal(by)
@@ -73,14 +73,14 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
   
   test("picture translation") {
     val p = trans(50, 0) -> testPic
-    p.show()
+    p.draw()
     val b = p.bounds
     b.x should equal(50 + bx)
   }  
 
   test("picture scaling") {
     val p = scale(2) -> testPic
-    p.show()
+    p.draw()
     val b = p.bounds
     b.x should equal(bx * 2)
     b.width should equal(w * 2)
@@ -89,7 +89,7 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
 
   test("picture scaling after translation") {
     val p = trans(50, 0) * scale(2) -> testPic
-    p.show()
+    p.draw()
     val b = p.bounds
     b.x should equal(50 + 2 * bx)
     b.width should equal(w * 2)
@@ -98,7 +98,7 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
 
   test("picture translation after scaling") {
     val p = scale(2) * trans(50, 0) -> testPic
-    p.show()
+    p.draw()
     val b = p.bounds
     b.x should equal(50*2 + 2 * bx)
     b.width should equal(w * 2)
@@ -109,7 +109,7 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
     val a1 = 30.0
     val a2 = 40.0
     val p = testHpic3(a1, a2)
-    p.show()
+    p.draw()
 
     val hp2 = p.pics(2).asInstanceOf[Rot].tpic.asInstanceOf[HPics]
     val hp3 = hp2.pics(2).asInstanceOf[Rot].tpic.asInstanceOf[HPics]
@@ -124,7 +124,7 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
     val a1 = 30.0
     val a2 = 40.0
     val p = testHpic3(a1, a2)
-    p.show()
+    p.draw()
 
     val hp2 = p.pics(2).asInstanceOf[Rot].tpic.asInstanceOf[HPics]
     val hp3 = hp2.pics(2).asInstanceOf[Rot].tpic.asInstanceOf[HPics]

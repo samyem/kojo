@@ -41,7 +41,7 @@ trait Picture extends InputAware {
   def myCanvas = Impl.canvas
   def myNode = tnode
   def decorateWith(painter: Painter): Unit
-  def show(): Unit
+  def draw(): Unit
   def bounds: PBounds
   def rotate(angle: Double)
   def rotateAboutPoint(angle: Double, x: Double, y: Double)
@@ -86,22 +86,17 @@ trait Picture extends InputAware {
   override def hashCode = System.identityHashCode(this)
 }
 
-trait CorePicOps { self: Picture with ReshowStopper =>
+trait CorePicOps { self: Picture with RedrawStopper =>
   var axes: PNode = _
   var _picGeom: Geometry = _
   var pgTransform = new AffineTransformation
   
-  def realShow(): Unit
+  def realDraw(): Unit
 
-  def show() {
-    realShow()
-    showDone
+  def draw() {
+    realDraw()
   }
   
-  def showDone() = Utils.runInSwingThread {
-//    _picGeom = initGeom()
-  }
-
   def t2t(t: AffineTransform): AffineTransformation = {
     val ms = Array.fill(6)(0.0)
     val ms2 = Array.fill(6)(0.0)
@@ -244,8 +239,8 @@ trait CorePicOps { self: Picture with ReshowStopper =>
 
   def initGeom(): Geometry
   def picGeom: Geometry = {
-    if (!shown) {
-      throw new IllegalStateException("Access geometry after show is done")
+    if (!drawn) {
+      throw new IllegalStateException("Access geometry after it is drawn.")
     }
 
     if (_picGeom == null) {
@@ -301,7 +296,7 @@ trait CorePicOps { self: Picture with ReshowStopper =>
   }
   
   def act(fn: Picture => Unit) {
-    if (!shown) {
+    if (!drawn) {
       throw new IllegalStateException("Ask picture to act after you show it.")
     }
  
@@ -311,15 +306,15 @@ trait CorePicOps { self: Picture with ReshowStopper =>
   }
 }
 
-trait ReshowStopper extends Picture {
-  @volatile var shown = false
-  abstract override def show() {
-    if (shown) {
-      throw new RuntimeException("You can't reshow a picture")
+trait RedrawStopper extends Picture {
+  @volatile var drawn = false
+  abstract override def draw() {
+    if (drawn) {
+      throw new RuntimeException("You can't redraw a picture")
     }
     else {
-      shown = true
-      super.show()
+      drawn = true
+      super.draw()
     }
   }
 }
@@ -339,7 +334,7 @@ object Pic {
   def apply(painter: Painter) = new Pic(painter) 
 }
 
-class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher with ReshowStopper {
+class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher with RedrawStopper {
   @volatile var _t: turtle.Turtle = _
   def t = Utils.runInSwingThreadAndWait {
     if (_t == null) {
@@ -357,7 +352,7 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
   def makeTnode = t.tlayer
   
   def decorateWith(painter: Painter) = painter(t)
-  def realShow() {
+  def realDraw() {
     painter(t)
     t.waitFor()
     Utils.runInSwingThread {
@@ -397,7 +392,7 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
 }
 
 abstract class BasePicList(val pics: List[Picture]) 
-extends Picture with CorePicOps with TNodeCacher with ReshowStopper {
+extends Picture with CorePicOps with TNodeCacher with RedrawStopper {
   if (pics.size == 0) {
     throw new IllegalArgumentException("A Picture List needs to have at least one Picture.")
   }
@@ -455,11 +450,11 @@ object HPics {
 }
 
 class HPics(pics: List[Picture]) extends BasePicList(pics) {
-  def realShow() {
+  def realDraw() {
     var ox = 0.0
     pics.foreach { pic =>
       pic.translate(ox, 0)
-      pic.show()
+      pic.draw()
       val nbounds = pic.bounds
       ox = nbounds.getMinX + nbounds.getWidth + padding
     }
@@ -480,11 +475,11 @@ object VPics {
 }
 
 class VPics(pics: List[Picture]) extends BasePicList(pics) {
-  def realShow() {
+  def realDraw() {
     var oy = 0.0
     pics.foreach { pic =>
       pic.translate(0, oy)
-      pic.show()
+      pic.draw()
       val nbounds = pic.bounds
       oy = nbounds.getMinY + nbounds.getHeight + padding
     }
@@ -505,9 +500,9 @@ object GPics {
 }
 
 class GPics(pics: List[Picture]) extends BasePicList(pics) {
-  def realShow() {
+  def realDraw() {
     pics.foreach { pic =>
-      pic.show()
+      pic.draw()
     }
   }
 
@@ -518,4 +513,4 @@ class GPics(pics: List[Picture]) extends BasePicList(pics) {
     super.dumpInfo()
     println("<<< GPics End\n\n")
   }
-} 
+}

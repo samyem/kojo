@@ -21,7 +21,6 @@ val examples = List(
     """
 def p(size: Int) = pict { t =>
     import t._
-    setAnimationDelay(0)
     repeat (4) {
         forward(size)
         right()
@@ -35,7 +34,7 @@ def p1 = p(40)
     """
 clear()
 invisible()
-show(p1)
+draw(p1)
 """,
     """
 clear()
@@ -44,7 +43,7 @@ val pic = HPics(
     p1,
     p1
 )
-show(pic)
+draw(pic)
 """,
     """
 clear()
@@ -55,7 +54,7 @@ val pic = HPics(
     p1,
     p1
 )
-show(pic)
+draw(pic)
 """,
     """
 clear()
@@ -70,13 +69,13 @@ val pic = HPics(
     ),
     p1
 )
-show(pic)
+draw(pic)
 """,
     """
 clear()
 invisible()
 val pic = col(row(p1, 5), 3)
-show(pic)
+draw(pic)
 """,
     """
 clear()
@@ -91,7 +90,7 @@ val pic = HPics(
     ),
     p1
 )
-show(pic)
+draw(pic)
 """,
     """
 val pic = reflect(200) * spin(5) -> HPics(
@@ -109,7 +108,7 @@ val pic = reflect(200) * spin(5) -> HPics(
 )
 
 clear()
-show(pic)
+draw(pic)
 """,
     """
 def two(fn: => Picture) = HPics(fn, fn)
@@ -123,7 +122,7 @@ def pc(color: Color) = FillColor(color)(p1)
 clear()
 invisible()
 val pic = four(four(checker(pc(blue), pc(black))))
-show(pic)
+draw(pic)
 """,
     """
 def two(fn: => Picture) = HPics(fn, fn)
@@ -139,7 +138,7 @@ def pc(size: Int, color: Color) = FillColor(color)(p(size))
 clear()
 invisible()
 val pic = series(checkerBoard)
-show(pic)
+draw(pic)
 """,
     """
 // This is a slightly advanced example
@@ -157,7 +156,7 @@ invisible()
 val pic2 = rowm(p1, 5) { (p, i) =>
     if (i == 2) FillColor(blue)(p) else p
 }
-show(pic2)
+draw(pic2)
 """,
     """
 def growTurnBy(f: Double, a: Double, n: Int, p: => Picture): Picture = {
@@ -170,7 +169,7 @@ def growTurnBy(f: Double, a: Double, n: Int, p: => Picture): Picture = {
 }
 
 clear()
-show(reflect(200) * spin(5) -> growTurnBy(0.8, -14, 12, p1))
+draw(reflect(200) * spin(5) -> growTurnBy(0.8, -14, 12, p1))
 """,
     """
 clear()
@@ -180,7 +179,7 @@ val pic = VPics(
     HPics(pics),
     HPics(pics.map {p => rot(10) * fillColor(green) -> p.copy})
 )
-show(pic)
+draw(pic)
 """,
     """
 case class Pattern(size: Int)(p: Painter) extends Pic(p) {
@@ -189,7 +188,6 @@ case class Pattern(size: Int)(p: Painter) extends Pic(p) {
 
 def p(size: Int) = Pattern(size) { t =>
     import t._
-    setAnimationDelay(0)
     repeat (4) {
         forward(size)
         right()
@@ -207,7 +205,7 @@ val pic = VPics(
     HPics(pics map {_ copy} filter {_.size > 50}),
     fillColor(blue) -> HPics(pics map {_ copy} find {_.size == 50} get)
 )
-show(pic)
+draw(pic)
 """,
     """
 val pic = reflect(200) * spin(5) -> HPics(
@@ -225,7 +223,7 @@ val pic = reflect(200) * spin(5) -> HPics(
 )
 
 clear()
-show(pic)
+draw(pic)
 
 animate {
     pic.rotate(1)
