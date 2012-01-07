@@ -55,7 +55,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val storyTeller = story.StoryTeller.instance
   storyTeller.outputFn = showOutput _
 
-  val musicPlayer = music.MusicPlayer.instance
+  val fuguePlayer = music.FuguePlayer.instance
   val mp3player = music.KMp3.instance
 
   val commandHistory = CommandHistory.instance
@@ -728,8 +728,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def stopAnimation() {
     tCanvas.stop()
-    musicPlayer.stopMusic()
-    musicPlayer.stopBgMusic()
+    fuguePlayer.stopMusic()
+    fuguePlayer.stopBgMusic()
     mp3player.stopMp3Player()
     mp3player.stopBgMp3Player()
     Utils.stopMonitoredThreads()
