@@ -15,6 +15,7 @@
 package net.kogics.kojo.util
 
 import java.awt.{List => _, _}
+import java.util.concurrent.locks.Lock
 import javax.swing._
 import java.awt.event.{ActionListener, ActionEvent}
 import java.io._
@@ -289,6 +290,16 @@ object Utils {
     }
     catch {
       case t: Throwable => reportException(t)
+    }
+  }
+  
+  def withLock(lock: Lock)(fn: => Unit) {
+    lock.lock()
+    try {
+      fn
+    }
+    finally {
+      lock.unlock()
     }
   }
   
