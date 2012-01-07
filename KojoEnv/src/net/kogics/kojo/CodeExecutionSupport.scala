@@ -52,11 +52,10 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
 //  val geomCanvas = geogebra.GeoGebraCanvas.instance.geomCanvas
 
-  val storyTeller = story.StoryTeller.instance()
+  val storyTeller = story.StoryTeller.instance
   storyTeller.outputFn = showOutput _
 
-  val musicPlayer = music.MusicPlayer.instance()
-  musicPlayer.outputFn = showOutput _
+  val musicPlayer = music.MusicPlayer.instance
   val mp3player = music.KMp3.instance
 
   val commandHistory = CommandHistory.instance
@@ -730,6 +729,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def stopAnimation() {
     tCanvas.stop()
     musicPlayer.stopMusic()
+    musicPlayer.stopBgMusic()
     mp3player.stopMp3Player()
     mp3player.stopBgMp3Player()
     Utils.stopMonitoredThreads()
