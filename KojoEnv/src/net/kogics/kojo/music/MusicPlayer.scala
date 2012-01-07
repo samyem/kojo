@@ -16,18 +16,10 @@
 package net.kogics.kojo
 package music
 
-import java.util.concurrent.atomic.AtomicBoolean
-import scala.actors._
-import scala.actors.Actor._
-
+import util.Utils
 import org.jfugue.{Rhythm => JFRhythm, _}
 import java.util.logging._
-
-case class PlayVoice(v: core.Voice, n: Int, valid: AtomicBoolean)
-case class PlayVoiceUntilDone(v: core.Voice, n: Int, valid: AtomicBoolean)
-case object Done
-case object MusicDefGood
-case class MusicError(e: Exception)
+import java.util.concurrent.locks.ReentrantLock
 
 object MusicPlayer extends Singleton[MusicPlayer] {
   protected def newInstance = new MusicPlayer
@@ -36,80 +28,129 @@ object MusicPlayer extends Singleton[MusicPlayer] {
 class MusicPlayer {
   val Log = Logger.getLogger(getClass.getName)
   @volatile private var currMusic: Option[Music] = None
-  @volatile private var validBool = new AtomicBoolean(true)
-  var outputFn: String => Unit = { msg =>
+  @volatile private var currBgMusic: Option[Music] = None
+  val playLock = new ReentrantLock
+  val started = playLock.newCondition
+  val done = playLock.newCondition
+  var stopBg = false
+
+  private def stopAndCreate(voice: core.Voice, n: Int) {
+    if (n > 10) {
+      throw new IllegalArgumentException("Score repeat count cannot be more than 10")
+    }
+    
+    stopMusic()    
+    currMusic = Some(Music(voice, n))
+  }
+  
+  private def playMusicSignalStart(m: Music) {
+    playLock.lock()
+    started.signal()
+    playLock.unlock()
+    m.play()
+  }
+  
+  private def playMusicSignalDone(m: Music) {
+    m.play()
+    playLock.lock()
+    done.signal()
+    playLock.unlock()
+  }
+  
+  def playMusic(voice: core.Voice, n: Int = 1) {
+    playLock.lock()
+    try {
+      stopAndCreate(voice, n)
+      Utils.runAsync {
+        playMusicSignalStart(currMusic.get)
+      }
+      started.await()
+      // make race window smaller
+      // race - subsequent call to play/stop happens before async music actually starts playing
+      Thread.sleep(100)
+    }
+    finally {
+      playLock.unlock()
+    }
   }
 
-  val asyncPlayer = actor {
-
-    while(true) {
-      receive {
-        case PlayVoice(v, n, valid) =>
-          if (valid.get) {
-            try {
-              createMusic(v, n)
-              reply(MusicDefGood)
-              playMusic()
-            }
-            catch {
-              case e: Exception =>
-                Log.severe(e.getMessage) // we might have replied by the time we got here. So log problem.
-                reply(MusicError(e))
-            }
+  def playMusicLoop(voice: core.Voice) {
+    def done() {
+      playLock.lock()
+      stopBg = false
+      currBgMusic = None
+      playLock.unlock()
+    }
+    def playLoop0() {
+      playLock.lock()
+      try {
+        currBgMusic = Some(Music(voice, 5))
+        Utils.runAsync {
+          if (stopBg) {
+            done()
           }
           else {
-            reply(Done)
+            currBgMusic.get.play
+            playLoop0()
           }
-        case PlayVoiceUntilDone(v, n, valid) =>
-          if (valid.get) {
-            try {
-              createMusic(v, n)
-              playMusic()
-              reply(Done)
-            }
-            catch {
-              case e: Exception =>
-                reply(MusicError(e))
-            }
-          }
-          else {
-            reply(Done)
-          }
+        }
+      }
+      finally {
+        playLock.unlock()
       }
     }
-
-    def createMusic(v: core.Voice, n: Int) {
-      currMusic = Some(Music(v, n))
+    
+    playLock.lock()
+    try {
+      if (currBgMusic.isDefined) {
+        println("Can't play second background voice.")
+      }
+      else {
+        playLoop0()
+      }
     }
-
-    def playMusic() {
-      currMusic.get.play()
-    }
-  }
-
-  def playMusic(voice: core.Voice, n: Int = 1) {
-    val ret = asyncPlayer !? PlayVoice(voice, n, validBool)
-    ret match {
-      case MusicError(e) => throw e
-      case MusicDefGood =>
-      case Done =>
+    finally {
+      playLock.unlock()
     }
   }
 
-  def playMusicUntilDone(voice: core.Voice, n: Int) {
-    val ret = asyncPlayer !? PlayVoiceUntilDone(voice, n, validBool)
-    ret match {
-      case MusicError(e) => throw e
-      case Done =>
+  def playMusicUntilDone(voice: core.Voice, n: Int = 1) {
+    playLock.lock()
+    try {
+      stopAndCreate(voice, n)
+      Utils.runAsync {
+        playMusicSignalDone(currMusic.get)
+      }
+      done.await()
+    }
+    finally {
+      playLock.unlock()
     }
   }
 
   def stopMusic() {
-    validBool.set(false)
-    validBool = new AtomicBoolean(true)
-    if (currMusic.isDefined) {
-      currMusic.get.stop()
-      currMusic = None
+    playLock.lock()
+    try {
+      if (currMusic.isDefined) {
+        currMusic.get.stop()
+        currMusic = None
+      }
+    }
+    finally {
+      playLock.unlock()
+    }
+  }
+
+  def stopBgMusic() {
+    playLock.lock()
+    try {
+      if (currBgMusic.isDefined) {
+        stopBg = true
+        currBgMusic.get.stop()
+      }
+    }
+    finally {
+      playLock.unlock()
     }
   }
 }

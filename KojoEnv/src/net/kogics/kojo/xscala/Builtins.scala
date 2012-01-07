@@ -437,6 +437,11 @@ Here's a partial list of the available commands:
   }
   UserCommand("playMusicUntilDone", List("score"), "Plays the specified melody, rhythm, or score, and waits till the music finishes.")
 
+  def playMusicLoop(voice: Voice) {
+    music.MusicPlayer.instance().playMusicLoop(voice)
+  }
+  UserCommand("playMusicLoop", List("score"), "Plays the specified melody, rhythm, or score in the background - in a loop.")
+
   def textExtent(text: String, fontSize: Int) = {
     val tnode = Utils.textNode(text, 0, 0, tCanvas.camScale, fontSize)
     val b = tnode.getFullBounds
