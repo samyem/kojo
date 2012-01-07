@@ -21,6 +21,7 @@ import util.Utils.withLock
 import org.jfugue.{Rhythm => JFRhythm, _}
 import java.util.logging._
 import java.util.concurrent.locks.ReentrantLock
+import javax.swing.Timer
 
 object MusicPlayer extends Singleton[MusicPlayer] {
   protected def newInstance = new MusicPlayer
@@ -36,6 +37,9 @@ class MusicPlayer {
   val stopped = playLock.newCondition
   var stopBg = false
   var stopFg = false
+  val listener = SpriteCanvas.instance().megaListener // hack!
+  @volatile private var timer: Timer = _
+  val pumpEvents: Boolean = true
 
   private def stopAndCreate(voice: core.Voice, n: Int) {
     if (n > 10) {
@@ -58,10 +62,12 @@ class MusicPlayer {
           playLock.lock()
           stopFg = false
           currMusic = None
+          stopPumpingEvents()
           stopped.signal()
         }
       }
       started.await()
+      startPumpingEvents()      
       // make race window smaller
       // race - subsequent call to play/stop happens before async music actually starts playing
       Thread.sleep(100)
@@ -80,13 +86,34 @@ class MusicPlayer {
           done.signal()
           stopFg = false
           currMusic = None
+          stopPumpingEvents()
           stopped.signal()
         }
       }
+      startPumpingEvents()
       done.await()
     }
   }
+  
+  private def startPumpingEvents() {
+    if (pumpEvents) {
+      listener.hasPendingCommands()
+      timer = Utils.scheduleRec(0.5) {
+        listener.hasPendingCommands()
+      }
+    }
+  }
 
+  private def stopPumpingEvents() {
+    if (pumpEvents) {
+      timer.stop()
+      listener.pendingCommandsDone()
+      Utils.schedule(0.5) {
+        listener.pendingCommandsDone()
+      }
+    }
+  }
+  
   def playMusicLoop(voice: core.Voice) {
 
     def playLoop0() {
@@ -95,6 +122,7 @@ class MusicPlayer {
           if (stopBg) {
             stopBg = false
             currBgMusic = None
+            stopPumpingEvents()
             stopped.signal()
           }
           else {
@@ -113,6 +141,7 @@ class MusicPlayer {
       stopBgMusic()
       currBgMusic = Some(Music(voice, 5))
       playLoop0()
+      startPumpingEvents()
     }       
   }
 

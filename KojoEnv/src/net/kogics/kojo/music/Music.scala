@@ -18,7 +18,6 @@ package music
 
 import org.jfugue.{Rhythm => JFRhythm, _}
 import util.Utils
-import javax.swing.Timer
 
 object Music {
   def apply(mString: String) = new Music(new Pattern(mString))
@@ -34,22 +33,13 @@ class Music(pattern: Pattern) {
   val player = new Player()
   val sequence = player.getSequence(pattern)
   val listener = SpriteCanvas.instance().megaListener // hack!
-  @volatile private var timer: Timer = _
 
   def play() {
-    if (timer != null) {
-      throw new RuntimeException("You can play a Music instance only once.")
-    }
-    listener.hasPendingCommands()
-    timer = Utils.scheduleRec(0.5) {
-      listener.hasPendingCommands()
-    }
-
     try {
       player.play(sequence)
     }
     finally {
-      done()
+      player.close()
     }
   }
 
@@ -57,14 +47,6 @@ class Music(pattern: Pattern) {
     if (player.isPlaying) {
       player.stop()
     }
-    done()
-  }
-
-  private def done() {
-    if (timer != null) {
-      timer.stop()
-    }
     player.close()
-    listener.pendingCommandsDone()
   }
 }
