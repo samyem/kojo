@@ -61,7 +61,9 @@ class Music(pattern: Pattern) {
   }
 
   private def done() {
-    timer.stop()
+    if (timer != null) {
+      timer.stop()
+    }
     player.close()
     listener.pendingCommandsDone()
   }

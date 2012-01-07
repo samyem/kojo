@@ -17,6 +17,7 @@ package net.kogics.kojo
 package music
 
 import util.Utils
+import util.Utils.withLock
 import org.jfugue.{Rhythm => JFRhythm, _}
 import java.util.logging._
 import java.util.concurrent.locks.ReentrantLock
@@ -27,12 +28,14 @@ object MusicPlayer extends Singleton[MusicPlayer] {
 
 class MusicPlayer {
   val Log = Logger.getLogger(getClass.getName)
-  @volatile private var currMusic: Option[Music] = None
-  @volatile private var currBgMusic: Option[Music] = None
+  private var currMusic: Option[Music] = None
+  private var currBgMusic: Option[Music] = None
   val playLock = new ReentrantLock
   val started = playLock.newCondition
   val done = playLock.newCondition
+  val stopped = playLock.newCondition
   var stopBg = false
+  var stopFg = false
 
   private def stopAndCreate(voice: core.Voice, n: Int) {
     if (n > 10) {
@@ -43,114 +46,97 @@ class MusicPlayer {
     currMusic = Some(Music(voice, n))
   }
   
-  private def playMusicSignalStart(m: Music) {
-    playLock.lock()
-    started.signal()
-    playLock.unlock()
-    m.play()
-  }
-  
-  private def playMusicSignalDone(m: Music) {
-    m.play()
-    playLock.lock()
-    done.signal()
-    playLock.unlock()
-  }
-  
   def playMusic(voice: core.Voice, n: Int = 1) {
-    playLock.lock()
-    try {
+    withLock(playLock) {
       stopAndCreate(voice, n)
       Utils.runAsync {
-        playMusicSignalStart(currMusic.get)
+        withLock(playLock) {
+          started.signal()
+          val music = currMusic.get
+          playLock.unlock()
+          music.play()
+          playLock.lock()
+          stopFg = false
+          currMusic = None
+          stopped.signal()
+        }
       }
       started.await()
       // make race window smaller
       // race - subsequent call to play/stop happens before async music actually starts playing
       Thread.sleep(100)
     }
-    finally {
-      playLock.unlock()
+  }
+
+  def playMusicUntilDone(voice: core.Voice, n: Int = 1) {
+    withLock(playLock) {
+      stopAndCreate(voice, n)
+      Utils.runAsync {
+        withLock(playLock) {
+          val music = currMusic.get
+          playLock.unlock()
+          music.play()
+          playLock.lock()
+          done.signal()
+          stopFg = false
+          currMusic = None
+          stopped.signal()
+        }
+      }
+      done.await()
     }
   }
 
   def playMusicLoop(voice: core.Voice) {
-    def done() {
-      playLock.lock()
-      stopBg = false
-      currBgMusic = None
-      playLock.unlock()
-    }
+
     def playLoop0() {
-      playLock.lock()
-      try {
-        currBgMusic = Some(Music(voice, 5))
-        Utils.runAsync {
+      Utils.runAsync {
+        withLock(playLock) {
           if (stopBg) {
-            done()
+            stopBg = false
+            currBgMusic = None
+            stopped.signal()
           }
           else {
-            currBgMusic.get.play
+            val music = currBgMusic.get
+            playLock.unlock()
+            music.play
+            playLock.lock()
+            currBgMusic = Some(Music(voice, 5))
             playLoop0()
           }
         }
       }
-      finally {
-        playLock.unlock()
-      }
     }
-    
-    playLock.lock()
-    try {
-      if (currBgMusic.isDefined) {
-        println("Can't play second background voice.")
-      }
-      else {
-        playLoop0()
-      }
-    }
-    finally {
-      playLock.unlock()
-    }
-  }
 
-  def playMusicUntilDone(voice: core.Voice, n: Int = 1) {
-    playLock.lock()
-    try {
-      stopAndCreate(voice, n)
-      Utils.runAsync {
-        playMusicSignalDone(currMusic.get)
-      }
-      done.await()
-    }
-    finally {
-      playLock.unlock()
-    }
+    withLock(playLock) {
+      stopBgMusic()
+      currBgMusic = Some(Music(voice, 5))
+      playLoop0()
+    }       
   }
 
   def stopMusic() {
-    playLock.lock()
-    try {
+    withLock(playLock) {
       if (currMusic.isDefined) {
+        stopFg = true
         currMusic.get.stop()
-        currMusic = None
+        while(stopFg) {
+          stopped.await()
+        }
       }
-    }
-    finally {
-      playLock.unlock()
     }
   }
 
   def stopBgMusic() {
-    playLock.lock()
-    try {
+    withLock(playLock) {
       if (currBgMusic.isDefined) {
         stopBg = true
         currBgMusic.get.stop()
+        while(stopBg) {
+          stopped.await()
+        }
       }
-    }
-    finally {
-      playLock.unlock()
     }
   }
 }
