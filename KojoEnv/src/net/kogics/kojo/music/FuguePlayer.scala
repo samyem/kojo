@@ -23,11 +23,11 @@ import java.util.logging._
 import java.util.concurrent.locks.ReentrantLock
 import javax.swing.Timer
 
-object MusicPlayer extends Singleton[MusicPlayer] {
-  protected def newInstance = new MusicPlayer
+object FuguePlayer extends Singleton[FuguePlayer] {
+  protected def newInstance = new FuguePlayer
 }
 
-class MusicPlayer {
+class FuguePlayer {
   val Log = Logger.getLogger(getClass.getName)
   private var currMusic: Option[Music] = None
   private var currBgMusic: Option[Music] = None
