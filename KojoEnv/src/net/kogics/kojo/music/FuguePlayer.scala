@@ -18,6 +18,7 @@ package music
 
 import util.Utils
 import util.Utils.withLock
+import Utils.giveupLock
 import org.jfugue.{Rhythm => JFRhythm, _}
 import java.util.logging._
 import java.util.concurrent.locks.ReentrantLock
@@ -38,9 +39,31 @@ class FuguePlayer {
   var stopBg = false
   var stopFg = false
   val listener = SpriteCanvas.instance().megaListener // hack!
-  @volatile private var timer: Timer = _
+  var timer: Timer = _
   val pumpEvents: Boolean = true
 
+  private def startPumpingEvents() {
+    if (pumpEvents && timer == null) {
+      listener.hasPendingCommands()
+      timer = Utils.scheduleRec(0.5) {
+        listener.hasPendingCommands()
+      }
+    }
+  }
+
+  private def stopPumpingEvents() {
+    if (pumpEvents && currBgMusic.isEmpty) {
+      if (timer != null) {
+        timer.stop()
+        timer = null
+      }
+      listener.pendingCommandsDone()
+      Utils.schedule(0.5) {
+        listener.pendingCommandsDone()
+      }
+    }
+  }
+  
   private def stopAndCreate(voice: core.Voice, n: Int) {
     if (n > 10) {
       throw new IllegalArgumentException("Score repeat count cannot be more than 10")
@@ -57,9 +80,9 @@ class FuguePlayer {
         withLock(playLock) {
           started.signal()
           val music = currMusic.get
-          playLock.unlock()
-          music.play()
-          playLock.lock()
+          giveupLock(playLock) {
+            music.play()
+          }
           stopFg = false
           currMusic = None
           stopPumpingEvents()
@@ -80,9 +103,9 @@ class FuguePlayer {
       Utils.runAsync {
         withLock(playLock) {
           val music = currMusic.get
-          playLock.unlock()
-          music.play()
-          playLock.lock()
+          giveupLock(playLock) {
+            music.play()
+          }
           done.signal()
           stopFg = false
           currMusic = None
@@ -92,25 +115,6 @@ class FuguePlayer {
       }
       startPumpingEvents()
       done.await()
-    }
-  }
-  
-  private def startPumpingEvents() {
-    if (pumpEvents) {
-      listener.hasPendingCommands()
-      timer = Utils.scheduleRec(0.5) {
-        listener.hasPendingCommands()
-      }
-    }
-  }
-
-  private def stopPumpingEvents() {
-    if (pumpEvents) {
-      timer.stop()
-      listener.pendingCommandsDone()
-      Utils.schedule(0.5) {
-        listener.pendingCommandsDone()
-      }
     }
   }
   
@@ -127,9 +131,9 @@ class FuguePlayer {
           }
           else {
             val music = currBgMusic.get
-            playLock.unlock()
-            music.play
-            playLock.lock()
+            giveupLock(playLock) {
+              music.play()
+            }
             currBgMusic = Some(Music(voice, 5))
             playLoop0()
           }

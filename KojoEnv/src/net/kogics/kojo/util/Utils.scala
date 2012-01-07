@@ -303,6 +303,19 @@ object Utils {
     }
   }
   
+  def giveupLock(lock: Lock)(fn: => Unit) {
+    lock.unlock()
+    try {
+      fn
+    }
+    catch {
+      case t: Throwable => // log this?
+    }
+    finally {
+      lock.lock()
+    }
+  }
+  
   case class RunCode(code: () => Unit)
   import scala.actors._
   import scala.actors.Actor._

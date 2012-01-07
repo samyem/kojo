@@ -16,10 +16,13 @@
 package net.kogics.kojo
 package music
 
+import java.util.concurrent.locks.ReentrantLock
 import javax.swing.Timer
 import javazoom.jl.player.Player
 import java.io._
 import util.Utils
+import Utils.withLock
+import Utils.giveupLock
 
 
 trait Mp3Player {
@@ -29,9 +32,36 @@ trait Mp3Player {
 
   @volatile var mp3Player: Option[Player] = None
   @volatile var bgmp3Player: Option[Player] = None
-  @volatile var stopBg = false
+  val playLock = new ReentrantLock
+  val started = playLock.newCondition
+  val stopped = playLock.newCondition
+  var stopBg = false
+  var stopFg = false
   val KojoCtx = net.kogics.kojo.KojoCtx.instance
+  var timer: Timer = _
+  
+  private def startPumpingEvents() {
+    if (pumpEvents && timer == null) {
+      listener.hasPendingCommands()
+      timer = Utils.scheduleRec(0.5) {
+        listener.hasPendingCommands()
+      }
+    }
+  }
 
+  private def stopPumpingEvents() {
+    if (pumpEvents && bgmp3Player.isEmpty) {
+      if (timer != null) {
+        timer.stop()
+        timer = null
+      }
+      listener.pendingCommandsDone()
+      Utils.schedule(0.5) {
+        listener.pendingCommandsDone()
+      }
+    }
+  }
+  
   private def playHelper(mp3File: String)(fn: (FileInputStream) => Unit) {
     val f = new File(mp3File)
     val f2 = if (f.exists) f else new File(KojoCtx.baseDir + mp3File)
@@ -46,75 +76,94 @@ trait Mp3Player {
     }
   }
 
-  def play(mp3File: String) = synchronized {
-    stopMp3Player()
-    playHelper(mp3File) { is =>
-      mp3Player = Some(new Player(is))
-      Utils.runAsync {
-        mp3Player.get.play
+  def play(mp3File: String) {
+    withLock(playLock) {
+      stopMp3Player()
+      playHelper(mp3File) { is =>
+        mp3Player = Some(new Player(is))
+      }
+      if (mp3Player.isDefined) {
+        startPumpingEvents()
+        Utils.runAsync {
+          withLock(playLock) {
+            started.signal()
+            val music = mp3Player.get
+            giveupLock(playLock) {
+              music.play()
+            }
+            stopFg = false
+            mp3Player = None
+            stopPumpingEvents()
+            stopped.signal()
+          }
+        }
       }
     }
   }
   
-  @volatile private var timer: Timer = _
-
-  def playLoop(mp3File: String): Unit = synchronized {
-    if (bgmp3Player.isDefined) {
-      showError("Can't play second background mp3")
-      return
-    }
-    
-    def done() {
-      stopBg = false
-      bgmp3Player = None
-      if (pumpEvents) {
-        timer.stop()
-        listener.pendingCommandsDone()
-        Utils.schedule(0.5) {
-          listener.pendingCommandsDone()
-        }
-      }
-    }
+  def playLoop(mp3File: String) {
 
     def playLoop0() {
-      playHelper(mp3File) { is =>
-        bgmp3Player = Some(new Player(is))
-
-        Utils.runAsync {
+      Utils.runAsync {
+        withLock(playLock) {
           if (stopBg) {
-            done()
+            stopBg = false
+            bgmp3Player = None
+            stopPumpingEvents()
+            stopped.signal()
           }
           else {
-            bgmp3Player.get.play
-            playLoop0()
+            val music = bgmp3Player.get
+            giveupLock(playLock) {
+              music.play()
+            }
+            playHelper(mp3File) { is =>
+              bgmp3Player = Some(new Player(is))
+            }
+            if (bgmp3Player.isDefined) {
+              playLoop0()
+            }
           }
         }
       }
     }
-    
-    playLoop0()
-    if (bgmp3Player.isDefined && pumpEvents) {
-      listener.hasPendingCommands()
-      timer = Utils.scheduleRec(0.5) {
-        listener.hasPendingCommands()
+
+    withLock(playLock) {
+      stopBgMp3Player()
+      playHelper(mp3File) { is =>
+        bgmp3Player = Some(new Player(is))
+      }
+      if (bgmp3Player.isDefined) {
+        playLoop0()
+        startPumpingEvents()
+      }
+    }       
+  }
+
+  def stopMp3Player() {
+    withLock(playLock) {
+      if (mp3Player.isDefined) {
+        stopFg = true
+        if (!mp3Player.get.isComplete) {
+          mp3Player.get.close()
+        }
+        while(stopFg) {
+          stopped.await()
+        }
       }
     }
   }
 
-  def stopMp3Player() = synchronized {
-    if (mp3Player.isDefined) {
-      if (!mp3Player.get.isComplete) {
-        mp3Player.get.close()
-      }
-      mp3Player = None
-    }
-  }
-
-  def stopBgMp3Player()  = synchronized {
-    if (bgmp3Player.isDefined) {
-      stopBg = true
-      if (!bgmp3Player.get.isComplete) {
-        bgmp3Player.get.close()
+  def stopBgMp3Player() {
+    withLock(playLock) {
+      if (bgmp3Player.isDefined) {
+        stopBg = true
+        if (!bgmp3Player.get.isComplete) {
+          bgmp3Player.get.close()
+        }
+        while(stopBg) {
+          stopped.await()
+        }
       }
     }
   }
