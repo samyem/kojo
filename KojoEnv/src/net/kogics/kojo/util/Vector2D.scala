@@ -41,4 +41,5 @@ case class Vector2D(x0: Double, y0: Double) {
   def heading = vec.angle.toDegrees
   def angle(v: Vector2D) = vec.angle(v).toDegrees
   def angleTo(v: Vector2D) = vec.angleTo(v).toDegrees
+  override def toString = "Vector2D(%.2f, %.2f)" format(x, y)
 }

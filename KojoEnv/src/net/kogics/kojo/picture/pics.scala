@@ -268,7 +268,14 @@ trait CorePicOps { self: Picture with RedrawStopper =>
   
   def intersection(other: Picture) = Utils.runInSwingThreadAndWait {
     if (tnode.getVisible && other.tnode.getVisible) {
-      picGeom.intersection(other.picGeom)
+      try {
+        picGeom.intersection(other.picGeom)
+      }
+      catch {
+        case te: TopologyException => 
+          println("Unable to determine intersection - " + te.getMessage())
+          Impl.Gf.createGeometryCollection(null)
+      }
     }
     else {
       Impl.Gf.createGeometryCollection(null)
