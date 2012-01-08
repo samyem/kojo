@@ -81,7 +81,9 @@ object CodeCompletionUtils {
     "Vector2D" -> "Vector2D(${x}, ${y})",
     "angle" -> "angle(${vector})",
     "angleTo" -> "angleTo(${vector})",
-    "fastDraw" -> "fastDraw {\n    ${cursor}\n}"
+    "fastDraw" -> "fastDraw {\n    ${cursor}\n}",
+    "stopMp3" -> "stopMp3()",
+    "stopMusic" -> "stopMusic()"
   )
   
   val TwMethodTemplates = Map(

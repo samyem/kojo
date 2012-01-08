@@ -73,6 +73,12 @@ class FuguePlayer {
     currMusic = Some(Music(voice, n))
   }
   
+  def isMusicPlaying: Boolean = {
+    withLock(playLock) {
+      currMusic.isDefined
+    }
+  }
+  
   def playMusic(voice: core.Voice, n: Int = 1) {
     withLock(playLock) {
       stopAndCreate(voice, n)

@@ -606,4 +606,9 @@ Here's a partial list of the available commands:
       Throttler.enabled = true
     }
   }
+  
+  def isMp3Playing = music.KMp3.instance.isMusicPlaying
+  def isMusicPlaying = music.FuguePlayer.instance.isMusicPlaying
+  def stopMp3() = music.KMp3.instance.stopMp3Player()
+  def stopMusic() = music.FuguePlayer.instance.stopMusic()
 }
