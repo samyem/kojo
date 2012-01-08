@@ -186,7 +186,7 @@ goodguy.act { me =>
 def time = System.currentTimeMillis
 val startTime = time
 
-val others = List(badguy, badguy2, badguy3, stage)
+val others = List(badguy, badguy2, badguy3)
 
 goodguy.act { me => 
     if (me.collision(others).isDefined) {
@@ -197,6 +197,16 @@ goodguy.act { me =>
         lostGoodguy.visible()
         lostMsg.setPosition(0, 0)
         lostMsg.visible()
+    }
+
+    // an example of playing some game event music
+    if (goodguy.collidesWith(stage)) {
+        if(!isMp3Playing) {
+            playMp3(installDir + "music-loops/DrumBeats.mp3")
+        }
+    }
+    else {
+        stopMp3()
     }
     
     if (time - startTime > 60 * 1000) {
