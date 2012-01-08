@@ -293,7 +293,7 @@ object Utils {
     }
   }
   
-  def withLock(lock: Lock)(fn: => Unit) {
+  def withLock[T](lock: Lock)(fn: => T): T = {
     lock.lock()
     try {
       fn
