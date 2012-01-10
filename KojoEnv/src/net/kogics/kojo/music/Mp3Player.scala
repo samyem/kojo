@@ -16,6 +16,7 @@
 package net.kogics.kojo
 package music
 
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import javax.swing.Timer
 import javazoom.jl.player.Player
@@ -160,7 +161,17 @@ trait Mp3Player {
           mp3Player.get.close()
         }
         while(stopFg) {
-          stopped.await()
+          val signalled = stopped.await(20, TimeUnit.MILLISECONDS)
+          if (!signalled) {
+            try {
+              if (!mp3Player.get.isComplete) {
+                mp3Player.get.close()
+              }
+            }
+            catch {
+              case t: Throwable => // do nothing
+            }
+          }
         }
       }
     }
@@ -174,7 +185,17 @@ trait Mp3Player {
           bgmp3Player.get.close()
         }
         while(stopBg) {
-          stopped.await()
+          val signalled = stopped.await(20, TimeUnit.MILLISECONDS)
+          if (!signalled) {
+            try {
+              if (!bgmp3Player.get.isComplete) {
+                bgmp3Player.get.close()
+              }
+            }
+            catch {
+              case t: Throwable => // do nothing
+            }
+          }
         }
       }
     }

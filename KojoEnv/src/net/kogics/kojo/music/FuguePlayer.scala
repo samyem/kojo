@@ -21,6 +21,7 @@ import util.Utils.withLock
 import Utils.giveupLock
 import org.jfugue.{Rhythm => JFRhythm, _}
 import java.util.logging._
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import javax.swing.Timer
 
@@ -95,10 +96,6 @@ class FuguePlayer {
           else {
             val music = currMusic.get
             giveupLock(playLock) {
-              // it is possible for another thread (interp or GUI) to come
-              // along and try to stop the music at this point
-              // if that happens, the music will stop only after it has 
-              // played itself out.
               music.play()
             }
             done()
@@ -167,7 +164,15 @@ class FuguePlayer {
         stopFg = true
         currMusic.get.stop()
         while(stopFg) {
-          stopped.await()
+          val signalled = stopped.await(20, TimeUnit.MILLISECONDS)
+          if (!signalled) {
+            try {
+              currMusic.get.stop()
+            }
+            catch {
+              case t: Throwable => // do nothing
+            }
+          }
         }
       }
     }
@@ -179,7 +184,15 @@ class FuguePlayer {
         stopBg = true
         currBgMusic.get.stop()
         while(stopBg) {
-          stopped.await()
+          val signalled = stopped.await(20, TimeUnit.MILLISECONDS)
+          if (!signalled) {
+            try {
+              currBgMusic.get.stop()
+            }
+            catch {
+              case t: Throwable => // do nothing
+            }
+          }
         }
       }
     }
