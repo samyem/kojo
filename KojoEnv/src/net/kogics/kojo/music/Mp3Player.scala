@@ -33,7 +33,6 @@ trait Mp3Player {
   @volatile var mp3Player: Option[Player] = None
   @volatile var bgmp3Player: Option[Player] = None
   val playLock = new ReentrantLock
-  val started = playLock.newCondition
   val stopped = playLock.newCondition
   var stopBg = false
   var stopFg = false
@@ -83,26 +82,33 @@ trait Mp3Player {
   }
   
   def play(mp3File: String) {
+    def done() {
+      stopFg = false
+      mp3Player = None
+      stopPumpingEvents()
+      stopped.signal()
+    }
     withLock(playLock) {
       stopMp3Player()
       playHelper(mp3File) { is =>
         mp3Player = Some(new Player(is))
       }
       if (mp3Player.isDefined) {
-        startPumpingEvents()
         Utils.runAsync {
           withLock(playLock) {
-            started.signal()
-            val music = mp3Player.get
-            giveupLock(playLock) {
-              music.play()
+            if (stopFg) {
+              done()
             }
-            stopFg = false
-            mp3Player = None
-            stopPumpingEvents()
-            stopped.signal()
+            else {
+              val music = mp3Player.get
+              giveupLock(playLock) {
+                music.play()
+              }
+              done()
+            }
           }
         }
+        startPumpingEvents()
       }
     }
   }

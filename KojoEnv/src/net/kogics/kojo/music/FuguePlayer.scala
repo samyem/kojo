@@ -33,7 +33,6 @@ class FuguePlayer {
   private var currMusic: Option[Music] = None
   private var currBgMusic: Option[Music] = None
   val playLock = new ReentrantLock
-  val started = playLock.newCondition
   val done = playLock.newCondition
   val stopped = playLock.newCondition
   var stopBg = false
@@ -80,26 +79,33 @@ class FuguePlayer {
   }
   
   def playMusic(voice: core.Voice, n: Int = 1) {
+    def done() {
+      stopFg = false
+      currMusic = None
+      stopPumpingEvents()
+      stopped.signal()
+    }
     withLock(playLock) {
       stopAndCreate(voice, n)
       Utils.runAsync {
         withLock(playLock) {
-          started.signal()
-          val music = currMusic.get
-          giveupLock(playLock) {
-            music.play()
+          if (stopFg) {
+            done()
           }
-          stopFg = false
-          currMusic = None
-          stopPumpingEvents()
-          stopped.signal()
+          else {
+            val music = currMusic.get
+            giveupLock(playLock) {
+              // it is possible for another thread (interp or GUI) to come
+              // along and try to stop the music at this point
+              // if that happens, the music will stop only after it has 
+              // played itself out.
+              music.play()
+            }
+            done()
+          }
         }
       }
-      started.await()
       startPumpingEvents()      
-      // make race window smaller
-      // race - subsequent call to play/stop happens before async music actually starts playing
-      Thread.sleep(100)
     }
   }
 
