@@ -103,6 +103,7 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
       fgLayer.removeAllChildren()
       init()
       repaint()
+      stopFn = None
     }
   }
 
@@ -215,6 +216,9 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
         figAnimation.terminate(PActivity.TERMINATE_AND_FINISH)
       }
       figAnimations = Nil
+      if (stopFn.isDefined) {
+        stopFn.get.apply()
+      }
     }
   }
 
@@ -230,6 +234,11 @@ class Figure private (canvas: SpriteCanvas, initX: Double, initY: Double) {
 
   private [kojo] def setSpriteListener(l: SpriteListener) {
     listener = l
+  }
+  
+  var stopFn: Option[() => Unit] = None
+  def onStop(fn: => Unit) = Utils.runInSwingThread {
+    stopFn = Some(fn _)
   }
 }
 

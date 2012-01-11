@@ -730,8 +730,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     tCanvas.stop()
     fuguePlayer.stopMusic()
     fuguePlayer.stopBgMusic()
-    mp3player.stopMp3Player()
-    mp3player.stopBgMp3Player()
+    mp3player.stopMp3()
+    mp3player.stopMp3Loop()
     Utils.stopMonitoredThreads()
   }
 

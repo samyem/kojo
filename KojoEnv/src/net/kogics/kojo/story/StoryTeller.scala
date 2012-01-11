@@ -213,7 +213,7 @@ class StoryTeller extends JPanel with music.Mp3Player {
 
     kojoCtx.stopAnimation()
     repaint()
-    stopMp3Player()
+    stopMp3()
   }
 
   def clear() {
@@ -250,7 +250,7 @@ class StoryTeller extends JPanel with music.Mp3Player {
       else {
         currStory = None
         clearHelper()
-        stopBgMp3Player()
+        stopMp3Loop()
         cp.setVisible(false)
         displayContent(defaultMsg)
       }
@@ -448,17 +448,17 @@ class StoryTeller extends JPanel with music.Mp3Player {
   
   // mp3 player stuff
   val pumpEvents = false
-  override def play(mp3File: String) {
+  override def playMp3(mp3File: String) {
     if (running) {
-      super.play(mp3File)
+      super.playMp3(mp3File)
     }
     else {
       throw new IllegalStateException("Trying to play story music without a running story.")
     }
   }
-  override def playLoop(mp3File: String) {
+  override def playMp3Loop(mp3File: String) {
     if (running) {
-      super.playLoop(mp3File)
+      super.playMp3Loop(mp3File)
     }
     else {
       throw new IllegalStateException("Trying to play story music without a running story.")

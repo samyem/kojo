@@ -149,6 +149,7 @@ object Utils {
                       "modules/ext/geogebra_cas.jar",
                       "modules/ext/geogebra.jar",
                       "modules/ext/jfugue-4.1.jar",
+                      "modules/ext/jl1.0.1.jar",
                       "modules/ext/jts-1.12.jar"
   )
   

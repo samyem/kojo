@@ -387,6 +387,7 @@ object API {
   }
   def switchTo() = Impl.canvas.makeStagingVisible()
   def wipe() = Impl.figure0.fgClear()
+  def onAnimationStop(fn: => Unit) = Impl.figure0.onStop(fn)
 
   def mouseX() = Inputs.stepMousePos.x
   def mouseY() = Inputs.stepMousePos.y

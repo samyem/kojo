@@ -82,7 +82,7 @@ trait Mp3Player {
     }
   }
   
-  def play(mp3File: String) {
+  def playMp3(mp3File: String) {
     def done() {
       stopFg = false
       mp3Player = None
@@ -90,7 +90,7 @@ trait Mp3Player {
       stopped.signal()
     }
     withLock(playLock) {
-      stopMp3Player()
+      stopMp3()
       playHelper(mp3File) { is =>
         mp3Player = Some(new Player(is))
       }
@@ -114,7 +114,7 @@ trait Mp3Player {
     }
   }
   
-  def playLoop(mp3File: String) {
+  def playMp3Loop(mp3File: String) {
 
     def playLoop0() {
       Utils.runAsync {
@@ -142,7 +142,7 @@ trait Mp3Player {
     }
 
     withLock(playLock) {
-      stopBgMp3Player()
+      stopMp3Loop()
       playHelper(mp3File) { is =>
         bgmp3Player = Some(new Player(is))
       }
@@ -153,7 +153,7 @@ trait Mp3Player {
     }       
   }
 
-  def stopMp3Player() {
+  def stopMp3() {
     withLock(playLock) {
       if (mp3Player.isDefined) {
         stopFg = true
@@ -177,7 +177,7 @@ trait Mp3Player {
     }
   }
 
-  def stopBgMp3Player() {
+  def stopMp3Loop() {
     withLock(playLock) {
       if (bgmp3Player.isDefined) {
         stopBg = true

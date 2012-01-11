@@ -355,12 +355,12 @@ class Builtins extends RepeatCommands {
   UserCommand("stFormula", List("latex"), "Converts the supplied latex string into html that can be displayed in the Story Teller Window.")
 
   def stPlayMp3(mp3File: String) {
-    storyTeller.play(mp3File)
+    storyTeller.playMp3(mp3File)
   }
   UserCommand("stPlayMp3", List("fileName"), "Plays the specified MP3 file.")
 
   def stPlayMp3Loop(mp3File: String) {
-    storyTeller.playLoop(mp3File)
+    storyTeller.playMp3Loop(mp3File)
   }
   UserCommand("stPlayMp3Loop", List("fileName"), "Plays the specified MP3 file in the background.")
 
@@ -585,12 +585,12 @@ Here's a partial list of the available commands:
   
   val mp3player = music.KMp3.instance
   def playMp3(mp3File: String) {
-    mp3player.play(mp3File)
+    mp3player.playMp3(mp3File)
   }
   UserCommand("playMp3", List("fileName"), "Plays the specified MP3 file.")
 
   def playMp3Loop(mp3File: String) {
-    mp3player.playLoop(mp3File)
+    mp3player.playMp3Loop(mp3File)
   }
   UserCommand("playMp3Loop", List("fileName"), "Plays the specified MP3 file in the background.")
   
@@ -609,6 +609,8 @@ Here's a partial list of the available commands:
   
   def isMp3Playing = music.KMp3.instance.isMusicPlaying
   def isMusicPlaying = music.FuguePlayer.instance.isMusicPlaying
-  def stopMp3() = music.KMp3.instance.stopMp3Player()
+  def stopMp3() = music.KMp3.instance.stopMp3()
   def stopMusic() = music.FuguePlayer.instance.stopMusic()
+  def newMp3Player = new music.KMp3()
+  def onAnimationStop(fn: => Unit) = staging.API.onAnimationStop(fn)
 }
