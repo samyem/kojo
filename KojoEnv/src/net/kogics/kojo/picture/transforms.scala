@@ -38,15 +38,29 @@ trait Transformer extends Picture {
   def setPosition(x: Double, y: Double) = tpic.setPosition(x, y)
   def heading = tpic.heading
   def setHeading(angle: Double) = tpic.setHeading(angle)
-  def intersects(other: Picture) = tpic.intersects(other)
-  def intersection(other: Picture) = tpic.intersection(other)
+  def intersects(other: Picture) = {
+    if (this == other) {
+      false
+    }
+    else {
+      tpic.intersects(other)
+    }
+  }
+  def intersection(other: Picture) = {
+    if (this == other) {
+      Impl.Gf.createGeometryCollection(null)
+    }
+    else {
+      tpic.intersection(other)
+    }
+  }
   def distanceTo(other: Picture) = tpic.distanceTo(other)
   def area = tpic.area
   def perimeter = tpic.perimeter
   def picGeom = tpic.picGeom
   def visible() = tpic.visible()
   def invisible() = tpic.invisible()
-  def act(fn: Picture => Unit) = tpic.act(fn)
+  def isDrawn() = tpic.isDrawn()
 }
 
 abstract class Transform(pic: Picture) extends Transformer {
