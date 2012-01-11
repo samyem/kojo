@@ -42,6 +42,7 @@ trait Picture extends InputAware {
   def myNode = tnode
   def decorateWith(painter: Painter): Unit
   def draw(): Unit
+  def isDrawn(): Boolean
   def bounds: PBounds
   def rotate(angle: Double)
   def rotateAboutPoint(angle: Double, x: Double, y: Double)
@@ -79,7 +80,15 @@ trait Picture extends InputAware {
   def setPosition(p: core.Point): Unit = setPosition(p.x, p.y)
   def heading: Double
   def setHeading(angle: Double)
-  def act(fn: Picture => Unit)
+  def act(fn: Picture => Unit) {
+    if (!isDrawn) {
+      throw new IllegalStateException("Ask picture to act after you show it.")
+    }
+ 
+    staging.API.loop {
+      fn(this)
+    }
+  }
   // provide these explicitly, so that subclasses that are case
   // classes can live within sets and maps
   override def equals(other: Any) = this eq other.asInstanceOf[AnyRef]
@@ -258,7 +267,10 @@ trait CorePicOps { self: Picture with RedrawStopper =>
   }
     
   def intersects(other: Picture) = Utils.runInSwingThreadAndWait {
-    if (tnode.getVisible && other.tnode.getVisible) {
+    if (this == other) {
+      false
+    }
+    else if (tnode.getVisible && other.tnode.getVisible) {
       picGeom.intersects(other.picGeom)
     }
     else {
@@ -267,7 +279,10 @@ trait CorePicOps { self: Picture with RedrawStopper =>
   }
   
   def intersection(other: Picture) = Utils.runInSwingThreadAndWait {
-    if (tnode.getVisible && other.tnode.getVisible) {
+    if (this == other) {
+      Impl.Gf.createGeometryCollection(null)
+    }
+    else if (tnode.getVisible && other.tnode.getVisible) {
       try {
         picGeom.intersection(other.picGeom)
       }
@@ -301,20 +316,11 @@ trait CorePicOps { self: Picture with RedrawStopper =>
   def perimeter = Utils.runInSwingThreadAndWait {
     picGeom.getLength
   }
-  
-  def act(fn: Picture => Unit) {
-    if (!drawn) {
-      throw new IllegalStateException("Ask picture to act after you show it.")
-    }
- 
-    staging.API.loop {
-      fn(this)
-    }
-  }
 }
 
 trait RedrawStopper extends Picture {
   @volatile var drawn = false
+  def isDrawn = drawn
   abstract override def draw() {
     if (drawn) {
       throw new RuntimeException("You can't redraw a picture")
