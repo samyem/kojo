@@ -29,10 +29,10 @@ import Utils.giveupLock
 trait Mp3Player {
   val pumpEvents: Boolean
   def showError(msg: String)
-  val listener = SpriteCanvas.instance().megaListener // hack!
+  private val listener = SpriteCanvas.instance().megaListener // hack!
 
-  @volatile var mp3Player: Option[Player] = None
-  @volatile var bgmp3Player: Option[Player] = None
+  @volatile private var mp3Player: Option[Player] = None
+  @volatile private var bgmp3Player: Option[Player] = None
   private val playLock = new ReentrantLock
   private val stopped = playLock.newCondition
   private var stopBg = false
