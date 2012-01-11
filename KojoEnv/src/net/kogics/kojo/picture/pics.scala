@@ -82,7 +82,7 @@ trait Picture extends InputAware {
   def setHeading(angle: Double)
   def act(fn: Picture => Unit) {
     if (!isDrawn) {
-      throw new IllegalStateException("Ask picture to act after you show it.")
+      throw new IllegalStateException("Ask picture to act after you draw it.")
     }
  
     staging.API.loop {

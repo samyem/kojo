@@ -181,4 +181,23 @@ class PictureCollisionTest extends KojoTestBase with FunSuite with xscala.Repeat
     p2.draw()
     p1.collidesWith(p2) should be(true)
   }
+  
+  test("no self collisions") {
+    val p1 = fill(blue) -> testBox
+    val p2 = fill(blue) * trans(size, 0) -> testBox
+    val p3 = fill(blue) * trans(2*size, 0) -> testBox
+    val p4 = fill(blue) * trans(3*size/2, size/2) -> testBox
+
+    p1.draw()
+    p2.draw()
+    p3.draw()
+    p4.draw()
+
+    val others = Set(p1,p2,p3,p4)
+    others.size should be(4)
+    
+    val cols = p4.collisions(others)
+    cols.size should be(2)
+    cols.contains(p4) should be(false)
+  }
 }
