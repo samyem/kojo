@@ -33,12 +33,12 @@ trait Mp3Player {
 
   @volatile var mp3Player: Option[Player] = None
   @volatile var bgmp3Player: Option[Player] = None
-  val playLock = new ReentrantLock
-  val stopped = playLock.newCondition
-  var stopBg = false
-  var stopFg = false
-  val KojoCtx = net.kogics.kojo.KojoCtx.instance
-  var timer: Timer = _
+  private val playLock = new ReentrantLock
+  private val stopped = playLock.newCondition
+  private var stopBg = false
+  private var stopFg = false
+  private val KojoCtx = net.kogics.kojo.KojoCtx.instance
+  private var timer: Timer = _
   
   private def startPumpingEvents() {
     if (pumpEvents && timer == null) {
