@@ -167,4 +167,13 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
     pic.position.y should be(50)
     pic.heading should be(30.0 plusOrMinus 0.001)
   }
+  
+  test("act provides correct me for transforms") {
+    val pic = rot(30) -> testPic
+    pic.draw()
+    pic.act { me =>
+      me should be(pic)
+      staging.API.stop()
+    }
+  }
 }
