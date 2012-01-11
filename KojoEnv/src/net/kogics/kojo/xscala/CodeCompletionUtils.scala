@@ -60,6 +60,7 @@ object CodeCompletionUtils {
     "draw" -> "draw(${pic/s})",
     "drawAndHide" -> "drawAndHide(${pic/s})",
     "animate" -> "animate {\n    ${cursor}\n}",
+    "onAnimationStop" -> "onAnimationStop {\n    ${cursor}\n}",
     "act" -> "act { me => \n    ${cursor}\n}",
     "row" -> "row(${picture}, ${n})",
     "col" -> "col(${picture}, ${n})",
