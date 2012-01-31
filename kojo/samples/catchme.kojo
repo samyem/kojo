@@ -5,8 +5,7 @@ val d = math.sqrt(2*len*len)
 val d2 = d/2
 val d4 = d/4
 
-def p1 = pict { t =>
-    import t._
+def p1 = Picture {
     forward(len)
     right(135)
     forward(d2)
@@ -16,8 +15,7 @@ def p1 = pict { t =>
 
 def p2 = p1
 
-def p3 = pict { t =>
-    import t._
+def p3 = Picture {
     right()
     forward(len/2)
     left(135)
@@ -28,8 +26,7 @@ def p3 = pict { t =>
 
 def p4 = p3
 
-def p6 = pict { t =>
-    import t._
+def p6 = Picture {
     repeat (4) {
         forward(d4)
         right()
@@ -37,8 +34,7 @@ def p6 = pict { t =>
 }
 
 
-def p5 = pict { t =>
-    import t._
+def p5 = Picture {
     right()
     forward(len/2)
     left()
@@ -47,8 +43,7 @@ def p5 = pict { t =>
     forward(d2)
 }
 
-def p7 = pict { t =>
-    import t._
+def p7 = Picture {
     right()
     forward(len/2)
     left(45)
@@ -71,18 +66,15 @@ def guy = GPics(
     trans(-1.75, 5.4) * rotp(30, d4, 0) -> p6
 )
 
-def border(size: Double) = Pic { t =>
-    import t._
+def border(size: Double) = Picture {
     forward(size)
 }
 
-val lostMsg = trans(-20, 0) -> Pic { t =>
-    import t._
+val lostMsg = trans(-20, 0) -> Picture {
     write("You Lost!")
 }
 
-val wonMsg = trans(-20, 0) -> Pic { t =>
-    import t._
+val wonMsg = trans(-20, 0) -> Picture {
     write("You Won!")
 }
     

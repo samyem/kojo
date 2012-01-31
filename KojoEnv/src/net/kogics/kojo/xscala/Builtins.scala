@@ -42,7 +42,7 @@ class Builtins extends RepeatCommands {
   lazy val tCanvas = scalaCodeRunner.tCanvas
   lazy val ctx = scalaCodeRunner.ctx
   lazy val storyTeller = story.StoryTeller.instance
-  lazy val turtle0 = tCanvas.turtle0
+  def turtle0 = tCanvas.turtle0
 
   type Turtle = core.Turtle
   type Color = java.awt.Color
@@ -496,6 +496,8 @@ Here's a partial list of the available commands:
   type Painter = picture.Painter
   type Pic = picture.Pic
   val Pic = picture.Pic
+  type Pic0 = picture.Pic0
+  val Pic0 = picture.Pic0
   type HPics = picture.HPics
   val HPics = picture.HPics
   type VPics = picture.VPics
@@ -509,6 +511,8 @@ Here's a partial list of the available commands:
   val Rotp = picture.Rotp
   type Scale = picture.Scale
   val Scale = picture.Scale
+  type Opac = picture.Opac
+  val Opac = picture.Opac
   type Trans = picture.Trans
   val Trans = picture.Trans
   type FlipX = picture.FlipX
@@ -524,6 +528,7 @@ Here's a partial list of the available commands:
   val rot = picture.rot _
   val rotp = picture.rotp _
   val scale = picture.scale _
+  val opac = picture.opac _
   val trans = picture.trans _
   val offset = picture.offset _
   val flip = picture.flipY
@@ -545,6 +550,9 @@ Here's a partial list of the available commands:
   val col = picture.col _
 
   def pict(painter: Painter) = Pic(painter)
+  def Picture(fn: => Unit) = Pic0 { t =>
+    fn
+  }
   def draw(pictures: Picture *) = fastDraw {
     pictures.foreach {_ draw()}
   }

@@ -52,6 +52,7 @@ trait Picture extends InputAware {
   def offset(x: Double, y: Double)
   def flipX(): Unit
   def flipY(): Unit
+  def setOpacity(o: Double): Unit
   def transformBy(trans: AffineTransform)
   def dumpInfo(): Unit
   def copy: Picture
@@ -147,6 +148,11 @@ trait CorePicOps { self: Picture with RedrawStopper =>
   def offset(x: Double, y: Double) = Utils.runInSwingThread {
     tnode.offset(x, y)
     pgTransform = t2t(tnode.getTransformReference(true))
+    tnode.repaint()
+  }
+  
+  def setOpacity(o: Double) = Utils.runInSwingThread {
+    tnode.setTransparency(o.toFloat)
     tnode.repaint()
   }
   
@@ -401,6 +407,18 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
     println("Bounds: " + bounds)
     println("Tnode: " + System.identityHashCode(tnode))
     println("<<< Pic End\n")
+  }
+}
+
+object Pic0 {
+  def apply(painter: Painter) = new Pic0(painter) 
+}
+
+class Pic0(painter: Painter) extends Pic(painter) {
+  override def realDraw() {
+    Impl.canvas.setDefTurtle(t)
+    super.realDraw()
+    Impl.canvas.restoreDefTurtle()
   }
 }
 
