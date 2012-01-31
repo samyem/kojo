@@ -84,7 +84,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
 
   override def complete(context: CodeCompletionContext): CodeCompletionResult = {
     if (context.getQueryType != QueryType.COMPLETION) {
-      return null
+      return CodeCompletionResult.NONE
     }
     
     val proposals = new java.util.ArrayList[CompletionProposal]
