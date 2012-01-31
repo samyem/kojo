@@ -115,9 +115,21 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   val megaListener = new CompositeListener()
   val figure = newFigure()
-  val turtle = newTurtle()
+  @volatile var turtle = newTurtle()
   val pictures = new PLayer
   getCamera.addLayer(pictures)
+  
+  def turtle0 = turtle
+  val figure0 = figure
+  val origTurtle = turtle
+  
+  def setDefTurtle(t: Turtle) = Utils.runInSwingThreadAndWait {
+    turtle = t
+  }
+
+  def restoreDefTurtle() = Utils.runInSwingThreadAndWait {
+    turtle = origTurtle
+  }
 
   val panHandler = new PPanEventHandler() {
 //    setAutopan(false)
@@ -551,7 +563,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         setPanEventHandler(panHandler)
       }
 
-      turtles.foreach {t => if (t == turtle) t.clear() else t.remove()}
+      turtles.foreach {t => if (t == origTurtle) t.clear() else t.remove()}
       turtles = List(turtles.last)
 
       figures.foreach {f => if (f == figure) f.clear() else f.remove()}
@@ -588,9 +600,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       }
     }
   }
-
-  val turtle0 = turtle
-  val figure0 = figure
 
   def newFigure(x: Int = 0, y: Int = 0) = {
     val fig = Utils.runInSwingThreadAndWait {

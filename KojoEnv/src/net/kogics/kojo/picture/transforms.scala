@@ -24,6 +24,7 @@ trait Transformer extends Picture {
   def rotate(angle: Double) = tpic.rotate(angle)
   def rotateAboutPoint(angle: Double, x: Double, y: Double) = tpic.rotateAboutPoint(angle, x, y)
   def scale(factor: Double) = tpic.scale(factor)
+  def setOpacity(o: Double) = tpic.setOpacity(o)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
   def offset(x: Double, y: Double) = tpic.offset(x, y)
   def flipX() = tpic.flipX()
@@ -131,6 +132,14 @@ case class AxesOn(pic: Picture) extends Transform(pic) {
   def copy = AxesOn(pic.copy)
 }
 
+case class Opac(o: Double)(pic: Picture) extends Transform(pic) {
+  def draw() {
+    pic.setOpacity(o)
+    pic.draw()
+  }
+  def copy = Opac(o)(pic.copy)
+}
+
 object Deco {
   def apply(pic: Picture)(painter: Painter): Deco = Deco(pic)(painter)
 }
@@ -182,6 +191,10 @@ case class Rotpc(angle: Double, x: Double, y: Double) extends ComposableTransfor
 
 case class Scalec(factor: Double) extends ComposableTransformer {
   def apply(p: Picture) = Scale(factor)(p)
+}
+
+case class Opacc(o: Double) extends ComposableTransformer {
+  def apply(p: Picture) = Opac(o)(p)
 }
 
 case class Transc(x: Double, y: Double) extends ComposableTransformer {

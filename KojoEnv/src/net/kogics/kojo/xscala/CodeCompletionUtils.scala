@@ -46,6 +46,7 @@ object CodeCompletionUtils {
     "rot" -> "rot(${angle})",
     "rotp" -> "rotp(${angle}, ${x}, ${y})",
     "scale" -> "scale(${factor})",
+    "opac" -> "opac(${opacity})",
     "translate" -> "translate(${x}, ${y})",
     "transv" -> "transv(${vector})",
     "offset" -> "offset(${x}, ${y})",
@@ -88,7 +89,8 @@ object CodeCompletionUtils {
   )
   
   val TwMethodTemplates = Map(
-    "pict" -> "Pic { t =>\n    import t._\n    ${cursor}\n}",
+    "pict" -> "Picture {\n    ${cursor}\n}",
+    "Picture" -> "Picture {\n    ${cursor}\n}",
     "Pic" -> "Pic { t =>\n    import t._\n    ${cursor}\n}"
   ) 
 

@@ -5,10 +5,7 @@ val d = math.sqrt(2*len*len)
 val d2 = d/2
 val d4 = d/4
 
-def p1 = pict { t =>
-    import t._
-    setAnimationDelay(10)
-    invisible()
+def p1 = Picture {
     forward(len)
     right(135)
     forward(d2)
@@ -18,10 +15,7 @@ def p1 = pict { t =>
 
 def p2 = p1
 
-def p3 = pict { t =>
-    import t._
-    invisible()
-    setAnimationDelay(10)
+def p3 = Picture {
     right()
     forward(len/2)
     left(135)
@@ -32,10 +26,7 @@ def p3 = pict { t =>
 
 def p4 = p3
 
-def p6 = pict { t =>
-    import t._
-    setAnimationDelay(10)
-    invisible()
+def p6 = Picture {
     repeat (4) {
         forward(d4)
         right()
@@ -43,10 +34,7 @@ def p6 = pict { t =>
 }
 
 
-def p5 = pict { t =>
-    import t._
-    setAnimationDelay(10)
-    invisible()
+def p5 = Picture {
     right()
     forward(len/2)
     left()
@@ -55,10 +43,7 @@ def p5 = pict { t =>
     forward(d2)
 }
 
-def p7 = pict { t =>
-    import t._
-    setAnimationDelay(10)
-    invisible()
+def p7 = Picture {
     right()
     forward(len/2)
     left(45)
@@ -69,8 +54,7 @@ def p7 = pict { t =>
     forward(d4)
 }
 
-def ski = Pic { t =>
-    import t._
+def ski = Picture {
     forward(3)
 }
 
@@ -85,10 +69,7 @@ val skier = penColor(black) * trans(10, 1) * scale(0.6) -> GPics(
     fillColor(red) * trans(-1.75, 5.4) * rotp(30, d4, 0) -> p6
 )
 
-def tile = pict { t =>
-    import t._
-    setAnimationDelay(10)
-    invisible()
+def tile = Picture {
     right()
     forward(3)
 }
@@ -106,26 +87,22 @@ val ground = penColor(brown) * trans(-13, -8) * rot(10) -> HPics(
 
 def toCm(p: Double) = 2.54 /96 * p
 
-def tree(t: Turtle, distance: Double) {
-    import t._
+def tree(distance: Double) {
     if (distance > toCm(4)) {
         setPenThickness(distance/7)
         setPenColor(color(distance.toInt, math.abs(255-distance*3).toInt, 125))
         forward(distance)
         right(25)
-        tree(t, distance*0.8-toCm(2))
+        tree(distance*0.8-toCm(2))
         left(45)
-        tree(t, distance-toCm(10))
+        tree(distance-toCm(10))
         right(20)
         back(distance)
     }
 }
 
-def tp = pict { t =>
-    import t._
-    invisible()
-    setAnimationDelay(0)
-    tree(t, 1.5)
+def tp = Picture {
+    tree(1.5)
 }
 
 def makeTrees(n: Int): Picture = {
