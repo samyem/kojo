@@ -25,6 +25,9 @@ trait Transformer extends Picture {
   def rotateAboutPoint(angle: Double, x: Double, y: Double) = tpic.rotateAboutPoint(angle, x, y)
   def scale(factor: Double) = tpic.scale(factor)
   def opacityMod(f: Double) = tpic.opacityMod(f)
+  def hueMod(f: Double) = tpic.hueMod(f)
+  def satMod(f: Double) = tpic.satMod(f)
+  def britMod(f: Double) = tpic.britMod(f)
   def translate(x: Double, y: Double) = tpic.translate(x, y)
   def offset(x: Double, y: Double) = tpic.offset(x, y)
   def flipX() = tpic.flipX()
@@ -140,6 +143,31 @@ case class Opac(f: Double)(pic: Picture) extends Transform(pic) {
   def copy = Opac(f)(pic.copy)
 }
 
+case class Hue(f: Double)(pic: Picture) extends Transform(pic) {
+  def draw() {
+    pic.draw()
+    pic.hueMod(f)
+  }
+  def copy = Hue(f)(pic.copy)
+}
+
+case class Sat(f: Double)(pic: Picture) extends Transform(pic) {
+  def draw() {
+    pic.draw()
+    pic.satMod(f)
+  }
+  def copy = Sat(f)(pic.copy)
+}
+
+case class Brit(f: Double)(pic: Picture) extends Transform(pic) {
+  def draw() {
+    pic.draw()
+    pic.britMod(f)
+  }
+  def copy = Brit(f)(pic.copy)
+}
+
+
 object Deco {
   def apply(pic: Picture)(painter: Painter): Deco = Deco(pic)(painter)
 }
@@ -153,7 +181,8 @@ class Deco(pic: Picture)(painter: Painter) extends Transform(pic) {
 }
 
 import java.awt.Color
-case class Fill(color: Color)(pic: Picture) extends Deco(pic)({ t =>
+import java.awt.Paint
+case class Fill(color: Paint)(pic: Picture) extends Deco(pic)({ t =>
     t.setFillColor(color)
   }) {
   override def copy = Fill(color)(pic.copy)
@@ -197,6 +226,18 @@ case class Opacc(f: Double) extends ComposableTransformer {
   def apply(p: Picture) = Opac(f)(p)
 }
 
+case class Huec(f: Double) extends ComposableTransformer {
+  def apply(p: Picture) = Hue(f)(p)
+}
+
+case class Satc(f: Double) extends ComposableTransformer {
+  def apply(p: Picture) = Sat(f)(p)
+}
+
+case class Britc(f: Double) extends ComposableTransformer {
+  def apply(p: Picture) = Brit(f)(p)
+}
+
 case class Transc(x: Double, y: Double) extends ComposableTransformer {
   def apply(p: Picture) = Trans(x, y)(p)
 }
@@ -217,7 +258,7 @@ case object AxesOnc extends ComposableTransformer {
   def apply(p: Picture) = AxesOn(p)
 }
 
-case class Fillc(color: Color) extends ComposableTransformer {
+case class Fillc(color: Paint) extends ComposableTransformer {
   def apply(p: Picture) = Fill(color)(p)
 }
 
