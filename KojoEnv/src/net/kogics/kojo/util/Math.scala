@@ -13,19 +13,7 @@
  *
  */
 
-package net.kogics.kojo
-package staging
-
-import edu.umd.cs.piccolo._
-import edu.umd.cs.piccolo.nodes._
-import edu.umd.cs.piccolo.util._
-import edu.umd.cs.piccolo.event._
-
-//import net.kogics.kojo.util.Utils
-
-import javax.swing._
-
-import core._
+package net.kogics.kojo.util
 
 object Math {
   def constrain(value: Double, min: Double, max: Double) = {

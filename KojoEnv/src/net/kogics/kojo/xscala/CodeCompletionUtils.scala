@@ -46,7 +46,7 @@ object CodeCompletionUtils {
     "rot" -> "rot(${angle})",
     "rotp" -> "rotp(${angle}, ${x}, ${y})",
     "scale" -> "scale(${factor})",
-    "opac" -> "opac(${opacity})",
+    "opac" -> "opac(${opacityChange})",
     "translate" -> "translate(${x}, ${y})",
     "transv" -> "transv(${vector})",
     "offset" -> "offset(${x}, ${y})",

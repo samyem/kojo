@@ -19,7 +19,6 @@ import java.util.concurrent.locks.Lock
 import javax.swing._
 import java.awt.event.{ActionListener, ActionEvent}
 import java.io._
-import scala.{math => Math}
 
 object Utils {
   
@@ -99,7 +98,7 @@ object Utils {
 
   def doublesEqual(d1: Double, d2: Double, tol: Double): Boolean = {
     if (d1 == d2) return true
-    else if (Math.abs(d1 - d2) < tol) return true
+    else if (math.abs(d1 - d2) < tol) return true
     else return false
   }
 
@@ -173,8 +172,8 @@ object Utils {
     result.toString()
   }
 
-  def deg2radians(angle: Double) = angle * Math.Pi / 180
-  def rad2degrees(angle: Double) = angle * 180 / Math.Pi
+  def deg2radians(angle: Double) = angle * math.Pi / 180
+  def rad2degrees(angle: Double) = angle * 180 / math.Pi
 
   def stripCR(str: String) = str.replaceAll("\r\n", "\n")
 
