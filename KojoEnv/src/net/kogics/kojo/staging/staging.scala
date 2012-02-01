@@ -18,6 +18,7 @@ package net.kogics.kojo
 package staging
 
 import util.Utils
+import util.Math
 import util.InputAware
 import core.Point
 

@@ -21,6 +21,7 @@ import java.awt.geom.AffineTransform
 
 import scala.collection.mutable.ArrayBuffer
 import util.Utils
+import util.Math
 import util.InputAware
 import util.Vector2D
 import edu.umd.cs.piccolo.PNode
@@ -52,7 +53,7 @@ trait Picture extends InputAware {
   def offset(x: Double, y: Double)
   def flipX(): Unit
   def flipY(): Unit
-  def setOpacity(o: Double): Unit
+  def opacityMod(f: Double): Unit
   def transformBy(trans: AffineTransform)
   def dumpInfo(): Unit
   def copy: Picture
@@ -151,8 +152,8 @@ trait CorePicOps { self: Picture with RedrawStopper =>
     tnode.repaint()
   }
   
-  def setOpacity(o: Double) = Utils.runInSwingThread {
-    tnode.setTransparency(o.toFloat)
+  def opacityMod(f: Double) = Utils.runInSwingThread {
+    tnode.setTransparency(Math.constrain(tnode.getTransparency * (1+f), 0, 1).toFloat)
     tnode.repaint()
   }
   
