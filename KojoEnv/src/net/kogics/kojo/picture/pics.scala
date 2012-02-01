@@ -17,6 +17,8 @@ package net.kogics.kojo
 package picture
 
 import java.awt.BasicStroke
+import java.awt.Color
+import java.awt.Paint
 import java.awt.geom.AffineTransform
 
 import scala.collection.mutable.ArrayBuffer
@@ -54,6 +56,9 @@ trait Picture extends InputAware {
   def flipX(): Unit
   def flipY(): Unit
   def opacityMod(f: Double): Unit
+  def hueMod(f: Double): Unit
+  def satMod(f: Double): Unit
+  def britMod(f: Double): Unit
   def transformBy(trans: AffineTransform)
   def dumpInfo(): Unit
   def copy: Picture
@@ -400,6 +405,64 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
     }
     Impl.Gf.createLineString(cab.toArray)
   }
+  
+  private def fillRgb(fillPaint: Paint) = {
+    val color = fillPaint match {
+      case null => Color.white
+      case c: Color => c
+      case _ => throw new IllegalStateException("You can't extract rgb values of non Color paints")
+    }
+    (color.getRed, color.getGreen, color.getBlue)
+  }
+  
+  private def modHsb(q: Double, f: Double) = {
+    if (f > 0) {
+      q * (1 - f) + f
+    }
+    else {
+      q * (1 - f)
+    }
+  }
+  
+  def hueMod(f: Double) = Utils.runInSwingThread {
+    val pp = t.penPaths
+    pp.foreach { pl =>
+      if (pl.points.size > 2) {
+        val (r, g, b) = fillRgb(pl.getPaint)
+        val hsb = Color.RGBtoHSB(r, g, b, null)
+        val h = modHsb(hsb(0), f).toFloat
+        pl.setPaint(Color.getHSBColor(h, hsb(1), hsb(2)))
+        pl.repaint()
+      }
+    }
+  }
+  
+  def satMod(f: Double) = Utils.runInSwingThread {
+    val pp = t.penPaths
+    pp.foreach { pl =>
+      if (pl.points.size > 2) {
+        val (r, g, b) = fillRgb(pl.getPaint)
+        val hsb = Color.RGBtoHSB(r, g, b, null)
+        val s = modHsb(hsb(1), f).toFloat
+        pl.setPaint(Color.getHSBColor(hsb(0), s, hsb(2)))
+        pl.repaint()
+      }
+    }
+  }
+  
+  def britMod(f: Double) = Utils.runInSwingThread {
+    val pp = t.penPaths
+    pp.foreach { pl =>
+      if (pl.points.size > 2) {
+        val (r, g, b) = fillRgb(pl.getPaint)
+        val hsb = Color.RGBtoHSB(r, g, b, null)
+        val br = modHsb(hsb(2), f).toFloat
+        pl.setPaint(Color.getHSBColor(hsb(0), hsb(1), br))
+//        println("PL paint set to - " + pl.getPaint)
+        pl.repaint()
+      }
+    }
+  }
 
   def copy: Picture = Pic(painter)
     
@@ -446,6 +509,24 @@ extends Picture with CorePicOps with TNodeCacher with RedrawStopper {
   def decorateWith(painter: Painter) {
     pics.foreach { pic =>
       pic.decorateWith(painter)
+    }
+  }
+  
+  def hueMod(f: Double) {
+    pics.foreach { pic =>
+      pic.hueMod(f)
+    }
+  }
+  
+  def satMod(f: Double) {
+    pics.foreach { pic =>
+      pic.satMod(f)
+    }
+  }
+  
+  def britMod(f: Double) {
+    pics.foreach { pic =>
+      pic.britMod(f)
     }
   }
   
