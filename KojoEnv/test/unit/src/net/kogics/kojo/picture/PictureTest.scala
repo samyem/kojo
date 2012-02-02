@@ -79,7 +79,7 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
   }  
 
   test("picture scaling") {
-    val p = scale(2) -> testPic
+    val p = scale(2,2) -> testPic
     p.draw()
     val b = p.bounds
     b.x should equal(bx * 2)
@@ -88,7 +88,7 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
   }  
 
   test("picture scaling after translation") {
-    val p = trans(50, 0) * scale(2) -> testPic
+    val p = trans(50, 0) * scale(2,2) -> testPic
     p.draw()
     val b = p.bounds
     b.x should equal(50 + 2 * bx)
@@ -97,7 +97,7 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
   }
 
   test("picture translation after scaling") {
-    val p = scale(2) * trans(50, 0) -> testPic
+    val p = scale(2,2) * trans(50, 0) -> testPic
     p.draw()
     val b = p.bounds
     b.x should equal(50*2 + 2 * bx)
