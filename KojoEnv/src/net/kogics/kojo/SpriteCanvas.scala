@@ -550,8 +550,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
   
   private def clearHelper0() {
-    turtles.foreach {t => t.waitFor()}
     clearHelper()
+    turtles.foreach {t => t.waitFor()}
   }
   
   private def clearHelper() {
