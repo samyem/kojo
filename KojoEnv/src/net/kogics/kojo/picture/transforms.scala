@@ -24,6 +24,7 @@ trait Transformer extends Picture {
   def rotate(angle: Double) = tpic.rotate(angle)
   def rotateAboutPoint(angle: Double, x: Double, y: Double) = tpic.rotateAboutPoint(angle, x, y)
   def scale(factor: Double) = tpic.scale(factor)
+  def scale(x: Double, y: Double) = tpic.scale(x, y)
   def opacityMod(f: Double) = tpic.opacityMod(f)
   def hueMod(f: Double) = tpic.hueMod(f)
   def satMod(f: Double) = tpic.satMod(f)
@@ -93,6 +94,14 @@ case class Scale(factor: Double)(pic: Picture) extends Transform(pic) {
     pic.draw()
   }
   def copy = Scale(factor)(pic.copy)
+}
+
+case class ScaleXY(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
+  def draw() {
+    pic.scale(x, y)
+    pic.draw()
+  }
+  def copy = ScaleXY(x, y)(pic.copy)
 }
 
 case class Trans(x: Double, y: Double)(pic: Picture) extends Transform(pic) {
@@ -220,6 +229,10 @@ case class Rotpc(angle: Double, x: Double, y: Double) extends ComposableTransfor
 
 case class Scalec(factor: Double) extends ComposableTransformer {
   def apply(p: Picture) = Scale(factor)(p)
+}
+
+case class ScaleXYc(x: Double, y: Double) extends ComposableTransformer {
+  def apply(p: Picture) = ScaleXY(x, y)(p)
 }
 
 case class Opacc(f: Double) extends ComposableTransformer {
