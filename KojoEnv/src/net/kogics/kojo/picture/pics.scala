@@ -50,6 +50,7 @@ trait Picture extends InputAware {
   def rotate(angle: Double)
   def rotateAboutPoint(angle: Double, x: Double, y: Double)
   def scale(factor: Double)
+  def scale(x: Double, y: Double)
   def translate(x: Double, y: Double)
   def transv(v: Vector2D) = translate(v.x, v.y)
   def offset(x: Double, y: Double)
@@ -145,6 +146,10 @@ trait CorePicOps { self: Picture with RedrawStopper =>
   
   def scale(factor: Double) {
     transformBy(AffineTransform.getScaleInstance(factor, factor))
+  }
+  
+  def scale(x: Double, y: Double) {
+    transformBy(AffineTransform.getScaleInstance(x, y))
   }
   
   def translate(x: Double, y: Double) {

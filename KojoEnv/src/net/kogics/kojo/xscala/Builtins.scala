@@ -533,7 +533,8 @@ Here's a partial list of the available commands:
   val PenWidth = picture.StrokeWidth
   val rot = picture.rot _
   val rotp = picture.rotp _
-  val scale = picture.scale _
+  def scale(f: Double) = picture.scale(f)
+  def scale(x: Double, y: Double) = picture.scale(x, y)
   val opac = picture.opac _
   val hue = picture.hue _
   val sat = picture.sat _

@@ -8,6 +8,7 @@ package object picture {
   def rot(angle: Double) = Rotc(angle)  
   def rotp(angle: Double, x: Double, y: Double) = Rotpc(angle, x, y)  
   def scale(factor: Double) = Scalec(factor)
+  def scale(x: Double, y: Double) = ScaleXYc(x, y)
   def opac(f: Double) = Opacc(f)
   def hue(f: Double) = Huec(f)
   def sat(f: Double) = Satc(f)
