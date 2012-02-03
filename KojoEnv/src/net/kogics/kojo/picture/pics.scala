@@ -425,7 +425,7 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
       q * (1 - f) + f
     }
     else {
-      q * (1 - f)
+      q * (1 + f)
     }
   }
   
