@@ -83,7 +83,7 @@ object CodeCompletionUtils {
     "setBackgroundV" -> "setBackgroundV(${color1}, ${color2})",
     "Color" -> "Color(${red}, ${green}, ${blue}, ${opacity})",
     "ColorG" -> "ColorG(${x1}, ${y1}, ${color1}, ${x2}, ${y2}, ${color2}, ${cyclic})",
-    "HSB" -> "HSB(${h}, ${s}, ${b})",
+    "ColorHSB" -> "ColorHSB(${h}, ${s}, ${b})",
     "Vector2D" -> "Vector2D(${x}, ${y})",
     "angle" -> "angle(${vector})",
     "angleTo" -> "angleTo(${vector})",
