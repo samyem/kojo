@@ -316,6 +316,38 @@ object Utils {
     }
   }
   
+  private def rgbComps(color: Color) = (color.getRed, color.getGreen, color.getBlue)
+  
+  private def modHsb(q: Double, f: Double) = {
+    if (f > 0) {
+      q * (1 - f) + f
+    }
+    else {
+      q * (1 + f)
+    }
+  }
+  
+  def hueMod(c: Color, f: Double) = {
+    val (r, g, b) = rgbComps(c)
+    val hsb = Color.RGBtoHSB(r, g, b, null)
+    val h = modHsb(hsb(0), f).toFloat
+    Color.getHSBColor(h, hsb(1), hsb(2))    
+  }
+  
+  def satMod(c: Color, f: Double) = {
+    val (r, g, b) = rgbComps(c)
+    val hsb = Color.RGBtoHSB(r, g, b, null)
+    val s = modHsb(hsb(1), f).toFloat
+    Color.getHSBColor(hsb(0), s, hsb(2))
+  }
+  
+  def britMod(c: Color, f: Double) = {
+    val (r, g, b) = rgbComps(c)
+    val hsb = Color.RGBtoHSB(r, g, b, null)
+    val br = modHsb(hsb(2), f).toFloat
+    Color.getHSBColor(hsb(0), hsb(1), br)
+  }
+  
   case class RunCode(code: () => Unit)
   import scala.actors._
   import scala.actors.Actor._
