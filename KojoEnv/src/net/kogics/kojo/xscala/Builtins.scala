@@ -598,6 +598,9 @@ Here's a partial list of the available commands:
     new GradientPaint(x1.toFloat, y1.toFloat, c1, x2.toFloat, y2.toFloat, c2, cyclic)
   }
   def ColorHSB(h: Double, s: Double, b: Double) = java.awt.Color.getHSBColor((h/360).toFloat, (s/100).toFloat, (b/100).toFloat)
+  val hueMod = Utils.hueMod _
+  val satMod = Utils.satMod _
+  val britMod = Utils.britMod _
   
   type Vector2D = util.Vector2D
   val Vector2D = util.Vector2D

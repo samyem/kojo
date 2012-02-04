@@ -411,13 +411,10 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
     Impl.Gf.createLineString(cab.toArray)
   }
   
-  private def fillRgb(fillPaint: Paint) = {
-    val color = fillPaint match {
-      case null => Color.white
-      case c: Color => c
-      case _ => throw new IllegalStateException("You can't extract rgb values of non Color paints")
-    }
-    (color.getRed, color.getGreen, color.getBlue)
+  private def fillColor(fillPaint: Paint) = fillPaint match {
+    case null => Color.white
+    case c: Color => c
+    case _ => throw new IllegalStateException("You can't extract rgb values of non Color paints")
   }
   
   private def modHsb(q: Double, f: Double) = {
@@ -433,10 +430,7 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
     val pp = t.penPaths
     pp.foreach { pl =>
       if (pl.points.size > 2) {
-        val (r, g, b) = fillRgb(pl.getPaint)
-        val hsb = Color.RGBtoHSB(r, g, b, null)
-        val h = modHsb(hsb(0), f).toFloat
-        pl.setPaint(Color.getHSBColor(h, hsb(1), hsb(2)))
+        pl.setPaint(Utils.hueMod(fillColor(pl.getPaint), f))
         pl.repaint()
       }
     }
@@ -446,10 +440,7 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
     val pp = t.penPaths
     pp.foreach { pl =>
       if (pl.points.size > 2) {
-        val (r, g, b) = fillRgb(pl.getPaint)
-        val hsb = Color.RGBtoHSB(r, g, b, null)
-        val s = modHsb(hsb(1), f).toFloat
-        pl.setPaint(Color.getHSBColor(hsb(0), s, hsb(2)))
+        pl.setPaint(Utils.satMod(fillColor(pl.getPaint), f))
         pl.repaint()
       }
     }
@@ -459,11 +450,7 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
     val pp = t.penPaths
     pp.foreach { pl =>
       if (pl.points.size > 2) {
-        val (r, g, b) = fillRgb(pl.getPaint)
-        val hsb = Color.RGBtoHSB(r, g, b, null)
-        val br = modHsb(hsb(2), f).toFloat
-        pl.setPaint(Color.getHSBColor(hsb(0), hsb(1), br))
-//        println("PL paint set to - " + pl.getPaint)
+        pl.setPaint(Utils.britMod(fillColor(pl.getPaint), f))
         pl.repaint()
       }
     }
