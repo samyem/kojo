@@ -28,8 +28,6 @@ import edu.umd.cs.piccolo.activities.PActivity
 import edu.umd.cs.piccolo.activities.PActivity.PActivityDelegate
 
 import scala.collection._
-import scala.actors._
-import scala.actors.Actor._
 import scala.{math => Math}
 
 import net.kogics.kojo._
@@ -78,7 +76,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   @volatile private var theta: Double = _
   @volatile private var removed: Boolean = false
 
-  private val CommandActor = makeCommandProcessor()
   @volatile private var geomObj: DynamicShape = _
   private val history = new mutable.Stack[UndoCommand]
   private val savedStyles = new mutable.Stack[Style]
@@ -180,11 +177,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   private def thetaRadians = theta
 
   private def enqueueCommand(cmd: Command) {
-    if (removed) return
-    listener.hasPendingCommands
-    listener.commandStarted(cmd)
-    CommandActor ! cmd
-    Throttler.throttle()
+//    if (removed) return
+//    listener.hasPendingCommands
+//    listener.commandStarted(cmd)
+//    CommandActor ! cmd
+//    Throttler.throttle()
   }
 
   def syncUndo() {
@@ -194,16 +191,18 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   def undo() = enqueueCommand(Undo)
-  def forward(n: Double) = enqueueCommand(Forward(n, cmdBool))
-  def turn(angle: Double) = enqueueCommand(Turn(angle, cmdBool))
-  def clear() = enqueueCommand(Clear(cmdBool))
-  def penUp() = enqueueCommand(PenUp(cmdBool))
-  def penDown() = enqueueCommand(PenDown(cmdBool))
+  
+  def forward(n: Double) = realForward(n)
+  def turn(angle: Double) = realTurn(angle)
+  def clear() = realClear()
+  
+  def penUp() = realPenUp()
+  def penDown() = realPenDown()
   def towards(x: Double, y: Double) = enqueueCommand(Towards(x, y, cmdBool))
   def jumpTo(x: Double, y: Double) = enqueueCommand(JumpTo(x, y, cmdBool))
   def moveTo(x: Double, y: Double) = enqueueCommand(MoveTo(x, y, cmdBool))
-  def setPenColor(color: Color) = enqueueCommand(SetPenColor(color, cmdBool))
-  def setFillColor(color: Paint) = enqueueCommand(SetFillColor(color, cmdBool))
+  def setPenColor(color: Color) = realSetPenColor(color)
+  def setFillColor(color: Paint) = realSetFillColor(color)
   def saveStyle() = enqueueCommand(SaveStyle(cmdBool))
   def restoreStyle() = enqueueCommand(RestoreStyle(cmdBool))
   def beamsOn() = enqueueCommand(BeamsOn(cmdBool))
@@ -216,13 +215,13 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     if (d < 0) {
       throw new IllegalArgumentException("Negative delay not allowed")
     }
-    enqueueCommand(SetAnimationDelay(d, cmdBool))
+    realSetAnimationDelay(d)
   }
   def setPenThickness(t: Double) = {
     if (t < 0) {
       throw new IllegalArgumentException("Negative thickness not allowed")
     }
-    enqueueCommand(SetPenThickness(t, cmdBool))
+    realSetPenThickness(t)
   }
   def setPenFontSize(n: Int) = {
     if (n < 0) {
@@ -236,53 +235,23 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     removed = true
   }
 
-  private def getWorker(action: Symbol) {
-    if (Utils.inSwingThread) {
-      throw new RuntimeException("Can't read %s from Swing Thread\n" format(action.toString))
-    }
-    val latch = new CountDownLatch(1)
-    val cmd = action match {
-      case 'animationDelay => GetAnimationDelay(latch, cmdBool)
-      case 'position => GetPosition(latch, cmdBool)
-      case 'heading => GetHeading(latch, cmdBool)
-      case 'state => GetState(latch, cmdBool)
-      case 'style => GetStyle(latch, cmdBool)
-    }
+  def animationDelay = _animationDelay
 
-    enqueueCommand(cmd)
-
-    var done = latch.await(10, TimeUnit.MILLISECONDS)
-    while(!done) {
-      listener.hasPendingCommands
-      done = latch.await(10, TimeUnit.MILLISECONDS)
-    }
-
-    listener.pendingCommandsDone
-  }
-
-  def animationDelay: Long = {
-    getWorker('animationDelay)
-    _animationDelay
-  }
-
-  def position: Point = {
-    getWorker('position)
+  def position: Point = Utils.runInSwingThreadAndWait {
     new Point(_position.getX, _position.getY)
   }
 
-  def heading: Double = {
-    getWorker('heading)
+  def heading: Double = Utils.runInSwingThreadAndWait {
     thetaDegrees
   }
 
-  def style: Style = {
-    getWorker('style)
+  def style: Style = Utils.runInSwingThreadAndWait {
     currStyle
   }
 
   private def currStyle = Style(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize)
 
-  def state: SpriteState = {
+  def state: SpriteState = Utils.runInSwingThreadAndWait {
     def textNodes: scala.List[PText] = {
       var nodes: scala.List[PText] = Nil
       val iter = layer.getChildrenIterator
@@ -297,68 +266,12 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
     import java.lang.{Double => JDouble}
 
-    getWorker('state)
     SpriteState(JDouble.doubleToLongBits(_position.x), JDouble.doubleToLongBits(_position.y),
                 JDouble.doubleToLongBits(thetaDegrees),
                 pen.getColor, JDouble.doubleToLongBits(pen.getThickness), pen.getFillColor,
                 pen,
                 textNodes,
                 isVisible, areBeamsOn)
-  }
-
-  // invoke fn in GUI thread, supplying it doneFn to call at the end,
-  // and wait for doneFn to get called
-  // Kinda like SwingUtilities.invokeAndWait, except that it uses actor messages
-  // and blocks inside actor.receive() - to give the actor thread pool a chance
-  // to grow with the number of turtles
-  private def realWorker(fn: (() => Unit) => Unit) {
-    Utils.runInSwingThread {
-      fn {() => workDone()}
-    }
-    waitForDoneMsg()
-  }
-
-  // invoke fn in GUI thread, and call doneFn after it is done
-  private def realWorker2(fn:  => Unit) {
-    realWorker { doneFn =>
-      try {
-        fn
-      }
-      finally {
-        doneFn()
-      }
-    }
-  }
-
-  private def workDone() {
-    CommandActor ! CommandDone
-  }
-
-  private def waitForDoneMsg() {
-    CommandActor.receive {
-      case CommandDone =>
-    }
-  }
-
-  private def realWorker3(cmd: Command)(fn: (() => Unit) => Unit) {
-    Utils.runInSwingThread {
-      fn {() => asyncCmdDone(cmd)}
-    }
-  }
-
-  private def realWorker4(cmd: Command)(fn:  => Unit) {
-    realWorker3 (cmd) { doneFn =>
-      try {
-        fn
-      }
-      finally {
-        doneFn()
-      }
-    }
-  }
-
-  private def asyncCmdDone(cmd: Command) {
-    listener.commandDone(cmd)
   }
 
   // real* methods are called in the Agent thread
@@ -371,8 +284,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   // GUI and actor threads. But after a certain Scala 2.8.0 nightly build, this
   // resulted in thread starvation in the Actor thread-pool
   
-  private def realForwardCustom(n: Double, cmd: Command, saveUndoInfo: Boolean = true) {
-
+  private def realForward(n: Double, saveUndoInfo: Boolean = true): Unit = {
     def maybeSaveUndoCmd() {
       if (saveUndoInfo) {
         pushHistory(UndoChangeInPos((_position.x, _position.y)))
@@ -392,30 +304,29 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
 
     if (Utils.doublesEqual(n, 0, 0.001)) {
-      asyncCmdDone(cmd)
       return
     }
-
+    
     val aDelay = delayFor(n)
 
     if (aDelay < 10) {
       if (aDelay > 1) {
         Thread.sleep(aDelay)
       }
-
-      realWorker4(cmd) {
+      Utils.runInSwingThread {
         maybeSaveUndoCmd()
         val pf = newPoint
         endMove(pf)
       }
     }
     else {
-      realWorker { doneFn =>
+      val latch = new CountDownLatch(1)
+      Utils.runInSwingThread {
         def manualEndMove(pt: Point2D.Double) {
           endMove(pt)
-          asyncCmdDone(cmd)
-          doneFn()
+          latch.countDown()
         }
+
         maybeSaveUndoCmd()
         val p0 = _position
         var pf = newPoint
@@ -426,15 +337,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
             val frac = elapsedTime.toDouble / aDelay
             val currX = p0.x * (1-frac) + pf.x * frac
             val currY = p0.y * (1-frac) + pf.y * frac
-            if (cmd.valid.get) {
-              pen.move(currX, currY)
-              turtle.setOffset(currX, currY)
-              turtle.repaint()
-            }
-            else {
-              pf = new Point2D.Double(currX, currY)
-              terminate()
-            }
+            pen.move(currX, currY)
+            turtle.setOffset(currX, currY)
+            turtle.repaint()
           }
         }
 
@@ -445,20 +350,20 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
               manualEndMove(pf)
             }
           })
-
         canvas.getRoot.addActivity(lineAnimation)
       }
+      latch.await()
     }
   }
 
-  private def realTurn(angle: Double, cmd: Command) {
+  private def realTurn(angle: Double) = Utils.runInSwingThread {
     pushHistory(UndoChangeInHeading(theta))
     val newTheta = thetaAfterTurn(angle, theta)
     changeHeading(newTheta)
     turtle.repaint()
   }
 
-  private def realClear() {
+  private def realClear() = Utils.runInSwingThread {
     pen.clear()
     layer.removeAllChildren() // get rid of stuff not written by pen, like text nodes
     init()
@@ -473,12 +378,12 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     camera.removeLayer(layer)
   }
 
-  private def realPenUp(cmd: Command) {
+  private def realPenUp() = Utils.runInSwingThread {
     pushHistory(UndoPenState(pen))
     pen = UpPen
   }
 
-  private def realPenDown(cmd: Command) {
+  private def realPenDown() = Utils.runInSwingThread {
     if (pen != DownPen) {
       pushHistory(UndoPenState(pen))
       pen = DownPen
@@ -514,34 +419,34 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realMoveToCustom(x: Double, y: Double, cmd: Command) {
-    def undoCmd = CompositeUndoCommand(
-      scala.List(
-        UndoChangeInPos((_position.x, _position.y)),
-        UndoChangeInHeading(theta)
-      )
-    )
-
-    realWorker2 {
-      pushHistory(undoCmd)
-      val newTheta = towardsHelper(x, y)
-      changeHeading(newTheta)
-    }
-    realForwardCustom(distanceTo(x,y), cmd, false)
+//    def undoCmd = CompositeUndoCommand(
+//      scala.List(
+//        UndoChangeInPos((_position.x, _position.y)),
+//        UndoChangeInHeading(theta)
+//      )
+//    )
+//
+//    realWorker2 {
+//      pushHistory(undoCmd)
+//      val newTheta = towardsHelper(x, y)
+//      changeHeading(newTheta)
+//    }
+//    realForward(distanceTo(x,y), false) // Todo actorless
   }
 
-  private def realSetAnimationDelay(d: Long, cmd: Command) {
+  private def realSetAnimationDelay(d: Long) {
     _animationDelay = d
   }
 
   private def realGetWorker() {
   }
 
-  private def realSetPenColor(color: Color, cmd: Command) {
+  private def realSetPenColor(color: Color) = Utils.runInSwingThread {
     pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
     pen.setColor(color)
   }
 
-  private def realSetPenThickness(t: Double, cmd: Command) {
+  private def realSetPenThickness(t: Double) = Utils.runInSwingThread {
     pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
     pen.setThickness(t)
   }
@@ -551,7 +456,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     pen.setFontSize(n)
   }
 
-  private def realSetFillColor(color: Paint, cmd: Command) {
+  private def realSetFillColor(color: Paint) = Utils.runInSwingThread {
     pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
     pen.setFillColor(color)
   }
@@ -705,206 +610,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     val downPen = new DownPen()
     val upPen = new UpPen()
     (downPen, upPen)
-  }
-
-  private def makeCommandProcessor() = actor {
-
-    def processGetCommand(cmd: Command, latch: CountDownLatch)(fn: => Unit) {
-      processCommandSync(cmd)(fn)
-      latch.countDown()
-    }
-
-    def processCommandSync(cmd: Command)(fn: => Unit) {
-//      Log.info("Command Being Processed: %s." format(cmd))
-      if (cmd.valid.get) {
-        try {
-          realWorker2 {
-            fn
-          }
-        }
-        finally {
-          listener.commandDone(cmd)
-        }
-      }
-      else {
-        listener.commandDiscarded(cmd)
-      }
-//      Log.info("Command Handled: %s. Mailbox size: %d" format(cmd, mailboxSize))
-      if (mailboxSize == 0) listener.pendingCommandsDone
-    }
-
-    def processCommand(cmd: Command)(fn: => Unit) {
-      if (cmd.valid.get) {
-        realWorker4(cmd) {
-          fn
-        }
-      }
-      else {
-        listener.commandDiscarded(cmd)
-      }
-    }
-
-    def processCommandCustom(cmd: Command)(fn: => Unit) {
-      if (cmd.valid.get) {
-        fn
-      }
-      else {
-        listener.commandDiscarded(cmd)
-      }
-    }
-
-    def undoHandler: PartialFunction[UndoCommand, Unit] = {
-      case cmd @ UndoChangeInPos((x, y)) =>
-        undoChangeInPos((x, y))
-      case cmd @ UndoChangeInHeading(oldHeading) =>
-        undoChangeInHeading(oldHeading)
-      case cmd @ UndoPenAttrs(color, thickness, fillColor, fontSize) =>
-        undoPenAttrs(color, thickness, fillColor, fontSize)
-      case cmd @ UndoPenState(apen) =>
-        undoPenState(apen)
-      case cmd @ UndoWrite(ptext) =>
-        undoWrite(ptext)
-      case cmd @ UndoVisibility(visible, areBeamsOn) =>
-        undoVisibility(visible, areBeamsOn)
-      case cmd @ CompositeUndoCommand(cmds) =>
-        handleCompositeCommand(cmds)
-      case cmd @ UndoSaveStyle() =>
-        undoSaveStyle()
-      case cmd @ UndoRestoreStyle(currStyle: Style, savedStyle: Style) =>
-        undoRestoreStyle(currStyle, savedStyle)
-    }
-
-    def realUndo(undoCmd: Command) {
-      if (!history.isEmpty) {
-        val cmd = popHistory()
-        undoHandler(cmd)
-      }
-    }
-
-    def handleCompositeCommand(cmds: scala.List[UndoCommand]) {
-      cmds.foreach {cmd => undoHandler(cmd)}
-    }
-
-    loop {
-      react {
-        case cmd @ Forward(n, b) =>
-          processCommandCustom(cmd) {
-            realForwardCustom(n, cmd)
-          }
-        case cmd @ Turn(angle, b) =>
-          processCommand(cmd) {
-            realTurn(angle, cmd)
-          }
-        case cmd @ Clear(b) =>
-          processCommandSync(cmd) {
-            realClear
-          }
-        case cmd @ Remove(b) =>
-          processCommandSync(cmd) {
-            realRemove
-          }
-          exit()
-        case cmd @ PenUp(b) =>
-          processCommand(cmd) {
-            realPenUp(cmd)
-          }
-        case cmd @ PenDown(b) =>
-          processCommand(cmd) {
-            realPenDown(cmd)
-          }
-        case cmd @ Towards(x, y, b) =>
-          processCommand(cmd) {
-            realTowards(x, y, cmd)
-          }
-        case cmd @ JumpTo(x, y, b) =>
-          processCommand(cmd) {
-            realJumpTo(x, y, cmd)
-          }
-        case cmd @ MoveTo(x, y, b) =>
-          processCommandCustom(cmd) {
-            realMoveToCustom(x, y, cmd)
-          }
-        case cmd @ SetAnimationDelay(d, b) =>
-          // block till delay is set to avoid race condition
-          // in functions like realForward which look at
-          // animation delay in the actor thread before deciding what to do
-          processCommandSync(cmd) {
-            realSetAnimationDelay(d, cmd)
-          }
-        case cmd @ GetAnimationDelay(l, b) =>
-          processGetCommand(cmd, l) {
-            realGetWorker()
-          }
-        case cmd @ GetPosition(l, b) =>
-          processGetCommand(cmd, l) {
-            realGetWorker()
-          }
-        case cmd @ GetHeading(l, b) =>
-          processGetCommand(cmd, l) {
-            realGetWorker()
-          }
-        case cmd @ GetStyle(l, b) =>
-          processGetCommand(cmd, l) {
-            realGetWorker()
-          }
-        case cmd @ SetPenColor(color, b) =>
-          processCommand(cmd) {
-            realSetPenColor(color, cmd)
-          }
-        case cmd @ SetPenThickness(t, b) =>
-          processCommand(cmd) {
-            realSetPenThickness(t, cmd)
-          }
-        case cmd @ SetFontSize(n, b) =>
-          processCommand(cmd) {
-            realSetFontSize(n, cmd)
-          }
-        case cmd @ SetFillColor(color, b) =>
-          processCommand(cmd) {
-            realSetFillColor(color, cmd)
-          }
-        case cmd @ SaveStyle(b) =>
-          processCommand(cmd) {
-            realSaveStyle(cmd)
-          }
-        case cmd @ RestoreStyle(b) =>
-          processCommand(cmd) {
-            realRestoreStyle(cmd)
-          }
-        case cmd @ BeamsOn(b) =>
-          processCommand(cmd) {
-            realBeamsOn(cmd)
-          }
-        case cmd @ BeamsOff(b) =>
-          processCommand(cmd) {
-            realBeamsOff(cmd)
-          }
-        case cmd @ Write(text, b) =>
-          processCommand(cmd) {
-            realWrite(text, cmd)
-          }
-        case cmd @ Show(b) =>
-          processCommand(cmd) {
-            realShow(cmd)
-          }
-        case cmd @ Hide(b) =>
-          processCommand(cmd) {
-            realHide(cmd)
-          }
-        case cmd @ PlaySound(score, b) =>
-          processCommand(cmd) {
-            realPlaySound(score, cmd)
-          }
-        case cmd @ Undo =>
-          processCommand(cmd) {
-            realUndo(cmd)
-          }
-        case cmd @ GetState(l, b) =>
-          processGetCommand(cmd, l) {
-            realGetWorker()
-          }
-      }
-    }
   }
 
   abstract class AbstractPen extends Pen {
