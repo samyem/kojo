@@ -7,6 +7,6 @@
     <import file="nbproject/build-impl.xml"/>
     <import file="scala-build.xml"/>
 
-    <target name="compile" depends="clean,init,scala-compile,projectized-common.compile"/>
+    <target name="compile" depends="init,scala-compile,projectized-common.compile"/>
     <target name="do-test-build" depends="compile,scala-module.do-test-build"/>
 </project>
