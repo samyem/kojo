@@ -384,7 +384,7 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
   def decorateWith(painter: Painter) = painter(t)
   def realDraw() {
     painter(t)
-    t.waitFor()
+//    t.waitFor()
     Utils.runInSwingThread {
       val tl = tnode
       tl.invalidateFullBounds()
