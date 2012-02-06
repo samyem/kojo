@@ -176,9 +176,6 @@ class Builtins extends RepeatCommands {
     override def playSound(voice: Voice) = turtle0.playSound(voice)
     UserCommand("playSound", List("voice"), "Makes the turtle play the specified melody, rhythm, or score.")
 
-    override def undo() = tCanvas.undo()
-    UserCommand("undo", Nil, "Undoes the last turtle command.")
-
     override def clear() = tCanvas.clear()
     UserCommand("clear", Nil, "Clears the screen, and brings the turtle to the center of the window.")
 

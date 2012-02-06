@@ -53,7 +53,6 @@ trait TurtleMover extends RichTurtleCommands {
   def visible(): Unit
   def invisible(): Unit
   def clear(): Unit
-  def undo(): Unit
   def waitFor(): Unit = animationDelay
   def playSound(voice: Voice): Unit
   def setPenFontSize(n: Int)
