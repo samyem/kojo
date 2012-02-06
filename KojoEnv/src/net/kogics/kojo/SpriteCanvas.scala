@@ -35,10 +35,8 @@ import scala.{math => Math}
 
 import figure.Figure
 import turtle.Turtle
-import turtle.TurtleListener
-import turtle.NoopTurtleListener
-import turtle.Command
-import core.Style
+import core.SpriteListener
+import net.kogics.kojo.core.DelegatingSpriteListener
 
 abstract class UnitLen
 case object Pixel extends UnitLen
@@ -111,7 +109,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       override def componentResized(e: ComponentEvent) = initCamera()
     })
 
-  val megaListener = new CompositeListener()
+  val megaListener = new DelegatingSpriteListener
   val figure = newFigure()
   @volatile var turtle = newTurtle()
   val pictures = new PLayer
@@ -605,8 +603,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     pzl
   }
 
-  def setTurtleListener(l: TurtleListener) {
-    megaListener.setListener(l)
+  def setTurtleListener(l: SpriteListener) {
+    megaListener.setRealListener(l)
   }
   
   def onKeyPress(fn: Int => Unit) = Utils.runInSwingThread {
@@ -653,40 +651,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
   
   def cbounds = getCamera.getViewBounds()
-
-  class CompositeListener extends TurtleListener {
-    var startCount = 0
-    @volatile var realListener: TurtleListener = NoopTurtleListener
-
-    def setListener(l: TurtleListener) {
-      if (realListener != NoopTurtleListener) throw new RuntimeException("SpriteCanvas - cannot reset listener")
-      realListener = l
-    }
-
-    def hasPendingCommands: Unit = synchronized {
-//      Log.info("Has Pending commands.")
-      realListener.hasPendingCommands
-    }
-
-    def pendingCommandsDone(): Unit = synchronized {
-//      Log.info("Pending commands done. Start count: " + startCount)
-      if (startCount == 0) realListener.pendingCommandsDone
-    }
-
-    def commandStarted(cmd: Command): Unit = synchronized {
-      startCount += 1
-    }
-    
-    def commandDiscarded(cmd: Command): Unit = synchronized {
-      startCount -= 1
-      if (startCount == 0) realListener.pendingCommandsDone
-    }
-
-    def commandDone(cmd: Command): Unit = synchronized {
-      startCount -= 1
-      if (startCount == 0) realListener.pendingCommandsDone
-    }
-  }
 
   class Popup() extends JPopupMenu {
 

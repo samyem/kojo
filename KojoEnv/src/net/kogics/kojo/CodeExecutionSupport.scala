@@ -509,7 +509,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   }
 
   def setSpriteListener() {
-    tCanvas.setTurtleListener(new turtle.AbstractTurtleListener {
+    tCanvas.setTurtleListener(new core.AbstractSpriteListener {
         def interpreterDone = runButton.isEnabled
         override def hasPendingCommands {
           pendingCommands = true
