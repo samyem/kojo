@@ -528,10 +528,6 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
 
     def builtinsCompletions: List[String]  = {
       Nil
-//      if (_builtinsCompletions == Nil) {
-//        _builtinsCompletions = completions("builtins")
-//      }
-//      _builtinsCompletions
     }
 
     def completions(identifier: String) = {
