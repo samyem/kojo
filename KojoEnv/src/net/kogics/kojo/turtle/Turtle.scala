@@ -77,7 +77,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   @volatile private var removed: Boolean = false
 
   @volatile private var geomObj: DynamicShape = _
-  private val history = new mutable.Stack[UndoCommand]
   private val savedStyles = new mutable.Stack[Style]
   @volatile private var isVisible: Boolean = _
   @volatile private var areBeamsOn: Boolean = _
@@ -131,18 +130,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       new StringBuilder().append("  PNode:\n").append("    Children: %s\n" format n.getChildrenReference).toString
   }
 
-  private def clearHistory() = history.clear()
-
-  private def pushHistory(cmd: UndoCommand) {
-    canvas.pushHistory(this)
-    history.push(cmd)
-  }
-
-  private def popHistory(): UndoCommand = {
-    canvas.popHistory()
-    history.pop()
-  }
-
   def initTImage() {
     turtleImage.getTransformReference(true).setToScale(1/camScale, 1/camScale)
     turtleImage.translate(-16, -16)
@@ -150,7 +137,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   
   private [turtle] def init() {
     _animationDelay = 1000l
-    clearHistory()
     changePos(initX, initY)
     initTImage()
     layer.addChild(turtle)
@@ -170,12 +156,14 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   init()
 
-  @volatile private var cmdBool = new AtomicBoolean(true)
   @volatile private var listener: TurtleListener = NoopTurtleListener
 
   private def thetaDegrees = Utils.rad2degrees(theta)
   private def thetaRadians = theta
 
+  // Gotta go
+  
+  @volatile private var cmdBool = new AtomicBoolean(true)
   private def enqueueCommand(cmd: Command) {
 //    if (removed) return
 //    listener.hasPendingCommands
@@ -183,15 +171,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 //    CommandActor ! cmd
 //    Throttler.throttle()
   }
-
-  def syncUndo() {
-    undo()
-    // wait for undo to get done by reading animation delay value synchronously
-    animationDelay
-  }
-
-  def undo() = enqueueCommand(Undo)
   
+  // Gotta go - end
+
   def forward(n: Double) = realForward(n)
   def turn(angle: Double) = realTurn(angle)
   def clear() = realClear()
@@ -284,13 +266,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   // GUI and actor threads. But after a certain Scala 2.8.0 nightly build, this
   // resulted in thread starvation in the Actor thread-pool
   
-  private def realForward(n: Double, saveUndoInfo: Boolean = true): Unit = {
-    def maybeSaveUndoCmd() {
-      if (saveUndoInfo) {
-        pushHistory(UndoChangeInPos((_position.x, _position.y)))
-      }
-    }
-
+  private def realForward(n: Double): Unit = {
     def newPoint = {
       val p0 = _position
       val p1 = posAfterForward(p0.x, p0.y, theta, n)
@@ -314,7 +290,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         Thread.sleep(aDelay)
       }
       Utils.runInSwingThread {
-        maybeSaveUndoCmd()
         val pf = newPoint
         endMove(pf)
       }
@@ -327,7 +302,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
           latch.countDown()
         }
 
-        maybeSaveUndoCmd()
         val p0 = _position
         var pf = newPoint
         pen.startMove(p0.x, p0.y)
@@ -357,7 +331,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realTurn(angle: Double) = Utils.runInSwingThread {
-    pushHistory(UndoChangeInHeading(theta))
     val newTheta = thetaAfterTurn(angle, theta)
     changeHeading(newTheta)
     turtle.repaint()
@@ -379,40 +352,23 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realPenUp() = Utils.runInSwingThread {
-    pushHistory(UndoPenState(pen))
     pen = UpPen
   }
 
   private def realPenDown() = Utils.runInSwingThread {
     if (pen != DownPen) {
-      pushHistory(UndoPenState(pen))
       pen = DownPen
       pen.updatePosition()
     }
   }
 
   private def realTowards(x: Double, y: Double, cmd: Command) {
-    pushHistory(UndoChangeInHeading(theta))
     val newTheta = towardsHelper(x, y)
     changeHeading(newTheta)
     turtle.repaint()
   }
 
   private def realJumpTo(x: Double, y: Double, cmd: Command) {
-
-    val undoCmd =
-      if (pen == UpPen)
-        UndoChangeInPos((_position.x, _position.y))
-    else
-      CompositeUndoCommand(
-        scala.List(
-          UndoPenState(pens._2),
-          UndoChangeInPos((_position.x, _position.y)),
-          UndoPenState(pens._1)
-        )
-      )
-    pushHistory(undoCmd)
-
     changePos(x, y)
     pen.updatePosition()
     turtle.repaint()
@@ -442,27 +398,22 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realSetPenColor(color: Color) = Utils.runInSwingThread {
-    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
     pen.setColor(color)
   }
 
   private def realSetPenThickness(t: Double) = Utils.runInSwingThread {
-    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
     pen.setThickness(t)
   }
 
   private def realSetFontSize(n: Int, cmd: Command) {
-    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
     pen.setFontSize(n)
   }
 
   private def realSetFillColor(color: Paint) = Utils.runInSwingThread {
-    pushHistory(UndoPenAttrs(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize))
     pen.setFillColor(color)
   }
 
   private def realSaveStyle(cmd: Command) {
-    pushHistory(UndoSaveStyle())
     savedStyles.push(currStyle)
   }
 
@@ -471,7 +422,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       throw new IllegalStateException("No saved style to restore")
     }
     val style = savedStyles.pop()
-    pushHistory(UndoRestoreStyle(currStyle, style))
     pen.setStyle(style)
   }
 
@@ -507,12 +457,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private def realHide(cmd: Command) {
-    pushHistory(UndoVisibility(isVisible, areBeamsOn))
     hideWorker()
   }
 
   private def realShow(cmd: Command) {
-    pushHistory(UndoVisibility(isVisible, areBeamsOn))
     showWorker()
   }
 
@@ -541,55 +489,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     catch {
       case e: Exception => canvas.outputFn("Turtle Error while playing sound:\n" + e.getMessage)
     }
-  }
-
-// undo methods are called in the GUI thread via realUndo
-  private def undoChangeInPos(oldPos: (Double, Double)) {
-    pen.undoMove()
-    changePos(oldPos._1, oldPos._2)
-    turtle.repaint()
-  }
-
-  private def undoChangeInHeading(oldHeading: Double) {
-    changeHeading(oldHeading)
-    turtle.repaint()
-  }
-
-  private def undoPenAttrs(color: Color, thickness: Double, fillColor: Paint, fontSize: Int) {
-    canvas.outputFn("Undoing Pen attribute (Color/Thickness/FillColor/FontSize) change.\n")
-    pen.undoStyle(Style(color, thickness, fillColor, fontSize))
-  }
-
-  private def undoPenState(apen: Pen) {
-    canvas.outputFn("Undoing Pen State (Up/Down) change.\n")
-    apen match {
-      case UpPen =>
-        pen.undoUpdatePosition()
-        pen = UpPen
-      case DownPen =>
-        pen = DownPen
-    }
-  }
-
-  private def undoWrite(ptext: PText) {
-    layer.removeChild(ptext)
-  }
-
-  private def undoVisibility(visible: Boolean, beamsOn: Boolean) {
-    if (visible) showWorker()
-    else hideWorker()
-
-    if (beamsOn) beamsOnWorker()
-    else beamsOffWorker()
-  }
-
-  private def undoSaveStyle() {
-    savedStyles.pop()
-  }
-
-  private def undoRestoreStyle(currStyle: Style, savedStyle: Style) {
-    savedStyles.push(savedStyle)
-    undoPenAttrs(currStyle.penColor, currStyle.penThickness, currStyle.fillColor, currStyle.fontSize)
   }
 
   private def resetRotation() {
@@ -703,11 +602,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       addNewPath()
     }
 
-    def undoStyle(oldStyle: Style) {
-      rawSetAttrs(oldStyle.penColor, oldStyle.penThickness, oldStyle.fillColor, oldStyle.fontSize)
-      removeLastPath()
-    }
-
     def clear() = {
       penPaths.foreach { penPath =>
         penPath.reset()
@@ -722,8 +616,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     def move(x: Double, y: Double) {}
     def endMove(x: Double, y: Double) {}
     def updatePosition() {}
-    def undoUpdatePosition() {}
-    def undoMove() {}
     def write(text: String) {}
   }
 
@@ -752,18 +644,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       addNewPath()
     }
 
-    def undoUpdatePosition() {
-      removeLastPath()
-    }
-
-    def undoMove() {
-      penPaths.last.removeLastPoint()
-      penPaths.last.repaint()
-    }
-
     def write(text: String) {
       val ptext = Utils.textNode(text, _position.x, _position.y, canvas.camScale)
-      pushHistory(UndoWrite(ptext))
       ptext.setFont(font)
       ptext.setTextPaint(pen.getColor)
       layer.addChild(layer.getChildrenCount-1, ptext)

@@ -65,7 +65,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val replaceAction = new org.netbeans.editor.ext.ExtKit.ReplaceAction()
 
   val (toolbar, runButton, compileButton, stopButton, hNextButton, hPrevButton,
-       clearSButton, clearButton, undoButton, cexButton) = makeToolbar()
+       clearSButton, clearButton, cexButton) = makeToolbar()
 
   @volatile var runMonitor: RunMonitor = new NoOpRunMonitor()
   var undoRedoManager: UndoRedo.Manager = _ 
@@ -191,7 +191,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val HistoryPrev = "HistoryPrev"
     val ClearEditor = "ClearEditor"
     val ClearOutput = "ClearOutput"
-    val UndoCommand = "UndoCommand"
     val UploadCommand = "UploadCommand"
 
     val actionListener = new ActionListener {
@@ -223,8 +222,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           closeFileAndClrEditorIgnoringCancel()
         case ClearOutput =>
           clrOutput()
-        case UndoCommand =>
-          smartUndo()
         case UploadCommand =>
           upload()
       }
@@ -252,7 +249,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
     val clearSButton = makeNavigationButton("/images/clears.png", ClearEditor, "Clear Editor and Close Open File (Ctrl + L)", "Clear the Editor and Close Open File")
     val clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, "Clear Output", "Clear the Output")
-    val undoButton = makeNavigationButton("/images/undo.png", UndoCommand, "Undo Last Turtle Command", "Undo")
     val cexButton = makeNavigationButton("/images/upload.png", UploadCommand, "Upload to CodeExchange", "Upload")
 
     toolbar.add(runButton)
@@ -275,13 +271,10 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
     toolbar.add(cexButton)
 
-    undoButton.setEnabled(false)
-    toolbar.add(undoButton)
-
     clearButton.setEnabled(false)
     toolbar.add(clearButton)
 
-    (toolbar, runButton, compileButton, stopButton, hNextButton, hPrevButton, clearSButton, clearButton, undoButton, cexButton)
+    (toolbar, runButton, compileButton, stopButton, hNextButton, hPrevButton, clearSButton, clearButton, cexButton)
   }
 
   def makeCodeRunner(): core.CodeRunner = {
@@ -525,7 +518,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         override def pendingCommandsDone {
           pendingCommands = false
           if (interpreterDone) stopButton.setEnabled(false)
-          if (tCanvas.hasUndoHistory) undoButton.setEnabled(true) else undoButton.setEnabled(false)
         }
       })
   }
@@ -533,21 +525,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def loadCodeFromHistoryPrev() = historyManager.historyMoveBack
   def loadCodeFromHistoryNext() = historyManager.historyMoveForward
   def loadCodeFromHistory(historyIdx: Int) = historyManager.setCode(historyIdx, 0)
-
-  def smartUndo() {
-    if (codePane.getText.trim() == "") {
-      // if code pane is blank, do undo via the interp, so that we go back in
-      // history to the last command/script (which we are trying to undo)
-      codePane.setText("undo")
-      runCode()
-    }
-    else {
-      // if code pane is not blank, selected text was run or the user has loaded
-      // something from history (or an error occurred - not relevant here)
-      // call coderunner directly so that the buffer is retained
-      codeRunner.runCode("undo")
-    }
-  }
 
   def upload() {
     val dlg = new codex.CodeExchangeForm(null, true)
@@ -1017,21 +994,10 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       _selRange = selRange
       _caretPos = caretPos
       val tcode = code.trim()
-      val undo = (tcode == "undo"
-                  || tcode == "undo()"
-                  || tcode.endsWith(".undo")
-                  || tcode.endsWith(".undo()"))
-
       val prevIndex = commandHistory.hIndex
+      commandHistory.add(code)
 
-      if (!undo) {
-        commandHistory.add(code)
-      }
-      else {
-        // undo
-        _selRange = (0, 0)
-      }
-      if (stayPut || undo) {
+      if (stayPut) {
         setCode(commandHistory.size-1, _caretPos, (_selRange._1, _selRange._2))
       }
       if (commandHistory.hIndex == prevIndex + 1) {

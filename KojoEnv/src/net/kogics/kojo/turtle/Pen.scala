@@ -23,7 +23,6 @@ trait Pen {
   def init(): Unit
   def clear(): Unit
   def updatePosition(): Unit
-  def undoUpdatePosition(): Unit
   def startMove(x: Double, y: Double): Unit
   def move(x: Double, y: Double): Unit
   def endMove(x: Double, y: Double): Unit
@@ -31,8 +30,6 @@ trait Pen {
   def setThickness(t: Double): Unit
   def setFillColor(color: Paint): Unit
   def setStyle(style: Style): Unit
-  def undoStyle(oldStyle: Style): Unit
-  def undoMove(): Unit
   def getColor: Color
   def getFillColor: Paint
   def getThickness: Double

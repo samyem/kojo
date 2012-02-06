@@ -107,8 +107,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   initCamera()
 
-  val history = new mutable.Stack[Turtle]()
-
   addComponentListener(new ComponentAdapter {
       override def componentResized(e: ComponentEvent) = initCamera()
     })
@@ -471,45 +469,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     // initCamera()
   }
 
-  def pushHistory(turtle: Turtle) = synchronized {
-    history.push(turtle)
-  }
-
-  def popHistory() = synchronized {
-    history.pop()
-  }
-
-  def clearHistory() = synchronized {
-    history.clear()
-  }
-
-  def undo() {
-    // The top level undo command is not meant to be used within a script
-    // (unless the script has only undo commands and runs after the previous 
-    // script has stopped). It should be used interactively as a single command.
-    // If it is used in a script, race conditions will ensue:
-    // - for single turtles: the command to be undone might not have run yet
-    // - for multiple turtles: for a single entry on the turtle history stack,
-    //   the corresponding turtle might get the undo command twice; due to this,
-    //   another turtle might not get the undo command at all. Result - a big undo
-    //   loop will not fully undo a painting
-    var undoTurtle: Option[Turtle] = None
-    synchronized {
-      if (history.size > 0) {
-        undoTurtle = Some(history.top)
-      }
-    }
-
-    if (undoTurtle.isDefined) {
-      // this will also pop the turtle from the canvas history
-      // need to do it from within the turtle because users can
-      // do a direct undo on a turtle and bypass the canvas
-      undoTurtle.get.syncUndo()
-    }
-  }
-
-  def hasUndoHistory = synchronized {history.size > 0}
-
   def forceClear() {
     stop()
     clearHelper()
@@ -576,8 +535,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       
       pictures.removeAllChildren()
     }
-//    turtle.waitFor
-    clearHistory()
     zoom(1, 0, 0)
   }
 
