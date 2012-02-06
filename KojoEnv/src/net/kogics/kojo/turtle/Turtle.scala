@@ -161,38 +161,25 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   private def thetaDegrees = Utils.rad2degrees(theta)
   private def thetaRadians = theta
 
-  // Gotta go
-  
-  @volatile private var cmdBool = new AtomicBoolean(true)
-  private def enqueueCommand(cmd: Command) {
-//    if (removed) return
-//    listener.hasPendingCommands
-//    listener.commandStarted(cmd)
-//    CommandActor ! cmd
-//    Throttler.throttle()
-  }
-  
-  // Gotta go - end
-
   def forward(n: Double) = realForward(n)
   def turn(angle: Double) = realTurn(angle)
   def clear() = realClear()
   
   def penUp() = realPenUp()
   def penDown() = realPenDown()
-  def towards(x: Double, y: Double) = enqueueCommand(Towards(x, y, cmdBool))
-  def jumpTo(x: Double, y: Double) = enqueueCommand(JumpTo(x, y, cmdBool))
-  def moveTo(x: Double, y: Double) = enqueueCommand(MoveTo(x, y, cmdBool))
+  def towards(x: Double, y: Double) = realTowards(x, y)
+  def jumpTo(x: Double, y: Double) = realJumpTo(x, y)
+  def moveTo(x: Double, y: Double) = realMoveTo(x, y)
   def setPenColor(color: Color) = realSetPenColor(color)
   def setFillColor(color: Paint) = realSetFillColor(color)
-  def saveStyle() = enqueueCommand(SaveStyle(cmdBool))
-  def restoreStyle() = enqueueCommand(RestoreStyle(cmdBool))
-  def beamsOn() = enqueueCommand(BeamsOn(cmdBool))
-  def beamsOff() = enqueueCommand(BeamsOff(cmdBool))
-  def write(text: String) = enqueueCommand(Write(text, cmdBool))
-  def visible() = enqueueCommand(Show(cmdBool))
-  def invisible() = enqueueCommand(Hide(cmdBool))
-  def playSound(voice: Voice) = enqueueCommand(PlaySound(voice, cmdBool))
+  def saveStyle() = realSaveStyle()
+  def restoreStyle() = realRestoreStyle()
+  def beamsOn() = realBeamsOn()
+  def beamsOff() = realBeamsOff()
+  def write(text: String) = realWrite(text)
+  def visible() = realShow()
+  def invisible() = realHide()
+  def playSound(voice: Voice) = realPlaySound(voice)
   def setAnimationDelay(d: Long) = {
     if (d < 0) {
       throw new IllegalArgumentException("Negative delay not allowed")
@@ -209,11 +196,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     if (n < 0) {
       throw new IllegalArgumentException("Negative font size not allowed")
     }
-    enqueueCommand(SetFontSize(n, cmdBool))
+    realSetFontSize(n)
   }
 
   def remove() = {
-    enqueueCommand(Remove(cmdBool))
+    realRemove()
     removed = true
   }
 
@@ -362,32 +349,22 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
   }
 
-  private def realTowards(x: Double, y: Double, cmd: Command) {
+  private def realTowards(x: Double, y: Double) = Utils.runInSwingThread {
     val newTheta = towardsHelper(x, y)
     changeHeading(newTheta)
     turtle.repaint()
   }
 
-  private def realJumpTo(x: Double, y: Double, cmd: Command) {
+  private def realJumpTo(x: Double, y: Double) = Utils.runInSwingThread {
     changePos(x, y)
     pen.updatePosition()
     turtle.repaint()
   }
 
-  private def realMoveToCustom(x: Double, y: Double, cmd: Command) {
-//    def undoCmd = CompositeUndoCommand(
-//      scala.List(
-//        UndoChangeInPos((_position.x, _position.y)),
-//        UndoChangeInHeading(theta)
-//      )
-//    )
-//
-//    realWorker2 {
-//      pushHistory(undoCmd)
-//      val newTheta = towardsHelper(x, y)
-//      changeHeading(newTheta)
-//    }
-//    realForward(distanceTo(x,y), false) // Todo actorless
+  private def realMoveTo(x: Double, y: Double) = Utils.runInSwingThread {
+    val newTheta = towardsHelper(x, y)
+    changeHeading(newTheta)
+    realForward(distanceTo(x,y))
   }
 
   private def realSetAnimationDelay(d: Long) {
@@ -405,7 +382,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     pen.setThickness(t)
   }
 
-  private def realSetFontSize(n: Int, cmd: Command) {
+  private def realSetFontSize(n: Int) = Utils.runInSwingThread {
     pen.setFontSize(n)
   }
 
@@ -413,11 +390,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     pen.setFillColor(color)
   }
 
-  private def realSaveStyle(cmd: Command) {
+  private def realSaveStyle() = Utils.runInSwingThread {
     savedStyles.push(currStyle)
   }
 
-  private def realRestoreStyle(cmd: Command) {
+  private def realRestoreStyle() = Utils.runInSwingThread {
     if (savedStyles.size == 0) {
       throw new IllegalStateException("No saved style to restore")
     }
@@ -443,24 +420,24 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
   }
 
-  private def realBeamsOn(cmd: Command) {
+  private def realBeamsOn() = Utils.runInSwingThread {
     beamsOnWorker()
   }
 
-  private def realBeamsOff(cmd: Command) {
+  private def realBeamsOff() = Utils.runInSwingThread {
     beamsOffWorker()
   }
 
-  private def realWrite(text: String, cmd: Command) {
+  private def realWrite(text: String) = Utils.runInSwingThread {
     pen.write(text)
 //    turtle.repaint()
   }
 
-  private def realHide(cmd: Command) {
+  private def realHide() = Utils.runInSwingThread {
     hideWorker()
   }
 
-  private def realShow(cmd: Command) {
+  private def realShow() = Utils.runInSwingThread {
     showWorker()
   }
 
@@ -481,7 +458,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
   }
 
-  private def realPlaySound(voice: core.Voice, cmd: Command) {
+  private def realPlaySound(voice: core.Voice) = Utils.runInSwingThread {
     import music._
     try {
       Music(voice).play()
@@ -496,8 +473,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   private [kojo] def stop() {
-    cmdBool.set(false)
-    cmdBool = new AtomicBoolean(true)
   }
 
   private [kojo] def setTurtleListener(l: TurtleListener) {
