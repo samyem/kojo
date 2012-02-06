@@ -34,3 +34,12 @@ abstract class AbstractSpriteListener extends SpriteListener {
 
 object NoopSpriteListener extends AbstractSpriteListener {}
 
+class DelegatingSpriteListener extends SpriteListener {
+  @volatile var realListener: SpriteListener = NoopSpriteListener
+  def setRealListener(l: SpriteListener) {
+    realListener = l
+  }
+  def hasPendingCommands = realListener.hasPendingCommands()
+  def pendingCommandsDone() = realListener.pendingCommandsDone()
+}
+

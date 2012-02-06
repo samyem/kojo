@@ -219,39 +219,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private def currStyle = Style(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize)
 
-  def state: SpriteState = Utils.runInSwingThreadAndWait {
-    def textNodes: scala.List[PText] = {
-      var nodes: scala.List[PText] = Nil
-      val iter = layer.getChildrenIterator
-      while (iter.hasNext) {
-        val child = iter.next
-        if (child.isInstanceOf[PText]) {
-          nodes = child.asInstanceOf[PText] :: nodes
-        }
-      }
-      nodes
-    }
-
-    import java.lang.{Double => JDouble}
-
-    SpriteState(JDouble.doubleToLongBits(_position.x), JDouble.doubleToLongBits(_position.y),
-                JDouble.doubleToLongBits(thetaDegrees),
-                pen.getColor, JDouble.doubleToLongBits(pen.getThickness), pen.getFillColor,
-                pen,
-                textNodes,
-                isVisible, areBeamsOn)
-  }
-
-  // real* methods are called in the Agent thread
-  // realWorker allows them to do work in the GUI thread
-  // but they need to call doneFn() at the end to carry on
-  // after the GUI thread is done - because the processCommand method
-  // waits for a CommandDone msg after calling the work funtion -
-  // and doneFn sends this msg to the actor from the GUI thread
-  // In an earlier version of the code, a latch was used to synchronize between the
-  // GUI and actor threads. But after a certain Scala 2.8.0 nightly build, this
-  // resulted in thread starvation in the Actor thread-pool
-  
   private def realForward(n: Double): Unit = {
     def newPoint = {
       val p0 = _position
