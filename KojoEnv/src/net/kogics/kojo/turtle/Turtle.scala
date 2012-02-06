@@ -80,6 +80,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   private val savedStyles = new mutable.Stack[Style]
   @volatile private var isVisible: Boolean = _
   @volatile private var areBeamsOn: Boolean = _
+  private var forwardAnimation: PActivity = _
+  private var stopped = false
 
   private [turtle] def changePos(x: Double, y: Double) {
     _position = new Point2D.Double(x, y)
@@ -155,8 +157,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   init()
-
-  @volatile private var listener: TurtleListener = NoopTurtleListener
 
   private def thetaDegrees = Utils.rad2degrees(theta)
   private def thetaRadians = theta
@@ -284,16 +284,16 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     else {
       val latch = new CountDownLatch(1)
       Utils.runInSwingThread {
-        def manualEndMove(pt: Point2D.Double) {
-          endMove(pt)
-          latch.countDown()
+        def endAnim() {
+          forwardAnimation = null
+          stopped = false
         }
 
         val p0 = _position
-        var pf = newPoint
+        val pf = newPoint
         pen.startMove(p0.x, p0.y)
 
-        val lineAnimation = new PActivity(aDelay) {
+        forwardAnimation = new PActivity(aDelay) {
           override def activityStep(elapsedTime: Long) {
             val frac = elapsedTime.toDouble / aDelay
             val currX = p0.x * (1-frac) + pf.x * frac
@@ -304,14 +304,23 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
           }
         }
 
-        lineAnimation.setDelegate(new PActivityDelegate {
+        forwardAnimation.setDelegate(new PActivityDelegate {
             override def activityStarted(activity: PActivity) {}
             override def activityStepped(activity: PActivity) {}
             override def activityFinished(activity: PActivity) {
-              manualEndMove(pf)
+              if (stopped) {
+                val cpos = turtle.getOffset
+                endMove(cpos.asInstanceOf[Point2D.Double])
+                endAnim()
+              }
+              else {
+                endMove(pf)
+                endAnim()
+                latch.countDown()
+              }
             }
           })
-        canvas.getRoot.addActivity(lineAnimation)
+        canvas.getRoot.addActivity(forwardAnimation)
       }
       latch.await()
     }
@@ -472,12 +481,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     changeHeading(Utils.deg2radians(90))
   }
 
-  private [kojo] def stop() {
-  }
-
-  private [kojo] def setTurtleListener(l: TurtleListener) {
-//    if (listener != NoOpListener) throw new RuntimeException("Cannot re-set Turtle listener")
-    listener = l
+  private [kojo] def stop() = Utils.runInSwingThread {
+    if (forwardAnimation != null) {
+      stopped = true
+      forwardAnimation.terminate(PActivity.TERMINATE_AND_FINISH)
+    }
   }
 
   private def makePens(): (Pen, Pen) = {
