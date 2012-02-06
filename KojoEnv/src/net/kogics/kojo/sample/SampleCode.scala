@@ -70,34 +70,25 @@ repeat(360) {
 """
 
   val TurtleMania = """
-clear()
-
 def runPattern() {
 
     import collection.mutable.ArrayBuffer
     import java.util.Random
 
-    def pattern(turtle: Turtle, n: Int): Unit = {
-        if (n < 2) return
-        turtle.forward(n)
-        turtle.right()
-        turtle.forward(n)
-        turtle.right()
-        pattern(turtle, n-5)
+    def pattern(turtle: Turtle, n: Int): Unit = runInBackground {
+        if (n > 2) { 
+            turtle.forward(n)
+            turtle.right()
+            turtle.forward(n)
+            turtle.right()
+            pattern(turtle, n-5)
+        }
     }
 
-    turn(60)
-    setAnimationDelay(2000)
-    forward(400)
-
-    val turtles = new ArrayBuffer[Turtle]
-
     val rand = new Random
-
     for (i <- 0 until 5) {
         for (j <- 0 until 5) {
             val turtle = newTurtle(-400 + j*200, 400 - i*200)
-            turtles += turtle
             turtle.setAnimationDelay(500 + rand.nextInt(500))
             turtle.left
             pattern(turtle, 100-5*i)
@@ -105,8 +96,13 @@ def runPattern() {
     }
 }
 
-// run the function that we just defined
+clear()
 runPattern()
+runInBackground {
+    turn(60)
+    setAnimationDelay(6000)
+    forward(400)
+}
 """
 
   val TurningSquares = """
@@ -157,7 +153,7 @@ def drawCircle(col:Color, step:Double, angle:Int){
 }
 
 clear()
-setAnimationDelay(5)
+setAnimationDelay(50)
 setPenColor(black)
 
 drawCircle(orange, 3, 1)
@@ -175,7 +171,7 @@ drawCircle(red, .25, -1)
   val Flower1 = """
 clear()
 jumpTo(0,100)
-setAnimationDelay(10)
+setAnimationDelay(100)
 setPenColor(black)
 setFillColor(orange)
 repeat(4){
@@ -190,7 +186,7 @@ repeat(4){
   val Flower2 = """
 clear()
 jumpTo(0,100)
-setAnimationDelay(20)
+setAnimationDelay(100)
 setPenColor(black)
 setFillColor(green)
 repeat(6){
@@ -204,6 +200,7 @@ repeat(6){
 
   val Fan = """
 clear()
+setAnimationDelay(100)
 setFillColor(red)
 repeat(4){
     turn(-30)
@@ -216,7 +213,7 @@ repeat(4){
 """
 
   val FerrisWheel = """
-def flag(t: Turtle, c: Color, a: Double){
+def flag(t: Turtle, c: Color, a: Double) = runInBackground {
     t.setPenColor(c)
     t.setFillColor(c)
     t.turn(a)
@@ -259,7 +256,7 @@ flag(t11, purple,330)
 
   val Plant = """
 clear()
-setAnimationDelay(20)
+setAnimationDelay(100)
 setPenThickness(4)
 
 // Flower
@@ -324,88 +321,90 @@ forward(75)
   val SunFenceFlower = """
 clear()
 
+runInBackground {
 // Sun
-jumpTo(-400,200)
-setAnimationDelay(20)
-setPenColor(yellow)
-setFillColor(yellow)
-repeat(18) {
-    right()
-    forward(75)
-    turn(180)
-    forward(75)
-    right()
-    repeat(10) {
-        turn(2)
-        forward(2)}
-}
+    jumpTo(-400,200)
+    setAnimationDelay(20)
+    setPenColor(yellow)
+    setFillColor(yellow)
+    repeat(18) {
+        right()
+        forward(75)
+        turn(180)
+        forward(75)
+        right()
+        repeat(10) {
+            turn(2)
+            forward(2)}
+    }
 
 // Flower Pot
-jumpTo(200,100)
-setPenColor(red)
-setPenThickness(4)
+    jumpTo(200,100)
+    setPenColor(red)
+    setPenThickness(4)
 
 // Flower
-setFillColor(red)
-repeat(4){
-    turn(90)
-    repeat(45){
-        turn(-4)
-        forward(1)}
-}
+    setFillColor(red)
+    repeat(4){
+        turn(90)
+        repeat(45){
+            turn(-4)
+            forward(1)}
+    }
 
 // Upper part of stem
-turn(135)
-setFillColor(null)
-setPenColor(green)
-repeat(30){
-    turn(1)
-    forward(3)
-}
+    turn(135)
+    setFillColor(null)
+    setPenColor(green)
+    repeat(30){
+        turn(1)
+        forward(3)
+    }
 
 // First leaf
-setFillColor(green)
-repeat(2){
-    turn(120)
-    repeat(30){
-        turn(2)
-        forward(2)
+    setFillColor(green)
+    repeat(2){
+        turn(120)
+        repeat(30){
+            turn(2)
+            forward(2)
+        }
     }
-}
 
 // Second leaf
-repeat(2){
-    turn(-120)
-    repeat(30){
-        turn(-2)
-        forward(2)
+    repeat(2){
+        turn(-120)
+        repeat(30){
+            turn(-2)
+            forward(2)
+        }
     }
-}
 
 // Lower part of stem
-setFillColor(null)
-setPenColor(green)
-repeat(20){
-    turn(1)
-    forward(3)
-}
+    setFillColor(null)
+    setPenColor(green)
+    repeat(20){
+        turn(1)
+        forward(3)
+    }
 
 // Pot
-setPenColor(brown)
-setFillColor(brown)
-turn(85)
-forward(25)
-turn(-110)
-forward(50)
-turn(-70)
-forward(15)
-turn(-70)
-forward(50)
-turn(-110)
-forward(25)
+    setPenColor(brown)
+    setFillColor(brown)
+    turn(85)
+    forward(25)
+    turn(-110)
+    forward(50)
+    turn(-70)
+    forward(15)
+    turn(-70)
+    forward(50)
+    turn(-110)
+    forward(25)
+}
 
 // Fence
-def post(t: Turtle){
+def post(t: Turtle) = runInBackground {
     t.setPenColor(black)
     t.setFillColor(white)
     t.setPenThickness(4)
@@ -448,19 +447,19 @@ post(t9)
 post(t10)
 post(t11)
 
-def rail(tt: Turtle)
-{
-    tt.setPenColor(black)
-    tt.setFillColor(white)
-    tt.setPenThickness(4)
-    tt.right()
-    tt.forward(1200)
-    tt.turn(90)
-    tt.forward(25)
-    tt.turn(90)
-    tt.forward(1200)
-    tt.turn(90)
-    tt.forward(25)
+def rail(t: Turtle) = runInBackground {
+    t.setAnimationDelay(100)
+    t.setPenColor(black)
+    t.setFillColor(white)
+    t.setPenThickness(4)
+    t.right()
+    t.forward(1200)
+    t.turn(90)
+    t.forward(25)
+    t.turn(90)
+    t.forward(1200)
+    t.turn(90)
+    t.forward(25)
 }
 
 rail(t12)
@@ -468,7 +467,7 @@ rail(t13)
 """
 
   val Rangoli = """
-def border(t: Turtle, a: Double) {
+def border(t: Turtle, a: Double) = runInBackground {
     t.setAnimationDelay(200)
     t.setPenColor(black)
     t.right()
@@ -488,19 +487,21 @@ def border(t: Turtle, a: Double) {
         t.forward(40)
         t.turn(a)
     }
+    t.invisible()
 }
 
-def flower(tt:Turtle, c:Color) {
-    tt.setAnimationDelay(400)
-    tt.setPenColor(black)
-    tt.setFillColor(c)
+def flower(t:Turtle, c:Color) = runInBackground {
+    t.setAnimationDelay(400)
+    t.setPenColor(black)
+    t.setFillColor(c)
     repeat(4){
-        tt.right()
+        t.right()
         repeat(90){
-            tt.turn(-2)
-            tt.forward(2)
+            t.turn(-2)
+            t.forward(2)
         }
     }
+    t.invisible()
 }
 
 clear()
@@ -511,17 +512,19 @@ val t2=newTurtle(-600, 150)
 border(t1,120)
 border(t2,-120)
 
-
-jumpTo(-50,100)
-setAnimationDelay(20)
-setPenColor(black)
-setFillColor(green)
-repeat(6){
-    turn(-120)
-    repeat(90){
-        turn(-2)
-        forward(2)
+runInBackground {
+    jumpTo(-50,100)
+    setAnimationDelay(200)
+    setPenColor(black)
+    setFillColor(green)
+    repeat(6){
+        turn(-120)
+        repeat(90){
+            turn(-2)
+            forward(2)
+        }
     }
+    invisible()
 }
 
 val t3=newTurtle(-300,100)
@@ -543,18 +546,6 @@ flower(t7, orange)
 flower(t8, yellow)
 flower(t9, red)
 flower(t10, purple)
-
-turtle0.invisible()
-t1.invisible()
-t2.invisible()
-t3.invisible()
-t4.invisible()
-t5.invisible()
-t6.invisible()
-t7.invisible()
-t8.invisible()
-t9.invisible()
-t10.invisible()
 """
 
   val Snowflake = """
@@ -585,7 +576,7 @@ invisible()
 setPenThickness(1)
 setPenColor(color(128, 128, 128))
 setFillColor(color(0xC9C0BB))
-setAnimationDelay(10)
+setAnimationDelay(50)
 penUp()
 back(100)
 left()
@@ -638,7 +629,7 @@ def dragon (depth : Int, angle : Double) : Unit = {
 }
 
 clear()
-setAnimationDelay(0)
+setAnimationDelay(20)
 setPenThickness (7)
 setPenColor(color(0x365348))
 

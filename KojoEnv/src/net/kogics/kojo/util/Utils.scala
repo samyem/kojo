@@ -12,7 +12,8 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.util
+package net.kogics.kojo
+package util
 
 import java.awt.{List => _, _}
 import java.util.concurrent.locks.Lock
@@ -43,10 +44,36 @@ object Utils {
   
   import collection.mutable.{HashSet, SynchronizedSet}
   val threads = new HashSet[Thread] with SynchronizedSet[Thread]
+  lazy val listener = SpriteCanvas.instance().megaListener // hack!
+  var timer: Timer = _
+  var startCount = 0
+  
+  def startPumpingEvents() = synchronized {
+    startCount += 1
+    if (startCount == 1) {
+      listener.hasPendingCommands()
+      timer = Utils.scheduleRec(0.5) {
+        listener.hasPendingCommands()
+      }
+    }
+  }
+
+  def stopPumpingEvents() = synchronized {
+    startCount -= 1
+    if (startCount == 0) {
+      timer.stop()
+      timer = null
+      listener.pendingCommandsDone()
+      Utils.schedule(0.5) {
+        listener.pendingCommandsDone()
+      }
+    }
+  }
   
   def runAsyncMonitored(fn: => Unit) {
     lazy val t: Thread = new Thread(new Runnable {
         def run {
+          startPumpingEvents()
           try {
             fn
           }
@@ -56,6 +83,7 @@ object Utils {
           }
           finally {
             threads.remove(t)
+            stopPumpingEvents()
           }
         }
       })
