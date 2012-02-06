@@ -62,24 +62,23 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   yBeam.setStrokePaint(Color.gray)
 
   private [kojo] val penPaths = new mutable.ArrayBuffer[PolyLine]
-  @volatile private var lineColor: Color = _
-  @volatile private var fillColor: Paint = _
-  @volatile private var lineStroke: Stroke = _
-  @volatile private var font: Font = _
+  private var lineColor: Color = _
+  private var fillColor: Paint = _
+  private var lineStroke: Stroke = _
+  private var font: Font = _
 
   private val pens = makePens
   private val DownPen = pens._1
   private val UpPen = pens._2
-  @volatile private[kojo] var pen: Pen = _
+  private[kojo] var pen: Pen = _
 
-  @volatile private var _position: Point2D.Double = _
-  @volatile private var theta: Double = _
-  @volatile private var removed: Boolean = false
+  private var _position: Point2D.Double = _
+  private var theta: Double = _
+  private var removed: Boolean = false
 
-  @volatile private var geomObj: DynamicShape = _
   private val savedStyles = new mutable.Stack[Style]
-  @volatile private var isVisible: Boolean = _
-  @volatile private var areBeamsOn: Boolean = _
+  private var isVisible: Boolean = _
+  private var areBeamsOn: Boolean = _
   private var forwardAnimation: PActivity = _
   private var stopped = false
 
@@ -341,7 +340,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     canvas.afterClear()
   }
 
-  private def realRemove() {
+  private def realRemove() = Utils.runInSwingThread {
     pen.clear
     layer.removeChild(turtle)
     camera.removeLayer(layer)
@@ -378,9 +377,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private def realSetAnimationDelay(d: Long) {
     _animationDelay = d
-  }
-
-  private def realGetWorker() {
   }
 
   private def realSetPenColor(color: Color) = Utils.runInSwingThread {
