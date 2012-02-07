@@ -336,9 +336,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     turtle.repaint()
   }
 
-  private def realMoveTo(x: Double, y: Double) = Utils.runInSwingThread {
-    val newTheta = towardsHelper(x, y)
-    changeHeading(newTheta)
+  private def realMoveTo(x: Double, y: Double) {
+    Utils.runInSwingThread {
+      val newTheta = towardsHelper(x, y)
+      changeHeading(newTheta)
+    }
     realForward(distanceTo(x,y))
   }
 
