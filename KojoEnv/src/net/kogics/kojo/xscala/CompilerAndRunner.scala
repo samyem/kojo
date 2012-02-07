@@ -58,6 +58,9 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
   import TSCanvas._; import Tw._
   val Staging = net.kogics.kojo.staging.API
   val Mw = net.kogics.kojo.mathworld.MathWorld.instance
+  def entry() {
+    // noop
+  }
 """ 
 
   val prefix = prefix0 + initCode.getOrElse("")
@@ -66,10 +69,6 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
 
   val codeTemplate = """%s
 %s
-
-  def entry() {
-    // noop
-  }
 }
 """
 
