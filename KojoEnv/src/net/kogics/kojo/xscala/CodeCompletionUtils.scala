@@ -37,6 +37,7 @@ object CodeCompletionUtils {
     "switchTo" -> "switchTo()",
     "onKeyPress" -> "onKeyPress { k =>\n    k match {\n    case Kc.VK_RIGHT => ${cursor}\n       case _ => \n    }\n}",
     "onMouseClick" -> "onMouseClick { (x, y) =>\n    ${cursor}\n}",
+    "onMouseDrag" -> "onMouseDrag { (x, y) =>\n    ${cursor}\n}",
     "stAddLinkHandler" -> "stAddLinkHandler(${handlerName}) {d: ${argType} =>\n    ${cursor}\n}",
     "VPics" -> "VPics(\n      p,\n      p\n)",
     "HPics" -> "HPics(\n      p,\n      p\n)",
@@ -193,7 +194,6 @@ object CodeCompletionUtils {
     "lineTo" -> "lineTo(${x}, ${y})",
     "setFontSize" -> "setFontSize(${size})",
     "setContent" -> "setContent(${content})",
-    "onMouseDrag" -> "onMouseDrag { (x, y) =>\n    ${cursor}\n}",
     "show" -> "show()",
     "hide" -> "hide()",
     "erase" -> "erase()"

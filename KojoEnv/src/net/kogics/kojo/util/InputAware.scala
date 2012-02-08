@@ -39,10 +39,10 @@ trait InputAware {
   }
   
   def onMouseDrag(fn: (Double, Double) => Unit) = Utils.runInSwingThread {
-    myCanvas.setPanEventHandler(null)
     val h = new PBasicInputEventHandler {
       override def mouseDragged(event: PInputEvent) {
         val pos = event.getPosition
+        event.setHandled(true)
         Utils.safeProcess {
           fn(pos.getX, pos.getY)
         }
