@@ -97,6 +97,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   var showAxes = false
   var showGrid = false
+  var showProt = false
 
   val grid = new PNode()
   val axes = new PNode()
@@ -515,6 +516,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     gridOff()
     axesOff()
     Utils.runInSwingThreadAndWait {
+      showProt = false
       if (getPanEventHandler == null) {
         // clobbered by drag handling
         setPanEventHandler(panHandler)
@@ -682,6 +684,32 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     
     addSeparator()
 
+    val protItem = new JCheckBoxMenuItem("Show Protractor")
+    protItem.addActionListener(new ActionListener {
+        @volatile var prot: picture.Picture = _
+        def protOn() {
+          showProt = true
+          prot = picture.protractor(camScale)
+          // can draw from GUI thread because anim delay is zero, and latch will not be used
+          prot.draw()
+        }
+        
+        def protOff() {
+          showProt = false
+          prot.invisible()
+        }
+        
+        override def actionPerformed(e: ActionEvent) {
+          if (protItem.isSelected) {
+            protOn()
+          }
+          else {
+            protOff()
+          }
+        }
+      })
+    add(protItem)
+    
     val saveAsImage = new JMenuItem("Save as Image")
     saveAsImage.addActionListener(new ActionListener {
         val saveAs = new SaveAs()
@@ -718,6 +746,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         def popupMenuWillBecomeVisible(e: PopupMenuEvent) {
           axesItem.setState(showAxes)
           gridItem.setState(showGrid)
+          protItem.setState(showProt)
         }
         def popupMenuWillBecomeInvisible(e: PopupMenuEvent) {}
         def popupMenuCanceled(e: PopupMenuEvent) {}
