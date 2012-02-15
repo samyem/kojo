@@ -19,7 +19,7 @@ def pgHeader(hdr: String) =
 
 val examples = List(
     """
-def p(size: Int) = pict { t =>
+def p(size: Int) = Picture { 
     import t._
     repeat (4) {
         forward(size)
@@ -230,6 +230,50 @@ animate {
     pic.translate(-1, -0.5)
     pic.scale(0.999)
 }
+""",
+    """
+val height = 6.0
+val width = 5.0
+
+def rect = Picture {
+    repeat (2) {
+        forward(height)
+        right()
+        forward(width)
+        right()
+    }
+}
+
+def tri = Picture {
+    right()
+    repeat (3) {
+        forward(width)
+        left(120)
+    }    
+}
+
+def circ = Picture {
+    repeat (360) {
+        forward(0.1)
+        right(1)
+    }
+}
+
+val smoke = rot(60) -> HPics(
+    circ,
+    circ,
+    circ
+).withGap(0.5)
+
+clearWithUL(Cm)
+invisible()
+val pic = fillColor(brown) * trans(0, -5) -> GPics(
+    rect,
+    trans(0, height) -> tri,
+    fillColor(black) * trans(width/4, 0) * scale(0.5) -> rect,
+    fillColor(gray) * trans(width/2, height + width* math.cos(30.toRadians)) * scale(0.1) -> smoke
+)
+draw(pic)
 """
 )
 
@@ -273,6 +317,9 @@ val pg = Page(
             <p>That's easy, just use VPics:</p>
             {code(4)}
             <p>You can keep putting VPics inside HPics, and HPics inside VPics, for as long as you want!</p>
+            <p>
+                <em>HPics and VPics are picture containers. A container contains some pictures, and has a strategy for laying out these pictures.</em>
+            </p>
             <p>You can also conveniently lay out your pictures in terms of rows and columns using the predefined <em>row</em> and <em>col</em> functions</p>
             {code(5)}
             <h4 id="toc1"><span>Transformations</span></h4>
@@ -285,13 +332,32 @@ val pg = Page(
                 <li>rot</li>
                 <li>scale</li>
                 <li>trans</li>
-                <li>flip</li>
+                <li>offset</li>
+                <li>axes</li>
+                <li>flipX and flipY</li>
                 <li>fillColor</li>
                 <li>penColor</li>
+                <li>hue</li>
+                <li>sat</li>
+                <li>brit</li>
+                <li>opac</li>
                 <li>penWidth</li>
             </ul>
             <p>Code completion within Kojo will help you with the inputs/args to the transformations.<br />
                 Note - With function call notation, the transformation names begin with capital letters. The examples above should make this clear.</p>
+            
+            <h4><span>Another container - GPics</span></h4>
+            <p>
+                You have already seen the HPics and VPics containers. You generally use these 
+                containers to make a picture by tiling a seed pattern. There's another container called GPics 
+                which you can use to build arbitrary pictures out of a bunch of other pictures. GPics does not 
+                try to tile the pictures within it. It just draws them one on top of the other. It's your job 
+                to translate, rotate etc the pictures within a GPics to get the figure that you want.
+                <br/><br/>
+                Here's an example of GPics usage:
+            {code(15)}
+            </p>
+            
             <h4 id="toc2"><span>Effects</span></h4>
             <p>Effects build upon transformations to provide richer, uhm, effects. Generally, transformations modify a picture, while effects make multiple copies of a picture and put them together in interesting ways.</p>
             <p>The following effects are available:</p>
