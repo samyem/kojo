@@ -4,11 +4,12 @@
 //
 // The source for the story is provided below
 
-val pageStyle = "color:#1e1e1e; margin:15px;"
+// val pageStyle = "color:#1e1e1e; margin:15px;"
+val pageStyle = "background-color:#99CCFF; margin:15px;font-size:small;"
 val centerStyle = "text-align:center;"
 val headerStyle = "text-align:center;font-size:110%;color:maroon;"
 val codeStyle = "font-size:90%;"
-val smallNoteStyle = "color:gray;font-size:95%;"
+val smallNoteStyle = "color:dark-gray;font-size:95%;"
 val sublistStyle = "margin-left:60px;"
 
 def pgHeader(hdr: String) =
@@ -1031,7 +1032,17 @@ pages += IncrPage(
             <ul>
                 <li>Making pretty computer sketches and paintings.
                     <div style={smallNoteStyle}>
-                        See the <em>Samples | Turtle Art</em> menu item for many examples.
+                        See the <em>Samples | Turtle Art</em> and <em>Samples | Pictures</em> 
+                        menu items for many examples.
+                    </div>
+                </li>
+            </ul>
+        ),
+        Para(
+            <ul>
+                <li>Creating Animations and Games.
+                    <div style={smallNoteStyle}>
+                        See the <em>Samples | Pictures</em> menu item for examples.
                     </div>
                 </li>
             </ul>
