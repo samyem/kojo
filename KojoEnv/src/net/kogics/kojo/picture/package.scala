@@ -105,8 +105,25 @@ package object picture {
       }
     }
     val p = opac(-0.5) * stroke(Color.black) -> prot(180)
+    var (oldx, oldy) = (0.0, 0.0)
     p.onMouseDrag { (x, y) =>
-      p.setPosition(x, y)
+      val B = xscala.Builtins.instance
+      if (B.isKeyPressed(B.Kc.VK_SHIFT)) {
+        val pos = p.position
+        val v1 = B.Vector2D(oldx - pos.x, oldy - pos.y)
+        val v2 = B.Vector2D(x - pos.x, y - pos.y)
+        val angle2 = v1.angleTo(v2)
+        p.rotate(angle2)
+      }
+      else {
+        p.setPosition(x, y)
+      }
+      oldx = x
+      oldy = y
+    }
+    p.onMouseClick { (x, y) =>
+      oldx = x
+      oldy = y
     }
     p
   }

@@ -23,6 +23,7 @@ object SampleCode {
   def get(e: java.awt.event.ActionEvent): String = {
     e.getActionCommand match {
       // TODO: need to read the case strings from Bundle.properties
+      // see sample story loading
       case "Square" => Square
       case "Circle" => Circle
       case "Turtle Mania" => TurtleMania
@@ -43,6 +44,8 @@ object SampleCode {
       case "Input/Output" => InputOutput
       case "Hunted (game)" => Utils.readFile(sampleStream("catchme.kojo"))
       case "Tangram Skier (animation)" => Utils.readFile(sampleStream("skier.kojo"))
+      case "Tree with Leaves" => Utils.readFile(sampleStream("tree-with-leaves.kojo"))
+      case "Square and Circle Fractal" => Utils.readFile(sampleStream("square-circle-fractal.kojo"))
       case "Sine of an Angle" => Utils.readFile(sampleStream("sine-angle.kojo"))
       case "Clock" => Utils.readFile(sampleStream("clock.kojo"))
       case "Difference of two Squares" => Utils.readFile(sampleStream("diff-squares.kojo"))
@@ -213,7 +216,7 @@ repeat(4){
 """
 
   val FerrisWheel = """
-def flag(t: Turtle, c: Color, a: Double) = runInBackground {
+def car(t: Turtle, c: Color, a: Double) = runInBackground {
     t.setPenColor(c)
     t.setFillColor(c)
     t.turn(a)
@@ -240,18 +243,18 @@ val t9 = newTurtle(0,0)
 val t10 = newTurtle(0,0)
 val t11 = newTurtle(0,0)
 
-flag(turtle0, red,0)
-flag(t1, yellow,30)
-flag(t2, blue,60)
-flag(t3, green,90)
-flag(t4, orange,120)
-flag(t5, purple,150)
-flag(t6, red,180)
-flag(t7, yellow,210)
-flag(t8, blue,240)
-flag(t9, green,270)
-flag(t10, orange,300)
-flag(t11, purple,330)
+car(turtle0, red,0)
+car(t1, yellow,30)
+car(t2, blue,60)
+car(t3, green,90)
+car(t4, orange,120)
+car(t5, purple,150)
+car(t6, red,180)
+car(t7, yellow,210)
+car(t8, blue,240)
+car(t9, green,270)
+car(t10, orange,300)
+car(t11, purple,330)
 """
 
   val Plant = """
