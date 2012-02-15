@@ -183,6 +183,18 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Samples.TreePic.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_TreePic"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+            <file name="net-kogics-kojo-Samples.SquareCirclePic.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_SquareCirclePic"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
             <file name="net-kogics-kojo-Samples.Sine-Angle.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
                 <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Sine-Angle"/>
@@ -406,6 +418,14 @@
                 <file name="net-kogics-kojo-Samples.Catchme.shadow">
                     <attr name="position" intvalue="2"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Catchme.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Samples.TreePic.shadow">
+                    <attr name="position" intvalue="3"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.TreePic.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Samples.SquareCirclePic.shadow">
+                    <attr name="position" intvalue="4"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.SquareCirclePic.instance"/>
                 </file>
             </folder>
         </folder>
