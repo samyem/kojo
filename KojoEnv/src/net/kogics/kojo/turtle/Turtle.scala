@@ -441,6 +441,27 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       case e: Exception => canvas.outputFn("Turtle Error while playing sound:\n" + e.getMessage)
     }
   }
+  
+  private def forwardNoAnim(n: Double) {
+    val pf = {
+      val p0 = _position
+      val p1 = posAfterForward(p0.x, p0.y, theta, n)
+      new Point2D.Double(p1._1, p1._2)
+    }
+    pen.endMove(pf.x, pf.y)
+    changePos(pf.x, pf.y)
+    turtle.repaint()
+  }
+
+  def arc(r: Double, a: Int) = Utils.runInSwingThread {
+    var i = 0
+    val (lim, step, trn) = if (a > 0) (a, 2 * math.Pi * r / 360, 1) else (-a, -2 * math.Pi * r / 360, -1)
+    while(i < lim) {
+      forwardNoAnim(step)
+      realTurn(trn)
+      i += 1
+    }
+  }
 
   private def resetRotation() {
     changeHeading(Utils.deg2radians(90))
