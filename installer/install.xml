@@ -88,6 +88,12 @@
             <file src="stories" targetdir="$INSTALL_PATH"/>
             <file src="samples" targetdir="$INSTALL_PATH"/>
             <file src="music-loops" targetdir="$INSTALL_PATH"/>
+            <executable targetfile="$INSTALL_PATH/bin/kojo" stage="never" keep="true">
+                 <os family="mac"/>
+            </executable>
+            <executable targetfile="$INSTALL_PATH/bin/kojo" stage="never" keep="true">
+                 <os family="unix"/>
+            </executable>
         </pack>
     </packs>
 
