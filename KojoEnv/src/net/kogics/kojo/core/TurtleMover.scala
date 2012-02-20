@@ -56,4 +56,6 @@ trait TurtleMover extends RichTurtleCommands {
   def waitFor(): Unit = animationDelay
   def playSound(voice: Voice): Unit
   def setPenFontSize(n: Int)
+  def arc(r: Double, a: Int): Unit
+  def circle(r: Double) = arc(r, 360)
 }

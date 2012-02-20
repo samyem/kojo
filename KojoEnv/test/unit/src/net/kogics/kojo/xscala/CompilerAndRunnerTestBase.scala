@@ -319,7 +319,7 @@ t10.invisible()
   @Test
   def testStaging() {
     val code = """import Staging._
-import Staging.{clear, setPenColor, animate}
+import Staging.{clear, setPenColor, animate, circle}
 clear()
 
 setPenColor(blue)
