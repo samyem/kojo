@@ -20,18 +20,20 @@ import util.Throttler
 
 trait RepeatCommands {
   def repeat(n: Int) (fn: => Unit) {
-    for (i <- 1 to n) {
+    var i = 0
+    while(i < n) {
       fn
-//      Throttler.throttle()
+      i += 1
     }
   }
   UserCommand.addCompletion("repeat", " (${n}) {\n    ${cursor}\n}")
   UserCommand.addSynopsis("repeat(n) {} - Repeats the commands within braces n number of times.")
 
   def repeati(n: Int) (fn: Int => Unit) {
-    for (i <- 1 to n) {
-      fn(i)
-//      Throttler.throttle()
+    var i = 0
+    while(i < n) {
+      fn(i+1)
+      i += 1
     }
   }
   UserCommand.addCompletion("repeati", " (${n}) {i => \n    ${cursor}\n}")
@@ -40,7 +42,6 @@ trait RepeatCommands {
   def repeatWhile(cond: => Boolean) (fn: => Unit) {
     while (cond) {
       fn
-//      Throttler.throttle()
     }
   }
   UserCommand.addCompletion("repeatWhile", " (${condition}) {\n    ${cursor}\n}")
@@ -49,7 +50,6 @@ trait RepeatCommands {
   def repeatUntil(cond: => Boolean) (fn: => Unit) {
     while (!cond) {
       fn
-//      Throttler.throttle()
     }
   }
   UserCommand.addCompletion("repeatUntil", " (${condition}) {\n    ${cursor}\n}")
