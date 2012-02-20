@@ -9,21 +9,27 @@ def square = fillColor(ColorHSB(0, 100, 15)) * penColor(NoColor) -> Picture {
 
 def circle0(r: Double) = Picture {
     penUp()
+    right()
     forward(r)
+    left()
     penDown()
-    repeat (360) {
-        forward(2*math.Pi*r/360)
-        right(1)
-    }
+    
+    circle(r)
+    
+    penUp()
+    left()
+    forward(r)
+    right()
+    penDown()
 }
 
-def circle = fillColor(ColorHSB(240, 100, 20)) * penColor(NoColor) -> circle0(Siz/2)
+def circ = fillColor(ColorHSB(240, 100, 20)) * penColor(NoColor) -> circle0(Siz/2)
 
 def twoshapes(s: Double): Picture = {
     def shape = {
         GPics(
-            trans(Siz, 0) -> square,
-            scale(0.5) -> circle
+            trans(Siz/2, -Siz/4) -> square,
+            scale(0.5) -> circ
         )
     }
     
@@ -33,7 +39,7 @@ def twoshapes(s: Double): Picture = {
     else {
         GPics(
             shape,
-            brit(0.2)  * trans(0.05 * Siz, Siz * 0.4) * scale(0.8) -> twoshapes(s*0.8)
+            brit(0.2)  * trans(0,Siz * 0.4) * scale(0.8) -> twoshapes(s*0.8)
         )
     }
 }
@@ -42,6 +48,6 @@ clear()
 invisible()
 val pic = GPics(
     twoshapes(1),
-    opac(-0.7) * trans(-Siz, -Siz) * fillColor(ColorG(-2*Siz, 0, blue, 5*Siz, 0, red, false)) * penColor(NoColor) -> circle0(2*Siz)
+    opac(-0.7) * fillColor(ColorG(-1.5*Siz, 0, blue, 3*Siz, 0, red, false)) * penColor(NoColor) -> circle0(2*Siz)
 )
 draw(pic)
