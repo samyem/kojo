@@ -476,6 +476,7 @@ class Pic0(painter: Painter) extends Pic(painter) {
     super.realDraw()
     Impl.canvas.restoreDefTurtle()
   }
+  override def copy: Picture = Pic0(painter)
 }
 
 abstract class BasePicList(val pics: List[Picture]) 
