@@ -469,8 +469,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def forceClear() {
-    stop()
-    clearHelper()
+    clear()
   }
   
   def makeStagingVisible() {
@@ -726,7 +725,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         }
       })
     add(resetPanZoomItem)
-    val clearItem = new JMenuItem("Clear + Stop Animation")
+    val clearItem = new JMenuItem("Clear")
     clearItem.addActionListener(new ActionListener {
         override def actionPerformed(e: ActionEvent) {
           forceClear()
