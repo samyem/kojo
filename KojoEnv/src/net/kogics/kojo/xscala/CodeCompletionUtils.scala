@@ -99,7 +99,9 @@ object CodeCompletionUtils {
   val TwMethodTemplates = Map(
     "pict" -> "Picture {\n    ${cursor}\n}",
     "Picture" -> "Picture {\n    ${cursor}\n}",
-    "Pic" -> "Pic { t =>\n    import t._\n    ${cursor}\n}"
+    "Pic" -> "Pic { t =>\n    import t._\n    ${cursor}\n}",
+    "circle" -> "circle(${radius})",
+    "arc" -> "arc(${radius}, ${angle})"
   ) 
 
   val MwMethodTemplates = Map(

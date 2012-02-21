@@ -149,6 +149,12 @@ class Builtins extends RepeatCommands {
     override def restoreStyle() = turtle0.restoreStyle()
     UserCommand.addCompletion("restoreStyle", Nil)
 
+    override def savePosHe() = turtle0.savePosHe()
+    UserCommand("savePosHe", Nil, "Saves the turtle's current position and heading")
+
+    override def restorePosHe() = turtle0.restorePosHe()
+    UserCommand("restorePosHe", Nil, "Restores the turtle's current position and heading")
+
     override def beamsOn() = turtle0.beamsOn()
     UserCommand("beamsOn", Nil, "Shows crossbeams centered on the turtle - to help with solving puzzles.")
 
@@ -182,10 +188,7 @@ class Builtins extends RepeatCommands {
     override def style: Style = turtle0.style
 
     override def arc(r: Double, a: Int) = turtle0.arc(r, a)
-    UserCommand("arc", List("radius", "angle"), "Makes the turtle draw an arc with the specified radius and angle, centered at the turtle's current position.")
-
     override def circle(r: Double) = turtle0.circle(r)
-    UserCommand("circle", List("radius"), "Makes the turtle draw a circle with the specified radius, centered at the turtle's current position.")
   }
   // Define class and then define value - to get around:
   // Problem finding completions: assertion failed: fatal: <refinement> has non-class owner value Tw after flatten.

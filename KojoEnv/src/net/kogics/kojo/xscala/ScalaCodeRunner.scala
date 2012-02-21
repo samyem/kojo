@@ -192,6 +192,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     }
 
     def act() {
+      val twImports = "import TSCanvas._; import Tw._"
       while(true) {
         receive {
           // Runs on Actor pool thread.
@@ -203,6 +204,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
               outputHandler.withOutputSuppressed {
                 interp.interpret("import TSCanvas._")
                 interp.interpret("import Tw._")
+                cmodeInit = twImports
               }
               printInitScriptsLoadMsg()
               loadInitScripts()
@@ -218,6 +220,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
               outputHandler.withOutputSuppressed {
                 interp.interpret("import TSCanvas._")
                 interp.interpret("import Tw._")
+                cmodeInit = twImports
                 loadInitScripts()
               }
             }
@@ -227,7 +230,9 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
               interp.reset()
               initInterp()
               outputHandler.withOutputSuppressed {
-                interp.interpret("import TSCanvas._; import Staging._")
+                val imports = "import TSCanvas._; import Staging._"
+                interp.interpret(imports)
+                cmodeInit = imports
                 loadInitScripts()
               }
             }
@@ -237,7 +242,9 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
               interp.reset()
               initInterp()
               outputHandler.withOutputSuppressed {
-                interp.interpret("import Mw._")
+                val imports = "import Mw._"
+                interp.interpret(imports)
+                cmodeInit = imports
                 loadInitScripts()
               }
             }
@@ -374,6 +381,13 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       }
     }
     
+    @volatile var cmodeInit = ""
+    
+    def compilerInitCode: Option[String] = {
+      val ic = initCode.getOrElse("")
+      Some("%s\n%s" format(cmodeInit, ic))
+    }
+    
     def makeSettings() = {
       val iSettings = new Settings()
       iSettings.classpath.append(createCp(jars))
@@ -381,7 +395,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     }
 
     def loadCompiler() {
-      compilerAndRunner = new CompilerAndRunner(makeSettings, initCode, new CompilerOutputHandler(ctx)) {
+      compilerAndRunner = new CompilerAndRunner(makeSettings, compilerInitCode, new CompilerOutputHandler(ctx)) {
         override protected def parentClassLoader = classOf[ScalaCodeRunner].getClassLoader
       }
       compilerAndRunner.setContextClassLoader()
