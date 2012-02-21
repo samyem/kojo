@@ -11,7 +11,7 @@ val codeStyle = "font-size:90%;"
 
 def pgHeader(hdr: String) =
     <p style={headerStyle}>
-        {xml.Unparsed(hdr)}
+        {hdr}
         <hr/>
         <br/>
     </p>
@@ -106,7 +106,7 @@ def code(n: Int) = {
     <div style="background-color:CCFFFF;margin-top:10px"> 
         <hr/>
         <pre><code><a href={runLink(n)} style="text-decoration: none;font-size:x-small;">
-                    {xml.Unparsed(examples(n))}</a></code></pre>
+                    {examples(n)}</a></code></pre>
         <hr/>
     </div>
 }
