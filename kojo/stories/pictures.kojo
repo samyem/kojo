@@ -20,7 +20,6 @@ def pgHeader(hdr: String) =
 val examples = List(
     """
 def p(size: Int) = Picture { 
-    import t._
     repeat (4) {
         forward(size)
         right()
