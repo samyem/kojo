@@ -14,7 +14,7 @@ val sublistStyle = "margin-left:60px;"
 
 def pgHeader(hdr: String) =
     <p style={headerStyle}>
-        {xml.Unparsed(hdr)}
+        {hdr}
         <hr/>
     </p>
 
@@ -187,7 +187,7 @@ pages += IncrPage(
             <p>
                 Here's an example of such a program:
                 <pre style={codeStyle}>
-                    {xml.Unparsed(squareSample)}
+                    {squareSample}
                 </pre>
             </p>
         ),
@@ -344,7 +344,7 @@ pages += IncrPage(
         Para(
             <span>
                 <pre style={codeStyle}>
-                    {xml.Unparsed(treeSample)}
+                    {treeSample}
                 </pre>
                 Click on the <em>Make Tree</em> button below to run
                 this program.
