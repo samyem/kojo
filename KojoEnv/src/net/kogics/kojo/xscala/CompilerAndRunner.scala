@@ -55,7 +55,6 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
   val prefix0 = """object Wrapper%d {
   val builtins = net.kogics.kojo.xscala.Builtins.instance
   import builtins._
-  import TSCanvas._; import Tw._
   val Staging = net.kogics.kojo.staging.API
   val Mw = net.kogics.kojo.mathworld.MathWorld.instance
   def entry() {
@@ -63,9 +62,9 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
   }
 """ 
 
-  val prefix = prefix0 + initCode.getOrElse("")
+  def prefix = "%s%s\n" format(prefix0, initCode.getOrElse(""))
 
-  val prefixLines = prefix.lines.size
+  def prefixLines = prefix.lines.size
 
   val codeTemplate = """%s
 %s
@@ -149,7 +148,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
 
   def compileAndRun(code0: String) = {
 
-    val result = compile(code0, Nil) // needs more testing, after stopPhase change
+    val result = compile(code0, Nil) 
 
     if (result == IR.Success) {
       if (Thread.interrupted) {

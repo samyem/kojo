@@ -28,6 +28,8 @@ trait TurtleMover extends RichTurtleCommands {
   def setFillColor(color: Paint): Unit
   def saveStyle(): Unit
   def restoreStyle(): Unit
+  def savePosHe(): Unit
+  def restorePosHe(): Unit
   def style: Style
   def towards(x: Double, y: Double): Unit
   def towards(p: Point): Unit = towards(p.x, p.y)

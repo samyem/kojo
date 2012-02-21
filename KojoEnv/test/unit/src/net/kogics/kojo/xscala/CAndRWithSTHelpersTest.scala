@@ -20,7 +20,8 @@ package xscala
 // Tests with User supplied init code loaded into the compiler
 class CAndRWithSTHelpersTest extends CompilerAndRunnerTestBase {
   
-  def userCode = """class X {
+  def userCode = """import TSCanvas._; import Tw._
+class X {
     val x1 = 10
     var x2 = 20
     

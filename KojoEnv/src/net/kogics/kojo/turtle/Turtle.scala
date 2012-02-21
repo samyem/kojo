@@ -74,9 +74,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private var _position: Point2D.Double = _
   private var theta: Double = _
-  private var removed: Boolean = false
 
   private val savedStyles = new mutable.Stack[Style]
+  private val savedPosHe = new mutable.Stack[(Point2D.Double, Double)]
   private var isVisible: Boolean = _
   private var areBeamsOn: Boolean = _
   private var forwardAnimation: PActivity = _
@@ -160,49 +160,10 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   private def thetaDegrees = Utils.rad2degrees(theta)
   private def thetaRadians = theta
 
-  def forward(n: Double) = realForward(n)
-  def turn(angle: Double) = realTurn(angle)
-  def clear() = realClear()
+  def turn(angle: Double) = Utils.runInSwingThread {
+    realTurn(angle)
+  }
   
-  def penUp() = realPenUp()
-  def penDown() = realPenDown()
-  def towards(x: Double, y: Double) = realTowards(x, y)
-  def jumpTo(x: Double, y: Double) = realJumpTo(x, y)
-  def moveTo(x: Double, y: Double) = realMoveTo(x, y)
-  def setPenColor(color: Color) = realSetPenColor(color)
-  def setFillColor(color: Paint) = realSetFillColor(color)
-  def saveStyle() = realSaveStyle()
-  def restoreStyle() = realRestoreStyle()
-  def beamsOn() = realBeamsOn()
-  def beamsOff() = realBeamsOff()
-  def write(text: String) = realWrite(text)
-  def visible() = realShow()
-  def invisible() = realHide()
-  def playSound(voice: Voice) = realPlaySound(voice)
-  def setAnimationDelay(d: Long) = {
-    if (d < 0) {
-      throw new IllegalArgumentException("Negative delay not allowed")
-    }
-    realSetAnimationDelay(d)
-  }
-  def setPenThickness(t: Double) = {
-    if (t < 0) {
-      throw new IllegalArgumentException("Negative thickness not allowed")
-    }
-    realSetPenThickness(t)
-  }
-  def setPenFontSize(n: Int) = {
-    if (n < 0) {
-      throw new IllegalArgumentException("Negative font size not allowed")
-    }
-    realSetFontSize(n)
-  }
-
-  def remove() = {
-    realRemove()
-    removed = true
-  }
-
   def animationDelay = _animationDelay
 
   def position: Point = Utils.runInSwingThreadAndWait {
@@ -219,7 +180,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private def currStyle = Style(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize)
 
-  private def realForward(n: Double): Unit = {
+  def forward(n: Double): Unit = {
     def newPoint = {
       val p0 = _position
       val p1 = posAfterForward(p0.x, p0.y, theta, n)
@@ -292,13 +253,13 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
   }
 
-  private def realTurn(angle: Double) = Utils.runInSwingThread {
+  private def realTurn(angle: Double) {
     val newTheta = thetaAfterTurn(angle, theta)
     changeHeading(newTheta)
     turtle.repaint()
   }
 
-  private def realClear() = Utils.runInSwingThread {
+  def clear() = Utils.runInSwingThread {
     pen.clear()
     layer.removeAllChildren() // get rid of stuff not written by pen, like text nodes
     init()
@@ -307,73 +268,101 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     canvas.afterClear()
   }
 
-  private def realRemove() = Utils.runInSwingThread {
+  def remove() = Utils.runInSwingThread {
     pen.clear
     layer.removeChild(turtle)
     camera.removeLayer(layer)
   }
 
-  private def realPenUp() = Utils.runInSwingThread {
+  def penUp() = Utils.runInSwingThread {
     pen = UpPen
   }
 
-  private def realPenDown() = Utils.runInSwingThread {
+  def penDown() = Utils.runInSwingThread {
     if (pen != DownPen) {
       pen = DownPen
       pen.updatePosition()
     }
   }
 
-  private def realTowards(x: Double, y: Double) = Utils.runInSwingThread {
+  def towards(x: Double, y: Double) = Utils.runInSwingThread {
     val newTheta = towardsHelper(x, y)
     changeHeading(newTheta)
     turtle.repaint()
   }
 
-  private def realJumpTo(x: Double, y: Double) = Utils.runInSwingThread {
+  def jumpTo(x: Double, y: Double) = Utils.runInSwingThread {
     changePos(x, y)
     pen.updatePosition()
     turtle.repaint()
   }
 
-  private def realMoveTo(x: Double, y: Double) {
+  def moveTo(x: Double, y: Double) {
     Utils.runInSwingThread {
       val newTheta = towardsHelper(x, y)
       changeHeading(newTheta)
     }
-    realForward(distanceTo(x,y))
+    forward(distanceTo(x,y))
   }
 
-  private def realSetAnimationDelay(d: Long) {
+  def setAnimationDelay(d: Long) {
+    if (d < 0) {
+      throw new IllegalArgumentException("Negative delay not allowed")
+    }
+    // set it right here, as opposed to in the swing thread
+    // because forward() uses it within the calling thread to calculate delay 
     _animationDelay = d
   }
 
-  private def realSetPenColor(color: Color) = Utils.runInSwingThread {
+  def setPenColor(color: Color) = Utils.runInSwingThread {
     pen.setColor(color)
   }
 
-  private def realSetPenThickness(t: Double) = Utils.runInSwingThread {
-    pen.setThickness(t)
+  def setPenThickness(t: Double) {
+    if (t < 0) {
+      throw new IllegalArgumentException("Negative thickness not allowed")
+    }
+    Utils.runInSwingThread {
+      pen.setThickness(t)
+    }
   }
 
-  private def realSetFontSize(n: Int) = Utils.runInSwingThread {
-    pen.setFontSize(n)
+  def setPenFontSize(n: Int) {
+    if (n < 0) {
+      throw new IllegalArgumentException("Negative font size not allowed")
+    }
+    Utils.runInSwingThread {
+      pen.setFontSize(n)
+    }
   }
 
-  private def realSetFillColor(color: Paint) = Utils.runInSwingThread {
+  def setFillColor(color: Paint) = Utils.runInSwingThread {
     pen.setFillColor(color)
   }
 
-  private def realSaveStyle() = Utils.runInSwingThread {
+  def saveStyle() = Utils.runInSwingThread {
     savedStyles.push(currStyle)
   }
 
-  private def realRestoreStyle() = Utils.runInSwingThread {
+  def savePosHe() = Utils.runInSwingThread {
+    savedPosHe.push((_position, theta))
+  }
+
+  def restoreStyle() = Utils.runInSwingThread {
     if (savedStyles.size == 0) {
       throw new IllegalStateException("No saved style to restore")
     }
     val style = savedStyles.pop()
     pen.setStyle(style)
+  }
+
+  def restorePosHe() = Utils.runInSwingThread {
+    if (savedPosHe.size == 0) {
+      throw new IllegalStateException("No saved Position and Heading to restore")
+    }
+    val (p,h) = savedPosHe.pop()
+    jumpTo(p.x, p.y)
+    changeHeading(h)
   }
 
   private def beamsOnWorker() {
@@ -394,24 +383,23 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
   }
 
-  private def realBeamsOn() = Utils.runInSwingThread {
+  def beamsOn() = Utils.runInSwingThread {
     beamsOnWorker()
   }
 
-  private def realBeamsOff() = Utils.runInSwingThread {
+  def beamsOff() = Utils.runInSwingThread {
     beamsOffWorker()
   }
 
-  private def realWrite(text: String) = Utils.runInSwingThread {
+  def write(text: String) = Utils.runInSwingThread {
     pen.write(text)
-//    turtle.repaint()
   }
 
-  private def realHide() = Utils.runInSwingThread {
+  def invisible() = Utils.runInSwingThread {
     hideWorker()
   }
 
-  private def realShow() = Utils.runInSwingThread {
+  def visible() = Utils.runInSwingThread {
     showWorker()
   }
 
@@ -432,7 +420,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
   }
 
-  private def realPlaySound(voice: core.Voice) = Utils.runInSwingThread {
+  def playSound(voice: core.Voice) = Utils.runInSwingThread {
     import music._
     try {
       Music(voice).play()
@@ -453,13 +441,22 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     turtle.repaint()
   }
 
-  def arc(r: Double, a: Int) = Utils.runInSwingThread {
-    var i = 0
-    val (lim, step, trn) = if (a > 0) (a, 2 * math.Pi * r / 360, 1) else (-a, -2 * math.Pi * r / 360, -1)
-    while(i < lim) {
-      forwardNoAnim(step)
-      realTurn(trn)
-      i += 1
+  def arc(r: Double, a: Int) {
+    def makeArc(lforward: Double => Unit, lturn: Double => Unit) {
+      var i = 0
+      val (lim, step, trn) = if (a > 0) (a, 2 * math.Pi * r / 360, 1) else (-a, -2 * math.Pi * r / 360, -1)
+      while(i < lim) {
+        lforward(step)
+        lturn(trn)
+        i += 1
+      }
+    }
+    
+    if (animationDelay < 5) Utils.runInSwingThread {
+      makeArc(forwardNoAnim _, realTurn _)
+    }
+    else {
+      makeArc(forward _, turn _)
     }
   }
 
