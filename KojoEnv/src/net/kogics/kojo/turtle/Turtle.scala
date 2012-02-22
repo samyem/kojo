@@ -444,7 +444,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   def arc(r: Double, a: Int) {
     def makeArc(lforward: Double => Unit, lturn: Double => Unit) {
       var i = 0
-      val (lim, step, trn) = if (a > 0) (a, 2 * math.Pi * r / 360, 1) else (-a, -2 * math.Pi * r / 360, -1)
+      val (lim, step, trn) = if (a > 0) (a, 2 * math.Pi * r / 360, 1) else (-a, 2 * math.Pi * r / 360, -1)
       while(i < lim) {
         lforward(step)
         lturn(trn)
