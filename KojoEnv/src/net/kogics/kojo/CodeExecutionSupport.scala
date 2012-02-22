@@ -699,8 +699,12 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   }
 
   def stopScript() {
-    codeRunner.interruptInterpreter()
+    stopInterpreter()
     stopAnimation()
+  }
+
+  def stopInterpreter() {
+    codeRunner.interruptInterpreter()
   }
 
   def stopAnimation() {

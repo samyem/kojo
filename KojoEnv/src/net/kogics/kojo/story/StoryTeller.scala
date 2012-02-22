@@ -178,6 +178,7 @@ class StoryTeller extends JPanel with music.Mp3Player {
 
   private def prevPage() {
     // needs to run on GUI thread
+    kojoCtx.stopInterpreter()
     newPage()
     if (story.hasPrevView) {
       story.back()
@@ -191,6 +192,7 @@ class StoryTeller extends JPanel with music.Mp3Player {
 
   def nextPage() {
     // needs to run on GUI thread
+    kojoCtx.stopInterpreter()
     newPage()
 
     if (story.hasNextView) {
@@ -241,6 +243,7 @@ class StoryTeller extends JPanel with music.Mp3Player {
   }
 
   def done() {
+    kojoCtx.stopInterpreter()
     Utils.runInSwingThread {
       if (savedStory.isDefined) {
         currStory = savedStory
