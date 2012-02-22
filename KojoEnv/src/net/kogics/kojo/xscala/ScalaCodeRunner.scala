@@ -127,7 +127,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
         return
       }
 
-//      kprintln("Attempting to stop Script...\n")
+      kprintln("Attempting to stop Script...\n")
 
       if (interpreterThread.isDefined) {
         Log.info("Interrupting Interpreter thread...")
@@ -141,7 +141,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
         stoppable.get.stop(interpreterThread.get)
       }
       else {
-//        kprintln("Animation Stopped.\n")
+        kprintln("Animation Stopped.\n")
       }
     }
 

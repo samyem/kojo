@@ -699,11 +699,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   }
 
   def stopScript() {
+    codeRunner.interruptInterpreter()
     stopAnimation()
   }
 
   def stopAnimation() {
-    codeRunner.interruptInterpreter()
     tCanvas.stop()
     fuguePlayer.stopMusic()
     fuguePlayer.stopBgMusic()
