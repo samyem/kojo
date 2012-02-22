@@ -84,4 +84,8 @@ class KojoCtx extends core.KojoCtx {
   def stopAnimation() = Utils.runInSwingThread {
     CodeExecutionSupport.instance.stopAnimation()
   }
+  
+  def stopInterpreter() = Utils.runInSwingThread {
+    CodeExecutionSupport.instance.stopInterpreter()
+  }
 }

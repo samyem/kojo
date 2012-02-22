@@ -21,5 +21,6 @@ trait KojoCtx {
   def makeMathWorldVisible()
   def makeStoryTellerVisible()
   def baseDir: String
+  def stopInterpreter(): Unit
   def stopAnimation(): Unit
 }
