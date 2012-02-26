@@ -72,6 +72,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
   case class MethodCompletionRequest(str: String)
   case class VarCompletionRequest(str: String)
   case class KeywordCompletionRequest(str: String)
+  case class CompilerCompletionRequest(code: String, codeFragment: String, offset: Int)
   case class CompletionResponse(data: (List[String], Int))
   case object ActivateTw
   case object ActivateStaging
@@ -90,6 +91,11 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
 
   def keywordCompletions(str: String): (List[String], Int) = {
     val resp = (codeRunner !? KeywordCompletionRequest(str)).asInstanceOf[CompletionResponse]
+    resp.data
+  }
+
+  def compilerCompletions(code: String, codeFragment: String, offset: Int): (List[String], Int) = {
+    val resp = (codeRunner !? CompilerCompletionRequest(code, codeFragment, offset)).asInstanceOf[CompletionResponse]
     resp.data
   }
 
@@ -367,6 +373,11 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
             safeProcessCompletionReq {
               keywordCompletions(str)
             }
+
+          case CompilerCompletionRequest(code, codeFragment, offset) =>
+            safeProcessCompletionReq {
+              compilerCompletions(code, codeFragment, offset)
+            }
         }
       }
     }
@@ -593,6 +604,12 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
         val c2s = Keywords.filter {s => s != null && s.startsWith(prefix)}
         (c2s, prefix.length)
       }
+    }
+
+    def compilerCompletions(code: String, codeFragment: String, offset: Int): (List[String], Int) = {
+      val (oIdentifier, oPrefix) = findIdentifier(codeFragment)
+      val prefix = if(oPrefix.isDefined) oPrefix.get else ""
+      (compilerAndRunner.completions(code, offset).filter {_.startsWith(prefix)}, prefix.length)
     }
   }
 
