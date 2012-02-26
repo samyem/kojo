@@ -474,6 +474,7 @@ Here's a partial list of the available commands:
   
   // for debugging only
   def kojoInterp = scalaCodeRunner.kojointerp
+  def pcompiler = scalaCodeRunner.pcompiler
   
   def reimportBuiltins() { 
     interpret("import TSCanvas._; import Tw._")

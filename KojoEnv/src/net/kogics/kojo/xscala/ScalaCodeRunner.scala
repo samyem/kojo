@@ -32,6 +32,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
   
   // for debugging only!
   @volatile var kojointerp: scala.tools.nsc.interpreter.IMain = _
+  @volatile var pcompiler: scala.tools.nsc.interactive.Global = _
   
   val codeRunner = startCodeRunner()
 
@@ -410,6 +411,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
         override protected def parentClassLoader = classOf[ScalaCodeRunner].getClassLoader
       }
       compilerAndRunner.setContextClassLoader()
+      pcompiler = compilerAndRunner.pcompiler
     }
 
     def initInterp() {

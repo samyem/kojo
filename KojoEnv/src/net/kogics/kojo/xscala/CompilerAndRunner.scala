@@ -231,9 +231,12 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
 //      severity.count += 1
     }
   }
-  val presc = new interactive.Global(settings, preporter) 
+  val pcompiler = new interactive.Global(settings, preporter) 
   
   def completions(code0: String, offset: Int): List[String] = {
+    def addParensAfterOffset(c: String) = {
+      "%s  () %s" format(c.substring(0, offset), c.substring(offset, c.length))
+    }
     def addResultColon(str: String) = {
       val li = str.lastIndexOf(')')
       "%s: %s" format(str.substring(0,li+1), str.substring(li+1, str.length))
@@ -243,26 +246,26 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
 
     val pfx = Utils.stripCR(prefix format(counter))
     val offsetDelta = pfx.length
-    val code = Utils.stripCR(codeTemplate format(pfx, code0))
-
+    val code = Utils.stripCR(codeTemplate format(pfx, addParensAfterOffset(code0)))
+    
     val source = new BatchSourceFile("scripteditor", code)
     val pos = new OffsetPosition(source, offset + offsetDelta + 1)
 
     var r1 = new Response[Unit]
-    presc.askReload(List(source), r1)
+    pcompiler.askReload(List(source), r1)
 
-    var resp = new Response[List[presc.Member]]
-    presc.askTypeCompletion(pos, resp)
+    var resp = new Response[List[pcompiler.Member]]
+    pcompiler.askTypeCompletion(pos, resp)
     resp.get match {
       case Left(x) => x filter (_.sym.isMethod) map {e => e.tpe match {
-            case mt: presc.MethodType => "%s(%s): %s" format(e.sym.nameString, 
+            case mt: pcompiler.MethodType => "%s(%s): %s" format(e.sym.nameString, 
                                                              mt.params.map(_ nameString).zip(mt.paramTypes.map(_.toString)).map{p => "%s: %s" format(p._1, p._2)}.mkString(", "),
                                                              mt.resultType.toString)
-            case mt: presc.PolyType => "%s%s" format(e.sym.nameString, addResultColon(mt.resultType.toString))
+            case mt: pcompiler.PolyType => "%s%s" format(e.sym.nameString, addResultColon(mt.resultType.toString))
             case t @ _ => "%s - %s of type- %s" format(e.sym.nameString, t.getClass, t.toString)
           }
         }
-      case Right(y) => Nil  
+      case Right(y) => println(y); Nil  
     }
   }
 }
