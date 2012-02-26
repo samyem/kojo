@@ -114,7 +114,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
   def setContextClassLoader() = classLoader.setAsContext()
 
   val reporter = new Reporter {
-    override def info0(position: Position, msg: String, severity: Severity, force: Boolean) = {
+    override def info0(position: Position, msg: String, severity: Severity, force: Boolean) {
       severity.count += 1
       lazy val line = position.line - prefixLines - 1 // we added an extra line after the prefix in the code template. Take it off
       lazy val offset = position.startOrPoint - offsetDelta - 1 // we added an extra newline char after the prefix
@@ -223,5 +223,46 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
   private def stopPhase() = {
     val ret = Builtins.instance.astStopPhase
     if (ret != null && ret != "") List(ret) else Nil
+  }
+
+  
+  val preporter = new Reporter {
+    override def info0(position: Position, msg: String, severity: Severity, force: Boolean) {
+//      severity.count += 1
+    }
+  }
+  val presc = new interactive.Global(settings, preporter) 
+  
+  def completions(code0: String, offset: Int): List[String] = {
+    def addResultColon(str: String) = {
+      val li = str.lastIndexOf(')')
+      "%s: %s" format(str.substring(0,li+1), str.substring(li+1, str.length))
+    }
+   
+    import interactive._
+
+    val pfx = Utils.stripCR(prefix format(counter))
+    val offsetDelta = pfx.length
+    val code = Utils.stripCR(codeTemplate format(pfx, code0))
+
+    val source = new BatchSourceFile("scripteditor", code)
+    val pos = new OffsetPosition(source, offset + offsetDelta + 1)
+
+    var r1 = new Response[Unit]
+    presc.askReload(List(source), r1)
+
+    var resp = new Response[List[presc.Member]]
+    presc.askTypeCompletion(pos, resp)
+    resp.get match {
+      case Left(x) => x filter (_.sym.isMethod) map {e => e.tpe match {
+            case mt: presc.MethodType => "%s(%s): %s" format(e.sym.nameString, 
+                                                             mt.params.map(_ nameString).zip(mt.paramTypes.map(_.toString)).map{p => "%s: %s" format(p._1, p._2)}.mkString(", "),
+                                                             mt.resultType.toString)
+            case mt: presc.PolyType => "%s%s" format(e.sym.nameString, addResultColon(mt.resultType.toString))
+            case t @ _ => "%s - %s of type- %s" format(e.sym.nameString, t.getClass, t.toString)
+          }
+        }
+      case Right(y) => Nil  
+    }
   }
 }

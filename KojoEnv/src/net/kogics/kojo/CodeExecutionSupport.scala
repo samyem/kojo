@@ -838,6 +838,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def methodCompletions(caretOffset: Int) = codeRunner.methodCompletions(codeFragment(caretOffset))
   def varCompletions(caretOffset: Int) = codeRunner.varCompletions(codeFragment(caretOffset))
   def keywordCompletions(caretOffset: Int) = codeRunner.keywordCompletions(codeFragment(caretOffset))
+  def compilerCompletions(caretOffset: Int) = codeRunner.compilerCompletions(Utils.stripCR(codePane.getText), codeFragment(caretOffset), caretOffset)
 
   var openedFile: Option[File] = None
   var fileData: String = _

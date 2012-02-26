@@ -112,6 +112,15 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
                                                 scalaImageIcon))
     }
 
+    if (proposals.size == 0) {
+      val (compilerCompletions, coffset) = completionSupport.compilerCompletions(caretOffset)
+      compilerCompletions.foreach { completion =>
+        proposals.add(new ScalaCompletionProposal(caretOffset - coffset, completion,
+                                                  ElementKind.METHOD,
+                                                  null))
+      }
+    }
+
     if (proposals.size > 1)
       proposals.add(new ScalaCompletionProposal(caretOffset, "               ", ElementKind.OTHER))
 

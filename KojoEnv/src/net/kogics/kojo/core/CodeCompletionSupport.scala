@@ -19,4 +19,5 @@ trait CodeCompletionSupport {
   def methodCompletions(caretOffset: Int): (List[String], Int)
   def varCompletions(caretOffset: Int): (List[String], Int)
   def keywordCompletions(caretOffset: Int): (List[String], Int)
+  def compilerCompletions(caretOffset: Int): (List[String], Int)
 }
