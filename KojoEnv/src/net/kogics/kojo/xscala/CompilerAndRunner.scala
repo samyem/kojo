@@ -233,9 +233,10 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
   }
   val pcompiler = new interactive.Global(settings, preporter) 
   
-  def completions(code0: String, offset: Int): List[String] = {
+  import core.CompletionInfo
+  def completions(code0: String, offset: Int): List[CompletionInfo] = {
     def addParensAfterOffset(c: String) = {
-      "%s  () %s" format(c.substring(0, offset), c.substring(offset, c.length))
+      "%s  () // %s" format(c.substring(0, offset), c.substring(offset, c.length))
     }
     def addResultColon(str: String) = {
       val li = str.lastIndexOf(')')
@@ -257,12 +258,24 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
     var resp = new Response[List[pcompiler.Member]]
     pcompiler.askTypeCompletion(pos, resp)
     resp.get match {
+//      case Left(x) => x filter (_.sym.isMethod) map {e => e.tpe match {
+//            case mt: pcompiler.MethodType => "%s(%s): %s" format(e.sym.nameString, 
+//                                                             mt.params.map(_ nameString).zip(mt.paramTypes.map(_.toString)).map{p => "%s: %s" format(p._1, p._2)}.mkString(", "),
+//                                                             mt.resultType.toString)
+//            case mt: pcompiler.PolyType => "%s%s" format(e.sym.nameString, addResultColon(mt.resultType.toString))
+//            case t @ _ => "%s - %s of type- %s" format(e.sym.nameString, t.getClass, t.toString)
+//          }
+//        }
       case Left(x) => x filter (_.sym.isMethod) map {e => e.tpe match {
-            case mt: pcompiler.MethodType => "%s(%s): %s" format(e.sym.nameString, 
-                                                             mt.params.map(_ nameString).zip(mt.paramTypes.map(_.toString)).map{p => "%s: %s" format(p._1, p._2)}.mkString(", "),
-                                                             mt.resultType.toString)
-            case mt: pcompiler.PolyType => "%s%s" format(e.sym.nameString, addResultColon(mt.resultType.toString))
-            case t @ _ => "%s - %s of type- %s" format(e.sym.nameString, t.getClass, t.toString)
+            case mt: pcompiler.MethodType => CompletionInfo(e.sym.nameString, 
+                                                            mt.params.map(_ nameString), 
+                                                            mt.paramTypes.map(_.toString), 
+                                                            mt.resultType.toString)
+            case pt: pcompiler.PolyType => CompletionInfo(e.sym.nameString, 
+                                                          pt.resultType.params.map(_ nameString), 
+                                                          pt.resultType.paramTypes.map(_.toString), 
+                                                          pt.resultType.resultType.toString)
+            case t @ _ => CompletionInfo(e.sym.nameString, List("todo2"), List("todo2"), "todo2")
           }
         }
       case Right(y) => println(y); Nil  

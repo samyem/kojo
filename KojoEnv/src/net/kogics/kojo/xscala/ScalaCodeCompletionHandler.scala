@@ -12,7 +12,8 @@
  * rights and limitations under the License.
  *
  */
-package net.kogics.kojo.xscala
+package net.kogics.kojo
+package xscala
 
 import javax.swing._
 import javax.swing.text.{BadLocationException, JTextComponent}
@@ -73,6 +74,37 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     def getCustomInsertTemplate: String = template
   }
 
+  import core.CompletionInfo
+  class ScalaCompletionProposal2(offset: Int, proposal: CompletionInfo, kind: ElementKind, 
+                                 icon: ImageIcon = null) extends CompletionProposal {
+    val elemHandle = new ScalaElementHandle(proposal.name, offset, kind)
+    def getAnchorOffset: Int = offset
+    def getName: String = proposal.name
+    def getInsertPrefix: String = proposal.name
+    def getSortText: String = proposal.name
+    def getSortPrioOverride: Int = 0
+    def getElement: ElementHandle = elemHandle
+    def getKind: ElementKind = kind
+    def getIcon: ImageIcon = icon
+    def getLhsHtml(fm: HtmlFormatter): String = {
+      val kind = getKind
+      fm.name(kind, true)
+      fm.appendText(proposal.name)
+      fm.name(kind, false)
+      fm.parameters(true)
+      fm.appendText(proposal.params.zip(proposal.paramTypes).
+                    map{ p => "%s: %s" format(p._1, p._2) }.
+                    mkString("(", ", ", ")"))
+      fm.parameters(false)
+      fm.getText
+    }
+    def getRhsHtml(fm: HtmlFormatter): String = proposal.ret
+    def getModifiers: java.util.Set[Modifier] = elemHandle.getModifiers
+    override def toString: String = "Proposal2(%s)" format(proposal)
+    def isSmart: Boolean = false
+    def getCustomInsertTemplate: String = "%s(%s)" format(proposal.name, proposal.params.map{"${%s}"format(_)}.mkString(","))
+  }
+  
   val scalaImageIcon = Utils.loadIcon("/images/scala16x16.png")
 
   def methodTemplate(completion: String) = {
@@ -115,9 +147,8 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     if (proposals.size == 0) {
       val (compilerCompletions, coffset) = completionSupport.compilerCompletions(caretOffset)
       compilerCompletions.foreach { completion =>
-        proposals.add(new ScalaCompletionProposal(caretOffset - coffset, completion,
-                                                  ElementKind.METHOD,
-                                                  null))
+        proposals.add(new ScalaCompletionProposal2(caretOffset - coffset, completion,
+                                                  ElementKind.METHOD))
       }
     }
 
