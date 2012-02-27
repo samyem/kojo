@@ -75,6 +75,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
   case class KeywordCompletionRequest(str: String)
   case class CompilerCompletionRequest(code: String, codeFragment: String, offset: Int)
   case class CompletionResponse(data: (List[String], Int))
+  case class CompletionResponse2(data: (List[CompletionInfo], Int))
   case object ActivateTw
   case object ActivateStaging
   case object ActivateMw
@@ -95,8 +96,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     resp.data
   }
 
-  def compilerCompletions(code: String, codeFragment: String, offset: Int): (List[String], Int) = {
-    val resp = (codeRunner !? CompilerCompletionRequest(code, codeFragment, offset)).asInstanceOf[CompletionResponse]
+  def compilerCompletions(code: String, codeFragment: String, offset: Int): (List[CompletionInfo], Int) = {
+    val resp = (codeRunner !? CompilerCompletionRequest(code, codeFragment, offset)).asInstanceOf[CompletionResponse2]
     resp.data
   }
 
@@ -198,6 +199,17 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       }
     }
 
+    def safeProcessCompletionReq2(fn: => (List[CompletionInfo], Int)) {
+      try {
+        reply(CompletionResponse2(fn))
+      }
+      catch {
+        case t: Throwable =>
+          Log.warning("Problem finding completions: " + t.getMessage)
+          reply(CompletionResponse2(List(), 0))
+      }
+    }
+    
     def act() {
       val twImports = "import TSCanvas._; import Tw._"
       while(true) {
@@ -376,7 +388,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
             }
 
           case CompilerCompletionRequest(code, codeFragment, offset) =>
-            safeProcessCompletionReq {
+            safeProcessCompletionReq2 {
               compilerCompletions(code, codeFragment, offset)
             }
         }
@@ -608,10 +620,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       }
     }
 
-    def compilerCompletions(code: String, codeFragment: String, offset: Int): (List[String], Int) = {
+    def compilerCompletions(code: String, codeFragment: String, offset: Int): (List[CompletionInfo], Int) = {
       val (oIdentifier, oPrefix) = findIdentifier(codeFragment)
       val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-      (compilerAndRunner.completions(code, offset).filter {_.startsWith(prefix)}, prefix.length)
+      (compilerAndRunner.completions(code, offset-prefix.length).filter {_.name.startsWith(prefix)}, prefix.length)
     }
   }
 

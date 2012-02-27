@@ -15,9 +15,16 @@
 
 package net.kogics.kojo.core
 
+case class CompletionInfo(
+  name: String,
+  params: List[String],
+  paramTypes: List[String],
+  ret: String
+)
+
 trait CodeCompletionSupport {
   def methodCompletions(caretOffset: Int): (List[String], Int)
   def varCompletions(caretOffset: Int): (List[String], Int)
   def keywordCompletions(caretOffset: Int): (List[String], Int)
-  def compilerCompletions(caretOffset: Int): (List[String], Int)
+  def compilerCompletions(caretOffset: Int): (List[CompletionInfo], Int)
 }
