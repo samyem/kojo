@@ -132,10 +132,11 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
   }
 
   val compiler = new Global(settings, reporter)
+  
+  def pfxWithCounter = Utils.stripCR("%s%d%s" format(prefixHeader, counter, prefix))
 
   def compile(code0: String, stopPhase: List[String] = List("selectiveanf")) = {
-    counter += 1
-    val pfx = Utils.stripCR("%s%d%s" format(prefixHeader, counter, prefix))
+    val pfx = pfxWithCounter
     offsetDelta = pfx.length
     val code = Utils.stripCR(codeTemplate format(pfx, code0))
     
@@ -147,9 +148,9 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
   }
 
   def compileAndRun(code0: String) = {
-
+    counter += 1
     val result = compile(code0, Nil) 
-
+    
     if (result == IR.Success) {
       if (Thread.interrupted) {
         listener.message("Thread interrupted")
@@ -188,8 +189,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
 
   def parse(code0: String, browseAst: Boolean) = {
     compiler.settings = makeSettings2()
-    counter += 1
-    val pfx = prefix format(counter)
+    val pfx = pfxWithCounter
     offsetDelta = pfx.length
     val code = Utils.stripCR(codeTemplate format(pfx, code0))
 
@@ -228,7 +228,6 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
   
   val preporter = new Reporter {
     override def info0(position: Position, msg: String, severity: Severity, force: Boolean) {
-//      severity.count += 1
     }
   }
   val pcompiler = new interactive.Global(settings, preporter) 
@@ -245,7 +244,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
    
     import interactive._
 
-    val pfx = Utils.stripCR(prefix format(counter))
+    val pfx = pfxWithCounter
     val offsetDelta = pfx.length
     val code = Utils.stripCR(codeTemplate format(pfx, addParensAfterOffset(code0)))
     
