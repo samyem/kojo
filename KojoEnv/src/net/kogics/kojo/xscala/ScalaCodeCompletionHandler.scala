@@ -82,7 +82,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     def getName: String = proposal.name
     def getInsertPrefix: String = proposal.name
     def getSortText: String = proposal.name
-    def getSortPrioOverride: Int = 0
+    def getSortPrioOverride: Int = proposal.prio
     def getElement: ElementHandle = elemHandle
     def getKind: ElementKind = kind
     def getIcon: ImageIcon = icon
@@ -102,7 +102,10 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     def getModifiers: java.util.Set[Modifier] = elemHandle.getModifiers
     override def toString: String = "Proposal2(%s)" format(proposal)
     def isSmart: Boolean = false
-    def getCustomInsertTemplate: String = "%s(%s)" format(proposal.name, proposal.params.map{"${%s}"format(_)}.mkString(","))
+    def getCustomInsertTemplate: String = proposal.params match {
+      case Nil => proposal.name
+      case _ => "%s(%s)" format(proposal.name, proposal.params.map{"${%s}"format(_)}.mkString(","))
+    }
   }
   
   val scalaImageIcon = Utils.loadIcon("/images/scala16x16.png")
@@ -148,7 +151,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
       val (compilerCompletions, coffset) = completionSupport.compilerCompletions(caretOffset)
       compilerCompletions.foreach { completion =>
         proposals.add(new ScalaCompletionProposal2(caretOffset - coffset, completion,
-                                                  ElementKind.METHOD))
+                                                   ElementKind.METHOD))
       }
     }
 
