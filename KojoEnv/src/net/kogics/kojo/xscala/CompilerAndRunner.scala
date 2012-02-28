@@ -51,8 +51,8 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
   // If we don't increment the counter, the user code will not run (an object is initialized only once)
   // If this approach turns out to be too memory intensive, I'm sure there are other ways of running user 
   // submitted code.'
-  
-  val prefix0 = """object Wrapper%d {
+  val prefixHeader = "object Wrapper"
+  val prefix0 = """ {
   val builtins = net.kogics.kojo.xscala.Builtins.instance
   import builtins._
   val Staging = net.kogics.kojo.staging.API
@@ -135,7 +135,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
 
   def compile(code0: String, stopPhase: List[String] = List("selectiveanf")) = {
     counter += 1
-    val pfx = Utils.stripCR(prefix format(counter))
+    val pfx = Utils.stripCR("%s%d%s" format(prefixHeader, counter, prefix))
     offsetDelta = pfx.length
     val code = Utils.stripCR(codeTemplate format(pfx, code0))
     
