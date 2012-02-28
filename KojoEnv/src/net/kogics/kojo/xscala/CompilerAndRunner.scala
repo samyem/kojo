@@ -258,24 +258,28 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
     var resp = new Response[List[pcompiler.Member]]
     pcompiler.askTypeCompletion(pos, resp)
     resp.get match {
-//      case Left(x) => x filter (_.sym.isMethod) map {e => e.tpe match {
-//            case mt: pcompiler.MethodType => "%s(%s): %s" format(e.sym.nameString, 
-//                                                             mt.params.map(_ nameString).zip(mt.paramTypes.map(_.toString)).map{p => "%s: %s" format(p._1, p._2)}.mkString(", "),
-//                                                             mt.resultType.toString)
-//            case mt: pcompiler.PolyType => "%s%s" format(e.sym.nameString, addResultColon(mt.resultType.toString))
-//            case t @ _ => "%s - %s of type- %s" format(e.sym.nameString, t.getClass, t.toString)
-//          }
-//        }
-      case Left(x) => x filter (_.sym.isMethod) map {e => e.tpe match {
+      case Left(x) => x filter (e => e.sym.isMethod && !e.sym.isConstructor) map {e => 
+          var prio = 100
+          val tm = e.asInstanceOf[pcompiler.TypeMember]
+          if (tm.viaView != pcompiler.NoSymbol) prio += 20
+          if (tm.inherited == true) prio += 10
+          e.tpe match {
             case mt: pcompiler.MethodType => CompletionInfo(e.sym.nameString, 
                                                             mt.params.map(_ nameString), 
                                                             mt.paramTypes.map(_.toString), 
-                                                            mt.resultType.toString)
+                                                            mt.resultType.toString,
+                                                            prio)
             case pt: pcompiler.PolyType => CompletionInfo(e.sym.nameString, 
                                                           pt.resultType.params.map(_ nameString), 
                                                           pt.resultType.paramTypes.map(_.toString), 
-                                                          pt.resultType.resultType.toString)
-            case t @ _ => CompletionInfo(e.sym.nameString, List("todo2"), List("todo2"), "todo2")
+                                                          pt.resultType.resultType.toString,
+                                                          prio)
+            case nt: pcompiler.NullaryMethodType => CompletionInfo(e.sym.nameString, 
+                                                                   Nil, 
+                                                                   Nil, 
+                                                                   nt.resultType.toString,
+                                                                   prio)
+            case t @ _ => CompletionInfo(e.sym.nameString, List(t.getClass.getName), List("todo2"), "todo2", prio)
           }
         }
       case Right(y) => println(y); Nil  
