@@ -257,7 +257,10 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
     var resp = new Response[List[pcompiler.Member]]
     pcompiler.askTypeCompletion(pos, resp)
     resp.get match {
-      case Left(x) => x filter (e => e.sym.isMethod && !e.sym.isConstructor) map {e => 
+      case Left(x) => 
+        x filter (e => (e.sym.isMethod && !e.sym.isConstructor) 
+                  || (e.sym.isValue && e.sym.nameString != "this")
+        ) map {e => 
           var prio = 100
           val tm = e.asInstanceOf[pcompiler.TypeMember]
           if (tm.viaView != pcompiler.NoSymbol) prio += 20
@@ -278,6 +281,12 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
                                                                    Nil, 
                                                                    nt.resultType.toString,
                                                                    prio)
+            case vt: pcompiler.UniqueTypeRef => CompletionInfo(e.sym.nameString, 
+                                                               Nil, 
+                                                               Nil, 
+                                                               vt.resultType.toString,
+                                                               prio - 10,
+                                                               true)
             case t @ _ => CompletionInfo(e.sym.nameString, List(t.getClass.getName), List("todo2"), "todo2", prio)
           }
         }

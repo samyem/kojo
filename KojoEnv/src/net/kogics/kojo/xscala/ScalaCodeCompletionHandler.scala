@@ -86,25 +86,32 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     def getElement: ElementHandle = elemHandle
     def getKind: ElementKind = kind
     def getIcon: ImageIcon = icon
+    val valOrNoargFunc = proposal.value || proposal.params.size == 0 && proposal.ret != "Unit"
     def getLhsHtml(fm: HtmlFormatter): String = {
       val kind = getKind
       fm.name(kind, true)
       fm.appendText(proposal.name)
       fm.name(kind, false)
-      fm.parameters(true)
-      fm.appendText(proposal.params.zip(proposal.paramTypes).
-                    map{ p => "%s: %s" format(p._1, p._2) }.
-                    mkString("(", ", ", ")"))
-      fm.parameters(false)
+      if (!valOrNoargFunc) {
+        fm.parameters(true)
+        fm.appendText(proposal.params.zip(proposal.paramTypes).
+                      map{ p => "%s: %s" format(p._1, p._2) }.
+                      mkString("(", ", ", ")"))
+        fm.parameters(false)
+      }
       fm.getText
     }
     def getRhsHtml(fm: HtmlFormatter): String = proposal.ret
     def getModifiers: java.util.Set[Modifier] = elemHandle.getModifiers
     override def toString: String = "Proposal2(%s)" format(proposal)
     def isSmart: Boolean = false
-    def getCustomInsertTemplate: String = proposal.params match {
-      case Nil => proposal.name
-      case _ => "%s(%s)" format(proposal.name, proposal.params.map{"${%s}"format(_)}.mkString(","))
+    def getCustomInsertTemplate: String = {
+      if (valOrNoargFunc) {
+        proposal.name
+      }
+      else {
+        "%s(%s)" format(proposal.name, proposal.params.map{"${%s}"format(_)}.mkString(","))
+      }
     }
   }
   
