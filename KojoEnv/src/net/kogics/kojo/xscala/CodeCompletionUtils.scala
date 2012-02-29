@@ -200,7 +200,7 @@ object CodeCompletionUtils {
     "hide" -> "hide()",
     "erase" -> "erase()"
   )
-
+  
   @volatile var ExtraMethodTemplates: collection.Map[String, String] = TwMethodTemplates
 
   def activateTw() {
@@ -250,4 +250,38 @@ object CodeCompletionUtils {
       }
     }
   }
+  
+  val Help = Map(
+    "forward" -> "forward(numSteps) - Moves the turtle forward a given number of steps.",
+    "back" -> "back(numSteps) - Moves the turtle back a given number of steps.",
+    "repeat" -> "repeat(n) {} - Repeats the commands within braces n number of times.",
+    "repeati" -> "repeati(n) {i => } - Repeats the commands within braces n number of times. The current repeat index is available within the braces.",
+    "repeatWhile" -> "repeatWhile(cond) {} - Repeats the commands within braces while the given condition is true.",
+    "repeatUntil" -> "repeatUntil(cond) {} - Repeats the commands within braces until the given condition is true.",
+    "home" -> "home() - Moves the turtle to its original location, and makes it point north.",
+    "setPosition" -> "setPosition(x, y) - Sends the turtle to the point (x, y) without drawing a line. The turtle's heading is not changed.",
+    "position" -> "position - Queries the turtle's current position.",
+    "moveTo" -> "moveTo(x, y) - Turns the turtle towards (x, y) and moves the turtle to that point. ",
+    "turn" -> "turn(angle) - Turns the turtle through a specified angle. Angles are positive for counter-clockwise turns.",
+    "right" -> "right() or right(angle) - Turns the turtle 90 (or the given angle) degrees right (clockwise).",
+    "left" -> "left() or left(angle) - Turns the turtle 90 degrees (or the given angle) left (counter-clockwise).",
+    "towards" -> "towards(x, y) - Turns the turtle towards the point (x, y).",
+    "setHeading" -> "setHeading(angle) - Sets the turtle's heading to angle (0 is towards the right side of the screen ('east'), 90 is up ('north')).",
+    "heading" -> "heading - Queries the turtle's heading (0 is towards the right side of the screen ('east'), 90 is up ('north')).",
+    "penDown" -> "penDown() - Makes the turtle draw lines as it moves (the default setting). ",
+    "penUp" -> "penUp() - Makes the turtle not draw lines as it moves.",
+    "setPenColor" -> "setPenColor(color) - Specifies the color of the pen that the turtle draws with.",
+    "setFillColor" -> "setFillColor(color) - Specifies the fill color of the figures drawn by the turtle.",
+    "setPenThickness" -> "setPenThickness(thickness) - Specifies the width of the pen that the turtle draws with.",
+    "setPenFontSize" -> "setPenFontSize(n) - Specifies the font size of the pen that the turtle writes with.",
+    "savePosHe" -> "savePosHe() - Saves the turtle's current position and heading",
+    "restorePosHe" -> "restorePosHe() - Restores the turtle's current position and heading",
+    "beamsOn" -> "beamsOn() - Shows crossbeams centered on the turtle - to help with solving puzzles.",
+    "beamsOff" -> "beamsOff() - Hides the turtle crossbeams.",
+    "invisible" -> "invisible() - Hides the turtle.",
+    "visible" -> "visible() - Makes the hidden turtle visible again.",
+    "write" -> "write(obj) - Makes the turtle write the specified object as a string at its current location.",
+    "setAnimationDelay" -> "setAnimationDelay(delay) - Sets the turtle's speed. The specified delay is the amount of time (in milliseconds) taken by the turtle to move through a distance of one hundred steps.",
+    "animationDelay" -> "animationDelay - Queries the turtle's delay setting."
+  )
 }
