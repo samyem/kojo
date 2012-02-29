@@ -290,7 +290,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
             case t @ _ => CompletionInfo(e.sym.nameString, List(t.getClass.getName), List("todo2"), "todo2", prio)
           }
         }
-      case Right(y) => println(y); Nil  
+      case Right(y) => println("Completion warning: %s" format(y)); Nil  
     }
   }
 }

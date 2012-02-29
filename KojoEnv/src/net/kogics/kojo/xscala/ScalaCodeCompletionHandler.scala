@@ -132,13 +132,6 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     val proposals = new java.util.ArrayList[CompletionProposal]
     val caretOffset = context.getCaretOffset
 
-    val (methodCompletions, moffset) = completionSupport.methodCompletions(caretOffset)
-    methodCompletions.foreach { completion =>
-      proposals.add(new ScalaCompletionProposal(caretOffset - moffset, completion,
-                                                ElementKind.METHOD,
-                                                methodTemplate(completion)))
-    }
-
     val (varCompletions, voffset) = completionSupport.varCompletions(caretOffset)
     varCompletions.foreach { completion =>
       proposals.add(new ScalaCompletionProposal(caretOffset - voffset, completion, 
@@ -154,12 +147,10 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
                                                 scalaImageIcon))
     }
 
-    if (proposals.size == 0) {
-      val (compilerCompletions, coffset) = completionSupport.compilerCompletions(caretOffset)
-      compilerCompletions.foreach { completion =>
-        proposals.add(new ScalaCompletionProposal2(caretOffset - coffset, completion,
-                                                   ElementKind.METHOD))
-      }
+    val (methodCompletions, coffset) = completionSupport.methodCompletions2(caretOffset)
+    methodCompletions.foreach { completion =>
+      proposals.add(new ScalaCompletionProposal2(caretOffset - coffset, completion,
+                                                 ElementKind.METHOD))
     }
 
     if (proposals.size > 1)

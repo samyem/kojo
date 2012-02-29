@@ -73,7 +73,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
   case class MethodCompletionRequest(str: String)
   case class VarCompletionRequest(str: String)
   case class KeywordCompletionRequest(str: String)
-  case class CompilerCompletionRequest(code: String, codeFragment: String, offset: Int)
+  case class MethodCompletionRequest2(code: String, codeFragment: String, offset: Int)
   case class CompletionResponse(data: (List[String], Int))
   case class CompletionResponse2(data: (List[CompletionInfo], Int))
   case object ActivateTw
@@ -96,8 +96,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     resp.data
   }
 
-  def compilerCompletions(code: String, codeFragment: String, offset: Int): (List[CompletionInfo], Int) = {
-    val resp = (codeRunner !? CompilerCompletionRequest(code, codeFragment, offset)).asInstanceOf[CompletionResponse2]
+  def methodCompletions2(code: String, codeFragment: String, offset: Int): (List[CompletionInfo], Int) = {
+    val resp = (codeRunner !? MethodCompletionRequest2(code, codeFragment, offset)).asInstanceOf[CompletionResponse2]
     resp.data
   }
 
@@ -387,9 +387,9 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
               keywordCompletions(str)
             }
 
-          case CompilerCompletionRequest(code, codeFragment, offset) =>
+          case MethodCompletionRequest2(code, codeFragment, offset) =>
             safeProcessCompletionReq2 {
-              compilerCompletions(code, codeFragment, offset)
+              methodCompletions2(code, codeFragment, offset)
             }
         }
       }
@@ -563,11 +563,6 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     }
 
     import CodeCompletionUtils._
-    var _builtinsCompletions: List[String] = Nil
-
-    def builtinsCompletions: List[String]  = {
-      Nil
-    }
 
     def completions(identifier: String) = {
       def methodFilter(s: String) = !MethodDropFilter.contains(s) && !InternalMethodsRe.matcher(s).matches
@@ -581,16 +576,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     }
 
     def methodCompletions(str: String): (List[String], Int) = {
-      val (oIdentifier, oPrefix) = findIdentifier(str)
-      val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-      if (oIdentifier.isDefined) {
-        (completions(oIdentifier.get).filter {s => s.startsWith(prefix)}, prefix.length)
-      }
-      else {
-        val c1s = builtinsCompletions.filter {s => s.startsWith(prefix)}
-        Log.fine("Filtered builtins completions for prefix '%s' - %s " format(prefix, c1s))
-        (c1s, prefix.length)
-      }
+      (Nil, 0)
     }
 
     def varCompletions(str: String): (List[String], Int) = {
@@ -620,10 +606,21 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       }
     }
 
-    def compilerCompletions(code: String, codeFragment: String, offset: Int): (List[CompletionInfo], Int) = {
+    def methodCompletions2(code: String, codeFragment: String, offset: Int): (List[CompletionInfo], Int) = {
       val (oIdentifier, oPrefix) = findIdentifier(codeFragment)
-      val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-      (compilerAndRunner.completions(code, offset-prefix.length).filter {_.name.startsWith(prefix)}, prefix.length)
+      if (oIdentifier.isDefined) {
+        val prefix = if(oPrefix.isDefined) oPrefix.get else ""
+        compilerAndRunner.completions(code, offset-prefix.length) match {
+          case Nil => 
+            val ics = completions(oIdentifier.get).filter {_.startsWith(prefix)}
+            (ics.map {CompletionInfo(_, Nil, Nil, "", 100)}, prefix.length)
+          case _ @ ccs => 
+            (ccs.filter {_.name.startsWith(prefix)}, prefix.length)
+        }
+      }
+      else {
+        (Nil, 0)
+      }
     }
   }
 
