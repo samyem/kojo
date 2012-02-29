@@ -75,9 +75,20 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
   }
 
   import core.CompletionInfo
+  class ScalaElementHandle2(name: String, offset: Int, kind: ElementKind, val proposal: CompletionInfo) extends ElementHandle {
+    def getFileObject: FileObject = null
+    def getMimeType: String = org.netbeans.modules.scala.core.ScalaMimeResolver.MIME_TYPE
+    def getName: String = name
+    def getIn: String = null
+    def getKind: ElementKind = kind
+    def getModifiers: java.util.Set[Modifier] = java.util.Collections.emptySet[Modifier]
+    def signatureEquals(handle: ElementHandle): Boolean = false;
+    def getOffsetRange(result: ParserResult): OffsetRange = new OffsetRange(0,offset)
+  }
+
   class ScalaCompletionProposal2(offset: Int, proposal: CompletionInfo, kind: ElementKind, 
                                  icon: ImageIcon = null) extends CompletionProposal {
-    val elemHandle = new ScalaElementHandle(proposal.name, offset, kind)
+    val elemHandle = new ScalaElementHandle2(proposal.name, offset, kind, proposal)
     def getAnchorOffset: Int = offset
     def getName: String = proposal.name
     def getInsertPrefix: String = proposal.name
@@ -119,6 +130,20 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
         }
       }
     }
+  }
+  
+  def signature(proposal: CompletionInfo) = {
+    val valOrNoargFunc = proposal.value || proposal.params.size == 0 && proposal.ret != "Unit"
+    val sb = new StringBuilder
+    sb.append(proposal.name)
+    if (!valOrNoargFunc) {
+      sb.append(proposal.params.zip(proposal.paramTypes).
+                map{ p => "%s: %s" format(p._1, p._2) }.
+                mkString("(", ", ", ")"))
+    }
+    sb.append("    ")
+    sb.append(proposal.ret)
+    sb.toString
   }
   
   val scalaImageIcon = Utils.loadIcon("/images/scala16x16.png")
@@ -170,9 +195,9 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     return completionResult
   }
 
-  override def document(pr: ParserResult, element: ElementHandle): String = {
-    null
-//    "Documentation not available yet."
+  override def document(pr: ParserResult, element: ElementHandle): String = element match {
+    case e: ScalaElementHandle => CodeCompletionUtils.Help.getOrElse(e.getName, null)
+    case e2: ScalaElementHandle2 => signature(e2.proposal)
   }
 
   override def resolveLink(link: String, elementHandle: ElementHandle): ElementHandle = {
