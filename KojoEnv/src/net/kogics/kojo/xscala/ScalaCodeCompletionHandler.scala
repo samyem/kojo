@@ -106,11 +106,17 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     override def toString: String = "Proposal2(%s)" format(proposal)
     def isSmart: Boolean = false
     def getCustomInsertTemplate: String = {
-      if (valOrNoargFunc) {
-        proposal.name
+      val c0 = methodTemplate(proposal.name)
+      if (c0 != null ) {
+        c0
       }
       else {
-        "%s(%s)" format(proposal.name, proposal.params.map{"${%s}"format(_)}.mkString(","))
+        if (valOrNoargFunc) {
+          proposal.name
+        }
+        else {
+          "%s(%s)" format(proposal.name, proposal.params.map{"${%s}"format(_)}.mkString(","))
+        }
       }
     }
   }
