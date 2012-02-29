@@ -20,7 +20,8 @@ case class CompletionInfo(
   params: List[String],
   paramTypes: List[String],
   ret: String,
-  prio: Int
+  prio: Int,
+  value: Boolean = false
 )
 
 trait CodeCompletionSupport {
