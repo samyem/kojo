@@ -563,6 +563,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     }
 
     import CodeCompletionUtils._
+    
+    def ignoreCaseStartsWith(s1: String, s2: String) = s1.toLowerCase.startsWith(s2.toLowerCase)
 
     def completions(identifier: String) = {
       def methodFilter(s: String) = !MethodDropFilter.contains(s) && !InternalMethodsRe.matcher(s).matches
@@ -589,7 +591,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
         (Nil, 0)
       }
       else {
-        val c2s = interp.unqualifiedIds.filter {s => s.startsWith(prefix) && varFilter(s)}
+        val c2s = interp.unqualifiedIds.filter {s => ignoreCaseStartsWith(s, prefix) && varFilter(s)}
         (c2s, prefix.length)
       }
     }
@@ -601,7 +603,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
         (Nil, 0)
       }
       else {
-        val c2s = Keywords.filter {s => s != null && s.startsWith(prefix)}
+        val c2s = Keywords.filter {s => s != null && ignoreCaseStartsWith(s, prefix)}
         (c2s, prefix.length)
       }
     }
@@ -612,10 +614,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
         val prefix = if(oPrefix.isDefined) oPrefix.get else ""
         compilerAndRunner.completions(code, offset-prefix.length) match {
           case Nil => 
-            val ics = completions(oIdentifier.get).filter {_.startsWith(prefix)}
+            val ics = completions(oIdentifier.get).filter {ignoreCaseStartsWith(_, prefix)}
             (ics.map {CompletionInfo(_, Nil, Nil, "", 100)}, prefix.length)
           case _ @ ccs => 
-            (ccs.filter {_.name.startsWith(prefix)}, prefix.length)
+            (ccs.filter {ci => ignoreCaseStartsWith(ci.name, prefix) }, prefix.length)
         }
       }
       else {
