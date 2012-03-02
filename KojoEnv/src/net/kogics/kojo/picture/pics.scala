@@ -417,15 +417,6 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
     case _ => throw new IllegalStateException("You can't extract rgb values of non Color paints")
   }
   
-  private def modHsb(q: Double, f: Double) = {
-    if (f > 0) {
-      q * (1 - f) + f
-    }
-    else {
-      q * (1 + f)
-    }
-  }
-  
   def hueMod(f: Double) = Utils.runInSwingThread {
     val pp = t.penPaths
     pp.foreach { pl =>

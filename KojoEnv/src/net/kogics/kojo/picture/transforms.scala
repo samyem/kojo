@@ -13,9 +13,11 @@
  *
  */
 
-package net.kogics.kojo.picture
+package net.kogics.kojo
+package picture
 
 import java.awt.geom.AffineTransform
+import util.Utils
 
 trait Transformer extends Picture {
   val tpic: Picture
@@ -153,6 +155,8 @@ case class Opac(f: Double)(pic: Picture) extends Transform(pic) {
 }
 
 case class Hue(f: Double)(pic: Picture) extends Transform(pic) {
+  Utils.checkHsbModFactor(f)
+    
   def draw() {
     pic.draw()
     pic.hueMod(f)
@@ -161,6 +165,8 @@ case class Hue(f: Double)(pic: Picture) extends Transform(pic) {
 }
 
 case class Sat(f: Double)(pic: Picture) extends Transform(pic) {
+  Utils.checkHsbModFactor(f)
+
   def draw() {
     pic.draw()
     pic.satMod(f)
@@ -169,13 +175,14 @@ case class Sat(f: Double)(pic: Picture) extends Transform(pic) {
 }
 
 case class Brit(f: Double)(pic: Picture) extends Transform(pic) {
+  Utils.checkHsbModFactor(f)
+
   def draw() {
     pic.draw()
     pic.britMod(f)
   }
   def copy = Brit(f)(pic.copy)
 }
-
 
 object Deco {
   def apply(pic: Picture)(painter: Painter): Deco = Deco(pic)(painter)

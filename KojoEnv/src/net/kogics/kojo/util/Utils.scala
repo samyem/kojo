@@ -346,7 +346,15 @@ object Utils {
   
   private def rgbComps(color: Color) = (color.getRed, color.getGreen, color.getBlue)
   
+  def checkHsbModFactor(f: Double) {
+    if (f < -1 || f > 1) {
+      throw new IllegalArgumentException("mod factor needs to be between -1 and 1")
+    }
+  }
+  
   private def modHsb(q: Double, f: Double) = {
+    checkHsbModFactor(f)
+
     if (f > 0) {
       q * (1 - f) + f
     }

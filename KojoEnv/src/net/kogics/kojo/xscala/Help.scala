@@ -391,6 +391,84 @@ object Help {
       </pre>
     </div>
     ,
+    "HPics" -> 
+    <div>
+      <strong>HPics</strong>(pictures) <br/>
+      A container for pictures that lays out the given pictures horizontally. <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        val pic = HPics(
+            p,
+            p,
+            p
+        )
+        draw(pic)
+      </pre>
+    </div>
+    ,
+    "VPics" -> 
+    <div>
+      <strong>VPics</strong>(pictures) <br/>
+      A container for pictures that lays out the given pictures vertically. <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        val pic = VPics(
+            p,
+            p,
+            p
+        )
+        draw(pic)
+      </pre>
+    </div>
+    ,
+    "GPics" -> 
+    <div>
+      <strong>GPics</strong>(pictures) <br/>
+      A container for pictures that lays out the given pictures one on top of the other. <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        val pic = GPics(
+            p,
+            rot(30) -> p,
+            rot(60) -> p
+        )
+        draw(pic)
+      </pre>
+    </div>
+    ,
     "rot" -> 
     <div>
       <strong>rot</strong>(angle) -> picture <br/>
@@ -431,6 +509,29 @@ object Help {
         clear()
         invisible()
         val pic = trans(10, 5) -> p
+        draw(pic)
+      </pre>
+    </div>,
+    "offset" -> 
+    <div>
+      <strong>offset</strong>(x, y) -> picture <br/>
+      Offsets the given picture by the given x and y values, with respect to the
+      global (canvas) coordinate system. <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        axesOn()
+        val pic = rot(60) * offset(100, 0) -> p
         draw(pic)
       </pre>
     </div>,
@@ -519,6 +620,183 @@ object Help {
         draw(pic)
       </pre>
     </div>,
+    "hue" -> 
+    <div>
+      <strong>hue</strong>(factor) -> picture <br/>
+      Changes the hue of the given picture's fill color by the given factor. <br/>
+      The factor needs to be between -1 and 1. <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        val pic = hue(0.5) * fillColor(blue) -> p
+        // val pic = hue(-0.5) * fillColor(blue) -> p
+        draw(pic)
+      </pre>
+    </div>,
+    "sat" -> 
+    <div>
+      <strong>sat</strong>(factor) -> picture <br/>
+      Changes the saturation of the given picture's fill color by the given factor. <br/>
+      The factor needs to be between -1 and 1. <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        val pic = sat(-0.5) * fillColor(blue) -> p
+        draw(pic)
+      </pre>
+    </div>,
+    "brit" -> 
+    <div>
+      <strong>brit</strong>(factor) -> picture <br/>
+      Changes the brightness of the given picture's fill color by the given factor.<br/>
+      The factor needs to be between -1 and 1. <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        val pic = brit(-0.5) * fillColor(blue) -> p
+        draw(pic)
+      </pre>
+    </div>,
+    "opac" -> 
+    <div>
+      <strong>opac</strong>(factor) -> picture <br/>
+      Changes the opacity of the given picture by the given factor.<br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        val pic = opac(-0.5) * fillColor(blue) -> p
+        draw(pic)
+      </pre>
+    </div>,
+    "axes" -> 
+    <div>
+      <strong>axes</strong> -> picture <br/>
+      Turns on local axes for the picture (to help during picture construction). <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        val pic = axes * fillColor(blue) -> p
+        draw(pic)
+      </pre>
+    </div>,
+    "flipY" -> 
+    <div>
+      <strong>flipY</strong> -> picture <br/>
+      Flips the given picture around the local Y axis. <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        axesOn()
+        val pic = trans(100, 0) * flipY * fillColor(blue) -> p
+        draw(pic)
+      </pre>
+    </div>,
+    "flipX" -> 
+    <div>
+      <strong>flipX</strong> -> picture <br/>
+      Flips the given picture around the local X axis. <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        axesOn()
+        val pic = trans(100, 0) * flipX * fillColor(blue) -> p
+        draw(pic)
+      </pre>
+    </div>,
+    "flip" -> 
+    <div>
+      <strong>flip</strong> -> picture <br/>
+      The same thing as flipY. <br/>
+      Flips the given picture around the local Y axis. <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def p = Picture {{
+          repeat (4) {{
+            forward(50)
+            right()
+          }}
+        }}
+
+        clear()
+        invisible()
+        axesOn()
+        val pic = trans(100, 0) * flip * fillColor(blue) -> p
+        draw(pic)
+      </pre>
+    </div>,
+    "ColorHSB" -> "Creates a color with the given Hue (0-360), Saturation (0-100), and Brighness (0-100) values.",
     "stClear" -> "stClear() - Clears the Story Teller Window.",
     "stPlayStory" -> "stPlayStory(story) - Plays the given story.",
     "stFormula" -> "stFormula(latex) - Converts the supplied latex string into html that can be displayed in the Story Teller Window.",
