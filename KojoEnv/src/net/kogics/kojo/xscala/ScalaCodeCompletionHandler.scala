@@ -196,7 +196,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
   }
 
   override def document(pr: ParserResult, element: ElementHandle): String = element match {
-    case e: ScalaElementHandle => CodeCompletionUtils.Help.getOrElse(e.getName, null)
+    case e: ScalaElementHandle => Help(e.getName)
     case e2: ScalaElementHandle2 => signature(e2.proposal)
   }
 
