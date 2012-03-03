@@ -91,7 +91,7 @@ if (size > 100) {
 else {
     setFillColor(green)
 }
-square(100)
+square(size)
 """,
     """
 val n = 100
