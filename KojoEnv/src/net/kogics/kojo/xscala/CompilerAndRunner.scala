@@ -274,12 +274,12 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
 
           e.tpe match {
             case mt: pcompiler.MethodType => CompletionInfo(e.sym.nameString, 
-                                                            mt.params.map(_ nameString), 
+                                                            mt.params.map(_.nameString.replace("$", "")), 
                                                             mt.paramTypes.map(_.toString), 
                                                             mt.resultType.toString,
                                                             prio)
             case pt: pcompiler.PolyType => CompletionInfo(e.sym.nameString, 
-                                                          pt.resultType.params.map(_ nameString), 
+                                                          pt.resultType.params.map(_.nameString.replace("$", "")), 
                                                           pt.resultType.paramTypes.map(_.toString), 
                                                           pt.resultType.resultType.toString,
                                                           prio)
