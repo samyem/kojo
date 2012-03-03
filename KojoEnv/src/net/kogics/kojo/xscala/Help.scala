@@ -27,6 +27,7 @@ object Help {
       <br/>
       <em>Example:</em> <br/><br/>
       <pre>
+        clear()
         // make a square with the help of the repeat command
         repeat (4) {{
           forward(100)
@@ -64,7 +65,13 @@ object Help {
     "textExtent" -> "textExtent(text, fontSize) - Determines the size/extent of the given text fragment for the given font size.",
     "runInBackground" -> "runInBackground(command) - Runs the given code in the background, concurrently with other code that follows right after this command.",
     "playMp3" -> "playMp3(fileName) - Plays the specified MP3 file.",
-    "playMp3Loop" -> "playMp3Loop(fileName) - Plays the specified MP3 file in the background."
+    "playMp3Loop" -> "playMp3Loop(fileName) - Plays the specified MP3 file in the background.",
+    "ColorHSB" -> "ColorHSB(h, s, b) - Creates a color with the given Hue (0-360), Saturation (0-100), and Brighness (0-100) values.",
+    "Color" -> "Color(r, g, b, opac) - Creates a color with the given red, green, blue, and opacity (optional) values.",
+    "ColorG" -> "ColorG(x1, y1, color1, x2, y2, color2, cyclic) - Creates a color gradient for filling shapes. The cyclic value is optional.",
+    "setBackground" -> "setBackground(color) - Sets the canvas background to the specified color. You can use predefined colors for setting the background, or you can create your own colors using the Color, ColorHSB, and ColorG functions.",
+    "setBackgroundH" -> "setBackgroundH(color1, color2) - Sets the canvas background to a horizontal color gradient defined by the two specified colors.",
+    "setBackgroundV" -> "setBackgroundV(color1, color2) - Sets the canvas background to a vertical color gradient defined by the two specified colors."
   )
 
   val TwContent = Map[String, String](
@@ -72,8 +79,9 @@ object Help {
     <div>
       <strong>forward</strong>(numSteps) - Moves the turtle forward by the given number of steps. <br/>
       <br/>
-      <em>Examples:</em> <br/><br/>
+      <em>Example:</em> <br/><br/>
       <pre>
+        clear()
         // move forward by 100 steps
         forward(100) 
           
@@ -87,8 +95,9 @@ object Help {
     <div>
       <strong>back</strong>(numSteps) - Moves the turtle back by the given number of steps. <br/>
       <br/>
-      <em>Examples:</em> <br/><br/>
+      <em>Example:</em> <br/><br/>
       <pre>
+        clear()
         // move back by 100 steps
         back(100)
                         
@@ -103,8 +112,8 @@ object Help {
       <br/>
       <em>Example:</em> <br/><br/>
       <pre>
-        // move the turtle out
         clear()
+        // move the turtle out
         forward(100)
         right()
         forward(50)
@@ -132,8 +141,8 @@ object Help {
       <br/>
       <em>Example:</em> <br/><br/>
       <pre>
-        // move the turtle out
         clear()
+        // move the turtle out
         forward(100)
         right()
         forward(50)
@@ -195,6 +204,7 @@ object Help {
       <em>Example:</em> <br/>
       <br/>
       <pre>
+        clear()
         // pull the turtle's pen up
         penUp()
         // the turtle moves forward without drawing a line
@@ -214,6 +224,7 @@ object Help {
       <em>Example:</em> <br/>
       <br/>
       <pre>
+        clear()
         // pull the turtle's pen up
         penUp()
         // the turtle moves forward without drawing a line
@@ -230,9 +241,10 @@ object Help {
     <div>
       <strong>setPenColor</strong>(color) - Specifies the color of the pen that the turtle draws with. <br/>
       <br/>
-      <em>Examples:</em> <br/>
+      <em>Example:</em> <br/>
       <br/>
       <pre>
+        clear()
         setPenColor(blue)
         // makes a blue line
         forward(100)
@@ -247,9 +259,10 @@ object Help {
     <div>
       <strong>setFillColor</strong>(color) - Specifies the fill color of the figures drawn by the turtle. <br/>
       <br/>
-      <em>Examples:</em> <br/>
+      <em>Example:</em> <br/>
       <br/>
       <pre>
+        clear()
         setFillColor(blue)
         // make a circle filled with blue
         circle(50)
@@ -264,9 +277,10 @@ object Help {
     <div>
       <strong>setPenThickness</strong>(thickness) - Specifies the width of the pen that the turtle draws with. <br/>
       <br/>
-      <em>Examples:</em> <br/>
+      <em>Example:</em> <br/>
       <br/>
       <pre>
+        clear()
         setPenThickness(10)
         // make a line that is 10 units thick
         forward(100)
@@ -281,9 +295,10 @@ object Help {
     <div>
       <strong>setPenFontSize</strong>(n) - Specifies the font size of the pen that the turtle writes with. <br/>
       <br/>
-      <em>Examples:</em> <br/>
+      <em>Example:</em> <br/>
       <br/>
       <pre>
+        clear()
         setPenFontSize(15)
         // write with a font size of 15
         write("Hi There")
@@ -302,6 +317,7 @@ object Help {
       <em>Example:</em> <br/>
       <br/>
       <pre>
+        clear()
         // save the turtle's position and heading
         savePosHe()
                     
@@ -325,6 +341,7 @@ object Help {
       <em>Example:</em> <br/>
       <br/>
       <pre>
+        clear()
         // save the turtle's position and heading
         savePosHe()
                     
@@ -371,12 +388,130 @@ object Help {
     "animationDelay" -> "animationDelay - Queries the turtle's delay setting.",
     "clear" -> "clear() - Clears the turtle canvas, and brings the turtle to the center of the canvas.",
     "clearWithUL" -> "clearWithUL(unit) - Clears the turtle canvas, sets the given unit length (Pixel, Cm, or Inch), and brings the turtle to the center of the canvas.",
+    "arc" ->
+    <div>
+        <strong>arc</strong>(radius, angle) - Gets the turtle to make an arc with the given 
+        radius and angle.<br/>
+        Positive angles make the turtle go left (ant-clockwise). Negative angles make the turtle go right (clockwise) <br/>
+        <br/>
+        <em>Examples:</em> <br/>
+        <br/>
+        <pre>
+            // a simple arc
+            clear()    
+            arc(100, 45)
+
+            // a pattern of arcs
+            clear()   
+            right(135)
+            repeat (5) {{
+              arc(50, 90)
+              arc(50, -90)
+            }}
+        </pre>
+    </div>
+    ,
+    "circle" ->
+    <div>
+        <strong>circle</strong>(radius) - Gets the turtle to make a circle with the given 
+        radius. <br/>
+        A circle(50) command is equivalent to an arc(50, 360) command.<br/>
+        <br/>
+        <em>Example:</em> <br/>
+        <br/>
+        <pre>
+            clear()    
+            circle(50)
+        </pre>
+    </div>
+    ,
+    "def" ->
+    <div>
+        <strong>def</strong> - Let's you define a new command or function.<br/>
+        <br/>
+        <em>Examples:</em> <br/>
+        <br/>
+        <pre>
+            // A User defined command named square
+            // Takes one input
+            def square(side: Int) {{
+                repeat(4) {{
+                    forward(side)
+                    right()
+                }}
+            }}
+            clear()
+            // two different calls to square command
+            square(100)
+            square(200)
+
+
+            // A User defined function named sum
+            // Takes two inputs, and returns a result
+            def sum(n1: Int, n2: Int) = {{
+                n1 + n2
+            }}
+            clearOutput()
+            // call to the sum function within print command
+            print(sum(3, 5))
+            // another call to the sum function
+            print(sum(20, 7))
+        </pre>
+    </div>
+    ,
+    "if" ->
+    <div>
+        <strong>if</strong> or <strong>if-else</strong> - Let you do conditional execution.<br/>
+        <br/>
+        <em>Examples:</em> <br/>
+        <br/>
+        <pre>
+            clear()    
+            val size = 50 
+            // conditionally run a command
+            // the else part is optional
+            if (size > 100) {{
+                setFillColor(blue)
+            }}
+            else {{
+                setFillColor(green)
+            }}
+            circle(size)
+
+
+            val n = 100
+            // conditionally evaluate an expression
+            val big = if (n > 50) true else false
+            clearOutput()
+            println(big)
+        </pre>
+    </div>
+    ,
+    "val" ->
+    <div>
+        <strong>val</strong> - Let's you create a named value (thus letting you 
+        associate a name with a value). This makes your programs easier to modify 
+        and easier to understand.<br/>
+        <br/>
+        <em>Example:</em> <br/>
+        <br/>
+        <pre>
+            clear()    
+            val size = 50 
+            circle(size)
+            repeat (4) {{
+                forward(size)
+                right()
+            }}
+        </pre>
+    </div>
+    ,
     "Picture" -> 
     <div>
       <strong>Picture</strong>{{ drawingCode }} - Makes a picture out of the given turtle drawing code. <br/>
       The picture needs to be drawn for it to become visible in the turtle canvas. <br/>
       <br/>
-      <em>Examples:</em> <br/>
+      <em>Example:</em> <br/>
       <br/>
       <pre>
         // create a function for making a picture with a circle in it
@@ -796,7 +931,6 @@ object Help {
         draw(pic)
       </pre>
     </div>,
-    "ColorHSB" -> "Creates a color with the given Hue (0-360), Saturation (0-100), and Brighness (0-100) values.",
     "stClear" -> "stClear() - Clears the Story Teller Window.",
     "stPlayStory" -> "stPlayStory(story) - Plays the given story.",
     "stFormula" -> "stFormula(latex) - Converts the supplied latex string into html that can be displayed in the Story Teller Window.",
