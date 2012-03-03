@@ -506,6 +506,7 @@ object Help {
         </pre>
     </div>
     ,
+    "pict" -> "pict { t => } is obsolete. Use the Picture function instead.",
     "Picture" -> 
     <div>
       <strong>Picture</strong>{{ drawingCode }} - Makes a picture out of the given turtle drawing code. <br/>

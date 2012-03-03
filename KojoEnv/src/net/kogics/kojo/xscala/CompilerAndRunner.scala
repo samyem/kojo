@@ -258,13 +258,20 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
     pcompiler.askTypeCompletion(pos, resp)
     resp.get match {
       case Left(x) => 
-        x filter (e => (e.sym.isMethod && !e.sym.isConstructor) 
-                  || (e.sym.isValue && e.sym.nameString != "this")
-        ) map {e => 
+        x filter { e =>  
+          (e.sym.isMethod && !e.sym.isConstructor && e.sym.isPublic) || 
+          (e.sym.isValue && !e.sym.isMethod && e.sym.nameString != "this")
+        } map { e => 
           var prio = 100
+
           val tm = e.asInstanceOf[pcompiler.TypeMember]
           if (tm.viaView != pcompiler.NoSymbol) prio += 20
           if (tm.inherited == true) prio += 10
+          // give vals and vars lower priority because we can't seem to distinguish 
+          // between private and public vals/vars.
+          // This way they go below the methods
+          if (e.sym.isValue && !e.sym.isMethod) prio += 5 
+
           e.tpe match {
             case mt: pcompiler.MethodType => CompletionInfo(e.sym.nameString, 
                                                             mt.params.map(_ nameString), 
@@ -285,7 +292,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
                                                                Nil, 
                                                                Nil, 
                                                                vt.resultType.toString,
-                                                               prio - 10,
+                                                               prio,
                                                                true)
             case t @ _ => CompletionInfo(e.sym.nameString, List(t.getClass.getName), List("todo2"), "todo2", prio)
           }
