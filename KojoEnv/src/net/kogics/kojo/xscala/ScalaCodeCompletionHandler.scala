@@ -135,14 +135,14 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
   def signature(proposal: CompletionInfo) = {
     val valOrNoargFunc = proposal.value || proposal.params.size == 0 && proposal.ret != "Unit"
     val sb = new StringBuilder
-    sb.append(proposal.name)
+    sb.append("<strong>%s</strong>" format(proposal.name))
     if (!valOrNoargFunc) {
       sb.append(proposal.params.zip(proposal.paramTypes).
                 map{ p => "%s: %s" format(p._1, p._2) }.
                 mkString("(", ", ", ")"))
     }
-    sb.append("    ")
-    sb.append(proposal.ret)
+    sb.append(": ")
+    sb.append("<em>%s</em>" format(proposal.ret))
     sb.toString
   }
   
