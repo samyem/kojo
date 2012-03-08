@@ -22,15 +22,19 @@ rm installerbuild/licenses/objenesis-license.txt
 rm installerbuild/licenses/scalacheck-license.txt
 
 # remove jni native libs that came in with NB7
+# does not seem to be there with NB 711
 rm -rf installerbuild/platform/modules/lib
 
 # remove seemingly unused locale and auto-update jars
+#  update dirs do not seem to be there with NB 711
 rm -rf installerbuild/ide/modules/locale
 rm -rf installerbuild/ide/update
 rm -rf installerbuild/ide/update_tracking
 rm -rf installerbuild/platform/modules/locale
 rm -rf installerbuild/platform/update
 rm -rf installerbuild/platform/update_tracking
+rm -rf installerbuild/platform/lib/locale
+rm -rf installerbuild/platform/core/locale
 
 # run IzPack to create installerbuild
 cp installer/* installerbuild/
