@@ -243,7 +243,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     toolbar.setPreferredSize(new Dimension(100, 24))
 
     val runButton = makeNavigationButton("/images/run24.png", RunScript, "Run Script (Ctrl + Enter)", "Run the Code")
-    val compileButton = makeNavigationButton("/images/check.png", CompileScript, "Check Script for Errors (helps to precisely locate errors in large scripts)", "Check the Code")
+    val compileButton = makeNavigationButton("/images/check.png", CompileScript, "Check Script for Errors (helps to precisely locate errors)", "Check the Code")
     val stopButton = makeNavigationButton("/images/stop24.png", StopScript, "Stop Script/Animation", "Stop the Code")
     val hNextButton = makeNavigationButton("/images/history-next.png", HistoryNext, "Go to Next Script in History (Ctrl + Down Arrow)", "Next in History")
     val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
