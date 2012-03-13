@@ -63,8 +63,12 @@ class Builtins extends RepeatCommands {
   val white = JColor.white
   val gray = JColor.gray
   val lightGray = JColor.lightGray
+  val darkGray = JColor.darkGray
+  val magenta = JColor.magenta
+  val cyan = JColor.cyan
 
   val Kc = new staging.KeyCodes
+  val C = new staging.KColor
   
   // Turtle World
   class TwC extends TurtleMover {
