@@ -835,10 +835,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     if (caretOffset > cpt.length) ""
     else Utils.stripCR(cpt).substring(0, caretOffset)
   }
-  def methodCompletions(caretOffset: Int) = codeRunner.methodCompletions(codeFragment(caretOffset))
-  def varCompletions(caretOffset: Int) = codeRunner.varCompletions(codeFragment(caretOffset))
-  def keywordCompletions(caretOffset: Int) = codeRunner.keywordCompletions(codeFragment(caretOffset))
-  def methodCompletions2(caretOffset: Int) = codeRunner.methodCompletions2(Utils.stripCR(codePane.getText), codeFragment(caretOffset), caretOffset)
+  def varCompletions(prefix: Option[String]) = codeRunner.varCompletions(prefix)
+  def keywordCompletions(prefix: Option[String]) = codeRunner.keywordCompletions(prefix)
+  def methodCompletions2(caretOffset: Int, objid: String, prefix: Option[String]) = codeRunner.methodCompletions2(Utils.stripCR(codePane.getText), caretOffset, objid, prefix)
+  def objidAndPrefix(caretOffset: Int): (Option[String], Option[String]) = xscala.CodeCompletionUtils.findIdentifier(codeFragment(caretOffset))
+  
 
   var openedFile: Option[File] = None
   var fileData: String = _

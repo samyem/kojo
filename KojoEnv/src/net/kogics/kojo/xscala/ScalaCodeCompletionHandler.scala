@@ -21,11 +21,13 @@ import java.util.logging._
 
 
 import org.netbeans.editor.{BaseDocument, Utilities}
+import org.netbeans.lib.editor.codetemplates.api.CodeTemplate
+import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager
 import org.netbeans.modules.csl.api._
 import CodeCompletionHandler._
 import org.netbeans.modules.csl.spi.{DefaultCompletionResult, ParserResult}
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport
-import org.openide.util.{Exceptions, NbBundle}
+import org.openide.util.{Exceptions, NbBundle, ImageUtilities}
 import org.openide.filesystems.FileObject
 
 import net.kogics.kojo.util._
@@ -163,25 +165,34 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     val proposals = new java.util.ArrayList[CompletionProposal]
     val caretOffset = context.getCaretOffset
 
-    val (varCompletions, voffset) = completionSupport.varCompletions(caretOffset)
-    varCompletions.foreach { completion =>
-      proposals.add(new ScalaCompletionProposal(caretOffset - voffset, completion, 
-                                                ElementKind.VARIABLE,
-                                                methodTemplate(completion)))
+    val (objid, prefix) = completionSupport.objidAndPrefix(caretOffset)
+    
+    if (objid.isEmpty) {
+      val (varCompletions, voffset) = completionSupport.varCompletions(prefix)
+      varCompletions.foreach { completion =>
+        proposals.add(new ScalaCompletionProposal(caretOffset - voffset, completion, 
+                                                  ElementKind.VARIABLE,
+                                                  methodTemplate(completion)))
+      }
+
+      val (keywordCompletions, koffset) = completionSupport.keywordCompletions(prefix)
+      keywordCompletions.foreach { completion =>
+        proposals.add(new ScalaCompletionProposal(caretOffset - koffset, completion,
+                                                  ElementKind.KEYWORD,
+                                                  CodeCompletionUtils.KeywordTemplates.getOrElse(completion, null),
+                                                  scalaImageIcon))
+      }
+
+      // temporary fix for NB7.1.1 not showing code templates
+      addTemplateProposals(proposals, prefix)
     }
 
-    val (keywordCompletions, koffset) = completionSupport.keywordCompletions(caretOffset)
-    keywordCompletions.foreach { completion =>
-      proposals.add(new ScalaCompletionProposal(caretOffset - koffset, completion,
-                                                ElementKind.KEYWORD,
-                                                CodeCompletionUtils.KeywordTemplates.getOrElse(completion, null),
-                                                scalaImageIcon))
-    }
-
-    val (methodCompletions, coffset) = completionSupport.methodCompletions2(caretOffset)
-    methodCompletions.foreach { completion =>
-      proposals.add(new ScalaCompletionProposal2(caretOffset - coffset, completion,
-                                                 ElementKind.METHOD))
+    if (objid.isDefined) {
+      val (methodCompletions, coffset) = completionSupport.methodCompletions2(caretOffset, objid.get, prefix)
+      methodCompletions.foreach { completion =>
+        proposals.add(new ScalaCompletionProposal2(caretOffset - coffset, completion,
+                                                   ElementKind.METHOD))
+      }
     }
 
     if (proposals.size > 1)
@@ -194,10 +205,38 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
 //    Log.info("Completion Result: " + proposals)
     return completionResult
   }
+  
+  def addTemplateProposals(proposals: java.util.ArrayList[CompletionProposal], prefix: Option[String]) {
+    def toProposal(offset: Int, ct: CodeTemplate) = new CompletionProposal {
+      def getAnchorOffset: Int = offset
+      def getName: String = ct.getAbbreviation
+      def getInsertPrefix: String = "insert prefix"
+      def getSortText: String = ct.getAbbreviation
+      def getSortPrioOverride: Int = 0
+      def getElement: ElementHandle = null
+      def getKind: ElementKind = ElementKind.OTHER
+      def getIcon: ImageIcon = ImageUtilities.loadImageIcon("org/netbeans/lib/editor/codetemplates/resources/code_template.png", false)
+      def getLhsHtml(fm: HtmlFormatter) = util.JUtils.toHtmlText(ct.getParametrizedText.split("\n")(0))
+      def getRhsHtml(fm: HtmlFormatter) = "<strong>%s<strong>" format ct.getAbbreviation
+      def getModifiers: java.util.Set[Modifier] = java.util.Collections.emptySet[Modifier]
+      override def toString: String = "Code Template Proposal(%s)" format(ct)
+      def isSmart: Boolean = false
+      def getCustomInsertTemplate = ct.getParametrizedText
+    }
+    def ignoreCaseStartsWith(s1: String, s2: String) = s1.toLowerCase.startsWith(s2.toLowerCase)
 
+    val doc = CodeExecutionSupport.instance().codePane.getDocument
+    import collection.JavaConversions._
+    val cts = CodeTemplateManager.get(doc).getCodeTemplates
+    cts.filter {ct => ignoreCaseStartsWith(ct.getAbbreviation, prefix.getOrElse(""))}.foreach { ct =>
+      proposals.add(toProposal(0, ct))
+    }
+  }
+  
   override def document(pr: ParserResult, element: ElementHandle): String = element match {
     case e: ScalaElementHandle => Help(e.getName)
     case e2: ScalaElementHandle2 => signature(e2.proposal)
+    case _ => null
   }
 
   override def resolveLink(link: String, elementHandle: ElementHandle): ElementHandle = {
