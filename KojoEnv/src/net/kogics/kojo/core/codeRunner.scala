@@ -23,10 +23,9 @@ trait CodeRunner {
   def parseCode(code: String, browseAst: Boolean): Unit
   def compileCode(code: String): Unit
   def compileRunCode(code: String): Unit
-  def methodCompletions(str: String): (List[String], Int)
-  def varCompletions(str: String): (List[String], Int)
-  def keywordCompletions(str: String): (List[String], Int)
-  def methodCompletions2(code: String, codeFragment: String, offset: Int): (List[CompletionInfo], Int)
+  def varCompletions(prefix: Option[String]): (List[String], Int)
+  def keywordCompletions(prefix: Option[String]): (List[String], Int)
+  def methodCompletions2(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int)
   def activateTw(): Unit
   def activateStaging(): Unit
   def activateMw(): Unit
@@ -100,24 +99,19 @@ class ProxyCodeRunner(codeRunnerMaker: () => CodeRunner) extends CodeRunner {
     codeRunner.parseCode(code, browseAst)
   }
 
-  def methodCompletions(str: String): (List[String], Int) = {
+  def varCompletions(prefix: Option[String]): (List[String], Int) = {
     latch.await()
-    codeRunner.methodCompletions(str)
+    codeRunner.varCompletions(prefix)
   }
 
-  def varCompletions(str: String): (List[String], Int) = {
+  def keywordCompletions(prefix: Option[String]): (List[String], Int) = {
     latch.await()
-    codeRunner.varCompletions(str)
-  }
-
-  def keywordCompletions(str: String): (List[String], Int) = {
-    latch.await()
-    codeRunner.keywordCompletions(str)
+    codeRunner.keywordCompletions(prefix)
   }
   
-  def methodCompletions2(code: String, codeFragment: String, offset: Int): (List[CompletionInfo], Int) = {
+  def methodCompletions2(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int) = {
     latch.await()
-    codeRunner.methodCompletions2(code, codeFragment, offset)
+    codeRunner.methodCompletions2(code, caretOffset, objid, prefix)
   }
   
   def activateTw() {

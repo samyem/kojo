@@ -70,34 +70,27 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
   case class CompileRunCode(code: String)
   case class CompileCode(code: String)
   case class ParseCode(code: String, browseAst: Boolean)
-  case class MethodCompletionRequest(str: String)
-  case class VarCompletionRequest(str: String)
-  case class KeywordCompletionRequest(str: String)
-  case class MethodCompletionRequest2(code: String, codeFragment: String, offset: Int)
+  case class VarCompletionRequest(prefix: Option[String])
+  case class KeywordCompletionRequest(prefix: Option[String])
+  case class MethodCompletionRequest2(code: String, caretOffset: Int, objid: String, prefix: Option[String])
   case class CompletionResponse(data: (List[String], Int))
   case class CompletionResponse2(data: (List[CompletionInfo], Int))
   case object ActivateTw
   case object ActivateStaging
   case object ActivateMw
   
-  
-  def methodCompletions(str: String): (List[String], Int) = {
-    val resp = (codeRunner !? MethodCompletionRequest(str)).asInstanceOf[CompletionResponse]
+  def varCompletions(prefix: Option[String]): (List[String], Int) = {
+    val resp = (codeRunner !? VarCompletionRequest(prefix)).asInstanceOf[CompletionResponse]
     resp.data
   }
 
-  def varCompletions(str: String): (List[String], Int) = {
-    val resp = (codeRunner !? VarCompletionRequest(str)).asInstanceOf[CompletionResponse]
+  def keywordCompletions(prefix: Option[String]): (List[String], Int) = {
+    val resp = (codeRunner !? KeywordCompletionRequest(prefix)).asInstanceOf[CompletionResponse]
     resp.data
   }
 
-  def keywordCompletions(str: String): (List[String], Int) = {
-    val resp = (codeRunner !? KeywordCompletionRequest(str)).asInstanceOf[CompletionResponse]
-    resp.data
-  }
-
-  def methodCompletions2(code: String, codeFragment: String, offset: Int): (List[CompletionInfo], Int) = {
-    val resp = (codeRunner !? MethodCompletionRequest2(code, codeFragment, offset)).asInstanceOf[CompletionResponse2]
+  def methodCompletions2(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int) = {
+    val resp = (codeRunner !? MethodCompletionRequest2(code, caretOffset, objid, prefix)).asInstanceOf[CompletionResponse2]
     resp.data
   }
 
@@ -372,24 +365,19 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
               InterruptionManager.onInterpreterFinish()
             }
 
-          case MethodCompletionRequest(str) =>
+          case VarCompletionRequest(prefix) =>
             safeProcessCompletionReq {
-              methodCompletions(str)
+              varCompletions(prefix)
             }
 
-          case VarCompletionRequest(str) =>
+          case KeywordCompletionRequest(prefix) =>
             safeProcessCompletionReq {
-              varCompletions(str)
+              keywordCompletions(prefix)
             }
 
-          case KeywordCompletionRequest(str) =>
-            safeProcessCompletionReq {
-              keywordCompletions(str)
-            }
-
-          case MethodCompletionRequest2(code, codeFragment, offset) =>
+          case MethodCompletionRequest2(code, caretOffset, objid, prefix) =>
             safeProcessCompletionReq2 {
-              methodCompletions2(code, codeFragment, offset)
+              methodCompletions2(code, caretOffset, objid, prefix)
             }
         }
       }
@@ -577,51 +565,27 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       completions
     }
 
-    def methodCompletions(str: String): (List[String], Int) = {
-      (Nil, 0)
-    }
-
-    def varCompletions(str: String): (List[String], Int) = {
-
+    def varCompletions(prefix: Option[String]): (List[String], Int) = {
+      val pfx = prefix.getOrElse("")
       def varFilter(s: String) = !VarDropFilter.contains(s) && !InternalVarsRe.matcher(s).matches
-
-      val (oIdentifier, oPrefix) = findIdentifier(str)
-      val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-      if (oIdentifier.isDefined) {
-        (Nil, 0)
-      }
-      else {
-        val c2s = interp.unqualifiedIds.filter {s => ignoreCaseStartsWith(s, prefix) && varFilter(s)}
-        (c2s, prefix.length)
-      }
+      val c2s = interp.unqualifiedIds.filter {s => ignoreCaseStartsWith(s, pfx) && varFilter(s)}
+      (c2s, pfx.length)
     }
 
-    def keywordCompletions(str: String): (List[String], Int) = {
-      val (oIdentifier, oPrefix) = findIdentifier(str)
-      val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-      if (oIdentifier.isDefined) {
-        (Nil, 0)
-      }
-      else {
-        val c2s = Keywords.filter {s => s != null && ignoreCaseStartsWith(s, prefix)}
-        (c2s, prefix.length)
-      }
+    def keywordCompletions(prefix: Option[String]): (List[String], Int) = {
+      val pfx = prefix.getOrElse("")
+      val c2s = Keywords.filter {s => s != null && ignoreCaseStartsWith(s, pfx)}
+      (c2s, pfx.length)
     }
 
-    def methodCompletions2(code: String, codeFragment: String, offset: Int): (List[CompletionInfo], Int) = {
-      val (oIdentifier, oPrefix) = findIdentifier(codeFragment)
-      if (oIdentifier.isDefined) {
-        val prefix = if(oPrefix.isDefined) oPrefix.get else ""
-        compilerAndRunner.completions(code, offset-prefix.length) match {
-          case Nil => 
-            val ics = completions(oIdentifier.get).filter {ignoreCaseStartsWith(_, prefix)}
-            (ics.map {CompletionInfo(_, Nil, Nil, "", 100)}, prefix.length)
-          case _ @ ccs => 
-            (ccs.filter {ci => ignoreCaseStartsWith(ci.name, prefix) }, prefix.length)
-        }
-      }
-      else {
-        (Nil, 0)
+    def methodCompletions2(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int) = {
+      val pfx = prefix.getOrElse("")
+      compilerAndRunner.completions(code, caretOffset-pfx.length) match {
+        case Nil => 
+          val ics = completions(objid).filter {ignoreCaseStartsWith(_, pfx)}
+          (ics.map {CompletionInfo(_, Nil, Nil, "", 100)}, pfx.length)
+        case _ @ ccs => 
+          (ccs.filter {ci => ignoreCaseStartsWith(ci.name, pfx) }, pfx.length)
       }
     }
   }

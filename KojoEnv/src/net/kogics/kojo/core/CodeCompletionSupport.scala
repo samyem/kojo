@@ -25,8 +25,8 @@ case class CompletionInfo(
 )
 
 trait CodeCompletionSupport {
-  def methodCompletions(caretOffset: Int): (List[String], Int)
-  def varCompletions(caretOffset: Int): (List[String], Int)
-  def keywordCompletions(caretOffset: Int): (List[String], Int)
-  def methodCompletions2(caretOffset: Int): (List[CompletionInfo], Int)
+  def varCompletions(prefix: Option[String]): (List[String], Int)
+  def keywordCompletions(prefix: Option[String]): (List[String], Int)
+  def methodCompletions2(caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int)
+  def objidAndPrefix(caretOffset: Int): (Option[String], Option[String])
 }
