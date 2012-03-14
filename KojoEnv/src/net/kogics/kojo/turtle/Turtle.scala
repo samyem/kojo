@@ -302,7 +302,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       val newTheta = towardsHelper(x, y)
       changeHeading(newTheta)
     }
-    forward(distanceTo(x,y))
+    val d = Utils.runInSwingThreadAndWait(distanceTo(x,y))
+    forward(d)
   }
 
   def setAnimationDelay(d: Long) {
