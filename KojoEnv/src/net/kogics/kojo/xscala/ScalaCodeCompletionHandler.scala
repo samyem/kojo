@@ -216,7 +216,9 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
       def getElement: ElementHandle = null
       def getKind: ElementKind = ElementKind.OTHER
       def getIcon: ImageIcon = ImageUtilities.loadImageIcon("org/netbeans/lib/editor/codetemplates/resources/code_template.png", false)
-      def getLhsHtml(fm: HtmlFormatter) = util.JUtils.toHtmlText(ct.getParametrizedText.split("\n")(0))
+      def getLhsHtml(fm: HtmlFormatter) = util.JUtils.toHtmlText(
+        ct.getParametrizedText.split("\n")(0).replaceAll("""\$\{(.+?)\}""", """$1""").replaceAll("cursor", "|")
+      )
       def getRhsHtml(fm: HtmlFormatter) = "<strong>%s<strong>" format ct.getAbbreviation
       def getModifiers: java.util.Set[Modifier] = java.util.Collections.emptySet[Modifier]
       override def toString: String = "Code Template Proposal(%s)" format(ct)
