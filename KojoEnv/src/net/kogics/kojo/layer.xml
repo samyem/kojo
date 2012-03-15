@@ -573,6 +573,7 @@
         <folder name="MIMEResolver">
             <file name="Scala.xml" url="xscala/scalaResolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.xscala.Bundle"/>
+                <attr name="position" intvalue="0"/>
             </file>
         </folder>
     </folder>
