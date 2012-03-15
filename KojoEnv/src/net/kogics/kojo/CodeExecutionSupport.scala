@@ -875,7 +875,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       if (fileChanged) {
         val doSave = JOptionPane.showConfirmDialog(
           null,
-          "%s has changed. Do you want to save it".format(openedFile.get.getName)
+          "The opened file %s has changed in the Script Editor.\nDo you want to save the current contents of the Script Editor to %s?".format(openedFile.get.getName, openedFile.get.getName)
         )
         if (doSave == JOptionPane.CANCEL_OPTION) {
           throw new RuntimeException("Cancel File Close")
