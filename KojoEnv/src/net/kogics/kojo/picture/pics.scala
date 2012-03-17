@@ -464,8 +464,12 @@ object Pic0 {
 class Pic0(painter: Painter) extends Pic(painter) {
   override def realDraw() {
     Impl.canvas.setDefTurtle(t)
-    super.realDraw()
-    Impl.canvas.restoreDefTurtle()
+    try {
+      super.realDraw()
+    }
+    finally {
+      Impl.canvas.restoreDefTurtle()
+    }
   }
   override def copy: Picture = Pic0(painter)
 }
