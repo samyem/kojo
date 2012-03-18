@@ -298,11 +298,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   def moveTo(x: Double, y: Double) {
-    Utils.runInSwingThread {
+    val d = Utils.runInSwingThreadAndWait {
       val newTheta = towardsHelper(x, y)
       changeHeading(newTheta)
+      distanceTo(x,y)
     }
-    val d = Utils.runInSwingThreadAndWait(distanceTo(x,y))
     forward(d)
   }
 
