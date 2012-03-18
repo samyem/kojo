@@ -72,7 +72,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
   case class ParseCode(code: String, browseAst: Boolean)
   case class VarCompletionRequest(prefix: Option[String])
   case class KeywordCompletionRequest(prefix: Option[String])
-  case class MethodCompletionRequest2(code: String, caretOffset: Int, objid: String, prefix: Option[String])
+  case class MemberCompletionRequest(code: String, caretOffset: Int, objid: String, prefix: Option[String])
   case class CompletionResponse(data: (List[String], Int))
   case class CompletionResponse2(data: (List[CompletionInfo], Int))
   case object ActivateTw
@@ -89,8 +89,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     resp.data
   }
 
-  def methodCompletions2(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int) = {
-    val resp = (codeRunner !? MethodCompletionRequest2(code, caretOffset, objid, prefix)).asInstanceOf[CompletionResponse2]
+  def memberCompletions(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int) = {
+    val resp = (codeRunner !? MemberCompletionRequest(code, caretOffset, objid, prefix)).asInstanceOf[CompletionResponse2]
     resp.data
   }
 
@@ -375,9 +375,9 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
               keywordCompletions(prefix)
             }
 
-          case MethodCompletionRequest2(code, caretOffset, objid, prefix) =>
+          case MemberCompletionRequest(code, caretOffset, objid, prefix) =>
             safeProcessCompletionReq2 {
-              methodCompletions2(code, caretOffset, objid, prefix)
+              memberCompletions(code, caretOffset, objid, prefix)
             }
         }
       }
@@ -578,7 +578,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       (c2s, pfx.length)
     }
 
-    def methodCompletions2(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int) = {
+    def memberCompletions(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int) = {
       val pfx = prefix.getOrElse("")
       compilerAndRunner.completions(code, caretOffset-pfx.length) match {
         case Nil => 

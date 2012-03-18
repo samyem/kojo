@@ -837,7 +837,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   }
   def varCompletions(prefix: Option[String]) = codeRunner.varCompletions(prefix)
   def keywordCompletions(prefix: Option[String]) = codeRunner.keywordCompletions(prefix)
-  def methodCompletions2(caretOffset: Int, objid: String, prefix: Option[String]) = codeRunner.methodCompletions2(Utils.stripCR(codePane.getText), caretOffset, objid, prefix)
+  def memberCompletions(caretOffset: Int, objid: String, prefix: Option[String]) = codeRunner.memberCompletions(Utils.stripCR(codePane.getText), caretOffset, objid, prefix)
   def objidAndPrefix(caretOffset: Int): (Option[String], Option[String]) = xscala.CodeCompletionUtils.findIdentifier(codeFragment(caretOffset))
   
 

@@ -25,7 +25,7 @@ trait CodeRunner {
   def compileRunCode(code: String): Unit
   def varCompletions(prefix: Option[String]): (List[String], Int)
   def keywordCompletions(prefix: Option[String]): (List[String], Int)
-  def methodCompletions2(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int)
+  def memberCompletions(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int)
   def activateTw(): Unit
   def activateStaging(): Unit
   def activateMw(): Unit
@@ -109,9 +109,9 @@ class ProxyCodeRunner(codeRunnerMaker: () => CodeRunner) extends CodeRunner {
     codeRunner.keywordCompletions(prefix)
   }
   
-  def methodCompletions2(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int) = {
+  def memberCompletions(code: String, caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int) = {
     latch.await()
-    codeRunner.methodCompletions2(code, caretOffset, objid, prefix)
+    codeRunner.memberCompletions(code, caretOffset, objid, prefix)
   }
   
   def activateTw() {

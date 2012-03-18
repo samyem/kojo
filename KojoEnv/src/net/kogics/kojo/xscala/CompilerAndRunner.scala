@@ -259,11 +259,28 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
     resp.get match {
       case Left(x) => 
         x filter { e =>  
-          (e.sym.isMethod && !e.sym.isConstructor && e.sym.isPublic) || 
-          (e.sym.isValue && !e.sym.isMethod && e.sym.nameString != "this")
+          (
+            (e.sym.isMethod && !e.sym.isConstructor && e.sym.isPublic) || 
+            (e.sym.isValue && !e.sym.isMethod && e.sym.nameString != "this") ||
+            ((e.sym.isPackage || e.sym.isClass) && e.sym.isPublic)
+          ) &&
+          (
+            e.tpe != pcompiler.NoType && 
+            e.tpe != pcompiler.ErrorType  
+          )
         } map { e => 
-          var prio = 100
+          
+//          println("Type Member: " + e.sym.nameString)
+//          println("IsClass: " + e.sym.isClass)
+//          println("IsPackage: " + e.sym.isPackage)
+//          println("IsMethod: " + e.sym.isMethod)
+//          println("IsValue: " + e.sym.isValue)
+//          println("IsPublic: " + e.sym.isPublic)
+//          println("Tpe: " + e.tpe)
+//          println("Tpe Class: " + e.tpe.getClass)
+//          println("**************")
 
+          var prio = 100
           val tm = e.asInstanceOf[pcompiler.TypeMember]
           if (tm.viaView != pcompiler.NoSymbol) prio += 20
           if (tm.inherited == true) prio += 10
@@ -271,30 +288,47 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
           // between private and public vals/vars.
           // This way they go below the methods
           if (e.sym.isValue && !e.sym.isMethod) prio += 5 
+          if (e.sym.isClass) prio += 100
+          if (e.sym.isPackage) prio += 200
 
-          e.tpe match {
-            case mt: pcompiler.MethodType => CompletionInfo(e.sym.nameString, 
-                                                            mt.params.map(_.nameString.replace("$", "")), 
-                                                            mt.paramTypes.map(_.toString), 
-                                                            mt.resultType.toString,
+          if (e.sym.isMethod || e.sym.isValue) {
+            e.tpe match {
+              case mt: pcompiler.MethodType => CompletionInfo(e.sym.nameString, 
+                                                              mt.params.map(_.nameString.replace("$", "")), 
+                                                              mt.paramTypes.map(_.toString), 
+                                                              mt.resultType.toString,
+                                                              prio)
+              case pt: pcompiler.PolyType => CompletionInfo(e.sym.nameString, 
+                                                            pt.resultType.params.map(_.nameString.replace("$", "")), 
+                                                            pt.resultType.paramTypes.map(_.toString), 
+                                                            pt.resultType.resultType.toString,
                                                             prio)
-            case pt: pcompiler.PolyType => CompletionInfo(e.sym.nameString, 
-                                                          pt.resultType.params.map(_.nameString.replace("$", "")), 
-                                                          pt.resultType.paramTypes.map(_.toString), 
-                                                          pt.resultType.resultType.toString,
-                                                          prio)
-            case nt: pcompiler.NullaryMethodType => CompletionInfo(e.sym.nameString, 
-                                                                   Nil, 
-                                                                   Nil, 
-                                                                   nt.resultType.toString,
-                                                                   prio)
-            case vt: pcompiler.UniqueTypeRef => CompletionInfo(e.sym.nameString, 
-                                                               Nil, 
-                                                               Nil, 
-                                                               vt.resultType.toString,
-                                                               prio,
-                                                               true)
-            case t @ _ => CompletionInfo(e.sym.nameString, List(t.getClass.getName), List("todo2"), "todo2", prio)
+              case nt: pcompiler.NullaryMethodType => CompletionInfo(e.sym.nameString, 
+                                                                     Nil, 
+                                                                     Nil, 
+                                                                     nt.resultType.toString,
+                                                                     prio)
+              case vt: pcompiler.UniqueTypeRef => CompletionInfo(e.sym.nameString, 
+                                                                 Nil, 
+                                                                 Nil, 
+                                                                 vt.resultType.toString,
+                                                                 prio,
+                                                                 true)
+              case t @ _ => CompletionInfo(e.sym.nameString, List(t.getClass.getName), List("Unknown"), "[Todo] MorV", prio)
+            }
+          }
+          else {
+            e.tpe match {
+              case vt: pcompiler.UniqueTypeRef => CompletionInfo(e.sym.nameString, 
+                                                                 vt.typeParams.map(_.nameString.replace("$", "")),  
+                                                                 Nil, 
+                                                                 vt.resultType.toString,
+                                                                 prio,
+                                                                 false,
+                                                                 e.sym.isClass,
+                                                                 e.sym.isPackage)
+              case t @ _ => CompletionInfo(e.sym.nameString, List(t.getClass.getName), List("Unknown"), "[Todo] CorP", prio)
+            }
           }
         }
       case Right(y) => println("Completion warning: %s" format(y)); Nil  
