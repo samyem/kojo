@@ -180,19 +180,25 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   private def currStyle = Style(pen.getColor, pen.getThickness, pen.getFillColor, pen.getFontSize)
 
+  private def pointAfterForward(n: Double) = {
+    val p0 = _position
+    val p1 = posAfterForward(p0.x, p0.y, theta, n)
+    new Point2D.Double(p1._1, p1._2)
+  }
+  
+  private def endForwardMove(pf: Point2D.Double) {
+    pen.endMove(pf.x, pf.y)
+    changePos(pf.x, pf.y)
+    turtle.repaint()
+  }
+
+  // to be called on swing thread
+  private def forwardNoAnim(n: Double) {
+    endForwardMove(pointAfterForward(n))
+  }
+  
+  // to be called outside swing thread
   def forward(n: Double): Unit = {
-    def newPoint = {
-      val p0 = _position
-      val p1 = posAfterForward(p0.x, p0.y, theta, n)
-      new Point2D.Double(p1._1, p1._2)
-    }
-
-    def endMove(pf: Point2D.Double) {
-      pen.endMove(pf.x, pf.y)
-      changePos(pf.x, pf.y)
-      turtle.repaint()
-    }
-
     if (Utils.doublesEqual(n, 0, 0.001)) {
       return
     }
@@ -204,8 +210,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         Thread.sleep(aDelay)
       }
       Utils.runInSwingThread {
-        val pf = newPoint
-        endMove(pf)
+        forwardNoAnim(n)
       }
     }
     else {
@@ -217,7 +222,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
         }
 
         val p0 = _position
-        val pf = newPoint
+        val pf = pointAfterForward(n)
         pen.startMove(p0.x, p0.y)
 
         forwardAnimation = new PActivity(aDelay) {
@@ -237,11 +242,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
             override def activityFinished(activity: PActivity) {
               if (stopped) {
                 val cpos = turtle.getOffset
-                endMove(cpos.asInstanceOf[Point2D.Double])
+                endForwardMove(cpos.asInstanceOf[Point2D.Double])
                 endAnim()
               }
               else {
-                endMove(pf)
+                endForwardMove(pf)
                 endAnim()
                 latch.countDown()
               }
@@ -298,12 +303,20 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   def moveTo(x: Double, y: Double) {
-    val d = Utils.runInSwingThreadAndWait {
+    if (_animationDelay < 5) Utils.runInSwingThread {
       val newTheta = towardsHelper(x, y)
       changeHeading(newTheta)
-      distanceTo(x,y)
+      val d = distanceTo(x,y)
+      forwardNoAnim(d)
     }
-    forward(d)
+    else {
+      val d = Utils.runInSwingThreadAndWait {
+        val newTheta = towardsHelper(x, y)
+        changeHeading(newTheta)
+        distanceTo(x,y)
+      }
+      forward(d)
+    }
   }
 
   def setAnimationDelay(d: Long) {
@@ -311,7 +324,8 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       throw new IllegalArgumentException("Negative delay not allowed")
     }
     // set it right here, as opposed to in the swing thread
-    // because forward() uses it within the calling thread to calculate delay 
+    // because all users of _animation delay uses it within the calling thread 
+    // users are forward, arc, and moveTo
     _animationDelay = d
   }
 
@@ -431,17 +445,6 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
     }
   }
   
-  private def forwardNoAnim(n: Double) {
-    val pf = {
-      val p0 = _position
-      val p1 = posAfterForward(p0.x, p0.y, theta, n)
-      new Point2D.Double(p1._1, p1._2)
-    }
-    pen.endMove(pf.x, pf.y)
-    changePos(pf.x, pf.y)
-    turtle.repaint()
-  }
-
   def arc(r: Double, a: Int) {
     def makeArc(lforward: Double => Unit, lturn: Double => Unit) {
       var i = 0
@@ -453,7 +456,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       }
     }
     
-    if (animationDelay < 5) Utils.runInSwingThread {
+    if (_animationDelay < 5) Utils.runInSwingThread {
       makeArc(forwardNoAnim _, realTurn _)
     }
     else {
