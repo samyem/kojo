@@ -365,4 +365,72 @@ class TurtleTest extends KojoTestBase {
     turtle.restoreStyle()
     assertEquals(Style(Color.blue, 1, Color.green, 19), turtle.style)
   }
+
+  def testForwardSeqHelper() {
+    turtle.forward(100)
+    turtle.right(45)
+    turtle.forward(100)
+    turtle.right()
+    turtle.forward(100)
+    val p = turtle.position
+
+    assertEquals(math.sqrt(100 * 100 * 2), p.x, 0.001)
+    assertEquals(100, p.y, 0.001)
+  }
+
+  @Test
+  def testFastForwardSeq() {
+    turtle.setAnimationDelay(0)
+    testForwardSeqHelper()
+  }
+
+  @Test
+  def testSlowForwardSeq() {
+    turtle.setAnimationDelay(100)
+    testForwardSeqHelper()
+  }
+
+  def testMoveToSeqHelper() {
+    turtle.moveTo(0, 100)
+    turtle.moveTo(50, 150)
+    turtle.moveTo(100, 100)
+    val p = turtle.position
+
+    assertEquals(100, p.x, 0.001)
+    assertEquals(100, p.y, 0.001)
+  }
+
+  @Test
+  def testFastMoveToSeq() {
+    turtle.setAnimationDelay(0)
+    testMoveToSeqHelper()
+  }
+
+  @Test
+  def testSlowMoveToSeq() {
+    turtle.setAnimationDelay(100)
+    testMoveToSeqHelper()
+  }
+
+  @Test
+  def testPosHeSaveRestore() {
+    turtle.forward(100)
+    turtle.right()
+    turtle.forward(50)
+    turtle.left(45)
+
+    turtle.savePosHe()
+
+    turtle.forward(100)
+    turtle.right()
+    turtle.forward(50)
+    turtle.left(45)
+   
+    turtle.restorePosHe
+
+    val p = turtle.position
+    assertEquals(50, p.x, 0.001)
+    assertEquals(100, p.y, 0.001)
+    assertEquals(45, turtle.heading, 0.001)
+  }
 }
