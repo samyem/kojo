@@ -21,12 +21,14 @@ case class CompletionInfo(
   paramTypes: List[String],
   ret: String,
   prio: Int,
-  value: Boolean = false
+  isValue: Boolean = false,
+  isClass: Boolean = false,
+  isPackage: Boolean = false
 )
 
 trait CodeCompletionSupport {
   def varCompletions(prefix: Option[String]): (List[String], Int)
   def keywordCompletions(prefix: Option[String]): (List[String], Int)
-  def methodCompletions2(caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int)
+  def memberCompletions(caretOffset: Int, objid: String, prefix: Option[String]): (List[CompletionInfo], Int)
   def objidAndPrefix(caretOffset: Int): (Option[String], Option[String])
 }

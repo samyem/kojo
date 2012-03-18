@@ -57,7 +57,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     def getAnchorOffset: Int = offset
     def getName: String = proposal
     def getInsertPrefix: String = proposal
-    def getSortText: String = proposal
+    def getSortText: String = proposal.toLowerCase
     def getSortPrioOverride: Int = 0
     def getElement: ElementHandle = elemHandle
     def getKind: ElementKind = kind
@@ -88,24 +88,48 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     def getOffsetRange(result: ParserResult): OffsetRange = new OffsetRange(0,offset)
   }
 
-  class ScalaCompletionProposal2(offset: Int, proposal: CompletionInfo, kind: ElementKind, 
+  class ScalaCompletionProposal2(offset: Int, proposal: CompletionInfo, 
                                  icon: ImageIcon = null) extends CompletionProposal {
+    
+    def kind = {
+      if (proposal.isValue) {
+        ElementKind.VARIABLE
+      }
+      else if (proposal.isClass) {
+        ElementKind.CLASS
+      }
+      else if (proposal.isPackage) {
+        ElementKind.PACKAGE
+      }
+      else {
+        ElementKind.METHOD
+      }
+    }
+    
     val elemHandle = new ScalaElementHandle2(proposal.name, offset, kind, proposal)
     def getAnchorOffset: Int = offset
     def getName: String = proposal.name
     def getInsertPrefix: String = proposal.name
-    def getSortText: String = proposal.name
+    def getSortText: String = proposal.name.toLowerCase
     def getSortPrioOverride: Int = proposal.prio
     def getElement: ElementHandle = elemHandle
     def getKind: ElementKind = kind
     def getIcon: ImageIcon = icon
-    val valOrNoargFunc = proposal.value || proposal.params.size == 0 && proposal.ret != "Unit"
+    val valOrNoargItem = proposal.isValue || proposal.params.size == 0 && proposal.ret != "Unit"
     def getLhsHtml(fm: HtmlFormatter): String = {
       val kind = getKind
       fm.name(kind, true)
       fm.appendText(proposal.name)
       fm.name(kind, false)
-      if (!valOrNoargFunc) {
+      if (valOrNoargItem) {
+        // do nothing
+      }
+      else if (proposal.isClass) {
+        fm.parameters(true)
+        fm.appendText(proposal.params.mkString("[", ", ", "]"))
+        fm.parameters(false)
+      }
+      else {
         fm.parameters(true)
         fm.appendText(proposal.params.zip(proposal.paramTypes).
                       map{ p => "%s: %s" format(p._1, p._2) }.
@@ -122,26 +146,36 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
       val c0 = methodTemplate(proposal.name)
       if (c0 != null ) {
         c0
+        
       }
       else {
-        if (valOrNoargFunc) {
+        if (valOrNoargItem) {
           proposal.name
         }
+        else if (proposal.isClass) {
+          "%s[%s]" format(proposal.name, proposal.params.map{"${%s}"format(_)}.mkString(", "))
+        }
         else {
-          "%s(%s)" format(proposal.name, proposal.params.map{"${%s}"format(_)}.mkString(","))
+          "%s(%s)" format(proposal.name, proposal.params.map{"${%s}"format(_)}.mkString(", "))
         }
       }
     }
   }
   
   def signature(proposal: CompletionInfo) = {
-    val valOrNoargFunc = proposal.value || proposal.params.size == 0 && proposal.ret != "Unit"
+    val valOrNoargItem = proposal.isValue || proposal.params.size == 0 && proposal.ret != "Unit"
     val sb = new StringBuilder
     sb.append("<strong>%s</strong>" format(proposal.name))
-    if (!valOrNoargFunc) {
+    if (valOrNoargItem) {
+      // do nothing
+    }
+    else if (proposal.isClass) {
+      sb.append(proposal.params.mkString("[", ", ", "]"))
+    }
+    else {
       sb.append(proposal.params.zip(proposal.paramTypes).
-                map{ p => "%s: %s" format(p._1, p._2) }.
-                mkString("(", ", ", ")"))
+                    map{ p => "%s: %s" format(p._1, p._2) }.
+                    mkString("(", ", ", ")"))
     }
     sb.append(": ")
     sb.append("<em>%s</em>" format(proposal.ret))
@@ -188,10 +222,9 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     }
 
     if (objid.isDefined) {
-      val (methodCompletions, coffset) = completionSupport.methodCompletions2(caretOffset, objid.get, prefix)
-      methodCompletions.foreach { completion =>
-        proposals.add(new ScalaCompletionProposal2(caretOffset - coffset, completion,
-                                                   ElementKind.METHOD))
+      val (memberCompletions, coffset) = completionSupport.memberCompletions(caretOffset, objid.get, prefix)
+      memberCompletions.foreach { completion =>
+        proposals.add(new ScalaCompletionProposal2(caretOffset - coffset, completion))
       }
     }
 
