@@ -498,20 +498,18 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   
   def realClearStaging() {
     makeStagingVisible()
-    clearHelper0()
+    clearHelper()
   }
 
   def realClear() {
     kojoCtx.makeTurtleWorldVisible()
-    clearHelper0()
-  }
-  
-  private def clearHelper0() {
     clearHelper()
-    // turtles.foreach {t => t.waitFor()}
   }
   
   private def clearHelper() {
+    // can't stop animation because it kills animations that run from within 
+    // code blocks inside stories
+    // kojoCtx.stopAnimation()  
     gridOff()
     axesOff()
     Utils.runInSwingThreadAndWait {

@@ -244,6 +244,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
                 val cpos = turtle.getOffset
                 endForwardMove(cpos.asInstanceOf[Point2D.Double])
                 endAnim()
+                latch.countDown()
               }
               else {
                 endForwardMove(pf)
@@ -274,7 +275,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   def remove() = Utils.runInSwingThread {
-    pen.clear
+    // pen.clear
     layer.removeChild(turtle)
     camera.removeLayer(layer)
   }
