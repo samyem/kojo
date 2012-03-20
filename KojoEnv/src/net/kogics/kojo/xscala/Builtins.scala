@@ -296,10 +296,14 @@ class Builtins extends RepeatCommands {
   def version = println("Scala " + scala.tools.nsc.Properties.versionString)
   UserCommand.addSynopsis("version - Displays the version of Scala being used.")
 
-  def print(obj: Any): Unit = println(obj)
+  def print(obj: Any) {
+    // Runs on Actor pool (interpreter) thread
+    scalaCodeRunner.kprintln("%s" format(obj))
+    Throttler.throttle()
+  }
   UserCommand.addCompletion("print", List("obj"))
 
-  def println(obj: Any): Unit = println(if (obj == null) "null" else obj.toString)
+  def println(obj: Any): Unit = print("%s\n" format(obj))
   UserCommand.addCompletion("println", List("obj"))
   UserCommand.addSynopsis("println(obj) or print(obj) - Displays the given object as a string in the output window.")
 
@@ -466,12 +470,6 @@ Here's a partial list of the available commands:
   def color(rgbHex: Int) = new Color(rgbHex)
   def clearOutput() = ctx.clearOutput()
 
-  def println(s: String): Unit = {
-    // Runs on Actor pool (interpreter) thread
-    scalaCodeRunner.kprintln(s + "\n")
-    Throttler.throttle()
-  }
-  
   def interpret(code: String) {
     scalaCodeRunner.runCode(code)
   }
