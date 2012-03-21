@@ -708,12 +708,12 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   }
 
   def stopAnimation() {
+    Utils.stopMonitoredThreads()
     tCanvas.stop()
     fuguePlayer.stopMusic()
     fuguePlayer.stopBgMusic()
     mp3player.stopMp3()
     mp3player.stopMp3Loop()
-    Utils.stopMonitoredThreads()
   }
 
   def invalidCode(code: String): Boolean = {
