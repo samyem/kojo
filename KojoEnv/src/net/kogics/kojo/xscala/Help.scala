@@ -152,6 +152,7 @@ object Help {
       </pre>
     </div>
     ,
+    "style" -> "style - Tells you the turtle's current style. See the help for saveStyle() for more information on styles.",
     "moveTo" -> "moveTo(x, y) - Turns the turtle towards (x, y) and moves the turtle to that point. ",
     "turn" -> 
     <div>
@@ -312,7 +313,7 @@ object Help {
     "savePosHe" -> 
     <div>
       <strong>savePosHe</strong>() - Saves the turtle's current position and heading, so that they can 
-      easily be restored later.<br/>
+      easily be restored later with a <tt>restorePosHe()</tt>.<br/>
       <br/>
       <em>Example:</em> <br/>
       <br/>
@@ -354,6 +355,91 @@ object Help {
         // so that the turtles gets back to 
         // exactly where it started out from 
         restorePosHe()
+      </pre>
+    </div>
+    ,
+    "saveStyle" -> 
+    <div>
+      <strong>saveStyle</strong>() - Saves the turtle's current style, so that it can 
+      easily be restored later with <tt>restoreStyle()</tt> .<br/>
+      <p>
+        The turtle's style includes:
+        <ul>
+          <li>Pen Color</li>
+          <li>Pen Thickness</li>
+          <li>Fill color</li>
+          <li>Pen Font Size</li>
+        </ul>
+      </p>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def tick(n: Int) {{
+            // save current style, position and heading
+            saveStyle()
+            savePosHe()
+            setPenColor(gray)
+            right()
+            forward(n)
+            back(n * 2)
+            restorePosHe()
+            restoreStyle()
+            // restore caller's style, position and heading
+        }}
+
+        clear()
+        setPenColor(green)
+        right()
+        // green line
+        forward(100)
+        // grey tick
+        tick(10)
+        // green line
+        forward(100)
+      </pre>
+    </div>
+    ,
+    "restoreStyle" -> 
+    <div>
+      <strong>restoreStyle</strong>() - Restores the turtle's style
+      based on an earlier <tt>saveStyle()</tt>.
+      <br/>
+      <p>
+        The turtle's style includes:
+        <ul>
+          <li>Pen Color</li>
+          <li>Pen Thickness</li>
+          <li>Fill color</li>
+          <li>Pen Font Size</li>
+        </ul>
+      </p>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        def tick(n: Int) {{
+            // save current style, position and heading
+            saveStyle()
+            savePosHe()
+            setPenColor(gray)
+            right()
+            forward(n)
+            back(n * 2)
+            restorePosHe()
+            restoreStyle()
+            // restore caller's style, position and heading
+        }}
+
+        clear()
+        setPenColor(green)
+        right()
+        // green line
+        forward(100)
+        // grey tick
+        tick(10)
+        // green line
+        forward(100)
       </pre>
     </div>
     ,
