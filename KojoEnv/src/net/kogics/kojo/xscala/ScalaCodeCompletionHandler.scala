@@ -146,7 +146,6 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
       val c0 = methodTemplate(proposal.name)
       if (c0 != null ) {
         c0
-        
       }
       else {
         if (valOrNoargItem) {
@@ -270,7 +269,9 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
   
   override def document(pr: ParserResult, element: ElementHandle): String = element match {
     case e: ScalaElementHandle => Help(e.getName)
-    case e2: ScalaElementHandle2 => signature(e2.proposal)
+    case e2: ScalaElementHandle2 => 
+      val hlp = Help(e2.getName)
+      if (hlp != null) hlp else signature(e2.proposal)
     case _ => null
   }
 
