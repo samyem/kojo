@@ -463,8 +463,8 @@ object Pic0 {
 
 class Pic0(painter: Painter) extends Pic(painter) {
   override def realDraw() {
-    Impl.canvas.setDefTurtle(t)
     try {
+      Impl.canvas.setDefTurtle(t)
       super.realDraw()
     }
     finally {
