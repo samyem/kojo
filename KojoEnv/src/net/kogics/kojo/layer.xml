@@ -195,6 +195,18 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-Samples.YetAnotherTree.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_YetAnotherTree"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+            <file name="net-kogics-kojo-Samples.SquareLimit.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_SquareLimit"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
             <file name="net-kogics-kojo-Samples.Sine-Angle.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
                 <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Sine-Angle"/>
@@ -426,6 +438,14 @@
                 <file name="net-kogics-kojo-Samples.SquareCirclePic.shadow">
                     <attr name="position" intvalue="4"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.SquareCirclePic.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Samples.YetAnotherTree.shadow">
+                    <attr name="position" intvalue="5"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.YetAnotherTree.instance"/>
+                </file>
+                <file name="net-kogics-kojo-Samples.SquareLimit.shadow">
+                    <attr name="position" intvalue="6"/>
+                    <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.SquareLimit.instance"/>
                 </file>
             </folder>
         </folder>
