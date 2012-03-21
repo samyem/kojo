@@ -49,6 +49,8 @@ object SampleCode {
       case "Sine of an Angle" => Utils.readFile(sampleStream("sine-angle.kojo"))
       case "Clock" => Utils.readFile(sampleStream("clock.kojo"))
       case "Difference of two Squares" => Utils.readFile(sampleStream("diff-squares.kojo"))
+      case "Yet Another Tree" => Utils.readFile(sampleStream("yet-another-tree.kojo"))
+      case "The Square Limit" => Utils.readFile(sampleStream("square-limit.kojo"))
     }
   }
 
@@ -100,12 +102,26 @@ def runPattern() {
 }
 
 clear()
+// when drawing with multiple turtles 
+// don't ask the default turtle to do any work
+// just hide it
+// see below for reasons
+invisible()
+
 runPattern()
+val centerT = newTurtle(0, 0)
 runInBackground {
+    import centerT._
     turn(60)
     setAnimationDelay(6000)
     forward(400)
 }
+
+// the basic rule is 
+// DON'T use the default turtle from a background thread
+// But, if you use the default turtle outside any background thread
+// it gets in the way of the background turtles
+// So - just don't  use it; hide it instead. 
 """
 
   val TurningSquares = """
@@ -230,7 +246,13 @@ def car(t: Turtle, c: Color, a: Double) = runInBackground {
 }
 
 clear()
+// when drawing with multiple turtles running in the background
+// don't ask the default turtle to do any work
+// just hide it
+// see TurtleMania sample for reasons
+invisible()
 
+val t0 = newTurtle(0,0)  
 val t1 = newTurtle(0,0)
 val t2 = newTurtle(0,0)
 val t3 = newTurtle(0,0)
@@ -243,7 +265,7 @@ val t9 = newTurtle(0,0)
 val t10 = newTurtle(0,0)
 val t11 = newTurtle(0,0)
 
-car(turtle0, red,0)
+car(t0, red,0)
 car(t1, yellow,30)
 car(t2, blue,60)
 car(t3, green,90)
@@ -323,9 +345,16 @@ forward(75)
 """
   val SunFenceFlower = """
 clear()
+// when drawing with multiple turtles running in the background
+// don't ask the default turtle to do any work
+// just hide it
+// see TurtleMania sample for reasons
+invisible()
 
+val centerT = newTurtle(0, 0)
 runInBackground {
 // Sun
+    import centerT._
     jumpTo(-400,200)
     setAnimationDelay(20)
     setPenColor(yellow)
@@ -508,6 +537,11 @@ def flower(t:Turtle, c:Color) = runInBackground {
 }
 
 clear()
+// when drawing with multiple turtles running in the background
+// don't ask the default turtle to do any work
+// just hide it
+// see TurtleMania sample for reasons
+invisible()
 
 val t1=newTurtle(-600,-150)
 val t2=newTurtle(-600, 150)
@@ -515,7 +549,9 @@ val t2=newTurtle(-600, 150)
 border(t1,120)
 border(t2,-120)
 
+val centerT = newTurtle(0, 0)
 runInBackground {
+    import centerT._
     jumpTo(-50,100)
     setAnimationDelay(200)
     setPenColor(black)
