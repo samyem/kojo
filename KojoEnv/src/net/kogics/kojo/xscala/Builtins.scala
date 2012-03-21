@@ -572,12 +572,8 @@ Here's a partial list of the available commands:
   def Picture(fn: => Unit) = Pic0 { t =>
     fn
   }
-  def draw(pictures: Picture *) = fastDraw {
-    pictures.foreach {_ draw()}
-  }
-  def drawAndHide(pictures: Picture *) = fastDraw {
-    pictures.foreach {p => p.draw(); p.invisible()}
-  }
+  def draw(pictures: Picture *) = pictures.foreach {_ draw()}
+  def drawAndHide(pictures: Picture *) = pictures.foreach {p => p.draw(); p.invisible()}
   def show(pictures: Picture *) {
     throw new UnsupportedOperationException("Use draw(pic/s) instead of show(pic/s)")
   }
@@ -627,16 +623,6 @@ Here's a partial list of the available commands:
   
   def installDir = new File(Utils.installDir).getParent + "/"
   def canvasBounds = tCanvas.cbounds
-  
-  def fastDraw(fn: => Unit) {
-    Throttler.enabled = false
-    try {
-      fn
-    }
-    finally {
-      Throttler.enabled = true
-    }
-  }
   
   def isMp3Playing = music.KMp3.instance.isMusicPlaying
   def isMusicPlaying = music.FuguePlayer.instance.isMusicPlaying
