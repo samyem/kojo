@@ -15,7 +15,6 @@
 package net.kogics.kojo.util
 
 object Throttler {
-  @volatile var enabled = true
   val systemThrottler = new Throttler(1)
   def throttle() = systemThrottler.throttle()
 }
@@ -44,9 +43,6 @@ class Throttler(size: Int) {
    * user can interrupt the runaway thread
    */
   def throttle() {
-    if (!Throttler.enabled) {
-      return
-    }
     val currTime = System.currentTimeMillis
     val delta =  currTime - lastCallTime.get
     lastCallTime.set(currTime)
