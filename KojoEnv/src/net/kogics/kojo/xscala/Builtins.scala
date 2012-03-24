@@ -504,9 +504,9 @@ Here's a partial list of the available commands:
   type Picture = picture.Picture
   type Painter = picture.Painter
   type Pic = picture.Pic
-  val Pic = picture.Pic
+//  val Pic = picture.Pic
   type Pic0 = picture.Pic0
-  val Pic0 = picture.Pic0
+//  val Pic0 = picture.Pic0
   type HPics = picture.HPics
   val HPics = picture.HPics
   type VPics = picture.VPics
@@ -568,8 +568,9 @@ Here's a partial list of the available commands:
   val row = picture.row _
   val col = picture.col _
 
-  def pict(painter: Painter) = Pic(painter)
-  def Picture(fn: => Unit) = Pic0 { t =>
+  def pict(painter: Painter) = picture.Pic(painter)
+  def PictureT(painter: Painter) = picture.Pic(painter)
+  def Picture(fn: => Unit) = picture.Pic0 { t =>
     fn
   }
   def draw(pictures: Picture *) = pictures.foreach {_ draw()}

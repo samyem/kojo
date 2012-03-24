@@ -74,6 +74,7 @@ object CodeCompletionUtils {
     "col" -> "col(${picture}, ${n})",
     "setUnitLength" -> "setUnitLength(${unit})",
     "clearWithUL" -> "clearWithUL(${unit})",
+    "clearOutput" -> "clearOutput()",
     "intersects" -> "intersects(${otherPic})",
     "intersection" -> "intersection(${otherPic})",
     "collidesWith" -> "collidesWith(${otherPic})",
@@ -97,9 +98,9 @@ object CodeCompletionUtils {
   )
   
   val TwMethodTemplates = Map(
-    "pict" -> "Picture {\n    ${cursor}\n}",
+    "pict" -> "PictureT { t =>\n    import t._\n    ${cursor}\n}",
+    "PictureT" -> "PictureT { t =>\n    import t._\n    ${cursor}\n}",
     "Picture" -> "Picture {\n    ${cursor}\n}",
-    "Pic" -> "Pic { t =>\n    import t._\n    ${cursor}\n}",
     "circle" -> "circle(${radius})",
     "arc" -> "arc(${radius}, ${angle})"
   ) 

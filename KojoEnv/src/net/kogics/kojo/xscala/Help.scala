@@ -473,6 +473,7 @@ object Help {
     ,
     "animationDelay" -> "animationDelay - Queries the turtle's delay setting.",
     "clear" -> "clear() - Clears the turtle canvas, and brings the turtle to the center of the canvas.",
+    "clearOutput" -> "clearOutput() - Clears the output window.",
     "clearWithUL" -> "clearWithUL(unit) - Clears the turtle canvas, sets the given unit length (Pixel, Cm, or Inch), and brings the turtle to the center of the canvas.",
     "arc" ->
     <div>
@@ -592,17 +593,45 @@ object Help {
         </pre>
     </div>
     ,
-    "pict" -> "pict { t => } is obsolete. Use the Picture function instead.",
+    "pict" -> "pict { t => } is obsolete. Use the PictureT (preferred) or Picture function instead.",
     "Picture" -> 
     <div>
       <strong>Picture</strong>{{ drawingCode }} - Makes a picture out of the given turtle drawing code. <br/>
-      The picture needs to be drawn for it to become visible in the turtle canvas. <br/>
+      The picture needs to be drawn for it to become visible in the turtle canvas. <br/><br/>
+      <em>Note - every picture has its own turtle. For pictures created with the <tt>Picture</tt> function, 
+        Kojo's defalt turtle is set to the picture's turtle while the picture is being drawn. 
+        Your drawing code can then continue to use the default turtle for drawing. Contrast this with 
+        picture's created using the <tt>PictureT</tt> function. For those, a turtle is explicitly supplied to 
+        your drawing code, and your code needs to draw using that turtle. Kojo's default turtle is left 
+        alone in that case.</em><br/>
       <br/>
       <em>Example:</em> <br/>
       <br/>
       <pre>
         // create a function for making a picture with a circle in it
         def p = Picture {{
+          circle(50)
+        }}
+
+        clear()
+        invisible()
+        // draw the picture
+        draw(p)
+      </pre>
+    </div>
+    ,
+    "PictureT" -> 
+    <div>
+      <strong>PictureT</strong>{{ t => drawingCode }} - Makes a picture out of the given turtle drawing code, 
+      which needs to draw using the supplied turtle <tt>t</tt>.<br/>
+      The picture needs to be drawn for it to become visible in the turtle canvas. <br/>
+      <br/>
+      <em>Example:</em> <br/>
+      <br/>
+      <pre>
+        // create a function for making a picture with a circle in it
+        def p = PictureT {{ t =>
+          import t._
           circle(50)
         }}
 
