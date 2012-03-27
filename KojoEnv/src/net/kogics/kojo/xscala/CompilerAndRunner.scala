@@ -331,7 +331,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
             }
           }
         }
-      case Right(y) => println("Completion warning: %s" format(y)); Nil  
+      case Right(y) => /* println("Completion warning: %s" format(y)); */ Nil  
     }
   }
 }
