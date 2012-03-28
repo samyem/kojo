@@ -36,6 +36,15 @@ rm -rf installerbuild/platform/update_tracking
 rm -rf installerbuild/platform/lib/locale
 rm -rf installerbuild/platform/core/locale
 
+#copy i18n files
+mkdir installerbuild/ide/modules/locale
+mkdir installerbuild/platform/modules/locale
+mkdir installerbuild/platform/lib/locale
+mkdir installerbuild/platform/core/locale
+cd installerbuild
+sh ../swedish-cp.sh
+cd ..
+
 # run IzPack to create installerbuild
 cp installer/* installerbuild/
 cd installerbuild
