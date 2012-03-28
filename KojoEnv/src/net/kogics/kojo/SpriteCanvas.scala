@@ -648,7 +648,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
   class Popup() extends JPopupMenu {
 
-    val axesItem = new JCheckBoxMenuItem("Show Axes")
+    implicit val klass = getClass
+    val axesItem = new JCheckBoxMenuItem(Utils.loadString("S_ShowAxes"))
     axesItem.addActionListener(new ActionListener {
         override def actionPerformed(e: ActionEvent) {
           if (axesItem.isSelected) {
@@ -661,7 +662,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       })
     add(axesItem)
 
-    val gridItem = new JCheckBoxMenuItem("Show Grid")
+    val gridItem = new JCheckBoxMenuItem(Utils.loadString("S_ShowGrid"))
     gridItem.addActionListener(new ActionListener {
         override def actionPerformed(e: ActionEvent) {
           if (gridItem.isSelected) {
@@ -676,7 +677,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     
     addSeparator()
 
-    val protItem = new JCheckBoxMenuItem("Show Protractor")
+    val protItem = new JCheckBoxMenuItem(Utils.loadString("S_ShowProtractor"))
     protItem.addActionListener(new ActionListener {
         @volatile var prot: picture.Picture = _
         def protOn() {
@@ -702,7 +703,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       })
     add(protItem)
     
-    val saveAsImage = new JMenuItem("Save as Image")
+    val saveAsImage = new JMenuItem(Utils.loadString("S_SaveAsImage"))
     saveAsImage.addActionListener(new ActionListener {
         val saveAs = new SaveAs()
         override def actionPerformed(e: ActionEvent) {
@@ -716,14 +717,14 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
     addSeparator()
 
-    val resetPanZoomItem = new JMenuItem("Reset Pan and Zoom")
+    val resetPanZoomItem = new JMenuItem(Utils.loadString("S_ResetPanZoom"))
     resetPanZoomItem.addActionListener(new ActionListener {
         override def actionPerformed(e: ActionEvent) {
           initCamera()
         }
       })
     add(resetPanZoomItem)
-    val clearItem = new JMenuItem("Clear")
+    val clearItem = new JMenuItem(Utils.loadString("S_Clear"))
     clearItem.addActionListener(new ActionListener {
         override def actionPerformed(e: ActionEvent) {
           forceClear()
@@ -733,7 +734,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
     addSeparator()
 
-    add("<html><em>Mouse Actions: Drag to Pan; Shift-Drag to Zoom</em></html>")
+    add("<html><em>%s</em></html>" format(Utils.loadString("S_MouseActions")))
     addPopupMenuListener(new PopupMenuListener {
         def popupMenuWillBecomeVisible(e: PopupMenuEvent) {
           axesItem.setState(showAxes)
