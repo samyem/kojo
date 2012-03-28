@@ -206,11 +206,13 @@ object Utils {
   def stripCR(str: String) = str.replaceAll("\r\n", "\n")
 
   import org.openide.util.NbBundle
-
-  case class BundleMessage(klass: Class[_], key: String) {
-    def unapply(action: String): Option[Boolean] = {
+  def loadString(key: String)(implicit klass: Class[_]) = {
+    NbBundle.getMessage(klass, key)
+  }
+  case class BundleMessage(key: String)(implicit klass: Class[_]) {
+    def unapply(action: String): Option[String] = {
       try {
-        if (NbBundle.getMessage(klass, key) == action) Some(true) else None
+        if (NbBundle.getMessage(klass, key) == action) Some(key) else None
       }
       catch {
         case e: Throwable => None

@@ -17,40 +17,68 @@ package sample
 
 import java.io._
 import util.Utils
+import util.Utils.BundleMessage
 
 object SampleCode {
 
   def get(e: java.awt.event.ActionEvent): String = {
+    implicit val klass = getClass
+    val SquareS = BundleMessage("CTL_Square")
+    val CircleS = BundleMessage("CTL_Circle")
+    val TManiaS = BundleMessage("CTL_Turtlemania")
+    val TurningSqS = BundleMessage("CTL_TurningSquares")
+    val DecmoSqS = BundleMessage("CTL_DecmoSquares")
+    val InwardEyesS = BundleMessage("CTL_InwardEyes")
+    val Flower1S = BundleMessage("CTL_Flower1")
+    val Flower2S = BundleMessage("CTL_Flower2")
+    val FanS = BundleMessage("CTL_Fan")
+    val FerrisWheelS = BundleMessage("CTL_FerrisWheel")
+    val PlantS = BundleMessage("CTL_Plant")
+    val FenceS = BundleMessage("CTL_Fence")
+    val RangoliS = BundleMessage("CTL_Rangoli")
+    val SnowflakeS = BundleMessage("CTL_Snowflake")
+    val TreeS = BundleMessage("CTL_Tree")
+    val DragonS = BundleMessage("CTL_Dragon")
+    val InspectObjectS = BundleMessage("CTL_Inspect-Object")
+    val InputOutputS = BundleMessage("CTL_Input-Output")
+    val SkierS = BundleMessage("CTL_Skier")
+    val CatchmeS = BundleMessage("CTL_Catchme")
+    val TreePicS = BundleMessage("CTL_TreePic")
+    val SquareCirclePicS = BundleMessage("CTL_SquareCirclePic")
+    val SineAngleS = BundleMessage("CTL_Sine-Angle")
+    val ClockS = BundleMessage("CTL_Clock")
+    val DiffSquaresS = BundleMessage("CTL_DiffSquares")
+    val YetAnotherTreeS = BundleMessage("CTL_YetAnotherTree")
+    val SquareLimitS = BundleMessage("CTL_SquareLimit")
+    
     e.getActionCommand match {
-      // TODO: need to read the case strings from Bundle.properties
-      // see sample story loading
-      case "Square" => Square
-      case "Circle" => Circle
-      case "Turtle Mania" => TurtleMania
-      case "Turning Squares" => TurningSquares
-      case "Another Square Pattern" => DecmoSquares
-      case "Inward Eyes" => InwardEyes
-      case "Orange Flower" => Flower1
-      case "Green Flower" => Flower2
-      case "Red Fan" => Fan
-      case "Ferris Wheel" => FerrisWheel
-      case "Plant" => Plant
-      case "Sun, Fence, and Flower" => SunFenceFlower
-      case "Rangoli" => Rangoli
-      case "Snowflake" => Snowflake
-      case "Tree" => Tree
-      case "Dragon" => Dragon
-      case "Inspect Object" => InspectObject
-      case "Input/Output" => InputOutput
-      case "Hunted (game)" => Utils.readFile(sampleStream("catchme.kojo"))
-      case "Tangram Skier (animation)" => Utils.readFile(sampleStream("skier.kojo"))
-      case "Tree with Leaves" => Utils.readFile(sampleStream("tree-with-leaves.kojo"))
-      case "Square and Circle Fractal" => Utils.readFile(sampleStream("square-circle-fractal.kojo"))
-      case "Sine of an Angle" => Utils.readFile(sampleStream("sine-angle.kojo"))
-      case "Clock" => Utils.readFile(sampleStream("clock.kojo"))
-      case "Difference of two Squares" => Utils.readFile(sampleStream("diff-squares.kojo"))
-      case "Yet Another Tree" => Utils.readFile(sampleStream("yet-another-tree.kojo"))
-      case "The Square Limit" => Utils.readFile(sampleStream("square-limit.kojo"))
+      case SquareS(_) => Square
+      case CircleS(_) => Circle
+      case TManiaS(_) => TurtleMania
+      case TurningSqS(_) => TurningSquares
+      case DecmoSqS(_) => DecmoSquares
+      case InwardEyesS(_) => InwardEyes
+      case Flower1S(_) => Flower1
+      case Flower2S(_) => Flower2
+      case FanS(_) => Fan
+      case FerrisWheelS(_) => FerrisWheel
+      case PlantS(_) => Plant
+      case FenceS(_) => SunFenceFlower
+      case RangoliS(_) => Rangoli
+      case SnowflakeS(_) => Snowflake
+      case TreeS(_) => Tree
+      case DragonS(_) => Dragon
+      case InspectObjectS(_) => InspectObject
+      case InputOutputS(_) => InputOutput
+      case CatchmeS(_) => Utils.readFile(sampleStream("catchme.kojo"))
+      case SkierS(_) => Utils.readFile(sampleStream("skier.kojo"))
+      case TreePicS(_) => Utils.readFile(sampleStream("tree-with-leaves.kojo"))
+      case SquareCirclePicS(_) => Utils.readFile(sampleStream("square-circle-fractal.kojo"))
+      case SineAngleS(_) => Utils.readFile(sampleStream("sine-angle.kojo"))
+      case ClockS(_) => Utils.readFile(sampleStream("clock.kojo"))
+      case DiffSquaresS(_) => Utils.readFile(sampleStream("diff-squares.kojo"))
+      case YetAnotherTreeS(_) => Utils.readFile(sampleStream("yet-another-tree.kojo"))
+      case SquareLimitS(_) => Utils.readFile(sampleStream("square-limit.kojo"))
     }
   }
 

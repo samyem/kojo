@@ -40,19 +40,19 @@ class Stories extends ActionListener {
   }
 
   def getCode(e: ActionEvent) = {
-    val klass = classOf[Stories]
-    val KojoOverview = BundleMessage(klass, "CTL_KojoOverview")
-    val ScalaTut = BundleMessage(klass, "CTL_ScalaTut")
-    val Pictures = BundleMessage(klass, "CTL_Pictures")
-    val Snippets = BundleMessage(klass, "CTL_Snippets")
-    val AddFrac = BundleMessage(klass, "CTL_AddFrac")
-    val Pi = BundleMessage(klass, "CTL_Pi")
-    val SimpleStory = BundleMessage(klass, "CTL_Simple")
-    val LearnMore = BundleMessage(klass, "CTL_LearnMore")
-    val MathworldIntro = BundleMessage(klass, "CTL_MathworldIntro")
-    val ComposingMusic = BundleMessage(klass, "CTL_ComposingMusic")
-    val TurtleCommands = BundleMessage(klass, "CTL_TurtleCommands")
-    val ScalatestSetup = BundleMessage(klass, "CTL_ScalaTestSetup")
+    implicit val klass = classOf[Stories]
+    val KojoOverview = BundleMessage("CTL_KojoOverview")
+    val ScalaTut = BundleMessage("CTL_ScalaTut")
+    val Pictures = BundleMessage("CTL_Pictures")
+    val Snippets = BundleMessage("CTL_Snippets")
+    val AddFrac = BundleMessage("CTL_AddFrac")
+    val Pi = BundleMessage("CTL_Pi")
+    val SimpleStory = BundleMessage("CTL_Simple")
+    val LearnMore = BundleMessage("CTL_LearnMore")
+    val MathworldIntro = BundleMessage("CTL_MathworldIntro")
+    val ComposingMusic = BundleMessage("CTL_ComposingMusic")
+    val TurtleCommands = BundleMessage("CTL_TurtleCommands")
+    val ScalatestSetup = BundleMessage("CTL_ScalaTestSetup")
 
     e.getActionCommand match {
       case KojoOverview(_) => Utils.readFile(storyStream("kojo-overview.kojo"))
