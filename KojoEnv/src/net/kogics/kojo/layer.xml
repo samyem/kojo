@@ -65,163 +65,163 @@
         <folder name="Samples">
             <file name="net-kogics-kojo-Samples.Square.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Square"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Square"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Circle.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Circle"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Circle"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Turtlemania.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Turtlemania"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Turtlemania"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.TurningSquares.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_TurningSquares"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_TurningSquares"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.DecmoSquares.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_DecmoSquares"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_DecmoSquares"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.InwardEyes.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_InwardEyes"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_InwardEyes"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Flower1.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Flower1"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Flower1"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Flower2.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Flower2"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Flower2"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Fan.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Fan"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Fan"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.FerrisWheel.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_FerrisWheel"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_FerrisWheel"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Plant.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Plant"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Plant"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Fence.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Fence"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Fence"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Rangoli.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Rangoli"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Rangoli"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Snowflake.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Snowflake"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Snowflake"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Tree.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Tree"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Tree"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Dragon.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Dragon"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Dragon"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Inspect-Object.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Inspect-Object"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Inspect-Object"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Input-Output.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Input-Output"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Input-Output"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Skier.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Skier"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Skier"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Catchme.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Catchme"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Catchme"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.TreePic.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_TreePic"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_TreePic"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.SquareCirclePic.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_SquareCirclePic"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_SquareCirclePic"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.YetAnotherTree.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_YetAnotherTree"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_YetAnotherTree"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.SquareLimit.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_SquareLimit"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_SquareLimit"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Sine-Angle.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Sine-Angle"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Sine-Angle"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.Clock.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_Clock"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_Clock"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
             <file name="net-kogics-kojo-Samples.DiffSquares.instance">
                 <attr name="delegate" newvalue="net.kogics.kojo.Samples"/>
-                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_DiffSquares"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.sample.Bundle#CTL_DiffSquares"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
@@ -320,10 +320,12 @@
                 <attr name="position" intvalue="4"/>
             </file>
         </folder>
-        <folder name="Sa&amp;mples">
+        <folder name="Samples">
             <attr name="position" intvalue="1250"/>
-            <folder name="Basic ">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.sample.Bundle"/>            
+            <folder name="Basic">
                 <attr name="position" intvalue="1"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.sample.Bundle"/>            
                 <file name="net-kogics-kojo-Samples.Square.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Square.instance"/>
@@ -333,8 +335,9 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Circle.instance"/>
                 </file>
             </folder>
-            <folder name="Advanced ">
+            <folder name="Advanced">
                 <attr name="position" intvalue="2"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.sample.Bundle"/>            
                 <file name="net-kogics-kojo-Samples.FerrisWheel.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.FerrisWheel.instance"/>
@@ -356,8 +359,9 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Dragon.instance"/>
                 </file>
             </folder>
-            <folder name="Turtle Art ">
+            <folder name="TurtleArt">
                 <attr name="position" intvalue="3"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.sample.Bundle"/>            
                 <file name="net-kogics-kojo-Samples.TurningSquares.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.TurningSquares.instance"/>
@@ -395,8 +399,9 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Rangoli.instance"/>
                 </file>
             </folder>
-            <folder name="Staging ">
+            <folder name="Staging">
                 <attr name="position" intvalue="4"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.sample.Bundle"/>            
                 <file name="net-kogics-kojo-Samples.Sine-Angle.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Sine-Angle.instance"/>
@@ -410,8 +415,9 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.DiffSquares.instance"/>
                 </file>
             </folder>
-            <folder name="Programming ">
+            <folder name="Programming">
                 <attr name="position" intvalue="5"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.sample.Bundle"/>            
                 <file name="net-kogics-kojo-Samples.Inspect-Object.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Inspect-Object.instance"/>
@@ -421,8 +427,9 @@
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Input-Output.instance"/>
                 </file>
             </folder>
-            <folder name="Pictures ">
+            <folder name="Pictures">
                 <attr name="position" intvalue="6"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.sample.Bundle"/>            
                 <file name="net-kogics-kojo-Samples.Skier.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Samples/net-kogics-kojo-Samples.Skier.instance"/>
@@ -449,8 +456,9 @@
                 </file>
             </folder>
         </folder>
-        <folder name="S&amp;tories">
+        <folder name="Stories">
             <attr name="position" intvalue="1260"/>
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.stories.Bundle"/>            
             <file name="net-kogics-kojo-Stories.Overview.shadow">
                 <attr name="position" intvalue="1"/>
                 <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Overview.instance"/>
@@ -469,6 +477,7 @@
             </file>
             <folder name="Math">
                 <attr name="position" intvalue="5"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.stories.Bundle"/>            
                 <file name="net-kogics-kojo-Stories.AddFrac.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.AddFrac.instance"/>
@@ -480,6 +489,7 @@
             </folder>
             <folder name="Learn">
                 <attr name="position" intvalue="6"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.stories.Bundle"/>            
                 <file name="net-kogics-kojo-Stories.Simple.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.Simple.instance"/>
@@ -503,6 +513,7 @@
             </folder>
             <folder name="Tools">
                 <attr name="position" intvalue="7"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.stories.Bundle"/>            
                 <file name="net-kogics-kojo-Stories.ScalaTestSetup.shadow">
                     <attr name="position" intvalue="1"/>
                     <attr name="originalFile" stringvalue="Actions/Stories/net-kogics-kojo-Stories.ScalaTestSetup.instance"/>
