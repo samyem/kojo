@@ -46,6 +46,7 @@ object CodeExecutionSupport extends InitedSingleton[CodeExecutionSupport] {
 
 class CodeExecutionSupport private extends core.CodeCompletionSupport {
   val Log = Logger.getLogger(getClass.getName);
+  implicit val klass = getClass
 
   val tCanvas = SpriteCanvas.instance
   tCanvas.outputFn = showOutput _
@@ -241,15 +242,15 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
     val toolbar = new JToolBar
     toolbar.setPreferredSize(new Dimension(100, 24))
-
-    val runButton = makeNavigationButton("/images/run24.png", RunScript, "Run Script (Ctrl + Enter)", "Run the Code")
-    val compileButton = makeNavigationButton("/images/check.png", CompileScript, "Check Script for Errors (helps to precisely locate errors)", "Check the Code")
-    val stopButton = makeNavigationButton("/images/stop24.png", StopScript, "Stop Script/Animation", "Stop the Code")
-    val hNextButton = makeNavigationButton("/images/history-next.png", HistoryNext, "Go to Next Script in History (Ctrl + Down Arrow)", "Next in History")
-    val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, "Goto Previous Script in History (Ctrl + Up Arrow)", "Prev in History")
-    val clearSButton = makeNavigationButton("/images/clears.png", ClearEditor, "Clear Editor and Close Open File (Ctrl + L)", "Clear the Editor and Close Open File")
-    val clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, "Clear Output", "Clear the Output")
-    val cexButton = makeNavigationButton("/images/upload.png", UploadCommand, "Upload to CodeExchange", "Upload")
+    
+    val runButton = makeNavigationButton("/images/run24.png", RunScript, Utils.loadString("S_RunScript"), "Run the Code")
+    val compileButton = makeNavigationButton("/images/check.png", CompileScript, Utils.loadString("S_CheckScript"), "Check the Code")
+    val stopButton = makeNavigationButton("/images/stop24.png", StopScript, Utils.loadString("S_StopScript"), "Stop the Code")
+    val hNextButton = makeNavigationButton("/images/history-next.png", HistoryNext, Utils.loadString("S_HistNext"), "Next in History")
+    val hPrevButton = makeNavigationButton("/images/history-prev.png", HistoryPrev, Utils.loadString("S_HistPrev"), "Prev in History")
+    val clearSButton = makeNavigationButton("/images/clears.png", ClearEditor, Utils.loadString("S_ClearEditorT"), "Clear the Editor and Close Open File")
+    val clearButton = makeNavigationButton("/images/clear24.png", ClearOutput, Utils.loadString("S_ClearOutput"), "Clear the Output")
+    val cexButton = makeNavigationButton("/images/upload.png", UploadCommand, Utils.loadString("S_Upload"), "Upload")
 
     toolbar.add(runButton)
 
@@ -875,7 +876,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       if (fileChanged) {
         val doSave = JOptionPane.showConfirmDialog(
           null,
-          "The opened file %s has changed in the Script Editor.\nDo you want to save the current contents of the Script Editor to %s?".format(openedFile.get.getName, openedFile.get.getName)
+          Utils.loadString("S_FileChanged") format(openedFile.get.getName, openedFile.get.getName)
         )
         if (doSave == JOptionPane.CANCEL_OPTION) {
           throw new RuntimeException("Cancel File Close")
@@ -921,7 +922,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     if (file.exists) {
       val doSave = JOptionPane.showConfirmDialog(
         null,
-        "%s already exists. Do you want to overwrite it".format(file.getName)
+        Utils.loadString("S_FileExists") format(file.getName)
       )
       if (doSave == JOptionPane.CANCEL_OPTION) {
         throw new RuntimeException("Cancel File SaveAs")

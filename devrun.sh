@@ -7,5 +7,7 @@ cd ..
 cp -r kojo/* dist/kojo/
 cd dist/kojo/etc
 cp ~/scratch/kojo.conf.dev ./kojo.conf
-cd ../bin
+cd ..
+sh ../../swedish-cp.sh
+cd ./bin
 ./kojo
