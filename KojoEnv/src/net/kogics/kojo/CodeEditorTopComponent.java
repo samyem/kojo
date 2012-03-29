@@ -369,11 +369,11 @@ public final class CodeEditorTopComponent extends CloneableEditor {
     }
 
     void fileOpened(File file) {
-        setDisplayName(String.format("Script Editor - %s", file.getName()));
+        setDisplayName(String.format("%s - %s", getName(), file.getName()));
     }
 
     void fileClosed() {
-        setDisplayName("Script Editor");
+        setDisplayName(getName());
     }
 
     static class KojoEditorSupport extends CloneableEditorSupport {
@@ -396,7 +396,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 
         @Override
         protected String messageName() {
-            return "Script Editor";
+            return null;
         }
 
         @Override
