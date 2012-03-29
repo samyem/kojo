@@ -300,6 +300,26 @@
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
         </folder>
+        <folder name="Language">
+            <file name="net-kogics-kojo-lang.Default.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.language.Language"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.language.Bundle#CTL_Default"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+            <file name="net-kogics-kojo-lang.English.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.language.Language"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.language.Bundle#CTL_English"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+            <file name="net-kogics-kojo-lang.Swedish.instance">
+                <attr name="delegate" newvalue="net.kogics.kojo.language.Language"/>
+                <attr name="displayName" bundlevalue="net.kogics.kojo.language.Bundle#CTL_Swedish"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+        </folder>
     </folder>
     <folder name="Menu">
         <folder name="File">
@@ -544,6 +564,22 @@
             <file name="OutputAction.shadow">
                 <attr name="position" intvalue="6"/>
                 <attr name="originalFile" stringvalue="Actions/Window/net-kogics-kojo-OutputAction.instance"/>
+            </file>
+        </folder>
+        <folder name="Language">
+            <attr name="position" intvalue="1270"/>
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="net.kogics.kojo.language.Bundle"/>            
+            <file name="net-kogics-kojo-lang.Default.shadow">
+                <attr name="position" intvalue="1"/>
+                <attr name="originalFile" stringvalue="Actions/Language/net-kogics-kojo-lang.Default.instance"/>
+            </file>
+            <file name="net-kogics-kojo-lang.English.shadow">
+                <attr name="position" intvalue="2"/>
+                <attr name="originalFile" stringvalue="Actions/Language/net-kogics-kojo-lang.English.instance"/>
+            </file>
+            <file name="net-kogics-kojo-lang.Swedish.shadow">
+                <attr name="position" intvalue="3"/>
+                <attr name="originalFile" stringvalue="Actions/Language/net-kogics-kojo-lang.Swedish.instance"/>
             </file>
         </folder>
     </folder>
