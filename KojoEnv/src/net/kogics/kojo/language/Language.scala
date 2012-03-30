@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Lalit Pant <pant.lalit@gmail.com>
+ * Copyright (C) 2012 Lalit Pant <pant.lalit@gmail.com>
  *
  * The contents of this file are subject to the GNU General Public License
  * Version 3 (the "License"); you may not use this file
@@ -16,23 +16,29 @@
 package net.kogics.kojo
 package language
 
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
 import java.io.File
+import javax.swing.Action
 import javax.swing.JOptionPane
-import org.openide.LifecycleManager
 
 import util.Utils
 import util.RichFile._
 
-class Language extends ActionListener {
-  
+object LangChanger {
+  var actions: List[Action] = Nil
   implicit lazy val klass = getClass
-  lazy val cf = new File("%s/../etc/kojo.conf" format(Utils.installDir))
+  lazy val cf = new File(new File("%s/../etc/kojo.conf" format(Utils.installDir)).getAbsolutePath)
   lazy val regex = """-J-Duser.language=(\w+)""".r
-  
   def currLang: Option[String] = {
     regex.findFirstMatchIn(cf.readAsString).map {_ group(1)}
+  }
+  lazy val initLang = currLang
+}
+
+trait LangChanger {
+  import LangChanger._
+
+  def updateMenus(curr: Action) {
+    actions.foreach { e => if (e == curr) e.setEnabled(false) else e.setEnabled(true) }
   }
   
   def langDisplay(lang: Option[String]) = lang match {
@@ -64,45 +70,38 @@ class Language extends ActionListener {
     else if (curlang == None) {
       println("Unable to change your language to %s by modifying the kojo.conf file." format(langDisplay(lang)))
       println("Make sure that your kojo.conf file has the '-J-Duser.defLanguage=true' flag within default_options.")
+      showSiteLink()
     }
     else {
       println("Unable to change your language to %s by modifying the kojo.conf file." format(langDisplay(lang)))
+      showSiteLink()
     }
   }
   
-  def setLang(lang: String) = currLang match {
-    case Some(cl) if cl == lang => displayNoChange(Some(cl))
+  def setLang(lang: String): Boolean = currLang match {
+    case Some(cl) if cl == lang => false
     case Some(_) => 
       setLangHelper { _ replaceAll("""(-J-Duser.language)=\w+""", "$1=%s" format(lang)) }
-      confirmChange(Some(lang))
+      true
     case None => 
       setLangHelper { _ replaceAll("""-J-Duser.defLanguage=true""", "-J-Duser.language=%s" format(lang)) }
-      confirmChange(Some(lang))
+      true
   }
   
-  def setDefLang() = currLang match {
+  def setDefLang(): Boolean = currLang match {
     case Some(lang) => 
       setLangHelper { _ replaceAll("""-J-Duser.language=\w+""", "-J-Duser.defLanguage=true") }
-      confirmChange(None)
-    case None => displayNoChange(None)
+      true
+    case None => false
   }
   
   def setLangHelper(mod: String => String) {
-    try {
-      val confFile = cf.readAsString
-      val newCf = mod(confFile)
-      cf.write(newCf)
-    }
-    catch {
-      case t: Throwable => println(t.getMessage)
-    }
+    val confFile = cf.readAsString
+    val newCf = mod(confFile)
+    cf.write(newCf)
   }
   
-  def actionPerformed(e: ActionEvent) {
-    e.getActionCommand match {
-      case "Default" => setDefLang()
-      case "English" => setLang("en")
-      case "Swedish" => setLang("sv")
-    }
+  def showSiteLink() {
+    println("\nMore information on changing the Language used by Kojo is available on this page: " + "http://wiki.kogics.net/sf:lang-support")
   }
 }
