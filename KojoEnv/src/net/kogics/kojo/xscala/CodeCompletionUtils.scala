@@ -102,7 +102,8 @@ object CodeCompletionUtils {
     "PictureT" -> "PictureT { t =>\n    import t._\n    ${cursor}\n}",
     "Picture" -> "Picture {\n    ${cursor}\n}",
     "circle" -> "circle(${radius})",
-    "arc" -> "arc(${radius}, ${angle})"
+    "arc" -> "arc(${radius}, ${angle})",
+    "wipe" -> "wipe()"
   ) 
 
   val MwMethodTemplates = Map(

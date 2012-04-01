@@ -549,6 +549,10 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       }
     }
   }
+  
+  def wipe = Utils.runInSwingThread {
+      pictures.removeAllChildren()
+  }
 
   def newFigure(x: Int = 0, y: Int = 0) = {
     val fig = Utils.runInSwingThreadAndWait {
