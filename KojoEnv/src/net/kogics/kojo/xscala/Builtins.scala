@@ -581,6 +581,7 @@ Here's a partial list of the available commands:
   
   def animate(fn: => Unit) = staging.API.loop(fn)
   def stopAnimation() = ctx.stopAnimation()
+  def wipe() = tCanvas.wipe()
   def isKeyPressed(key: Int) = staging.Inputs.isKeyPressed(key)
   def activateCanvas() = tCanvas.activate()
   def setBackground(c: Paint) = Utils.runInSwingThread {

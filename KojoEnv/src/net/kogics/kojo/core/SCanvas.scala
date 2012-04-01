@@ -20,6 +20,7 @@ import edu.umd.cs.piccolo.util.PBounds
 trait SCanvas extends TSCanvasFeatures {
   def turtle0: Turtle
   def clear(): Unit
+  def wipe(): Unit
   def activate(): Unit
   def cbounds: PBounds
 }
