@@ -60,7 +60,7 @@ class ShapeMethodsTest extends StagingTestBase {
       "val c = a.sizeFactor ; val d = a.orientation ; " +
       "val e = a.fill ; a.fill = black",
       Some("$import Staging._" +
-           "a: net.kogics.kojo.staging.Dot = Staging.Dot\\(Point\\(10[.,]00, 15[.,]00\\)\\)" +
+           "a: net.kogics.kojo.staging.Dot = Staging.Dot\\(Point\\(10[.,]00 , 15[.,]00\\)\\)" +
            "b: edu.umd.cs.piccolo.nodes.PPath = edu.umd.cs.piccolo.nodes.PPath@.*" +
            "c: Double = 1.0" +
            "d: Double = 0.0" +
@@ -73,7 +73,7 @@ class ShapeMethodsTest extends StagingTestBase {
     //Wshow
     Tester(
       "import Staging._ ; val a = dot(10, 15) ; a.hide ; a.show",
-      Some("$import Staging._a: net.kogics.kojo.staging.Dot = Staging.Dot\\(Point\\(10[.,]00, 15[.,]00\\)\\)")
+      Some("$import Staging._a: net.kogics.kojo.staging.Dot = Staging.Dot\\(Point\\(10[.,]00 , 15[.,]00\\)\\)")
     )
 
     //W}}}
@@ -92,7 +92,7 @@ class ShapeMethodsTest extends StagingTestBase {
     Tester(
       "import Staging._ ; val a = line(10, 15, 20, 40) ; a.rotate(20) ; a.rotateTo(90)",
       Some("$import Staging._" +
-           "a: net.kogics.kojo.staging.Line = Staging.Line\\(Point\\(10[.,]00, 15[.,]00\\), Point\\(20[.,]00, 40[.,]00\\)\\)")
+           "a: net.kogics.kojo.staging.Line = Staging.Line\\(Point\\(10[.,]00 , 15[.,]00\\), Point\\(20[.,]00 , 40[.,]00\\)\\)")
     )
 
     //W}}}
@@ -111,7 +111,7 @@ class ShapeMethodsTest extends StagingTestBase {
     //WscaleTo(size)
     Tester(
       "import Staging._ ; val a = line(10, 15, 20, 40) ; a.scale(2.5) ; a.scaleTo(0.5)",
-      Some("$import Staging._a: net.kogics.kojo.staging.Line = Staging.Line\\(Point\\(10[.,]00, 15[.,]00\\), Point\\(20[.,]00, 40[.,]00\\)\\)")
+      Some("$import Staging._a: net.kogics.kojo.staging.Line = Staging.Line\\(Point\\(10[.,]00 , 15[.,]00\\), Point\\(20[.,]00 , 40[.,]00\\)\\)")
     )
 
     //W}}}
@@ -131,8 +131,8 @@ class ShapeMethodsTest extends StagingTestBase {
     //Woffset
     Tester(
       "import Staging._ ; val a = line(10, 15, 20, 40) ; a.translate(point(20, 0)) ; a.offset",
-      Some("$import Staging._a: net.kogics.kojo.staging.Line = Staging.Line\\(Point\\(10[.,]00, 15[.,]00\\), Point\\(20[.,]00, 40[.,]00\\)\\)" +
-           "res.*: net.kogics.kojo.core.Point = Point\\(20.00, 0.00\\)"
+      Some("$import Staging._a: net.kogics.kojo.staging.Line = Staging.Line\\(Point\\(10[.,]00 , 15[.,]00\\), Point\\(20[.,]00 , 40[.,]00\\)\\)" +
+           "res.*: net.kogics.kojo.core.Point = Point\\(20.00 , 0.00\\)"
       )
     )
 
@@ -147,7 +147,7 @@ class ShapeMethodsTest extends StagingTestBase {
       "val b = a.stroke ; a.stroke = black",
       Some("$import Staging._" +
            "a: net.kogics.kojo.staging.Line = " +
-           "Staging.Line\\(Point\\(10[.,]00, 15[.,]00\\), Point\\(20[.,]00, 40[.,]00\\)\\)" +
+           "Staging.Line\\(Point\\(10[.,]00 , 15[.,]00\\), Point\\(20[.,]00 , 40[.,]00\\)\\)" +
            "b: java.awt.Paint = java.awt.Color\\[r=255,g=0,b=0\\]" +
            "a.stroke: java.awt.Paint = java.awt.Color\\[r=0,g=0,b=0\\]"
       )

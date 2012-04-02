@@ -57,11 +57,11 @@ class ScreenMethodsTest extends StagingTestBase {
   //Wpoint of the user screen and the coordinates of the upper right corner of
   //Wthe user screen (the extreme point), respectively.  Both return value
   //W`point(0, 0)` if `screenSize` hasn't been called yet.
-    Tester("Staging.screenMid", Some("$net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)"))
-    Tester("Staging.screenExt", Some("$net.kogics.kojo.core.Point = Point\\(0[,.]00, 0[,.]00\\)"))
+    Tester("Staging.screenMid", Some("$net.kogics.kojo.core.Point = Point\\(0[,.]00 , 0[,.]00\\)"))
+    Tester("Staging.screenExt", Some("$net.kogics.kojo.core.Point = Point\\(0[,.]00 , 0[,.]00\\)"))
     Tester("Staging.screenSize(10,10)", Some("$\\(Int, Int\\) = \\(10,10\\)"))
-    Tester("Staging.screenMid", Some("$net.kogics.kojo.core.Point = Point\\(5[,.]00, 5[,.]00\\)"))
-    Tester("Staging.screenExt", Some("$net.kogics.kojo.core.Point = Point\\(10[,.]00, 10[,.]00\\)"))
+    Tester("Staging.screenMid", Some("$net.kogics.kojo.core.Point = Point\\(5[,.]00 , 5[,.]00\\)"))
+    Tester("Staging.screenExt", Some("$net.kogics.kojo.core.Point = Point\\(10[,.]00 , 10[,.]00\\)"))
 
   //W
   //WThe dimensions of the user screen can be set by calling
