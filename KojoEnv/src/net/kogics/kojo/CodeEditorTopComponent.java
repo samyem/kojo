@@ -666,10 +666,12 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             }
 
             if (instanceObj instanceof Presenter.Menu) {
-                Action action = ((Presenter.Menu) instanceObj).getMenuPresenter().getAction();
+                JMenuItem topItem =((Presenter.Menu) instanceObj).getMenuPresenter();
+                Action action = topItem.getAction();
                 if (action != null) {
                     JMenuItem menuItem = new JMenuItem();
                     Actions.connect(menuItem, action, true);
+                    menuItem.setText(topItem.getText()); // make sure we show i18n text
                     return menuItem;
                 }
             }

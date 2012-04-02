@@ -8,6 +8,7 @@ cp -r kojo/* dist/kojo/
 cd dist/kojo/etc
 cp ~/scratch/kojo.conf.dev ./kojo.conf
 cd ..
-sh ../../swedish-cp.sh
+sh ../../i18n/swedish-cp.sh
+jar uvf ide/modules/locale/org-netbeans-modules-editor_sv.jar -C ../../i18n/ ./org/netbeans/modules/editor/Bundle_sv.properties 
 cd ./bin
 ./kojo
