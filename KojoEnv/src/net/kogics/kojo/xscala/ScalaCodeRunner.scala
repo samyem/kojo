@@ -383,10 +383,11 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       }
     }
 
-    val jars = util.Utils.kojoJars
+    val jars = Utils.kojoJars
     val initCode: Option[String] = {
+      import Typeclasses._
       if (Utils.isScalaTestAvailable) {
-        Some(Utils.scalaTestHelperCode + Utils.kojoInitCode.getOrElse(""))        
+        some(Utils.scalaTestHelperCode) |+| Utils.kojoInitCode        
       }
       else {
         Utils.kojoInitCode
@@ -396,8 +397,10 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     @volatile var cmodeInit = ""
     
     def compilerInitCode: Option[String] = {
-      val ic = initCode.getOrElse("")
-      Some("%s\n%s" format(cmodeInit, ic))
+      import Typeclasses._
+//      val ic = initCode.getOrElse("")
+//      Some("%s\n%s" format(cmodeInit, ic))
+      some(cmodeInit) |+| initCode
     }
     
     def makeSettings() = {
@@ -442,8 +445,14 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     }
     
     def loadInitScripts() {
-      if (initCode.isDefined) {
-        interp.interpret(initCode.get)
+//      if (initCode.isDefined) {
+//        interp.interpret(initCode.get)
+//      }
+
+      initCode.foreach { code => Utils.runInSwingThread {
+          println("Running initk code...")
+          ScalaCodeRunner.this.runCode(code)
+        }
       }
     }
     

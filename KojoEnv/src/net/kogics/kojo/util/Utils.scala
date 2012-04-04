@@ -226,6 +226,7 @@ object Utils {
 
   lazy val installLibDir = installDir + File.separatorChar + "libk"
   lazy val installInitScriptDir = installDir + File.separatorChar + "initk"
+  lazy val installLangInitScriptDir = installInitScriptDir + File.separatorChar + currLang
   
   def filesInDir(dir: String, ext: String): List[String] = {
     val osDir = new File(dir)
@@ -240,11 +241,12 @@ object Utils {
       Nil
     }
   }
-  
+  lazy val currLang = System.getProperty("user.language")
   lazy val libJars: List[String] = filesInDir(libDir, "jar")
   lazy val initScripts: List[String] = filesInDir(initScriptDir, "kojo")
   lazy val installLibJars: List[String] = filesInDir(installLibDir, "jar")
   lazy val installInitScripts: List[String] = filesInDir(installInitScriptDir, "kojo")
+  lazy val installLangInitScripts: List[String] = filesInDir(installLangInitScriptDir, "kojo")
 
   def isScalaTestAvailable = (libJars ++ installLibJars).exists { fname => fname.toLowerCase contains "scalatest"}
 
@@ -275,7 +277,10 @@ object Utils {
   
   lazy val kojoInitCode0: Option[String] = codeFromScripts(initScripts, initScriptDir) 
   lazy val kojoInitCode1: Option[String] = codeFromScripts(installInitScripts, installInitScriptDir) 
-  lazy val kojoInitCode = Some(kojoInitCode0.getOrElse("") + kojoInitCode1.getOrElse(""))
+  lazy val kojoInitCodeLang: Option[String] = codeFromScripts(installLangInitScripts, installLangInitScriptDir) 
+  // need to use a Semigroup append for this!
+  import Typeclasses._
+  lazy val kojoInitCode: Option[String] = kojoInitCode0 |+| kojoInitCode1 |+| kojoInitCodeLang
   
   def codeFromScripts(scripts: List[String], scriptDir: String): Option[String] = scripts match {
     case Nil => None

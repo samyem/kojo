@@ -42,7 +42,8 @@ mkdir installerbuild/platform/modules/locale
 mkdir installerbuild/platform/lib/locale
 mkdir installerbuild/platform/core/locale
 cd installerbuild
-sh ../swedish-cp.sh
+sh ../i18n/swedish-cp.sh
+jar uvf ide/modules/locale/org-netbeans-modules-editor_sv.jar -C ../i18n/ ./org/netbeans/modules/editor/Bundle_sv.properties 
 cd ..
 
 # run IzPack to create installerbuild
