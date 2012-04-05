@@ -69,5 +69,13 @@ def räknaTill(n:BigInt) {
                 " millisekunder.")
     else println((tid*10).toLong/10.0 + " sekunder.")
 }
+
+addCodeTemplates(
+    "sv", 
+    Map(
+        "fram" -> "fram(${nsteps})"
+    )
+)
+
 println("*** Svensk Padda laddad!")
 
