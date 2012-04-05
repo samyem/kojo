@@ -184,10 +184,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
   val scalaImageIcon = Utils.loadIcon("/images/scala16x16.png")
 
   def methodTemplate(completion: String) = {
-    CodeCompletionUtils.BuiltinsMethodTemplates.getOrElse(
-      completion,
-      CodeCompletionUtils.ExtraMethodTemplates.getOrElse(completion, null)
-    )
+    CodeCompletionUtils.methodTemplate(completion)
   }
 
   override def complete(context: CodeCompletionContext): CodeCompletionResult = {
@@ -212,7 +209,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
       keywordCompletions.foreach { completion =>
         proposals.add(new ScalaCompletionProposal(caretOffset - koffset, completion,
                                                   ElementKind.KEYWORD,
-                                                  CodeCompletionUtils.KeywordTemplates.getOrElse(completion, null),
+                                                  CodeCompletionUtils.keywordTemplate(completion),
                                                   scalaImageIcon))
       }
 

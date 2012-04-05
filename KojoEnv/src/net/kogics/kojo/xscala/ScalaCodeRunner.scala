@@ -450,7 +450,7 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
 //      }
 
       initCode.foreach { code => Utils.runInSwingThread {
-          println("Running initk code...")
+          println("\nRunning initk code...")
           ScalaCodeRunner.this.runCode(code)
         }
       }
