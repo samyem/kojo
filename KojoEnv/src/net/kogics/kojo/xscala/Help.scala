@@ -1085,7 +1085,29 @@ object Help {
     modeSpecificContent = StagingContent
   }
 
+  val langContent: collection.mutable.Map[String, Map[String, String]] = collection.mutable.Map()
+  def addContent(lang: String, content: Map[String, String]) {
+    langContent += (lang -> content)
+  }
+  
+  def clearLangContent() {
+    langContent.clear()
+  }
+  
+  def langHelp(name: String, lang: String): Option[String] = {
+    langContent.get(lang) match {
+      case Some(content) => content.get(name)
+      case None => None
+    }
+  }
+  
   def apply(topic: String) = {
-    CommonContent.getOrElse(topic, modeSpecificContent.getOrElse(topic, null))
+    CommonContent.getOrElse(
+      topic, 
+      modeSpecificContent.getOrElse(
+        topic, 
+        langHelp(topic, System.getProperty("user.language")).getOrElse(null)
+      )
+    )
   }
 }

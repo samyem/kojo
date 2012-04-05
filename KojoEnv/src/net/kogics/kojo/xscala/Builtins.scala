@@ -635,4 +635,7 @@ Here's a partial list of the available commands:
   def addCodeTemplates(lang: String, templates: Map[String, String]) {
     CodeCompletionUtils.addTemplates(lang, templates)
   }
+  def addHelpContent(lang: String, content: Map[String, String]) {
+    Help.addContent(lang, content)
+  }
 }
