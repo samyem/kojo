@@ -94,7 +94,8 @@ object CodeCompletionUtils {
     "angleTo" -> "angleTo(${vector})",
     "fastDraw" -> "fastDraw {\n    ${cursor}\n}",
     "stopMp3" -> "stopMp3()",
-    "stopMusic" -> "stopMusic()"
+    "stopMusic" -> "stopMusic()",
+    "addCodeTemplates" -> "addCodeTemplates(${lang}, ${templates})"
   )
   
   val TwMethodTemplates = Map(
@@ -218,6 +219,36 @@ object CodeCompletionUtils {
   def activateStaging() {
     ExtraMethodTemplates = StagingMethodTemplates
     Help.activateStaging()
+  }
+
+  val langTemplates: collection.mutable.Map[String, Map[String, String]] = collection.mutable.Map()
+  def addTemplates(lang: String, templates: Map[String, String]) {
+    langTemplates += (lang -> templates)
+  }
+  
+  def clearLangTemplates() {
+    langTemplates.clear()
+  }
+  
+  def langMethodTemplate(name: String, lang: String): Option[String] = {
+    langTemplates.get(lang) match {
+      case Some(ts) => ts.get(name)
+      case None => None
+    }
+  }
+  
+  def methodTemplate(completion: String): String = {
+    BuiltinsMethodTemplates.getOrElse(
+      completion,
+      ExtraMethodTemplates.getOrElse(
+        completion, 
+        langMethodTemplate(completion, System.getProperty("user.language")).getOrElse(null)
+      )
+    )
+  }
+  
+  def keywordTemplate(completion: String) = {
+    KeywordTemplates.getOrElse(completion, null)
   }
 
   val MethodDropFilter = List("turtle0")

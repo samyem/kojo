@@ -632,4 +632,7 @@ Here's a partial list of the available commands:
   def stopMusic() = music.FuguePlayer.instance.stopMusic()
   def newMp3Player = new music.KMp3()
   def onAnimationStop(fn: => Unit) = staging.API.onAnimationStop(fn)
+  def addCodeTemplates(lang: String, templates: Map[String, String]) {
+    CodeCompletionUtils.addTemplates(lang, templates)
+  }
 }
