@@ -95,7 +95,8 @@ object CodeCompletionUtils {
     "fastDraw" -> "fastDraw {\n    ${cursor}\n}",
     "stopMp3" -> "stopMp3()",
     "stopMusic" -> "stopMusic()",
-    "addCodeTemplates" -> "addCodeTemplates(${lang}, ${templates})"
+    "addCodeTemplates" -> "addCodeTemplates(${lang}, ${templates})",
+    "addHelpContent" -> "addHelpContent(${lang}, ${content})"
   )
   
   val TwMethodTemplates = Map(
