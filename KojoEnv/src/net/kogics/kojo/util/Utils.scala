@@ -235,7 +235,7 @@ object Utils {
           override def accept(dir: File, name: String) = {
             name.endsWith("." + ext)
           }
-        }).toList
+        }).toList.sorted
     }
     else {
       Nil
