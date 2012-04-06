@@ -442,6 +442,14 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       if (Utils.installInitScripts.size > 0) {
         kprintln(Utils.installInitScripts.mkString("\n---\nLoading Init Scripts (from install initk):\n * ", "\n * ", "\n---\n"))
       }
+
+      if (Utils.installLangInitScripts.size > 0) {
+        kprintln(Utils.installLangInitScripts.mkString(
+            "\n---\nLoading Language(%s) Init Scripts (from install initk/%s):\n * " format(Utils.currLang, Utils.currLang), 
+            "\n * ", 
+            "\n---\n")
+        )
+      }
     }
     
     def loadInitScripts() {
