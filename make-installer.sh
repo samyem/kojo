@@ -12,6 +12,7 @@ mv installerbuild/scratch/unpack/kojo/* installerbuild
 
 cp -var kojo/* installerbuild
 mkdir installerbuild/kojo/initk
+cp -var i18n/initk/ installerbuild/kojo
 mkdir installerbuild/kojo/libk
 
 # remove test jar license files from install
