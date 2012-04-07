@@ -13,7 +13,8 @@
  *
  */
 
-package net.kogics.kojo.xscala
+package net.kogics.kojo
+package xscala
 
 // Do not format source. It messes up help code formatting.
 
@@ -1087,7 +1088,8 @@ object Help {
 
   val langContent: collection.mutable.Map[String, Map[String, String]] = collection.mutable.Map()
   def addContent(lang: String, content: Map[String, String]) {
-    langContent += (lang -> content)
+    import util.Typeclasses._
+    langContent +=  (lang -> (langContent.getOrElse(lang, Map()) |+| content))
   }
   
   def clearLangContent() {

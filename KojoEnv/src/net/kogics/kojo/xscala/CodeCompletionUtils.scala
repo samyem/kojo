@@ -13,7 +13,8 @@
  *
  */
 
-package net.kogics.kojo.xscala
+package net.kogics.kojo
+package xscala
 
 object CodeCompletionUtils {
   val NotIdChars = """ .(){}!%&+\-<=>?@\\^`|~#:/*""" + "\n\r\t"
@@ -224,7 +225,8 @@ object CodeCompletionUtils {
 
   val langTemplates: collection.mutable.Map[String, Map[String, String]] = collection.mutable.Map()
   def addTemplates(lang: String, templates: Map[String, String]) {
-    langTemplates += (lang -> templates)
+    import util.Typeclasses._
+    langTemplates +=  (lang -> (langTemplates.getOrElse(lang, Map()) |+| templates))
   }
   
   def clearLangTemplates() {
