@@ -66,4 +66,27 @@ class CodeCompletionUtilsTest extends FunSuite with ShouldMatchers with BeforeAn
     CodeCompletionUtils.methodTemplate("fram") should be ("fram(nsteps)")
     System.setProperty("user.language", oldLang)
   }
+
+  test("lang templates multiple add") {
+    CodeCompletionUtils.langMethodTemplate("fram", "sv") should be (None)
+    CodeCompletionUtils.addTemplates(
+      "sv", 
+      Map(
+        "fram" -> "fram(nsteps)"
+      )
+    )
+    
+    CodeCompletionUtils.langMethodTemplate("fram", "sv") should be (Some("fram(nsteps)"))
+    CodeCompletionUtils.langMethodTemplate("bak", "sv") should be (None)
+
+    CodeCompletionUtils.addTemplates(
+      "sv", 
+      Map(
+        "fram" -> " // double",
+        "bak" -> "bak(nsteps)"
+      )
+    )
+    CodeCompletionUtils.langMethodTemplate("fram", "sv") should be (Some("fram(nsteps) // double"))
+    CodeCompletionUtils.langMethodTemplate("bak", "sv") should be (Some("bak(nsteps)"))
+  }
 }

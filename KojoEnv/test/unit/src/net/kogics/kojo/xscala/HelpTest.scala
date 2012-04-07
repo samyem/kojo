@@ -62,4 +62,28 @@ class HelpTest extends FunSuite with ShouldMatchers with BeforeAndAfter {
     Help("fram") should be ("Help for fram")
     System.setProperty("user.language", oldLang)
   }
+
+  test("lang help multiple adds") {
+    Help.langHelp("fram", "sv") should be (None)
+    Help.addContent(
+      "sv", 
+      Map(
+        "fram" -> "Help for fram"
+      )
+    )
+    
+    Help.langHelp("fram", "sv") should be (Some("Help for fram"))
+    Help.langHelp("bak", "sv") should be (None)
+
+    Help.addContent(
+      "sv", 
+      Map(
+        "fram" -> " double",
+        "bak" -> "Help for bak"
+      )
+    )
+    
+    Help.langHelp("fram", "sv") should be (Some("Help for fram double"))
+    Help.langHelp("bak", "sv") should be (Some("Help for bak"))
+  }
 }
