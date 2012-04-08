@@ -67,9 +67,11 @@ class Builtins extends RepeatCommands {
   val magenta = JColor.magenta
   val cyan = JColor.cyan
 
-  val Kc = new staging.KeyCodes
   val C = new staging.KColor
+  val noColor = C.noColor
   
+  val Kc = new staging.KeyCodes
+
   // Turtle World
   class TwC extends TurtleMover {
     def forward() = println("Please provide the distance to move forward - e.g. forward(100)")
