@@ -17,6 +17,10 @@ package net.kogics.kojo.staging
 
 import java.awt.Color
 
+// if I make this a trait to mix into Builtins, the color completions 
+// inside the C builtin do not show up nicely 
+// because the colors get into C via inheritence, and show up lower down
+// in the list of completions
 class KColor {
   val blue = Color.blue
   val red = Color.red
@@ -33,4 +37,5 @@ class KColor {
   val darkGray = new Color(64, 64, 64);
   val magenta = new Color(255, 0, 255);
   val cyan = new Color(0, 255, 255);
+  val noColor = new Color(0,0,0,0)
 }
