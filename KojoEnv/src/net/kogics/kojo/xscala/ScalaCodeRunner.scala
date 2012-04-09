@@ -453,10 +453,6 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     }
     
     def loadInitScripts() {
-//      if (initCode.isDefined) {
-//        interp.interpret(initCode.get)
-//      }
-
       initCode.foreach { code => Utils.runInSwingThread {
           println("\nRunning initk code...")
           ScalaCodeRunner.this.runCode(code)
