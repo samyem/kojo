@@ -210,16 +210,19 @@ object CodeCompletionUtils {
 
   def activateTw() {
     ExtraMethodTemplates = TwMethodTemplates
+    clearLangTemplates()
     Help.activateTw()
   }
 
   def activateMw() {
     ExtraMethodTemplates = MwMethodTemplates
+    clearLangTemplates()
     Help.activateMw()
   }
 
   def activateStaging() {
     ExtraMethodTemplates = StagingMethodTemplates
+    clearLangTemplates()
     Help.activateStaging()
   }
 

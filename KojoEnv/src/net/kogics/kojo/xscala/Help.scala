@@ -1076,14 +1076,17 @@ object Help {
   
   def activateTw() {
     modeSpecificContent = TwContent
+    clearLangContent()
   }
 
   def activateMw() {
     modeSpecificContent = MwContent
+    clearLangContent()
   }
 
   def activateStaging() {
     modeSpecificContent = StagingContent
+    clearLangContent()
   }
 
   val langContent: collection.mutable.Map[String, Map[String, String]] = collection.mutable.Map()
