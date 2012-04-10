@@ -78,12 +78,80 @@ class HelpTest extends FunSuite with ShouldMatchers with BeforeAndAfter {
     Help.addContent(
       "sv", 
       Map(
-        "fram" -> " double",
+        "fram" -> "double",
         "bak" -> "Help for bak"
       )
     )
     
-    Help.langHelp("fram", "sv") should be (Some("Help for fram double"))
+    Help.langHelp("fram", "sv") should be (Some("double"))
     Help.langHelp("bak", "sv") should be (Some("Help for bak"))
+  }
+
+  test("lang help multiple adds - 2") {
+    Help.langHelp("fram", "sv") should be (None)
+    Help.addContent(
+      "sv", 
+      Map(
+      )
+    )
+    
+    Help.addContent(
+      "sv", 
+      Map(
+        "fram" -> "Help for fram",
+        "bak" -> "Help for bak"
+      )
+    )
+    
+    Help.langHelp("fram", "sv") should be (Some("Help for fram"))
+    Help.langHelp("bak", "sv") should be (Some("Help for bak"))
+  }
+
+  test("lang help multiple adds - 3") {
+    Help.langHelp("fram", "sv") should be (None)
+    Help.addContent(
+      "sv", 
+      Map(
+        "fram" -> "Help for fram",
+        "bak" -> "Help for bak"
+      )
+    )
+    
+    Help.addContent(
+      "sv", 
+      Map(
+        "fram" -> "Help for fram",
+        "bak" -> "Help for bak"
+      )
+    )
+    
+    Help.langHelp("fram", "sv") should be (Some("Help for fram"))
+    Help.langHelp("bak", "sv") should be (Some("Help for bak"))
+  }
+  
+  test("lang help multiple adds - 4") {
+    Help.langHelp("fram", "sv") should be (None)
+    Help.addContent(
+      "sv", 
+      Map(
+        "fram" -> "Help for fram",
+        "bak" -> "Help for bak",
+        "sudda" -> "Help for sudda"
+      )
+    )
+    
+    Help.addContent(
+      "sv", 
+      Map(
+        "fram" -> "Help for fram",
+        "bak" -> "Help for bak",
+        "sudda2" -> "Help for sudda2"
+      )
+    )
+    
+    Help.langHelp("fram", "sv") should be (Some("Help for fram"))
+    Help.langHelp("bak", "sv") should be (Some("Help for bak"))
+    Help.langHelp("sudda", "sv") should be (Some("Help for sudda"))
+    Help.langHelp("sudda2", "sv") should be (Some("Help for sudda2"))
   }
 }

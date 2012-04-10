@@ -1091,8 +1091,9 @@ object Help {
 
   val langContent: collection.mutable.Map[String, Map[String, String]] = collection.mutable.Map()
   def addContent(lang: String, content: Map[String, String]) {
-    import util.Typeclasses._
-    langContent +=  (lang -> (langContent.getOrElse(lang, Map()) |+| content))
+//    import util.Typeclasses._
+//    langContent +=  (lang -> (langContent.getOrElse(lang, Map()) |+| content))
+    langContent +=  (lang -> (langContent.getOrElse(lang, Map()) ++ content))
   }
   
   def clearLangContent() {
