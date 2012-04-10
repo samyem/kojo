@@ -1040,7 +1040,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def activateTw() {
     if (codingMode != TwMode) {
       codingMode = TwMode
-      xscala.CodeCompletionUtils.activateTw()
       codeRunner.activateTw()
     }
   }
@@ -1048,7 +1047,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def activateStaging() {
     if (codingMode != StagingMode) {
       codingMode = StagingMode
-      xscala.CodeCompletionUtils.activateStaging()
       codeRunner.activateStaging()
     }
   }
@@ -1056,7 +1054,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def activateMw() {
     if (codingMode != MwMode) {
       codingMode = MwMode
-      xscala.CodeCompletionUtils.activateMw()
       codeRunner.activateMw()
     }
   }

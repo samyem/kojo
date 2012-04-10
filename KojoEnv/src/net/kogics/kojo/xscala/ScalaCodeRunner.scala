@@ -203,8 +203,17 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       }
     }
     
+    def activateTurtleMode() {
+      outputHandler.withOutputSuppressed {
+        interp.interpret("import TSCanvas._")
+        interp.interpret("import Tw._")
+      }
+      cmodeInit = "import TSCanvas._; import Tw._"
+      CodeCompletionUtils.activateTw()
+      loadInitScripts()
+    }
+    
     def act() {
-      val twImports = "import TSCanvas._; import Tw._"
       while(true) {
         receive {
           // Runs on Actor pool thread.
@@ -213,15 +222,9 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
           case Init =>
             Utils.safeProcess {
               loadInterp()
-              outputHandler.withOutputSuppressed {
-                interp.interpret("import TSCanvas._")
-                interp.interpret("import Tw._")
-                cmodeInit = twImports
-              }
               printInitScriptsLoadMsg()
-              loadInitScripts()
+              activateTurtleMode()
               ctx.onInterpreterInit()
-
               loadCompiler()
             }
             
@@ -229,36 +232,33 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
             Utils.safeProcess {
               interp.reset()
               initInterp()
-              outputHandler.withOutputSuppressed {
-                interp.interpret("import TSCanvas._")
-                interp.interpret("import Tw._")
-                cmodeInit = twImports
-                loadInitScripts()
-              }
+              activateTurtleMode()
             }
 
           case ActivateStaging =>
             Utils.safeProcess {
               interp.reset()
               initInterp()
+              val imports = "import TSCanvas._; import Staging._"
               outputHandler.withOutputSuppressed {
-                val imports = "import TSCanvas._; import Staging._"
                 interp.interpret(imports)
-                cmodeInit = imports
-                loadInitScripts()
               }
+              cmodeInit = imports
+              CodeCompletionUtils.activateStaging()
+              loadInitScripts()
             }
             
           case ActivateMw =>
             Utils.safeProcess {
               interp.reset()
               initInterp()
+              val imports = "import Mw._"
               outputHandler.withOutputSuppressed {
-                val imports = "import Mw._"
                 interp.interpret(imports)
-                cmodeInit = imports
-                loadInitScripts()
               }
+              cmodeInit = imports
+              CodeCompletionUtils.activateMw()
+              loadInitScripts()
             }
             
           case CompileCode(code) =>
@@ -313,33 +313,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
             }
 
           case RunCode(code) =>
-            try {
-              Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
-              InterruptionManager.onInterpreterStart(interp)
-              ctx.onInterpreterStart(code)
-
-              val ret = interpret(code)
-              Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
-
-              if (ret == IR.Incomplete) showIncompleteCodeMsg(code)
-
-              if (ret == IR.Success) {
-                ctx.onRunSuccess()
-              }
-              else {
-                if (InterruptionManager.interruptionInProgress) ctx.onRunSuccess() // user cancelled running code; no errors
-                else ctx.onRunError()
-              }
-            }
-            catch {
-              case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
-                ctx.onRunInterpError
-            }
-            finally {
-              Log.info("CodeRunner actor doing final handling for code.")
-              InterruptionManager.onInterpreterFinish()
-            }
-
+            runCode(code)
+            
           case ParseCode(code, browseAst) =>
             try {
               Log.info("CodeRunner actor parsing code:\n---\n%s\n---\n" format(code))
@@ -380,6 +355,35 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
               memberCompletions(code, caretOffset, objid, prefix)
             }
         }
+      }
+    }
+    
+    def runCode(code: String) {
+      try {
+        Log.info("CodeRunner actor running code:\n---\n%s\n---\n" format(code))
+        InterruptionManager.onInterpreterStart(interp)
+        ctx.onInterpreterStart(code)
+
+        val ret = interpret(code)
+        Log.info("CodeRunner actor done running code. Return value %s" format (ret.toString))
+
+        if (ret == IR.Incomplete) showIncompleteCodeMsg(code)
+
+        if (ret == IR.Success) {
+          ctx.onRunSuccess()
+        }
+        else {
+          if (InterruptionManager.interruptionInProgress) ctx.onRunSuccess() // user cancelled running code; no errors
+          else ctx.onRunError()
+        }
+      }
+      catch {
+        case t: Throwable => Log.log(Level.SEVERE, "Interpreter Problem", t)
+          ctx.onRunInterpError
+      }
+      finally {
+        Log.info("CodeRunner actor doing final handling for code.")
+        InterruptionManager.onInterpreterFinish()
       }
     }
 
@@ -453,10 +457,9 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     }
     
     def loadInitScripts() {
-      initCode.foreach { code => Utils.runInSwingThread {
-          println("\nRunning initk code...")
-          ScalaCodeRunner.this.runCode(code)
-        }
+      initCode.foreach { code => 
+        println("\nRunning initk code...")
+        runCode(code)
       }
     }
     
