@@ -228,8 +228,9 @@ object CodeCompletionUtils {
 
   val langTemplates: collection.mutable.Map[String, Map[String, String]] = collection.mutable.Map()
   def addTemplates(lang: String, templates: Map[String, String]) {
-    import util.Typeclasses._
-    langTemplates +=  (lang -> (langTemplates.getOrElse(lang, Map()) |+| templates))
+//    import util.Typeclasses._
+//    langTemplates +=  (lang -> (langTemplates.getOrElse(lang, Map()) |+| templates))
+      langTemplates +=  (lang -> (langTemplates.getOrElse(lang, Map()) ++ templates))
   }
   
   def clearLangTemplates() {
