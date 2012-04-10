@@ -59,8 +59,8 @@ object padda extends Padda {
   //create more swedish turtles using "new Padda"
 } 
 import padda._  
-def sudda = clear 
-def suddaUtdata = clearOutput 
+def sudda() = clear()
+def suddaUtdata() = clearOutput()
 def blå=blue; def röd=red; def gul=yellow; def grön=green; def lila=purple;
 def rosa=pink; def brun=brown; def svart=black; def vit=white; 
 def genomskinlig=Color(0, 0, 0, 0)
