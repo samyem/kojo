@@ -84,14 +84,16 @@ def avrunda(tal:Number, antalDecimaler:Int=2):Double = {
   val faktor = math.pow(10, antalDecimaler).toDouble
   math.round(tal.doubleValue * faktor).toLong / faktor
 }
+def slumptal(n:Int) = random(n)
+def slumptalMedDecimaler(n:Int) = randomDouble(n)
 //speedTest
-def systemTid = BigDecimal(System.nanoTime) / BigDecimal("1000000000") //sekunder
+def systemtid = BigDecimal(System.nanoTime) / BigDecimal("1000000000") //sekunder
 def räknaTill(n:BigInt) { 
     var c:BigInt = 1
     print("*** Räknar från 1 till ... ")
-    val startTid = systemTid
+    val startTid = systemtid
     while (c < n) {c = c + 1} //tar tid om n är stort
-    val stoppTid = systemTid
+    val stoppTid = systemtid
     println("" + n + " *** KLAR!")
     val tid = stoppTid - startTid
     print("Det tog ")
@@ -106,45 +108,45 @@ addCodeTemplates(
     Map(
         "steglängd" -> "steglängd = ${100}",
         "gå" -> "gå(${steg})",
-        "bak" -> "bak()",
-        "fram" -> "fram()",
-        "vänster" -> "vänster()",
-        "höger" -> "höger()",
+        "bak" -> "bak",
+        "fram" -> "fram",
+        "vänster" -> "vänster",
+        "höger" -> "höger",
         "vrid" -> "vrid(${vinkel})",
         "vridHöger" -> "vridHöger(${vinkel})",
         "vridVänster" -> "vridVänster(${vinkel})",
         "hoppaTill" -> "hoppaTill(${x},${y})",
         "flyttaTill" -> "flyttaTill(${x},${y})",
         "hoppa" -> "hoppa(${steg})",
-        "hopp" -> "hopp()",
-        "bakåtHopp" -> "bakåtHopp()",
-        "hem" -> "hem()",
+        "hopp" -> "hopp",
+        "bakåtHopp" -> "bakåtHopp",
+        "hem" -> "hem",
         "mot" -> "mot(${x},${y})",
         "vinkla" -> "vinkla(${vinkel})",
-        "öst" -> "öst()",
-        "väst" -> "väst()",
-        "norr" -> "norr()",
-        "söder" -> "söder()",
+        "öst" -> "öst",
+        "väst" -> "väst",
+        "norr" -> "norr",
+        "söder" -> "söder",
         "dröj" -> "dröj(${fördröjning})",
         "skriv" -> "skriv(${textsträng})",
         "textstorlek" -> "textstorlek(${storlek})",
         "båge" -> "båge(${radie},${vinkel})",
         "cirkel" -> "cirkel(${radie})",
-        "synlig" -> "synlig()",
-        "osynlig" -> "osynlig()",
-        "pennaNer" -> "pennaNer()",
-        "pennaUpp" -> "pennaUpp()",
+        "synlig" -> "synlig",
+        "osynlig" -> "osynlig",
+        "pennaNer" -> "pennaNer",
+        "pennaUpp" -> "pennaUpp",
         "färg" -> "färg(${pennfärg})",
         "fyll" -> "fyll(${fyllfärg})",
         "bredd" -> "bredd(${pennbredd})",
-        "sparaStil" -> "sparaStil()",
-        "laddaStil" -> "laddaStil()",
-        "sparaPositionRiktning" -> "sparaPositionRiktning()",
-        "laddaPositionRiktning" -> "laddaPositionRiktning()",
-        "siktePå" -> "siktePå()",
-        "sikteAv" -> "sikteAv()",
-        "sudda" -> "sudda()",
-        "suddaUtdata" -> "suddaUtdata()",
+        "sparaStil" -> "sparaStil",
+        "laddaStil" -> "laddaStil",
+        "sparaPositionRiktning" -> "sparaPositionRiktning",
+        "laddaPositionRiktning" -> "laddaPositionRiktning",
+        "siktePå" -> "siktePå",
+        "sikteAv" -> "sikteAv",
+        "sudda" -> "sudda",
+        "suddaUtdata" -> "suddaUtdata",
         "bakgrund" -> "bakgrund(${färg})",
         "bakgrund2" -> "bakgrund2(${färg1},${färg2})",
         "upprepa" -> "upprepa (${antal}) {\n    \n}",
@@ -153,7 +155,10 @@ addCodeTemplates(
         "utdata" -> "utdata(${textsträng})",
         "indata" -> "indata(${ledtext})",
         "avrudna" -> "avrudna(${tal},${antalDecimaler})",
-        "räknaTill" -> "räknaTill(${tal})" 
+        "slumptal" -> "slumptal(${mindreän})", 
+        "slumptalMedDecimaler" -> "slumptalMedDecimaler(${mindreän})", 
+        "räknaTill" -> "räknaTill(${tal})", 
+        "systemtid" -> "systemtid"
   )
 )
 //help texts
@@ -256,13 +261,13 @@ utdata("Hej " + x + "!")
 utdata(t)
         </pre>
       </div>.toString,
-      "systemTid" -> <div><strong>systemTid</strong><br/>Ger systemklockans tid i sekunder. Du kan använda systemTid för att mäta hur lång tid något tar.<br/>
+      "systemtid" -> <div><strong>systemtid</strong><br/>Ger systemklockans tid i sekunder. Du kan använda systemtid för att mäta hur lång tid något tar.<br/>
         <br/><em>Exempel:</em> <br/><br/>
         <pre>dröj(1000)
-val start = systemTid
+val start = systemtid
 utdata("Ha tålamod!")
 gå(1000)
-val stopp = systemTid
+val stopp = systemtid
 val s = stopp - start
 utdata("Du hade tålamod i " + avrunda(s,1) + " sekunder.")
         </pre>
@@ -272,8 +277,15 @@ utdata("Du hade tålamod i " + avrunda(s,1) + " sekunder.")
         <pre>
 räknaTill(5000)
         </pre>
-      </div>.toString 
+      </div>.toString,
+      "slumptal" -> <div><strong>slumptal</strong>(mindreÄn)<br/>Ger ett slumptal mellan 0 och mindreÄn.<br/><em>Exempel:</em><br/><pre>  def slump = slumptal(20) + 1 </pre><br/>Ger slumptal från 1 till och med 20</div>.toString,
+      "slumptalMedDecimaler" -> <div><strong>slumptalMedDecimaler</strong>(mindreÄn)<br/>Ger ett slumptal med decimaler mellan 0 och mindreÄn.<br/><em>Exempel:</em><br/><pre> def slump = slumptalMedDecimaler(20) + 1.0</pre><br/>Ger slumptal med decimaler från 1.0 till och med 20.0</div>.toString
     )
 )
 
-utdata("*** Svensk Padda laddad!")
+utdata("Välkommen till Kojo!") 
+utdata("* För kodkomplettering  ->  Tryck Ctrl+mellanslag i redigeraren")
+utdata("* För fönstrets egen meny  ->  Högerklicka  i fönstret")
+utdata("* För att panorera i ritfönstret  ->  Dra med musen med vänstra musknappen nedtryckt")
+utdata("* För att zooma i ritfönstret  ->  Dra med musen med vänstra musknappen och skifttangenten nedtryckt")
+utdata("* För att återställa panorering och zoom till ursprungsläget  ->  högerklicka i ritfönstret")
