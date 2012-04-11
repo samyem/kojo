@@ -203,6 +203,7 @@ pages += IncrPage(
                 gridOff()
                 stAddButton ("Make Square") {
                     clear()
+                    setAnimationDelay(10)
                     axesOff()
                     gridOff()
                     repeat (4) {
