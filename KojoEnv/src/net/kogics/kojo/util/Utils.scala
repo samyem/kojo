@@ -248,6 +248,22 @@ object Utils {
   lazy val installInitScripts: List[String] = filesInDir(installInitScriptDir, "kojo")
   lazy val installLangInitScripts: List[String] = filesInDir(installLangInitScriptDir, "kojo")
 
+  def modeFilter(scripts: List[String], mode: CodingMode): List[String] = mode match {
+    case TwMode =>
+      scripts.filter {f => ! (f.endsWith(".st.kojo") || f.endsWith(".mw.kojo")) }
+    case StagingMode =>
+      scripts.filter {f => ! (f.endsWith(".tw.kojo") || f.endsWith(".mw.kojo")) }
+    case MwMode =>
+      scripts.filter {f => ! (f.endsWith(".tw.kojo") || f.endsWith(".st.kojo")) }
+  }
+  
+  import Typeclasses._
+  def kojoInitCode(mode: CodingMode): Option[String] = {
+    codeFromScripts(modeFilter(initScripts, mode), initScriptDir) |+|
+    codeFromScripts(modeFilter(installInitScripts, mode), installInitScriptDir) |+|
+    codeFromScripts(modeFilter(installLangInitScripts, mode), installLangInitScriptDir)
+  }
+  
   def isScalaTestAvailable = (libJars ++ installLibJars).exists { fname => fname.toLowerCase contains "scalatest"}
 
   val scalaTestHelperCode = """
@@ -274,13 +290,6 @@ object Utils {
 
   import ShouldMatchers._
 """
-  
-  lazy val kojoInitCode0: Option[String] = codeFromScripts(initScripts, initScriptDir) 
-  lazy val kojoInitCode1: Option[String] = codeFromScripts(installInitScripts, installInitScriptDir) 
-  lazy val kojoInitCodeLang: Option[String] = codeFromScripts(installLangInitScripts, installLangInitScriptDir) 
-  // need to use a Semigroup append for this!
-  import Typeclasses._
-  lazy val kojoInitCode: Option[String] = kojoInitCode0 |+| kojoInitCode1 |+| kojoInitCodeLang
   
   def codeFromScripts(scripts: List[String], scriptDir: String): Option[String] = scripts match {
     case Nil => None

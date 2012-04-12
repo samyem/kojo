@@ -1030,11 +1030,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     }
   }
   
-  class CodingMode
-  case object TwMode extends CodingMode
-  case object MwMode extends CodingMode
-  case object StagingMode extends CodingMode
-  
   @volatile var codingMode: CodingMode = TwMode // default mode for interp
   
   def activateTw() {
