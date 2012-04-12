@@ -209,8 +209,9 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
         interp.interpret("import Tw._")
       }
       cmodeInit = "import TSCanvas._; import Tw._"
+      mode = TwMode
       CodeCompletionUtils.activateTw()
-      loadInitScripts()
+      loadInitScripts(TwMode)
     }
     
     def act() {
@@ -244,8 +245,9 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
                 interp.interpret(imports)
               }
               cmodeInit = imports
+              mode = StagingMode
               CodeCompletionUtils.activateStaging()
-              loadInitScripts()
+              loadInitScripts(StagingMode)
             }
             
           case ActivateMw =>
@@ -257,8 +259,9 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
                 interp.interpret(imports)
               }
               cmodeInit = imports
+              mode = MwMode
               CodeCompletionUtils.activateMw()
-              loadInitScripts()
+              loadInitScripts(MwMode)
             }
             
           case CompileCode(code) =>
@@ -388,23 +391,24 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
     }
 
     val jars = Utils.kojoJars
-    val initCode: Option[String] = {
+    def initCode(mode: CodingMode): Option[String] = {
       import Typeclasses._
       if (Utils.isScalaTestAvailable) {
-        some(Utils.scalaTestHelperCode) |+| Utils.kojoInitCode        
+        some(Utils.scalaTestHelperCode) |+| Utils.kojoInitCode(mode)
       }
       else {
-        Utils.kojoInitCode
+        Utils.kojoInitCode(mode)
       }
     }
     
-    @volatile var cmodeInit = ""
+    var cmodeInit = ""
+    var mode: CodingMode = _
     
     def compilerInitCode: Option[String] = {
       import Typeclasses._
 //      val ic = initCode.getOrElse("")
 //      Some("%s\n%s" format(cmodeInit, ic))
-      some(cmodeInit) |+| initCode
+      some(cmodeInit) |+| initCode(mode)
     }
     
     def makeSettings() = {
@@ -456,8 +460,8 @@ class ScalaCodeRunner(val ctx: RunContext, val tCanvas: SCanvas) extends CodeRun
       }
     }
     
-    def loadInitScripts() {
-      initCode.foreach { code => 
+    def loadInitScripts(mode: CodingMode) {
+      initCode(mode).foreach { code => 
         println("\nRunning initk code...")
         runCode(code)
       }
