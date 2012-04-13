@@ -537,7 +537,13 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             add(new JSeparator());
             addMenu(configRoot, "Menu/Edit", NbBundle.getMessage(klass, "S_Edit"));
             add(new JSeparator());
+            
+            JMenuItem chooseColor = new JMenuItem(new ChooseColor());
+            chooseColor.setText(NbBundle.getMessage(klass, "S_ChooseColor"));
+            add(chooseColor);
+
             addMenu(configRoot, "Menu/Source", NbBundle.getMessage(klass, "S_Source"));
+            
             add(new JSeparator());
             addPopupPresenterActionMenuItem(configRoot, "Editors/Actions/toggle-line-numbers.instance");
             addFontMenuItem();
