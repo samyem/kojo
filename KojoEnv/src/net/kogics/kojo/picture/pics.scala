@@ -47,15 +47,15 @@ trait Picture extends InputAware {
   def draw(): Unit
   def isDrawn(): Boolean
   def bounds: PBounds
-  def rotate(angle: Double)
-  def rotateAboutPoint(angle: Double, x: Double, y: Double)
-  def scale(factor: Double)
-  def scale(x: Double, y: Double)
-  def translate(x: Double, y: Double)
+  def rotate(angle: Double): Picture
+  def rotateAboutPoint(angle: Double, x: Double, y: Double): Picture
+  def scale(factor: Double): Picture
+  def scale(x: Double, y: Double): Picture
+  def translate(x: Double, y: Double): Picture
   def transv(v: Vector2D) = translate(v.x, v.y)
   def offset(x: Double, y: Double)
-  def flipX(): Unit
-  def flipY(): Unit
+  def flipX(): Picture
+  def flipY(): Picture
   def opacityMod(f: Double): Unit
   def hueMod(f: Double): Unit
   def satMod(f: Double): Unit
@@ -134,26 +134,30 @@ trait CorePicOps { self: Picture with RedrawStopper =>
     tnode.repaint()
   }
 
-  def rotateAboutPoint(angle: Double, x: Double, y: Double) {
+  def rotateAboutPoint(angle: Double, x: Double, y: Double) = {
     translate(x, y)
     rotate(angle)
     translate(-x, -y)
   }
 
-  def rotate(angle: Double) {
+  def rotate(angle: Double) = {
     transformBy(AffineTransform.getRotateInstance(angle.toRadians))
+    this
   }
   
-  def scale(factor: Double) {
+  def scale(factor: Double) = {
     transformBy(AffineTransform.getScaleInstance(factor, factor))
+    this
   }
   
-  def scale(x: Double, y: Double) {
+  def scale(x: Double, y: Double) = {
     transformBy(AffineTransform.getScaleInstance(x, y))
+    this
   }
   
-  def translate(x: Double, y: Double) {
+  def translate(x: Double, y: Double) = {
     transformBy(AffineTransform.getTranslateInstance(x, y))
+    this
   }
 
   def offset(x: Double, y: Double) = Utils.runInSwingThread {
@@ -188,12 +192,14 @@ trait CorePicOps { self: Picture with RedrawStopper =>
     tnode.repaint()
   }
   
-  def flipX() {
+  def flipX() = {
     transformBy(AffineTransform.getScaleInstance(1, -1))
+    this
   }
   
-  def flipY() {
+  def flipY() = {
     transformBy(AffineTransform.getScaleInstance(-1, 1))
+    this
   }
   
   def axesOn() = Utils.runInSwingThread {
