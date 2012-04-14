@@ -65,7 +65,6 @@ object CodeCompletionUtils {
     "penWidth" -> "penWidth(${n})",
     "spin" -> "spin(${n})",
     "reflect" -> "reflect(${gap})",
-    "show" -> "draw(${pic/s})",
     "draw" -> "draw(${pic})",
     "drawAndHide" -> "drawAndHide(${pic})",
     "animate" -> "animate {\n    ${cursor}\n}",
@@ -106,6 +105,7 @@ object CodeCompletionUtils {
     "Picture" -> "Picture {\n    ${cursor}\n}",
     "circle" -> "circle(${radius})",
     "arc" -> "arc(${radius}, ${angle})",
+    "show" -> "draw(${pic/s})",
     "wipe" -> "wipe()"
   ) 
 
