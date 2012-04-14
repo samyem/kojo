@@ -257,6 +257,8 @@ object API {
   
   def sprite(x: Double, y: Double, fname: String) = Sprite(point(x, y), fname)
   def path(x: Double, y: Double) = Path(point(x, y))
+  def group(shapes: List[Shape]) = Composite(shapes)
+  def group(shapes: Shape *) = Composite(shapes)
 
   //W
   //W==Color==
@@ -731,7 +733,9 @@ class Composite(val shapes: Seq[Shape]) extends Shape {
 }
 object Composite {
   def apply(shapes: Seq[Shape]) = Utils.runInSwingThreadAndWait {
-    new Composite(shapes)
+    val shape = new Composite(shapes)
+    Impl.figure0.addPnode(shape.node)
+    shape
   }
 }
 
