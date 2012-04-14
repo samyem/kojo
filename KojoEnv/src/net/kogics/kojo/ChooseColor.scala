@@ -28,12 +28,14 @@ class ChooseColor extends AbstractAction {
       cprint("\u2500" * 3 + "\n", sColor)
       print("Selected Color:   ")
       cprint("\u2588" * 6 + "\n", sColor)
-      if (sColor.getAlpha < 255) {
-        println("Color(%d, %d, %d, %d)" format(sColor.getRed, sColor.getGreen, sColor.getBlue, sColor.getAlpha))
+      val color = if (sColor.getAlpha < 255) {
+        "Color(%d, %d, %d, %d)" format(sColor.getRed, sColor.getGreen, sColor.getBlue, sColor.getAlpha)
       }
       else {
-        println("Color(%d, %d, %d)" format(sColor.getRed, sColor.getGreen, sColor.getBlue))
+        "Color(%d, %d, %d)" format(sColor.getRed, sColor.getGreen, sColor.getBlue)
       }
+      println(color)
+      println("Example usage: setPenColor(%s)" format(color))
       cprint("\u2500" * 3 + "\n", sColor)
     }
   }
