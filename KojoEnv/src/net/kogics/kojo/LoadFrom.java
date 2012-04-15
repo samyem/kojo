@@ -29,12 +29,16 @@ public final class LoadFrom implements ActionListener {
         }
 
         CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
-        ces.closeFileAndClrEditor();
-        int returnVal = chooser.showOpenDialog(null);
+        try {
+            ces.closeFileAndClrEditor();
+            int returnVal = chooser.showOpenDialog(null);
 
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            CodeEditorTopComponent.findInstance().setLastLoadStoreDir(chooser.getSelectedFile().getParent());
-            ces.openFileWithoutClose(chooser.getSelectedFile());
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                CodeEditorTopComponent.findInstance().setLastLoadStoreDir(chooser.getSelectedFile().getParent());
+                ces.openFileWithoutClose(chooser.getSelectedFile());
+            }
+        } catch (RuntimeException ex) {
+            // ignore user cancel
         }
     }
 }

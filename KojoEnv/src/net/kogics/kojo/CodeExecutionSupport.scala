@@ -878,7 +878,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           null,
           Utils.loadString("S_FileChanged") format(openedFile.get.getName, openedFile.get.getName)
         )
-        if (doSave == JOptionPane.CANCEL_OPTION) {
+        if (doSave == JOptionPane.CANCEL_OPTION || doSave == JOptionPane.CLOSED_OPTION) {
           throw new RuntimeException("Cancel File Close")
         }
         if (doSave == JOptionPane.YES_OPTION) {
@@ -924,7 +924,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         null,
         Utils.loadString("S_FileExists") format(file.getName)
       )
-      if (doSave == JOptionPane.CANCEL_OPTION) {
+      if (doSave == JOptionPane.CANCEL_OPTION || doSave == JOptionPane.CLOSED_OPTION) {
         throw new RuntimeException("Cancel File SaveAs")
       }
       else if (doSave == JOptionPane.NO_OPTION) {
