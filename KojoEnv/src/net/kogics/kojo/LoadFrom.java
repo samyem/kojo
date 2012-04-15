@@ -34,6 +34,7 @@ public final class LoadFrom implements ActionListener {
             CodeEditorTopComponent.findInstance().setLastLoadStoreDir(chooser.getSelectedFile().getParent());
             CodeExecutionSupport ces = (CodeExecutionSupport) CodeExecutionSupport.instance();
             ces.openFile(chooser.getSelectedFile());
+            CloseFile.onFileOpen();
         }
     }
 }

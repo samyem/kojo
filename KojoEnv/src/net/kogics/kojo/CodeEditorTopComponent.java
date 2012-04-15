@@ -516,6 +516,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-LoadFrom.instance");
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-Save.instance");
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-SaveAs.instance");
+            addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-CloseFile.instance");
             add(new JSeparator());
             final SwitchMode switcher = new SwitchMode();
             final JCheckBoxMenuItem twCb = new JCheckBoxMenuItem(switcher);

@@ -24,6 +24,14 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="net-kogics-kojo-CloseFile.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.callback"/>
+                <attr name="key" stringvalue="somejunk"/>
+                <attr name="fallback" newvalue="net.kogics.kojo.CloseFile"/> 
+                <attr name="displayName" bundlevalue="net.kogics.kojo.Bundle#CTL_CloseClear"/>
+                <attr name="iconBase" stringvalue="images/clears.png"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
         </folder>
         <folder name="Window">
             <file name="net-kogics-kojo-CodeEditorAction.instance">
@@ -338,9 +346,13 @@
                 <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-SaveAs.instance"/>
                 <attr name="position" intvalue="3"/>
             </file>
+            <file name="net-kogics-kojo-CloseFile.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/net-kogics-kojo-CloseFile.instance"/>
+                <attr name="position" intvalue="4"/>
+            </file>
             <file name="net-kogics-kojo-LoadFrom-separatorAfter.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                <attr name="position" intvalue="4"/>
+                <attr name="position" intvalue="5"/>
             </file>
         </folder>
         <folder name="Samples">
