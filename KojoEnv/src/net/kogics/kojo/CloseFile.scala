@@ -24,6 +24,9 @@ object CloseFile {
   def onFileOpen() {
     action.setEnabled(true)
   }
+  def onFileClose() {
+    action.setEnabled(false)
+  }
 }
 
 class CloseFile extends AbstractAction {
@@ -33,7 +36,6 @@ class CloseFile extends AbstractAction {
   def actionPerformed(e: ActionEvent) {
     try {
       CodeExecutionSupport.instance.closeFileAndClrEditor()
-      setEnabled(false)
     }
     catch {
       case e: RuntimeException => // user cancelled
