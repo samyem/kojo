@@ -107,4 +107,7 @@
     <codetemplate abbreviation="span" xml:space="preserve">
         <code><![CDATA[<span>${cursor}</span>]]></code>
     </codetemplate>
+    <codetemplate abbreviation="rs" xml:space="preserve">
+        <code><![CDATA["""${cursor}"""]]></code>
+    </codetemplate>
 </codetemplates>
