@@ -22,7 +22,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public final class SaveAs implements ActionListener {
 
-    public File chooseFile(String desc, String ext) {
+    public File chooseFile(String desc, String ext, String title) {
         CodeEditorTopComponent cetc = CodeEditorTopComponent.findInstance();
 
         JFileChooser chooser = new JFileChooser();
@@ -30,6 +30,7 @@ public final class SaveAs implements ActionListener {
                 desc, ext);
         chooser.setFileFilter(filter);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setDialogTitle(title);
 
         String loadDir = cetc.getLastLoadStoreDir();
         if (loadDir != null && loadDir != "") {
@@ -55,7 +56,7 @@ public final class SaveAs implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
 
-        File selectedFile = chooseFile("Kojo Files", "kojo");
+        File selectedFile = chooseFile("Kojo Files", "kojo", e.getActionCommand());
 
         if (selectedFile != null) {
             try {

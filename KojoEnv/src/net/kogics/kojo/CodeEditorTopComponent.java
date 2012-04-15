@@ -375,6 +375,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 
     void fileClosed() {
         setDisplayName(getName());
+        CloseFile.onFileClose();
     }
 
     static class KojoEditorSupport extends CloneableEditorSupport {

@@ -886,6 +886,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         }
       }
       openedFile = None
+      CodeEditorTopComponent.findInstance.fileClosed()
     }
   }
 
@@ -902,7 +903,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     closeFileIfOpen() // can throw runtime exception if user cancels
     this.codePane.setText(null)
     clearSButton.setEnabled(false)
-    CodeEditorTopComponent.findInstance.fileClosed()
     codePane.requestFocusInWindow
   }
 
