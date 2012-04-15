@@ -711,7 +711,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     saveAsImage.addActionListener(new ActionListener {
         val saveAs = new SaveAs()
         override def actionPerformed(e: ActionEvent) {
-          val file = saveAs.chooseFile("PNG Image File", "png")
+          val file = saveAs.chooseFile("PNG Image File", "png", Utils.loadString("CTL_SaveAs"))
           if (file != null) {
             exportImageToFile(file, SpriteCanvas.this.getWidth, SpriteCanvas.this.getHeight)
           }
