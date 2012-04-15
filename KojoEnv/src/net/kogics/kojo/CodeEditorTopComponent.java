@@ -370,6 +370,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 
     void fileOpened(File file) {
         setDisplayName(String.format("%s - %s", getName(), file.getName()));
+        CloseFile.onFileOpen();
     }
 
     void fileClosed() {
@@ -513,6 +514,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 
         public CodeEditorPopupMenu() {
             FileObject configRoot = FileUtil.getConfigRoot();
+            addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-NewFile.instance");
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-LoadFrom.instance");
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-Save.instance");
             addActionMenuItem(configRoot, "Actions/Edit/net-kogics-kojo-SaveAs.instance");
@@ -521,7 +523,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             final SwitchMode switcher = new SwitchMode();
             final JCheckBoxMenuItem twCb = new JCheckBoxMenuItem(switcher);
             Class klass = getClass();
-            twCb.setText(NbBundle.getMessage(klass, "S_TurtleMode")); 
+            twCb.setText(NbBundle.getMessage(klass, "S_TurtleMode"));
             twCb.setToolTipText(NbBundle.getMessage(klass, "S_TurtleModeTT"));
             twCb.setActionCommand("Tw");
             add(twCb);
@@ -538,13 +540,13 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             add(new JSeparator());
             addMenu(configRoot, "Menu/Edit", NbBundle.getMessage(klass, "S_Edit"));
             add(new JSeparator());
-            
+
             JMenuItem chooseColor = new JMenuItem(new ChooseColor());
             chooseColor.setText(NbBundle.getMessage(klass, "S_ChooseColor"));
             add(chooseColor);
 
             addMenu(configRoot, "Menu/Source", NbBundle.getMessage(klass, "S_Source"));
-            
+
             add(new JSeparator());
             addPopupPresenterActionMenuItem(configRoot, "Editors/Actions/toggle-line-numbers.instance");
             addFontMenuItem();
