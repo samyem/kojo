@@ -214,7 +214,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
       }
 
       // temporary fix for NB7.1.1 not showing code templates
-      addTemplateProposals(proposals, prefix)
+      addTemplateProposals(proposals, prefix, caretOffset)
     }
 
     if (objid.isDefined) {
@@ -235,7 +235,9 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     return completionResult
   }
   
-  def addTemplateProposals(proposals: java.util.ArrayList[CompletionProposal], prefix: Option[String]) {
+  def addTemplateProposals(proposals: java.util.ArrayList[CompletionProposal], 
+                           prefix: Option[String], 
+                           caretOffset: Int) {
     def toProposal(offset: Int, ct: CodeTemplate) = new CompletionProposal {
       def getAnchorOffset: Int = offset
       def getName: String = ct.getAbbreviation
@@ -259,8 +261,9 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
     val doc = CodeExecutionSupport.instance().codePane.getDocument
     import collection.JavaConversions._
     val cts = CodeTemplateManager.get(doc).getCodeTemplates
-    cts.filter {ct => ignoreCaseStartsWith(ct.getAbbreviation, prefix.getOrElse(""))}.foreach { ct =>
-      proposals.add(toProposal(0, ct))
+    val pfx = prefix.getOrElse("")
+    cts.filter {ct => ignoreCaseStartsWith(ct.getAbbreviation, pfx)}.foreach { ct =>
+      proposals.add(toProposal(caretOffset-pfx.length, ct))
     }
   }
   
