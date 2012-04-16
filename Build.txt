@@ -2,20 +2,14 @@ To build Kojo from source, you need to do the following:
 
 - Clone the Kojo Mercurial repo. This will give you a local Kojo source tree.
   Let's call the location of this tree $kojo 
-  Note - the root of your source tree should be called kojo or Kojo. If it
-  isn't, you will get a runtime exception when you build and then run Kojo.
-  You will likely be bitten by this if you create a server-side clone of the
-  Kojo repo on google-code, and then get a local copy of the clone.
-  The default command suggested by google-code for getting a local copy gives
-  your source root the same name as your server-side clone.
-
+  
 - Download and install Scala. This involves having scala on your path, and having
   SCALA_HOME pointing to your Scala install dir.
-  The currently supported version of Scala is: Scala version 2.9.1
+  The currently supported version of Scala is: Scala version 2.9.2
 
 - Download and install Ant 1.7.1 or later.
 
-- Download and install Netbeans 7.0. This step is required because Kojo is
+- Download and install Netbeans 7.1.1. This step is required because Kojo is
   a Netbeans Platform application, and depends on Netbeans Platforms jars for
   things like Window-System and Code-Editor functionality.
 
