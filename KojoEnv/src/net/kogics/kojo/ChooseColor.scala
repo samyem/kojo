@@ -22,7 +22,7 @@ import java.awt.Color
 
 class ChooseColor extends AbstractAction {
   def actionPerformed(e: ActionEvent) {
-    val sColor = JColorChooser.showDialog(null, "Choose Color", Color.red)
+    val sColor = JColorChooser.showDialog(null, util.Utils.stripDots(e.getActionCommand), Color.red)
     if (sColor != null) {
       val cprint = CodeExecutionSupport.instance.showOutput(_: String, _: Color)
       cprint("\u2500" * 3 + "\n", sColor)

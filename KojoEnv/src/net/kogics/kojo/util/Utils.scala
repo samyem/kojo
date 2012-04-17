@@ -400,6 +400,9 @@ object Utils {
     Color.getHSBColor(hsb(0), hsb(1), br)
   }
   
+  def stripTrailingDots(s: String): String = s.reverse.dropWhile(_ == '.').reverse
+  def stripDots(s: String): String = s.filterNot {_ == '.'}
+  
   case class RunCode(code: () => Unit)
   import scala.actors._
   import scala.actors.Actor._
