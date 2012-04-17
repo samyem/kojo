@@ -121,7 +121,7 @@
                 <include name="**/*.jar"/>
             </fileset>
             <pathelement location="../JUnit4/junit-4.8.2.jar"/>
-            <pathelement location="../ScalaTest/scalatest-1.6.1.jar"/>
+            <pathelement location="../ScalaTest/scalatest-1.7.1.jar"/>
         </path>
 
         <path id="test.unit.build.cp">
@@ -192,8 +192,8 @@
         <antcall target="run-tests-helper"/>
     </target>
 
-    <target name="run-test-single" depends="jar"> <!-- depends="jar" -->
-        <property name="test.includes" value="**/story/Li*Test.class"/>
+    <target name="run-test-single" > <!-- depends="jar" -->
+        <property name="test.includes" value="**/util/*Test.class"/>
         <antcall target="run-tests-helper"/>
     </target>
 
