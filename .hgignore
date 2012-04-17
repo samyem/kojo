@@ -31,3 +31,7 @@ nsis
 ^installer/install.jar
 private.xml
 genfiles.properties
+syntax: glob
+nbproject/private/platform-private.properties
+nbproject/platform.xml
+installer.log
