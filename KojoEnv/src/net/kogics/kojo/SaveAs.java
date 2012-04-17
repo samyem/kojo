@@ -56,7 +56,7 @@ public final class SaveAs implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
 
-        File selectedFile = chooseFile("Kojo Files", "kojo", e.getActionCommand());
+        File selectedFile = chooseFile("Kojo Files", "kojo", net.kogics.kojo.util.Utils.stripDots(e.getActionCommand()));
 
         if (selectedFile != null) {
             try {
