@@ -27,8 +27,11 @@ import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
 
 import util._
+import javax.swing.text.BadLocationException
+import javax.swing.text.Document
 import net.kogics.kojo.core.RunContext
 
+import org.openide.util.Exceptions
 import org.openide.windows._
 import org.openide.awt.UndoRedo
 
@@ -140,7 +143,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def setCodePane(cp: JEditorPane) {
     codePane = cp;
-    addCodePaneShortcuts()
+    addCodePaneHandlers()
     statusStrip.linkToPane()
     codePane.getDocument.addDocumentListener(new DocumentListener {
         def insertUpdate(e: DocumentEvent) {
@@ -167,10 +170,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def doWelcome() = {
     val msg = """Welcome to Kojo! 
-    |* To use code completion and see online help ->  Press Ctrl+Space within the Script Editor
-    |* To access the context actions for a window ->  Right-click on the window to bring up its context menu
-    |* To Pan or Zoom the Drawing Canvas          ->  Drag or Shift-Drag with the left mouse button
-    |  * To reset Pan and Zoom levels             ->  Use the Drawing Canvas context menu
+    |* To use code completion and see online help  ->  Press Ctrl+Space within the Script Editor
+    |* To experiment with different numeric values ->  Ctrl+Click on numbers within the Script Editor
+    |* To access the context actions for a window  ->  Right-Click on the window to bring up its context menu
+    |* To Pan or Zoom the Drawing Canvas           ->  Drag or Shift-Drag with the left mouse button
+    |  * To reset Pan and Zoom levels              ->  Use the Drawing Canvas context menu
     |""".stripMargin
     
     showOutput(msg)
@@ -483,7 +487,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
 
   def isRunningEnabled = runButton.isEnabled
 
-  def addCodePaneShortcuts() {
+  def addCodePaneHandlers() {
     codePane.addKeyListener(new KeyAdapter {
         override def keyPressed(evt: KeyEvent) {
           evt.getKeyCode match {
@@ -502,10 +506,18 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
                 loadCodeFromHistoryNext
                 evt.consume
               }
+            case KeyEvent.VK_ESCAPE =>
+              closeNumberTweakPopup()
             case _ => // do nothing special
           }
         }
 
+      })
+    
+    codePane.addMouseListener(new MouseAdapter {
+        override def mousePressed(e: MouseEvent) {
+          closeNumberTweakPopup()
+        }
       })
   }
 
@@ -937,6 +949,49 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     else {
       saveTo(file)
     }
+  }
+
+  var numberTweakPopup: Popup = _
+  def closeNumberTweakPopup() {
+    if (numberTweakPopup != null) {
+      numberTweakPopup.hide()
+      numberTweakPopup = null
+    }
+  }
+  def handleNumberHyperclick(doc: Document, offset: Int, target0: String, targetStart: Int): Unit = Utils.safeProcess {
+    closeNumberTweakPopup()
+    var target = target0
+    val ntarget = target.toInt
+    val slider = new JSlider();
+    slider.setMinimum(0)
+    slider.setMaximum(ntarget * 3)
+    slider.setValue(ntarget)
+    slider.setMajorTickSpacing(math.round(ntarget * 3.0 / 10).toInt)
+    slider.setPaintTicks(true)
+    slider.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
+    var newnum0 = ntarget
+    slider.addChangeListener(new ChangeListener {
+        def stateChanged(e: ChangeEvent) = Utils.safeProcess {
+          if (isRunningEnabled) {
+            val newnum = e.getSource.asInstanceOf[JSlider].getValue()
+            if (newnum != newnum0) {
+              doc.remove(targetStart, target.length())
+              target = newnum.toString; newnum0 = newnum
+              doc.insertString(targetStart, target, null);
+              Utils.invokeLaterInSwingThread {
+                codeRunner.runCode(doc.getText(0, doc.getLength))
+              }
+            }
+          }
+        }
+      })
+    
+    val factory = PopupFactory.getSharedInstance();
+    val rect = codePane.modelToView(offset)
+    val pt = new Point(rect.x, rect.y)
+    javax.swing.SwingUtilities.convertPointToScreen(pt, codePane)
+    numberTweakPopup = factory.getPopup(codePane, slider, pt.x-50, pt.y - (rect.height * 2).toInt)
+    numberTweakPopup.show()
   }
 
   class HistoryManager {
