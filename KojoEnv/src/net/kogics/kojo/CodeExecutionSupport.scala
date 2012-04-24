@@ -171,7 +171,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def doWelcome() = {
     val msg = """Welcome to Kojo! 
     |* To use code completion and see online help  ->  Press Ctrl+Space within the Script Editor
-    |* To experiment with different numeric values ->  Ctrl+Click on numbers within the Script Editor
+    |* To experiment with different numeric values ->  Ctrl+Click on integers within the Script Editor
     |* To access the context actions for a window  ->  Right-Click on the window to bring up its context menu
     |* To Pan or Zoom the Drawing Canvas           ->  Drag or Shift-Drag with the left mouse button
     |  * To reset Pan and Zoom levels              ->  Use the Drawing Canvas context menu
@@ -345,7 +345,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         }
 
         def onRunError() {
-          historyManager.codeRunError()
+          if (numberTweakPopup == null) {
+            historyManager.codeRunError()
+          }
           interpreterDone()
           onError()
         }
@@ -490,6 +492,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def addCodePaneHandlers() {
     codePane.addKeyListener(new KeyAdapter {
         override def keyPressed(evt: KeyEvent) {
+          closeNumberTweakPopup()
           evt.getKeyCode match {
             case KeyEvent.VK_ENTER =>
               if(evt.isControlDown && (isRunningEnabled || evt.isShiftDown)) {
@@ -506,8 +509,6 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
                 loadCodeFromHistoryNext
                 evt.consume
               }
-            case KeyEvent.VK_ESCAPE =>
-              closeNumberTweakPopup()
             case _ => // do nothing special
           }
         }
@@ -952,6 +953,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   }
 
   var numberTweakPopup: Popup = _
+  var inSliderChange = false
   def closeNumberTweakPopup() {
     if (numberTweakPopup != null) {
       numberTweakPopup.hide()
@@ -975,9 +977,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
           if (isRunningEnabled) {
             val newnum = e.getSource.asInstanceOf[JSlider].getValue()
             if (newnum != newnum0) {
+              inSliderChange = true
               doc.remove(targetStart, target.length())
               target = newnum.toString; newnum0 = newnum
               doc.insertString(targetStart, target, null);
+              inSliderChange = false
               Utils.invokeLaterInSwingThread {
                 codeRunner.runCode(doc.getText(0, doc.getLength))
               }
@@ -1157,7 +1161,14 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     }
 
     def onDocChange() {
-      if (getBackground != NeutralColor) setBackground(NeutralColor)
+      if (numberTweakPopup == null) {
+        if (getBackground != NeutralColor) setBackground(NeutralColor)
+      } 
+      else {
+        if (!inSliderChange) {
+          closeNumberTweakPopup()
+        }
+      }
     }
   }
 
