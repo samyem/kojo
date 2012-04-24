@@ -95,6 +95,14 @@ object Utils {
     threads.foreach {t => t.interrupt()}
     threads.clear()
   }
+  
+  def invokeLaterInSwingThread(fn: => Unit) {
+    javax.swing.SwingUtilities.invokeLater(new Runnable {
+        override def run {
+          fn
+        }
+      })
+  }
 
   def runInSwingThread(fn: => Unit) {
     if(inSwingThread) {
