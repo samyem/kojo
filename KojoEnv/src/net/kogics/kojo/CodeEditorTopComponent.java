@@ -15,6 +15,7 @@
 package net.kogics.kojo;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
@@ -48,7 +49,6 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.StyledDocument;
 import net.kogics.kojo.codingmode.SwitchMode;
@@ -99,6 +99,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
     private String lastLoadStoreDir = "";
     private String codexEmail = "";
     private String codexPassword = "";
+    Color lastColor = Color.red;
 
     public CodeEditorTopComponent() {
         super(new KojoEditorSupport(new KojoEnv()));
@@ -250,6 +251,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         p.setProperty("storeDir", lastLoadStoreDir == null ? "" : lastLoadStoreDir);
         p.setProperty("codexEmail", codexEmail == null ? "" : codexEmail);
         p.setProperty("codexPassword", codexPassword == null ? "" : codexPassword);
+        p.setProperty("lastColor", Integer.toString(lastColor.getRGB()));
     }
 
     Object readProperties(java.util.Properties p) {
@@ -265,6 +267,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         lastLoadStoreDir = p.getProperty("storeDir");
         codexEmail = p.getProperty("codexEmail");
         codexPassword = p.getProperty("codexPassword");
+        lastColor = new Color(Integer.parseInt(p.getProperty("lastColor", Integer.toString(Color.red.getRGB()))));
     }
 
     @Override
@@ -542,7 +545,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             addMenu(configRoot, "Menu/Edit", NbBundle.getMessage(klass, "S_Edit"));
             add(new JSeparator());
 
-            JMenuItem chooseColor = new JMenuItem(new ChooseColor());
+            JMenuItem chooseColor = new JMenuItem(new ChooseColor(CodeEditorTopComponent.findInstance()));
             chooseColor.setText(NbBundle.getMessage(klass, "S_ChooseColor"));
             add(chooseColor);
 
