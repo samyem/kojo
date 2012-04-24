@@ -20,9 +20,9 @@ import javax.swing.AbstractAction
 import javax.swing.JColorChooser
 import java.awt.Color
 
-class ChooseColor extends AbstractAction {
+class ChooseColor(cetc: CodeEditorTopComponent) extends AbstractAction {
   def actionPerformed(e: ActionEvent) {
-    val sColor = JColorChooser.showDialog(null, util.Utils.stripDots(e.getActionCommand), Color.red)
+    val sColor = JColorChooser.showDialog(null, util.Utils.stripDots(e.getActionCommand), cetc.lastColor)
     if (sColor != null) {
       val cprint = CodeExecutionSupport.instance.showOutput(_: String, _: Color)
       cprint("\u2500" * 3 + "\n", sColor)
@@ -37,6 +37,7 @@ class ChooseColor extends AbstractAction {
       println(color)
       println("Example usage: setPenColor(%s)" format(color))
       cprint("\u2500" * 3 + "\n", sColor)
+      cetc.lastColor = sColor
     }
   }
 }
