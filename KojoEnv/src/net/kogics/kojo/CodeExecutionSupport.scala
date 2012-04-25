@@ -345,7 +345,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         }
 
         def onRunError() {
-          if (numberTweakPopup == null) {
+          if (numTweakPopup.isAbsent) {
             historyManager.codeRunError()
           }
           interpreterDone()
@@ -492,7 +492,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def addCodePaneHandlers() {
     codePane.addKeyListener(new KeyAdapter {
         override def keyPressed(evt: KeyEvent) {
-          closeNumberTweakPopup()
+          numTweakPopup.close()
           evt.getKeyCode match {
             case KeyEvent.VK_ENTER =>
               if(evt.isControlDown && (isRunningEnabled || evt.isShiftDown)) {
@@ -517,7 +517,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     
     codePane.addMouseListener(new MouseAdapter {
         override def mousePressed(e: MouseEvent) {
-          closeNumberTweakPopup()
+          numTweakPopup.close()
         }
       })
   }
@@ -951,53 +951,71 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       saveTo(file)
     }
   }
+  
+  val numTweakPopup = new NumberTweakPopup
 
-  var numberTweakPopup: Popup = _
-  var inSliderChange = false
-  def closeNumberTweakPopup() {
-    if (numberTweakPopup != null) {
-      numberTweakPopup.hide()
-      numberTweakPopup = null
+  class NumberTweakPopup {
+    private var numberTweakPopup: Popup = _
+    private [kojo] var inSliderChange = false
+    
+    def isAbsent = numberTweakPopup == null
+    def isPresent = !isAbsent
+    
+    def close() {
+      if (numberTweakPopup != null) {
+        numberTweakPopup.hide()
+        numberTweakPopup = null
+      }
     }
-  }
-  def handleNumberHyperclick(doc: Document, offset: Int, target0: String, targetStart: Int): Unit = Utils.safeProcess {
-    closeNumberTweakPopup()
-    var target = target0
-    val ntarget = target.toInt
-    val slider = new JSlider();
-    slider.setMinimum(0)
-    slider.setMaximum(ntarget * 2)
-    slider.setValue(ntarget)
-    slider.setMajorTickSpacing(math.floor(ntarget * 2.0 / 10).toInt)
-    slider.setPaintTicks(true)
-    slider.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
-    var newnum0 = ntarget
-    slider.addChangeListener(new ChangeListener {
-        def stateChanged(e: ChangeEvent) = Utils.safeProcess {
-          if (isRunningEnabled) {
-            val newnum = e.getSource.asInstanceOf[JSlider].getValue()
-            if (newnum != newnum0) {
-              inSliderChange = true
-              doc.remove(targetStart, target.length())
-              target = newnum.toString; newnum0 = newnum
-              doc.insertString(targetStart, target, null);
-              inSliderChange = false
-              Utils.invokeLaterInSwingThread {
-                codeRunner.runCode(doc.getText(0, doc.getLength))
+    
+    def handleHyperclick(doc: Document, offset: Int, target0: String, targetStart: Int) = Utils.safeProcess {
+      close()
+      var target = target0
+      val ntarget = target.toInt
+      val slider = new JSlider();
+      slider.setMinimum(0)
+      slider.setMaximum(ntarget * 2)
+      slider.setValue(ntarget)
+      slider.setMajorTickSpacing(math.max(math.floor(ntarget * 2.0 / 10).toInt, 1))
+      slider.setPaintTicks(true)
+      slider.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
+      var newnum0 = ntarget
+      slider.addChangeListener(new ChangeListener {
+          def stateChanged(e: ChangeEvent) = Utils.safeProcess {
+            val eslider = e.getSource.asInstanceOf[JSlider]
+            if (isRunningEnabled) {
+              val newnum = eslider.getValue()
+              if (newnum != newnum0) {
+                inSliderChange = true
+                doc.remove(targetStart, target.length())
+                target = newnum.toString; newnum0 = newnum
+                doc.insertString(targetStart, target, null);
+                inSliderChange = false
+                Utils.invokeLaterInSwingThread {
+                  codeRunner.runCode(doc.getText(0, doc.getLength))
+                }
               }
             }
+            else {
+              eslider.setValue(newnum0)
+            }
           }
-        }
-      })
+        })
     
-    val factory = PopupFactory.getSharedInstance();
-    val rect = codePane.modelToView(offset)
-    val pt = new Point(rect.x, rect.y)
-    javax.swing.SwingUtilities.convertPointToScreen(pt, codePane)
-    numberTweakPopup = factory.getPopup(codePane, slider, pt.x-50, pt.y - (rect.height * 2).toInt)
-    numberTweakPopup.show()
+      val factory = PopupFactory.getSharedInstance();
+      val rect = codePane.modelToView(offset)
+      val pt = new Point(rect.x, rect.y)
+      javax.swing.SwingUtilities.convertPointToScreen(pt, codePane)
+      numberTweakPopup = factory.getPopup(codePane, slider, pt.x-50, pt.y - (rect.height * 2).toInt)
+      numberTweakPopup.show()
+    }
   }
 
+  def handleNumberHyperclick(doc: Document, offset: Int, target0: String, targetStart: Int) {
+    numTweakPopup.handleHyperclick(doc, offset, target0, targetStart)
+  }
+  
+  
   class HistoryManager {
     var _selRange = (0, 0)
     var _caretPos = 0
@@ -1161,12 +1179,12 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     }
 
     def onDocChange() {
-      if (numberTweakPopup == null) {
+      if (numTweakPopup.isAbsent) {
         if (getBackground != NeutralColor) setBackground(NeutralColor)
       } 
       else {
-        if (!inSliderChange) {
-          closeNumberTweakPopup()
+        if (!numTweakPopup.inSliderChange) {
+          numTweakPopup.close()
         }
       }
     }
