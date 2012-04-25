@@ -966,9 +966,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     val ntarget = target.toInt
     val slider = new JSlider();
     slider.setMinimum(0)
-    slider.setMaximum(ntarget * 3)
+    slider.setMaximum(ntarget * 2)
     slider.setValue(ntarget)
-    slider.setMajorTickSpacing(math.round(ntarget * 3.0 / 10).toInt)
+    slider.setMajorTickSpacing(math.floor(ntarget * 2.0 / 10).toInt)
     slider.setPaintTicks(true)
     slider.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
     var newnum0 = ntarget
