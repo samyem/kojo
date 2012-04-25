@@ -35,9 +35,9 @@ public class NumberHyperlinkProvider implements HyperlinkProvider {
         return verifyState(doc, offset);
     }
 
+    @SuppressWarnings("unchecked")
     public boolean verifyState(Document doc, int offset) {
         try {
-
             TokenHierarchy hi = TokenHierarchy.get(doc);
             TokenSequence<ScalaTokenId.V> ts = hi.tokenSequence(ScalaTokenId.language());
 //            System.out.println("***\nToken Seq: " + ts);
