@@ -492,7 +492,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def addCodePaneHandlers() {
     codePane.addKeyListener(new KeyAdapter {
         override def keyPressed(evt: KeyEvent) {
-          numTweakPopup.close()
+          if (evt.getKeyCode != KeyEvent.VK_CONTROL) {
+            numTweakPopup.close()
+          }
           evt.getKeyCode match {
             case KeyEvent.VK_ENTER =>
               if(evt.isControlDown && (isRunningEnabled || evt.isShiftDown)) {
@@ -517,7 +519,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     
     codePane.addMouseListener(new MouseAdapter {
         override def mousePressed(e: MouseEvent) {
-          numTweakPopup.close()
+          if (!e.isControlDown) {
+            numTweakPopup.close()
+          }
         }
       })
   }
