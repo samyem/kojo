@@ -990,25 +990,28 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       slider.setValue(ntarget)
       slider.setPaintTicks(true)
       
-      var newnum0 = ntarget
+      var lastrunval = ntarget
       slider.addChangeListener(new ChangeListener {
           def stateChanged(e: ChangeEvent) = Utils.safeProcess {
             val eslider = e.getSource.asInstanceOf[JSlider]
-            if (isRunningEnabled) {
-              val newnum = eslider.getValue()
-              if (newnum != newnum0) {
-                inSliderChange = true
-                doc.remove(targetStart, target.length())
-                target = newnum.toString; newnum0 = newnum
-                doc.insertString(targetStart, target, null);
-                inSliderChange = false
+            val newnum = eslider.getValue()
+            inSliderChange = true
+            doc.remove(targetStart, target.length())
+            target = newnum.toString
+            doc.insertString(targetStart, target, null);
+            inSliderChange = false
+            
+            if (!eslider.getValueIsAdjusting) {
+              // drag over
+              if (isRunningEnabled) {
+                lastrunval = newnum
                 Utils.invokeLaterInSwingThread {
                   codeRunner.runCode(doc.getText(0, doc.getLength))
                 }
               }
-            }
-            else {
-              eslider.setValue(newnum0)
+              else {
+                eslider.setValue(lastrunval)
+              }
             }
           }
         })
