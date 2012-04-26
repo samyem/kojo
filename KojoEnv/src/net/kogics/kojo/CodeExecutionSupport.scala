@@ -977,12 +977,16 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       var target = target0
       val ntarget = target.toInt
       val slider = new JSlider();
-      def reConfigSlider() {
+      val leftLabel = new JLabel
+      val rightLabel = new JLabel
+      def reConfigSlider(around: Int) {
         slider.setMinimum(0)
-        slider.setMaximum(ntarget * 2)
-        slider.setMajorTickSpacing(math.max(math.floor(ntarget * 2.0 / 10).toInt, 1))
+        slider.setMaximum(around * 2)
+        slider.setMajorTickSpacing(math.max(math.floor(around * 2.0 / 10).toInt, 1))
+        leftLabel.setText(slider.getMinimum.toString)
+        rightLabel.setText(slider.getMaximum.toString)
       }
-      reConfigSlider()
+      reConfigSlider(ntarget)
       slider.setValue(ntarget)
       slider.setPaintTicks(true)
       
@@ -1015,23 +1019,28 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
       javax.swing.SwingUtilities.convertPointToScreen(pt, codePane)
       val panel = new JPanel()
       panel.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
-      panel.add(slider)
       val zoomB = new JToggleButton("\u20aa")
       zoomB.setToolTipText("Focus slider around its current value")
       zoomB.addActionListener(new ActionListener {
           def actionPerformed(e: ActionEvent) {
             if (zoomB.isSelected) {
               val sval = slider.getValue
-              slider.setMinimum(sval - 9)
+              slider.setMinimum(math.max(sval - 9, 0))
               slider.setMaximum(sval + 9)
               slider.setMajorTickSpacing(1)
+              leftLabel.setText(slider.getMinimum.toString)
+              rightLabel.setText(slider.getMaximum.toString)
             }
             else {
-              reConfigSlider()
+              reConfigSlider(slider.getValue)
             }
           }
         })
       panel.add(zoomB)
+      panel.add(leftLabel)
+      panel.add(slider)
+      panel.add(rightLabel)
+      panel.add(new JLabel(" " * 10))
       numberTweakPopup = factory.getPopup(codePane, panel, pt.x-50, pt.y - (rect.height * 3).toInt)
       numberTweakPopup.show()
     }
