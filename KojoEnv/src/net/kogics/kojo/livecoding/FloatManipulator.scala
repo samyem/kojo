@@ -34,8 +34,8 @@ import net.kogics.kojo.util.Utils
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.scala.core.lexer.ScalaTokenId;
 
-class IntManipulator(ctx: ManipulationContext) extends InteractiveManipulator {
-  val MY_SPECIAL_PATTERN = Pattern.compile("(\\d*)")
+class FloatManipulator(ctx: ManipulationContext) extends InteractiveManipulator {
+  val MY_SPECIAL_PATTERN = Pattern.compile("""(\d*\.\d\d?)""")
   var target = ""
   var targetStart = 0
   var targetEnd = 0
@@ -92,20 +92,31 @@ class IntManipulator(ctx: ManipulationContext) extends InteractiveManipulator {
   def activate(doc: Document, offset: Int, target0: String, targetStart: Int) = Utils.safeProcess {
     close()
     ctx.addManipulator(this)
+    var delta = 0.1
+    var formatter = "%.2f"
     var target = target0
-    val ntarget = target.toInt
+    var ntarget = target0.toDouble
     val slider = new JSlider();
     val leftLabel = new JLabel
     val rightLabel = new JLabel
-    def reConfigSlider(around: Int) {
+    def slider2double(n: Int) = {
+      ntarget + (n-9) * delta
+    }
+    def double2slider(n: Double): Int = {
+      9 + math.round((n - ntarget) / delta).toInt
+    }
+    def uiDouble(s: String) = Utils.stripTrailingChar(s, '0')
+    
+    def reConfigSlider(around: Double) {
+      ntarget = around
+      slider.setValue(9)
       slider.setMinimum(0)
-      slider.setMaximum(around * 2)
-      slider.setMajorTickSpacing(math.max(math.floor(around * 2.0 / 10).toInt, 1))
-      leftLabel.setText(slider.getMinimum.toString)
-      rightLabel.setText(slider.getMaximum.toString)
+      slider.setMaximum(18)
+      slider.setMajorTickSpacing(1)
+      leftLabel.setText(uiDouble(formatter format slider2double(slider.getMinimum)))
+      rightLabel.setText(uiDouble(formatter format slider2double(slider.getMaximum)))
     }
     reConfigSlider(ntarget)
-    slider.setValue(ntarget)
     slider.setPaintTicks(true)
       
     var lastrunval = ntarget
@@ -115,7 +126,7 @@ class IntManipulator(ctx: ManipulationContext) extends InteractiveManipulator {
           val newnum = eslider.getValue()
           inSliderChange = true
           doc.remove(targetStart, target.length())
-          target = newnum.toString
+          target = uiDouble(formatter format slider2double(newnum))
           doc.insertString(targetStart, target, null);
           inSliderChange = false
             
@@ -130,7 +141,7 @@ class IntManipulator(ctx: ManipulationContext) extends InteractiveManipulator {
               }
             }
             else {
-              eslider.setValue(lastrunval)
+              eslider.setValue(double2slider(lastrunval))
             }
           }
         }
@@ -146,17 +157,16 @@ class IntManipulator(ctx: ManipulationContext) extends InteractiveManipulator {
     zoomB.setToolTipText("Decrease Slider Stepsize")
     zoomB.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
+          val around = slider2double(slider.getValue)
           if (zoomB.isSelected) {
-            val sval = slider.getValue
-            slider.setMinimum(math.max(sval - 9, 0))
-            slider.setMaximum(sval + 9)
-            slider.setMajorTickSpacing(1)
-            leftLabel.setText(slider.getMinimum.toString)
-            rightLabel.setText(slider.getMaximum.toString)
+            delta = 0.01
+            zoomB.setToolTipText("Increase Slider Stepsize")
           }
           else {
-            reConfigSlider(slider.getValue)
+            delta = 0.1
+            zoomB.setToolTipText("Decrease Slider Stepsize")
           }
+          reConfigSlider(around)
         }
       })
     panel.add(zoomB)

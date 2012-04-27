@@ -408,7 +408,8 @@ object Utils {
     Color.getHSBColor(hsb(0), hsb(1), br)
   }
   
-  def stripTrailingDots(s: String): String = s.reverse.dropWhile(_ == '.').reverse
+  def stripTrailingChar(s: String, c: Char): String = s.reverse.dropWhile(_ == c).reverse
+  def stripTrailingDots(s: String) = stripTrailingChar(s, '.')
   def stripDots(s: String): String = s.filterNot {_ == '.'}
   
   case class RunCode(code: () => Unit)
