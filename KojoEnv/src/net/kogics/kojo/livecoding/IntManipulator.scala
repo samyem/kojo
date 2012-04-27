@@ -16,12 +16,10 @@ package net.kogics.kojo.livecoding
 
 import java.awt.Color
 import java.awt.Point
-import java.awt.Rectangle
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
+import java.util.regex.Pattern
 import javax.swing.BorderFactory
-import javax.swing.JComponent
-import javax.swing.JEditorPane
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JSlider
@@ -33,29 +31,18 @@ import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
 import javax.swing.text.Document
 import net.kogics.kojo.util.Utils
-
-trait ManipulationContext {
-  def isRunningEnabled: Boolean
-  def runCode(code: String): Unit
-  def codePane: JEditorPane
-  def addManipulator(im: InteractiveManipulator)
-  def removeManipulator(im: InteractiveManipulator)
-}
-
-trait InteractiveManipulator {
-  def isAbsent: Boolean
-  def isPresent: Boolean
-  def close(): Unit
-  def inSliderChange: Boolean
-  def activate(doc: Document, offset: Int, target0: String, targetStart: Int)
-}
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.scala.core.lexer.ScalaTokenId;
 
 class IntManipulator(ctx: ManipulationContext) extends InteractiveManipulator {
+  val MY_SPECIAL_PATTERN = Pattern.compile("(\\d*)")
+  var target = ""
+  var targetStart = 0
+  var targetEnd = 0
+
   private var numberTweakPopup: Popup = _
   var inSliderChange = false
   
-  ctx.addManipulator(this)
-    
   def isAbsent = numberTweakPopup == null
   def isPresent = !isAbsent
     
@@ -66,9 +53,45 @@ class IntManipulator(ctx: ManipulationContext) extends InteractiveManipulator {
       ctx.removeManipulator(this)
     }
   }
-    
+
+  def isHyperlinkPoint(doc: Document, offset: Int): Boolean = {
+    try {
+      val hi = TokenHierarchy.get(doc);
+      val ts = hi.tokenSequence(ScalaTokenId.language);
+
+      if (ts != null) {
+        ts.move(offset);
+        ts.moveNext()
+        val tok = ts.token()
+        // TODO just check token type instead of doing a regex match
+        val newOffset = ts.offset()
+        val matcherText = tok.text().toString()
+        val m = MY_SPECIAL_PATTERN.matcher(matcherText)
+        if (m.matches()) {
+          target = m.group(1)
+          val idx = matcherText.indexOf(target)
+          targetStart = newOffset + idx
+          targetEnd = targetStart + target.length();
+          return true;
+        }
+      }
+      return false;
+    } catch {
+      case t: Throwable => false
+    }
+  }
+  
+  def getHyperlinkSpan(doc: Document, offset: Int): Array[Int] = {
+    Array(targetStart, targetEnd)
+  }
+  
+  def activate(doc: Document, offset: Int) {
+    activate(doc, offset, target, targetStart)
+  }
+  
   def activate(doc: Document, offset: Int, target0: String, targetStart: Int) = Utils.safeProcess {
     close()
+    ctx.addManipulator(this)
     var target = target0
     val ntarget = target.toInt
     val slider = new JSlider();
