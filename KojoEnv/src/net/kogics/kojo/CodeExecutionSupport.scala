@@ -33,6 +33,8 @@ import net.kogics.kojo.core.RunContext
 
 import org.openide.util.Exceptions
 import org.openide.windows._
+import net.kogics.kojo.livecoding.InteractiveManipulator
+import net.kogics.kojo.livecoding.ManipulationContext
 import org.openide.awt.UndoRedo
 
 object CodeExecutionSupport extends InitedSingleton[CodeExecutionSupport] {
@@ -47,7 +49,7 @@ object CodeExecutionSupport extends InitedSingleton[CodeExecutionSupport] {
   protected def newInstance = new CodeExecutionSupport()
 }
 
-class CodeExecutionSupport private extends core.CodeCompletionSupport {
+class CodeExecutionSupport private extends core.CodeCompletionSupport with ManipulationContext {
   val Log = Logger.getLogger(getClass.getName);
   implicit val klass = getClass
 
@@ -345,7 +347,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
         }
 
         def onRunError() {
-          if (numTweakPopup.isAbsent) {
+          if (imanip.isEmpty) {
             historyManager.codeRunError()
           }
           interpreterDone()
@@ -493,7 +495,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     codePane.addKeyListener(new KeyAdapter {
         override def keyPressed(evt: KeyEvent) {
           if (evt.getKeyCode != KeyEvent.VK_CONTROL) {
-            numTweakPopup.close()
+            imanip.foreach { _ close() }
           }
           evt.getKeyCode match {
             case KeyEvent.VK_ENTER =>
@@ -520,7 +522,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     codePane.addMouseListener(new MouseAdapter {
         override def mousePressed(e: MouseEvent) {
           if (!e.isControlDown) {
-            numTweakPopup.close()
+            imanip.foreach { _ close() }
           }
         }
       })
@@ -781,6 +783,9 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
   def compileRunCode() {
     preProcessCode() map { codeToRun => codeRunner.compileRunCode(codeToRun)}
   }
+  
+  // For IPM
+  def runCode(code: String) = codeRunner.runCode(code)
 
   def runCode() {
     // Runs on swing thread
@@ -956,104 +961,14 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     }
   }
   
-  val numTweakPopup = new NumberTweakPopup
-
-  class NumberTweakPopup {
-    private var numberTweakPopup: Popup = _
-    private [kojo] var inSliderChange = false
-    
-    def isAbsent = numberTweakPopup == null
-    def isPresent = !isAbsent
-    
-    def close() {
-      if (numberTweakPopup != null) {
-        numberTweakPopup.hide()
-        numberTweakPopup = null
-      }
-    }
-    
-    def handleHyperclick(doc: Document, offset: Int, target0: String, targetStart: Int) = Utils.safeProcess {
-      close()
-      var target = target0
-      val ntarget = target.toInt
-      val slider = new JSlider();
-      val leftLabel = new JLabel
-      val rightLabel = new JLabel
-      def reConfigSlider(around: Int) {
-        slider.setMinimum(0)
-        slider.setMaximum(around * 2)
-        slider.setMajorTickSpacing(math.max(math.floor(around * 2.0 / 10).toInt, 1))
-        leftLabel.setText(slider.getMinimum.toString)
-        rightLabel.setText(slider.getMaximum.toString)
-      }
-      reConfigSlider(ntarget)
-      slider.setValue(ntarget)
-      slider.setPaintTicks(true)
-      
-      var lastrunval = ntarget
-      slider.addChangeListener(new ChangeListener {
-          def stateChanged(e: ChangeEvent) = Utils.safeProcess {
-            val eslider = e.getSource.asInstanceOf[JSlider]
-            val newnum = eslider.getValue()
-            inSliderChange = true
-            doc.remove(targetStart, target.length())
-            target = newnum.toString
-            doc.insertString(targetStart, target, null);
-            inSliderChange = false
-            
-            if (!eslider.getValueIsAdjusting) {
-              // drag over
-              if (isRunningEnabled) {
-                lastrunval = newnum
-                Utils.invokeLaterInSwingThread {
-                  codeRunner.runCode(doc.getText(0, doc.getLength))
-                }
-              }
-              else {
-                eslider.setValue(lastrunval)
-              }
-            }
-          }
-        })
-    
-      val factory = PopupFactory.getSharedInstance();
-      val rect = codePane.modelToView(offset)
-      val pt = new Point(rect.x, rect.y)
-      javax.swing.SwingUtilities.convertPointToScreen(pt, codePane)
-      val panel = new JPanel()
-      panel.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
-      val zoomB = new JToggleButton("\u20aa")
-      zoomB.setToolTipText("Focus slider around its current value")
-      zoomB.addActionListener(new ActionListener {
-          def actionPerformed(e: ActionEvent) {
-            if (zoomB.isSelected) {
-              val sval = slider.getValue
-              slider.setMinimum(math.max(sval - 9, 0))
-              slider.setMaximum(sval + 9)
-              slider.setMajorTickSpacing(1)
-              leftLabel.setText(slider.getMinimum.toString)
-              rightLabel.setText(slider.getMaximum.toString)
-            }
-            else {
-              reConfigSlider(slider.getValue)
-            }
-          }
-        })
-      panel.add(zoomB)
-      panel.add(leftLabel)
-      panel.add(slider)
-      panel.add(rightLabel)
-      panel.add(new JLabel(" " * 10))
-      numberTweakPopup = factory.getPopup(codePane, panel, pt.x-50, pt.y - (rect.height * 3).toInt)
-      numberTweakPopup.show()
-    }
+  var imanip: Option[InteractiveManipulator] = None
+  def addManipulator(im: InteractiveManipulator) {
+    imanip = Some(im)
+  }
+  def removeManipulator(im: InteractiveManipulator) {
+    imanip = None
   }
 
-  def handleNumberHyperclick(doc: Document, offset: Int, target0: String, targetStart: Int) {
-    numTweakPopup.handleHyperclick(doc, offset, target0, targetStart)
-  }
-  
-  
   class HistoryManager {
     var _selRange = (0, 0)
     var _caretPos = 0
@@ -1217,12 +1132,12 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport {
     }
 
     def onDocChange() {
-      if (numTweakPopup.isAbsent) {
+      if (imanip.isEmpty) {
         if (getBackground != NeutralColor) setBackground(NeutralColor)
       } 
       else {
-        if (!numTweakPopup.inSliderChange) {
-          numTweakPopup.close()
+        if (! imanip.get.inSliderChange) {
+          imanip.get.close()
         }
       }
     }
