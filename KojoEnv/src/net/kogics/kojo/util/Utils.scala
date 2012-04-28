@@ -255,6 +255,8 @@ object Utils {
   lazy val installLibJars: List[String] = filesInDir(installLibDir, "jar")
   lazy val installInitScripts: List[String] = filesInDir(installInitScriptDir, "kojo")
   lazy val installLangInitScripts: List[String] = filesInDir(installLangInitScriptDir, "kojo")
+  
+  def usingSwedish = currLang == "sv"
 
   def modeFilter(scripts: List[String], mode: CodingMode): List[String] = mode match {
     case TwMode =>

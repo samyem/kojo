@@ -13,8 +13,10 @@
  *
  */
 
-package net.kogics.kojo.livecoding
+package net.kogics.kojo
+package livecoding
 
+import util.Utils
 import java.awt.Color
 import java.awt.Point
 import java.awt.event.ActionEvent
@@ -27,6 +29,7 @@ import javax.swing.JToggleButton
 import javax.swing.Popup
 import javax.swing.PopupFactory
 import javax.swing.SwingUtilities
+
 
 abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveManipulator {
   var target = ""
@@ -58,11 +61,18 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
     SwingUtilities.convertPointToScreen(pt, ctx.codePane)
     val panel = new JPanel()
     panel.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
+    implicit val klass = getClass
     val zoomB = new JToggleButton("\u20aa")
-    zoomB.setToolTipText("Decrease Slider Stepsize")
+    zoomB.setToolTipText(Utils.loadString("CTL_Decrease"))
     zoomB.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
           zoomListener(zoomB)
+          if (zoomB.isSelected) {
+            zoomB.setToolTipText(Utils.loadString("CTL_Increase"))
+          }
+          else {
+            zoomB.setToolTipText(Utils.loadString("CTL_Decrease"))
+          }
         }      
       })
     zoomListener(zoomB)
