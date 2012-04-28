@@ -80,12 +80,10 @@ class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) 
     def double2slider(n: Double): Int = {
       9 + math.round((n - ncenter) / delta).toInt
     }
-    def uiDouble(s: String) = {
-      val ret = {
-        val uid = Utils.stripTrailingChar(s, '0')
-        if (uid.endsWith(".")) uid + "0" else uid
-      }
-      if (Utils.usingSwedish) ret.replaceAll(",", ".") else ret
+    def uiDouble(s0: String) = {
+      val s = if (Utils.usingSwedish) s0.replaceAll(",", ".") else s0
+      val uid = Utils.stripTrailingChar(s, '0')
+      if (uid.endsWith(".")) uid + "0" else uid
     }
     
     def reConfigSlider(around: Double) {
