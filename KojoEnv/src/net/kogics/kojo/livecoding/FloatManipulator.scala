@@ -81,8 +81,11 @@ class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) 
       9 + math.round((n - ncenter) / delta).toInt
     }
     def uiDouble(s: String) = {
-      val uid = Utils.stripTrailingChar(s, '0')
-      if (uid.endsWith(".")) uid + "0" else uid
+      val ret = {
+        val uid = Utils.stripTrailingChar(s, '0')
+        if (uid.endsWith(".")) uid + "0" else uid
+      }
+      if (Utils.usingSwedish) ret.replaceAll(",", ".") else ret
     }
     
     def reConfigSlider(around: Double) {
@@ -130,11 +133,9 @@ class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) 
       val around = slider2double(slider.getValue)
       if (zoomB.isSelected) {
         delta = 0.01
-        zoomB.setToolTipText("Increase Slider Stepsize")
       }
       else {
         delta = 0.1
-        zoomB.setToolTipText("Decrease Slider Stepsize")
       }
       reConfigSlider(around)
     }
