@@ -14,19 +14,10 @@
  */
 package net.kogics.kojo.livecoding
 
-import java.awt.Color
-import java.awt.Point
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
 import java.util.regex.Pattern
-import javax.swing.BorderFactory
 import javax.swing.JLabel
-import javax.swing.JPanel
 import javax.swing.JSlider
 import javax.swing.JToggleButton
-import javax.swing.Popup
-import javax.swing.PopupFactory
-import javax.swing.SwingUtilities
 import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
 import javax.swing.text.Document
@@ -34,25 +25,8 @@ import net.kogics.kojo.util.Utils
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.scala.core.lexer.ScalaTokenId;
 
-class FloatManipulator(ctx: ManipulationContext) extends InteractiveManipulator {
+class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) {
   val MY_SPECIAL_PATTERN = Pattern.compile("""(\d*\.\d\d?)""")
-  var target = ""
-  var targetStart = 0
-  var targetEnd = 0
-
-  private var numberTweakPopup: Popup = _
-  var inSliderChange = false
-  
-  def isAbsent = numberTweakPopup == null
-  def isPresent = !isAbsent
-    
-  def close() {
-    if (numberTweakPopup != null) {
-      numberTweakPopup.hide()
-      numberTweakPopup = null
-      ctx.removeManipulator(this)
-    }
-  }
 
   def isHyperlinkPoint(doc: Document, offset: Int): Boolean = {
     try {
@@ -95,20 +69,24 @@ class FloatManipulator(ctx: ManipulationContext) extends InteractiveManipulator 
     var delta = 0.1
     var formatter = "%.2f"
     var target = target0
-    var ntarget = target0.toDouble
+    var ncenter = target0.toDouble
+    var ntarget = ncenter
     val slider = new JSlider();
     val leftLabel = new JLabel
     val rightLabel = new JLabel
     def slider2double(n: Int) = {
-      ntarget + (n-9) * delta
+      ncenter + (n-9) * delta
     }
     def double2slider(n: Double): Int = {
-      9 + math.round((n - ntarget) / delta).toInt
+      9 + math.round((n - ncenter) / delta).toInt
     }
-    def uiDouble(s: String) = Utils.stripTrailingChar(s, '0')
+    def uiDouble(s: String) = {
+      val uid = Utils.stripTrailingChar(s, '0')
+      if (uid.endsWith(".")) uid + "0" else uid
+    }
     
     def reConfigSlider(around: Double) {
-      ntarget = around
+      ncenter = around
       slider.setValue(9)
       slider.setMinimum(0)
       slider.setMaximum(18)
@@ -116,7 +94,7 @@ class FloatManipulator(ctx: ManipulationContext) extends InteractiveManipulator 
       leftLabel.setText(uiDouble(formatter format slider2double(slider.getMinimum)))
       rightLabel.setText(uiDouble(formatter format slider2double(slider.getMaximum)))
     }
-    reConfigSlider(ntarget)
+    slider.setValue(9)
     slider.setPaintTicks(true)
       
     var lastrunval = ntarget
@@ -126,15 +104,16 @@ class FloatManipulator(ctx: ManipulationContext) extends InteractiveManipulator 
           val newnum = eslider.getValue()
           inSliderChange = true
           doc.remove(targetStart, target.length())
-          target = uiDouble(formatter format slider2double(newnum))
+          ntarget = slider2double(newnum)
+          target = uiDouble(formatter format ntarget)
           doc.insertString(targetStart, target, null);
           inSliderChange = false
             
           if (!eslider.getValueIsAdjusting) {
             // drag over
             if (ctx.isRunningEnabled) {
-              if (lastrunval != newnum) {
-                lastrunval = newnum
+              if (lastrunval != ntarget) {
+                lastrunval = ntarget
                 Utils.invokeLaterInSwingThread {
                   ctx.runCode(doc.getText(0, doc.getLength))
                 }
@@ -146,35 +125,19 @@ class FloatManipulator(ctx: ManipulationContext) extends InteractiveManipulator 
           }
         }
       })
-    
-    val factory = PopupFactory.getSharedInstance();
-    val rect = ctx.codePane.modelToView(offset)
-    val pt = new Point(rect.x, rect.y)
-    SwingUtilities.convertPointToScreen(pt, ctx.codePane)
-    val panel = new JPanel()
-    panel.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
-    val zoomB = new JToggleButton("\u20aa")
-    zoomB.setToolTipText("Decrease Slider Stepsize")
-    zoomB.addActionListener(new ActionListener {
-        def actionPerformed(e: ActionEvent) {
-          val around = slider2double(slider.getValue)
-          if (zoomB.isSelected) {
-            delta = 0.01
-            zoomB.setToolTipText("Increase Slider Stepsize")
-          }
-          else {
-            delta = 0.1
-            zoomB.setToolTipText("Decrease Slider Stepsize")
-          }
-          reConfigSlider(around)
-        }
-      })
-    panel.add(zoomB)
-    panel.add(leftLabel)
-    panel.add(slider)
-    panel.add(rightLabel)
-    panel.add(new JLabel(" " * 10))
-    numberTweakPopup = factory.getPopup(ctx.codePane, panel, pt.x-50, pt.y + (rect.height * 2).toInt)
-    numberTweakPopup.show()
+
+    val zoomListener = { zoomB: JToggleButton => 
+      val around = slider2double(slider.getValue)
+      if (zoomB.isSelected) {
+        delta = 0.01
+        zoomB.setToolTipText("Increase Slider Stepsize")
+      }
+      else {
+        delta = 0.1
+        zoomB.setToolTipText("Decrease Slider Stepsize")
+      }
+      reConfigSlider(around)
+    }
+    showPopup(offset, leftLabel, slider, rightLabel, zoomListener)
   }
 }
