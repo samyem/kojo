@@ -421,6 +421,7 @@ object API {
 
   // expose some types in the API
   type Shape = staging.Shape
+  type StrokedShape = staging.StrokedShape
 
   //W
   //W=Usage=
