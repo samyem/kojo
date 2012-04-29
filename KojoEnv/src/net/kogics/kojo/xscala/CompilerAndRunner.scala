@@ -262,7 +262,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
           (
             (e.sym.isMethod && !e.sym.isConstructor && e.sym.isPublic) || 
             (e.sym.isValue && !e.sym.isMethod && e.sym.nameString != "this") ||
-            ((e.sym.isPackage || e.sym.isClass) && e.sym.isPublic)
+            ((e.sym.isPackage || e.sym.isClass || e.sym.isType) && e.sym.isPublic)
           ) &&
           (
             e.tpe != pcompiler.NoType && 
@@ -326,7 +326,8 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
                                                                  prio,
                                                                  false,
                                                                  e.sym.isClass,
-                                                                 e.sym.isPackage)
+                                                                 e.sym.isPackage,
+                                                                 e.sym.isType)
               case t @ _ => CompletionInfo(e.sym.nameString, List(t.getClass.getName), List("Unknown"), "[Todo] CorP", prio)
             }
           }
