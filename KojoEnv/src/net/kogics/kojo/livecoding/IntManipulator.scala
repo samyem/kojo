@@ -84,6 +84,7 @@ class IntManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) {
         zoomB.setEnabled(true)
       }
     }
+    slider.setMaximum(2 * ntarget)
     slider.setValue(ntarget)
     slider.setPaintTicks(true)
       
