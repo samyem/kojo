@@ -288,7 +288,7 @@ class CompilerAndRunner(makeSettings: () => Settings, initCode: => Option[String
           // between private and public vals/vars.
           // This way they go below the methods
           if (e.sym.isValue && !e.sym.isMethod) prio += 5 
-          if (e.sym.isClass) prio += 100
+          if (e.sym.isClass || e.sym.isType) prio += 100
           if (e.sym.isPackage) prio += 200
 
           if (e.sym.isMethod || e.sym.isValue) {
