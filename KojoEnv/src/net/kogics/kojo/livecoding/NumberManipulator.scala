@@ -22,9 +22,11 @@ import java.awt.Point
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.BorderFactory
+import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JSlider
+import javax.swing.JTextField
 import javax.swing.JToggleButton
 import javax.swing.Popup
 import javax.swing.PopupFactory
@@ -37,6 +39,7 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
   var targetEnd = 0
 
   var numberTweakPopup: Popup = _
+  var stepT: JTextField = _
   var inSliderChange = false
   
   def isAbsent = numberTweakPopup == null
@@ -54,28 +57,51 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
                 leftLabel: JLabel, 
                 slider: JSlider, 
                 rightLabel: JLabel, 
-                zoomListener: JToggleButton => Unit) {
+                zoomListener: JToggleButton => Unit,
+                stepListener: Option[(JTextField, JToggleButton) => Unit]) {
     val factory = PopupFactory.getSharedInstance();
     val rect = ctx.codePane.modelToView(offset)
     val pt = new Point(rect.x, rect.y)
     SwingUtilities.convertPointToScreen(pt, ctx.codePane)
-    val panel = new JPanel()
-    panel.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
     implicit val klass = getClass
     val zoomB = new JToggleButton("\u20aa")
+    val stepB = new JButton("\u2551")
+    stepT = new JTextField(4)
     zoomB.setToolTipText(Utils.loadString("CTL_Decrease"))
     zoomB.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
           zoomListener(zoomB)
           if (zoomB.isSelected) {
             zoomB.setToolTipText(Utils.loadString("CTL_Increase"))
+            stepB.setEnabled(false)
+            stepT.setEnabled(false)
           }
           else {
             zoomB.setToolTipText(Utils.loadString("CTL_Decrease"))
+            stepB.setEnabled(true)
+            stepT.setEnabled(true)
           }
         }      
       })
     zoomListener(zoomB)
+    
+    val panel = new JPanel()
+    panel.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
+
+    stepListener.foreach { stepL =>
+      val stepP= new JPanel
+      stepP.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
+      stepP.add(stepT)
+      stepB.setToolTipText("Change Stepsize")
+      stepP.add(stepB)
+      stepB.addActionListener(new ActionListener {
+          def actionPerformed(e: ActionEvent) {
+            stepL(stepT, zoomB)
+          }      
+        })
+      panel.add(stepP)
+    }
+    
     panel.add(zoomB)
     panel.add(leftLabel)
     panel.add(slider)

@@ -17,6 +17,7 @@ package net.kogics.kojo.livecoding
 import java.util.regex.Pattern
 import javax.swing.JLabel
 import javax.swing.JSlider
+import javax.swing.JTextField
 import javax.swing.JToggleButton
 import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
@@ -67,34 +68,44 @@ class IntManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) {
     close()
     ctx.addManipulator(this)
     var target = target0
-    var ntarget = target.toInt
+    var ncenter = target0.toInt
+    var ntarget = ncenter
+    var delta = math.max(math.floor(ntarget * 2.0 / 10).toInt, 1)
+    var oldDelta = delta
     val slider = new JSlider();
     val leftLabel = new JLabel
     val rightLabel = new JLabel
-    def reConfigSlider(around: Int, zoomB: JToggleButton) {
-      slider.setMinimum(0)
-      slider.setMaximum(math.max(around * 2, 18))
-      slider.setMajorTickSpacing(math.max(math.floor(around * 2.0 / 10).toInt, 1))
-      leftLabel.setText(slider.getMinimum.toString)
-      rightLabel.setText(slider.getMaximum.toString)
-      if (slider.getMajorTickSpacing == 1) {
-        zoomB.setEnabled(false)
-      }
-      else {
-        zoomB.setEnabled(true)
-      }
+    
+    def slider2num(n: Int): Int = {
+      ncenter + (n-9) * delta
     }
-    slider.setMaximum(2 * ntarget)
-    slider.setValue(ntarget)
+    def num2slider(n: Double): Int = {
+      9 + math.round((n - ncenter) / delta).toInt
+    }
+
+    def reConfigSlider(around: Int, delta0: Int, zoomB: JToggleButton) {
+      ncenter = around
+      oldDelta = delta
+      delta = delta0
+      slider.setMinimum(0)
+      slider.setMaximum(18)
+      slider.setValue(9)
+      slider.setMajorTickSpacing(1)
+      leftLabel.setText(slider2num(slider.getMinimum).toString)
+      rightLabel.setText(slider2num(slider.getMaximum).toString)
+    }
+    slider.setValue(9)
     slider.setPaintTicks(true)
       
     var lastrunval = ntarget
     slider.addChangeListener(new ChangeListener {
         def stateChanged(e: ChangeEvent) = Utils.safeProcess {
+          stepT.setText(delta.toString)
           val eslider = e.getSource.asInstanceOf[JSlider]
-          ntarget = eslider.getValue()
+          val newnum = eslider.getValue()
           inSliderChange = true
           doc.remove(targetStart, target.length())
+          ntarget = slider2num(newnum)
           target = ntarget.toString
           doc.insertString(targetStart, target, null);
           inSliderChange = false
@@ -110,25 +121,34 @@ class IntManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) {
               }
             }
             else {
-              eslider.setValue(lastrunval)
+              eslider.setValue(num2slider(lastrunval))
             }
           }
         }
       })
     
     val zoomListener = { zoomB: JToggleButton => 
+      val around = slider2num(slider.getValue)
       if (zoomB.isSelected) {
-        val sval = slider.getValue
-        slider.setMinimum(sval - 9)
-        slider.setMaximum(sval + 9)
-        slider.setMajorTickSpacing(1)
-        leftLabel.setText(slider.getMinimum.toString)
-        rightLabel.setText(slider.getMaximum.toString)
+        reConfigSlider(around, 1, zoomB)
       }
       else {
-        reConfigSlider(slider.getValue, zoomB)
+        reConfigSlider(around, oldDelta, zoomB)
       }
     }
-    showPopup(offset, leftLabel, slider, rightLabel, zoomListener)
+    
+    val stepListener = { (stepT: JTextField, zoomB: JToggleButton) =>
+      try {
+        val step = stepT.getText.toInt
+        val around = slider2num(slider.getValue)
+        reConfigSlider(around, step, zoomB)
+      }
+      catch {
+        case nfe: NumberFormatException =>
+          stepT.setText("Err")
+      }
+    }
+    
+    showPopup(offset, leftLabel, slider, rightLabel, zoomListener, Some(stepListener))
   }
 }
