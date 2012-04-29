@@ -95,7 +95,7 @@ class ScalaCodeCompletionHandler(completionSupport: CodeCompletionSupport) exten
       if (proposal.isValue) {
         ElementKind.VARIABLE
       }
-      else if (proposal.isClass) {
+      else if (proposal.isClass || proposal.isType) {
         ElementKind.CLASS
       }
       else if (proposal.isPackage) {

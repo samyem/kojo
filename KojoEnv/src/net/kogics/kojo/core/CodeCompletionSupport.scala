@@ -23,7 +23,8 @@ case class CompletionInfo(
   prio: Int,
   isValue: Boolean = false,
   isClass: Boolean = false,
-  isPackage: Boolean = false
+  isPackage: Boolean = false,
+  isType: Boolean = false
 )
 
 trait CodeCompletionSupport {
