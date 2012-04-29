@@ -17,6 +17,7 @@ package net.kogics.kojo.livecoding
 import java.util.regex.Pattern
 import javax.swing.JLabel
 import javax.swing.JSlider
+import javax.swing.JTextField
 import javax.swing.JToggleButton
 import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
@@ -66,18 +67,20 @@ class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) 
   def activate(doc: Document, offset: Int, target0: String, targetStart: Int) = Utils.safeProcess {
     close()
     ctx.addManipulator(this)
-    var delta = 0.1
-    var formatter = "%.2f"
     var target = target0
     var ncenter = target0.toDouble
     var ntarget = ncenter
+    var delta = 0.1
+    var formatter = "%.2f"
+    var oldDelta = delta
     val slider = new JSlider();
     val leftLabel = new JLabel
     val rightLabel = new JLabel
-    def slider2double(n: Int) = {
+    
+    def slider2num(n: Int): Double = {
       ncenter + (n-9) * delta
     }
-    def double2slider(n: Double): Int = {
+    def num2slider(n: Double): Int = {
       9 + math.round((n - ncenter) / delta).toInt
     }
     def uiDouble(s0: String) = {
@@ -85,15 +88,17 @@ class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) 
       val uid = Utils.stripTrailingChar(s, '0')
       if (uid.endsWith(".")) uid + "0" else uid
     }
-    
-    def reConfigSlider(around: Double) {
+
+    def reConfigSlider(around: Double, delta0: Double, zoomB: JToggleButton) {
       ncenter = around
-      slider.setValue(9)
+      oldDelta = delta
+      delta = delta0
       slider.setMinimum(0)
       slider.setMaximum(18)
+      slider.setValue(9)
       slider.setMajorTickSpacing(1)
-      leftLabel.setText(uiDouble(formatter format slider2double(slider.getMinimum)))
-      rightLabel.setText(uiDouble(formatter format slider2double(slider.getMaximum)))
+      leftLabel.setText(uiDouble(formatter format slider2num(slider.getMinimum)))
+      rightLabel.setText(uiDouble(formatter format slider2num(slider.getMaximum)))
     }
     slider.setValue(9)
     slider.setPaintTicks(true)
@@ -101,11 +106,12 @@ class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) 
     var lastrunval = ntarget
     slider.addChangeListener(new ChangeListener {
         def stateChanged(e: ChangeEvent) = Utils.safeProcess {
+          stepT.setText(delta.toString)
           val eslider = e.getSource.asInstanceOf[JSlider]
           val newnum = eslider.getValue()
           inSliderChange = true
           doc.remove(targetStart, target.length())
-          ntarget = slider2double(newnum)
+          ntarget = slider2num(newnum)
           target = uiDouble(formatter format ntarget)
           doc.insertString(targetStart, target, null);
           inSliderChange = false
@@ -121,22 +127,34 @@ class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) 
               }
             }
             else {
-              eslider.setValue(double2slider(lastrunval))
+              eslider.setValue(num2slider(lastrunval))
             }
           }
         }
       })
-
+    
     val zoomListener = { zoomB: JToggleButton => 
-      val around = slider2double(slider.getValue)
+      val around = slider2num(slider.getValue)
       if (zoomB.isSelected) {
-        delta = 0.01
+        reConfigSlider(around, 0.01, zoomB)
       }
       else {
-        delta = 0.1
+        reConfigSlider(around, oldDelta, zoomB)
       }
-      reConfigSlider(around)
     }
-    showPopup(offset, leftLabel, slider, rightLabel, zoomListener)
+    
+    val stepListener = { (stepT: JTextField, zoomB: JToggleButton) =>
+      try {
+        val step = stepT.getText.toDouble
+        val around = slider2num(slider.getValue)
+        reConfigSlider(around, step, zoomB)
+      }
+      catch {
+        case nfe: NumberFormatException =>
+          stepT.setText("Err")
+      }
+    }
+    
+    showPopup(offset, leftLabel, slider, rightLabel, zoomListener, Some(stepListener))
   }
 }
