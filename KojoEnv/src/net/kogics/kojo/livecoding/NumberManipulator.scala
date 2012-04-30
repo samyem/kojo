@@ -64,20 +64,26 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
     val pt = new Point(rect.x, rect.y)
     SwingUtilities.convertPointToScreen(pt, ctx.codePane)
     implicit val klass = getClass
+    val bluish = new Color(0, 78, 101)
     val zoomB = new JToggleButton("\u20aa")
-    val stepB = new JButton("\u2551")
+    zoomB.setForeground(bluish)
+    val stepB = new JButton("\u0428")
+    stepB.setForeground(bluish)
     stepT = new JTextField(4)
+    stepT.setToolTipText("Enter Slider Stepsize")
     zoomB.setToolTipText(Utils.loadString("CTL_Decrease"))
     zoomB.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
           zoomListener(zoomB)
           if (zoomB.isSelected) {
             zoomB.setToolTipText(Utils.loadString("CTL_Increase"))
+            stepB.setForeground(null)
             stepB.setEnabled(false)
             stepT.setEnabled(false)
           }
           else {
             zoomB.setToolTipText(Utils.loadString("CTL_Decrease"))
+            stepB.setForeground(bluish)
             stepB.setEnabled(true)
             stepT.setEnabled(true)
           }
@@ -86,19 +92,21 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
     zoomListener(zoomB)
     
     val panel = new JPanel()
-    panel.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
+    panel.setBorder(BorderFactory.createLineBorder(Color.darkGray, 1))
 
     stepListener.foreach { stepL =>
       val stepP= new JPanel
       stepP.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
       stepP.add(stepT)
-      stepB.setToolTipText("Change Stepsize")
+      stepB.setToolTipText("Change Slider Stepsize")
       stepP.add(stepB)
-      stepB.addActionListener(new ActionListener {
-          def actionPerformed(e: ActionEvent) {
-            stepL(stepT, zoomB)
-          }      
-        })
+      val al = new ActionListener {
+        def actionPerformed(e: ActionEvent) {
+          stepL(stepT, zoomB)
+        }      
+      }
+      stepB.addActionListener(al)
+      stepT.addActionListener(al)
       panel.add(stepP)
     }
     
