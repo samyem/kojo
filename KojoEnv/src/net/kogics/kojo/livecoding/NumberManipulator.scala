@@ -21,13 +21,16 @@ import java.awt.Color
 import java.awt.Point
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
+import javax.swing.AbstractAction
 import javax.swing.BorderFactory
 import javax.swing.JButton
+import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JSlider
 import javax.swing.JTextField
 import javax.swing.JToggleButton
+import javax.swing.KeyStroke
 import javax.swing.Popup
 import javax.swing.PopupFactory
 import javax.swing.SwingUtilities
@@ -115,6 +118,15 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
     panel.add(slider)
     panel.add(rightLabel)
     panel.add(new JLabel(" " * 10))
+    
+    val closeAction = new AbstractAction {
+      def actionPerformed(e: ActionEvent) {
+        close()
+      }    
+    }
+    panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "esc")
+    panel.getActionMap.put("esc", closeAction)
+    
     numberTweakPopup = factory.getPopup(ctx.codePane, panel, pt.x-50, pt.y + (rect.height * 1.5).toInt)
     numberTweakPopup.show()
   }
