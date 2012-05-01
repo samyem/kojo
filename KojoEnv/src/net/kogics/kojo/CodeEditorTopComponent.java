@@ -240,10 +240,20 @@ public final class CodeEditorTopComponent extends CloneableEditor {
     }
 
     @Override
-    protected void componentActivated() {
-        super.componentActivated();
+    protected void componentClosed() {
+        // Fix to work around issue in NB7.1.1
+        // When windows are reset, or when Script Editor is otherwise closed and restarted
+        // the old Editor Pane refuses to go away. This seems to clobber arrow keys etc.
+        // And history - which puts stuff in the new editor pane, which is nowhere to be seen
+        this.removeAll();
+        super.componentClosed();
     }
 
+//    @Override
+//    public boolean canClose() {
+//        return false;
+//    }
+//
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
@@ -679,7 +689,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
             }
 
             if (instanceObj instanceof Presenter.Menu) {
-                JMenuItem topItem =((Presenter.Menu) instanceObj).getMenuPresenter();
+                JMenuItem topItem = ((Presenter.Menu) instanceObj).getMenuPresenter();
                 Action action = topItem.getAction();
                 if (action != null) {
                     JMenuItem menuItem = new JMenuItem();
