@@ -141,6 +141,7 @@ class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) 
       else {
         reConfigSlider(around, oldDelta, zoomB)
       }
+      stepT.setText(delta.toString)
     }
     
     val stepListener = { (stepT: JTextField, zoomB: JToggleButton) =>
