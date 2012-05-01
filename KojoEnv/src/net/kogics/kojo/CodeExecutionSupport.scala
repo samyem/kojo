@@ -74,8 +74,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport with Manip
        clearSButton, clearButton, cexButton) = makeToolbar()
 
   @volatile var runMonitor: RunMonitor = new NoOpRunMonitor()
-  var undoRedoManager: UndoRedo.Manager = _ 
-  var codePane: JEditorPane = _
+  @volatile var undoRedoManager: UndoRedo.Manager = _ 
+  @volatile var codePane: JEditorPane = _
 
   val codeRunner = makeCodeRunner()
   
