@@ -70,7 +70,7 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
     val stepB = new JButton("\u0428")
     stepB.setForeground(bluish)
     stepT = new JTextField(4)
-    stepT.setToolTipText("Enter Slider Stepsize")
+    stepT.setToolTipText("Input Slider Stepsize, and press Enter to Change")
     zoomB.setToolTipText(Utils.loadString("CTL_Decrease"))
     zoomB.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent) {
@@ -98,7 +98,7 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
       val stepP= new JPanel
       stepP.setBorder(BorderFactory.createLineBorder(Color.gray, 1))
       stepP.add(stepT)
-      stepB.setToolTipText("Change Slider Stepsize")
+      stepB.setToolTipText("Change Slider Stepsize to the value in the Text Box")
       stepP.add(stepB)
       val al = new ActionListener {
         def actionPerformed(e: ActionEvent) {
