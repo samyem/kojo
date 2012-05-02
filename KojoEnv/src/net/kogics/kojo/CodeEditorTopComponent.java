@@ -241,6 +241,7 @@ public final class CodeEditorTopComponent extends CloneableEditor {
 
     @Override
     protected void componentClosed() {
+        codeExecSupport.closeFileAndClrEditor();
         // Fix to work around issue in NB7.1.1
         // When windows are reset, or when Script Editor is otherwise closed and restarted
         // the old Editor Pane refuses to go away. This seems to clobber arrow keys etc.
@@ -249,11 +250,11 @@ public final class CodeEditorTopComponent extends CloneableEditor {
         super.componentClosed();
     }
 
-//    @Override
-//    public boolean canClose() {
-//        return false;
-//    }
-//
+    @Override
+    public boolean canClose() {
+        return false;
+    }
+
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
