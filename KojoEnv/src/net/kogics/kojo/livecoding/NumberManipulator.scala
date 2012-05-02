@@ -128,6 +128,7 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
     val closeAction = new AbstractAction {
       def actionPerformed(e: ActionEvent) {
         close()
+        ctx.activateEditor()
       }    
     }
     panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "esc")

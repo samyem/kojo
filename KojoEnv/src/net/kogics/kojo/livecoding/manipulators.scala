@@ -23,6 +23,7 @@ trait ManipulationContext {
   def codePane: JEditorPane
   def addManipulator(im: InteractiveManipulator)
   def removeManipulator(im: InteractiveManipulator)
+  def activateEditor()
 }
 
 trait InteractiveManipulator {
