@@ -43,6 +43,7 @@ public final class SCanvasTopComponent extends TopComponent {
     static final String ICON_PATH = "net/kogics/kojo/turtle16.png";
 
     private static final String PREFERRED_ID = "SCanvasTopComponent";
+    public boolean hidden = false;
 
     public SCanvasTopComponent() {
         initComponents();
@@ -115,6 +116,16 @@ public final class SCanvasTopComponent extends TopComponent {
         canvas.requestFocusInWindow();
     }
 
+    @Override
+    protected void componentShowing() {
+        hidden = false;
+    }
+
+    @Override
+    protected void componentHidden() {
+        hidden = true;
+    }
+    
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles

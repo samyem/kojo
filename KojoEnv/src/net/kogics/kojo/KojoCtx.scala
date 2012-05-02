@@ -36,43 +36,34 @@ class KojoCtx extends core.KojoCtx {
   def makeTurtleWorldVisible() {
     Utils.runInSwingThreadAndWait {
       val tc = SCanvasTopComponent.findInstance()
-      activate(tc)
+      if (tc.hidden) {
+        activate(tc)
+        activateCodeEditor()
+      }
     }
-    activateCodeEditor()
-//    xscala.CodeCompletionUtils.activateTw()
   }
 
-  def makeStagingVisible() {
-    Utils.runInSwingThreadAndWait {
-      val tc = SCanvasTopComponent.findInstance()
-      activate(tc)
-    }
-    activateCodeEditor()
-//    xscala.CodeCompletionUtils.activateStaging()
-  }
+  def makeStagingVisible() = makeTurtleWorldVisible()
 
   def makeMathWorldVisible() {
     Utils.runInSwingThreadAndWait {
       val tc = GeoGebraTopComponent.findInstance()
       activate(tc)
+      activateCodeEditor()
     }
-    activateCodeEditor()
-//    xscala.CodeCompletionUtils.activateMw()
   }
 
   def makeStoryTellerVisible() {
     Utils.runInSwingThreadAndWait {
       val tc = story.StoryTellerTopComponent.findInstance()
       activate(tc)
+      activateCodeEditor()
     }
-    activateCodeEditor()
   }
 
   def activateCodeEditor() {
-    Utils.runInSwingThreadAndWait {
-      val tc = CodeEditorTopComponent.findInstance()
-      activate(tc)
-    }
+    val tc = CodeEditorTopComponent.findInstance()
+    activate(tc)
   }
 
   val cetc = Utils.runInSwingThreadAndWait {

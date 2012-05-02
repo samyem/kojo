@@ -43,6 +43,7 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
 
   var numberTweakPopup: Popup = _
   var stepT: JTextField = _
+  var slider: JSlider = _
   var inSliderChange = false
   
   def isAbsent = numberTweakPopup == null
@@ -52,16 +53,19 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
     if (numberTweakPopup != null) {
       numberTweakPopup.hide()
       numberTweakPopup = null
+      stepT = null
+      slider = null
       ctx.removeManipulator(this)
     }
   }
 
   def showPopup(offset: Int, 
                 leftLabel: JLabel, 
-                slider: JSlider, 
+                slider0: JSlider, 
                 rightLabel: JLabel, 
                 zoomListener: JToggleButton => Unit,
                 stepListener: Option[(JTextField, JToggleButton) => Unit]) {
+    slider = slider0
     val factory = PopupFactory.getSharedInstance();
     val rect = ctx.codePane.modelToView(offset)
     val pt = new Point(rect.x, rect.y)
@@ -90,6 +94,7 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
             stepB.setEnabled(true)
             stepT.setEnabled(true)
           }
+          focusSlider()
         }      
       })
     zoomListener(zoomB)
@@ -106,6 +111,7 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
       val al = new ActionListener {
         def actionPerformed(e: ActionEvent) {
           stepL(stepT, zoomB)
+          focusSlider()
         }      
       }
       stepB.addActionListener(al)
@@ -129,5 +135,12 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
     
     numberTweakPopup = factory.getPopup(ctx.codePane, panel, pt.x-50, pt.y + (rect.height * 1.5).toInt)
     numberTweakPopup.show()
+    Utils.schedule(0.3) {
+      slider.requestFocus()
+    }
+  }
+  
+  def focusSlider() {
+    slider.requestFocusInWindow()
   }
 }
