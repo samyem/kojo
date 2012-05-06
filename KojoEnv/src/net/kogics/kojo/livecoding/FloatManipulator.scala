@@ -27,7 +27,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.scala.core.lexer.ScalaTokenId;
 
 class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) {
-  val MY_SPECIAL_PATTERN = Pattern.compile("""(\d*\.\d\d?)""")
+  val FloatPattern = Pattern.compile("""\d*\.\d\d?""")
 
   def isHyperlinkPoint(doc: Document, offset: Int): Boolean = {
     try {
@@ -38,14 +38,21 @@ class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) 
         ts.move(offset);
         ts.moveNext()
         val tok = ts.token()
-        // TODO just check token type instead of doing a regex match
-        val newOffset = ts.offset()
-        val matcherText = tok.text().toString()
-        val m = MY_SPECIAL_PATTERN.matcher(matcherText)
+        var numOffset = ts.offset()
+        val possibleNumber = tok.text().toString()
+        val m = FloatPattern.matcher(possibleNumber)
         if (m.matches()) {
-          target = m.group(1)
-          val idx = matcherText.indexOf(target)
-          targetStart = newOffset + idx
+          ts.movePrevious()
+          val tokp = ts.token()
+          if (tokp.text.toString == "-") {
+            numOffset = ts.offset()
+            target = "-" + possibleNumber
+          }
+          else {
+            target = possibleNumber
+          }
+
+          targetStart = numOffset
           targetEnd = targetStart + target.length();
           return true;
         }

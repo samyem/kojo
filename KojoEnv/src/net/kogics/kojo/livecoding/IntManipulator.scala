@@ -24,12 +24,17 @@ import javax.swing.event.ChangeListener
 import javax.swing.text.Document
 import net.kogics.kojo.util.Utils
 import org.netbeans.api.lexer.TokenHierarchy;
+// import org.netbeans.lib.editor.util.swing.DocumentUtilities
 import org.netbeans.modules.scala.core.lexer.ScalaTokenId;
 
 class IntManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) {
-  val MY_SPECIAL_PATTERN = Pattern.compile("(\\d*)")
+  val IntPattern = Pattern.compile("\\d*")
 
   def isHyperlinkPoint(doc: Document, offset: Int): Boolean = {
+//    val pre = DocumentUtilities.getParagraphRootElement(doc)
+//    val lineIndex = pre.getElementIndex(offset)
+//    val lineElem = pre.getElement(lineIndex);
+
     try {
       val hi = TokenHierarchy.get(doc);
       val ts = hi.tokenSequence(ScalaTokenId.language);
@@ -38,14 +43,21 @@ class IntManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) {
         ts.move(offset);
         ts.moveNext()
         val tok = ts.token()
-        // TODO just check token type instead of doing a regex match
-        val newOffset = ts.offset()
-        val matcherText = tok.text().toString()
-        val m = MY_SPECIAL_PATTERN.matcher(matcherText)
+        var numOffset = ts.offset()
+        val possibleNumber = tok.text().toString()
+        val m = IntPattern.matcher(possibleNumber)
         if (m.matches()) {
-          target = m.group(1)
-          val idx = matcherText.indexOf(target)
-          targetStart = newOffset + idx
+          ts.movePrevious()
+          val tokp = ts.token()
+          if (tokp.text.toString == "-") {
+            numOffset = ts.offset()
+            target = "-" + possibleNumber
+          }
+          else {
+            target = possibleNumber
+          }
+
+          targetStart = numOffset
           targetEnd = targetStart + target.length();
           return true;
         }
@@ -70,7 +82,7 @@ class IntManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) {
     var target = target0
     var ncenter = target0.toInt
     var ntarget = ncenter
-    var delta = math.max(math.floor(ntarget * 2.0 / 10).toInt, 1)
+    var delta = math.max(math.floor(ntarget.abs * 2.0 / 10).toInt, 1)
     var oldDelta = delta
     val slider = new JSlider();
     val leftLabel = new JLabel
