@@ -97,7 +97,6 @@ class IntManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) {
 
     def reConfigSlider(around: Int, delta0: Int, zoomB: JToggleButton) {
       ncenter = around
-      oldDelta = delta
       delta = delta0
       slider.setMinimum(0)
       slider.setMaximum(18)
@@ -145,6 +144,7 @@ class IntManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) {
     val zoomListener = { zoomB: JToggleButton => 
       val around = slider2num(slider.getValue)
       if (zoomB.isSelected) {
+        oldDelta = delta
         reConfigSlider(around, 1, zoomB)
       }
       else {
