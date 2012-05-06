@@ -44,6 +44,7 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
   var numberTweakPopup: Popup = _
   var stepT: JTextField = _
   var slider: JSlider = _
+  var stepB: JButton = _
   var inSliderChange = false
   
   def isAbsent = numberTweakPopup == null
@@ -55,6 +56,7 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
       numberTweakPopup = null
       stepT = null
       slider = null
+      stepB = null
       ctx.removeManipulator(this)
     }
   }
@@ -74,7 +76,7 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
     val bluish = new Color(0, 78, 101)
     val zoomB = new JToggleButton("\u20aa")
     zoomB.setForeground(bluish)
-    val stepB = new JButton("\u0428")
+    stepB = new JButton("\u0428")
     stepB.setForeground(bluish)
     stepT = new JTextField(4)
     stepT.setToolTipText(Utils.loadString("CTL_Input"))
@@ -143,5 +145,11 @@ abstract class NumberManipulator(ctx: ManipulationContext) extends InteractiveMa
   
   def focusSlider() {
     slider.requestFocusInWindow()
+  }
+  
+  def simulateStepButtonClick() {
+    stepB.getActionListeners.foreach { al =>
+      al.actionPerformed(null)
+    }
   }
 }

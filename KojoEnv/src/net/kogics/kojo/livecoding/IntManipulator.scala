@@ -135,6 +135,9 @@ class IntManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) {
             else {
               eslider.setValue(num2slider(lastrunval))
             }
+            if (newnum == eslider.getMaximum || newnum == eslider.getMinimum) {
+              simulateStepButtonClick()
+            }
           }
         }
       })
