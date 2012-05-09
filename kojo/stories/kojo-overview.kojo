@@ -264,7 +264,7 @@ pages += IncrPage(
                 Done?
                 <br/>
                 <br/>
-                What is the length of the square that you just made?
+                What is the length of the side of the square that you just made?
                 <br/>
                 <br/>
                 Input your answer below and click the <em>Check Answer</em> button.
@@ -776,8 +776,10 @@ pages += IncrPage(
                 The property of interest is - <em>when two parallel lines are cut
                     by a transversal, the alternate angles are equal</em>.
                 A pair of alternate angles are marked on the figure. Play with
-                the two marked points on the transversal (by dragging them around) to
-                get a feel for the truth of this property.
+                the two marked points on the transversal, P5 and P6, by dragging them around - to
+                get a feel for the truth of this property. <em>Make sure you keep the
+                point P6 above the top line, and the point P5 below the bottom line, as 
+                you move the points around</em>.
             </p>
         )
     )
