@@ -167,16 +167,16 @@ class PictureCollisionTest extends KojoTestBase with FunSuite with xscala.Repeat
   }
 
   test("hvpics-hvpics non collision") {
-    val p1 = trans(-size/2-1-delta, 0) -> testHVPic
-    val p2 = trans(size/2+1+delta, 0) -> testHVPic
+    val p1 = trans(-size/2-1, 0) -> testHVPic
+    val p2 = trans(size/2+1, 0) -> testHVPic
     p1.draw()
     p2.draw()
     p1.collidesWith(p2) should be(false)
   }
 
   test("hvpics-hvpics collision") {
-    val p1 = trans(-size/2-1, 0) -> testHVPic
-    val p2 = trans(size/2+1, 0) -> testHVPic
+    val p1 = trans(-size/2, 0) -> testHVPic
+    val p2 = trans(size/2, 0) -> testHVPic
     p1.draw()
     p2.draw()
     p1.collidesWith(p2) should be(true)
