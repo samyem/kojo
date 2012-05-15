@@ -372,15 +372,22 @@ object Pic {
 
 class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher with RedrawStopper {
   @volatile var _t: turtle.Turtle = _
-  def t = Utils.runInSwingThreadAndWait {
-    if (_t == null) {
-      _t = Impl.canvas.newInvisibleTurtle(0, 0)
-      _t.setAnimationDelay(0)
-      val tl = _t.tlayer
-      Impl.camera.removeLayer(tl)
-      Impl.picLayer.addChild(tl)
-      tl.repaint()
-      Impl.picLayer.repaint
+  
+  def t = {
+    if (_t == null) Utils.runInSwingThreadAndWait {
+      if (_t == null) {
+        val tt = Impl.canvas.newInvisibleTurtle(0, 0)
+        tt.setAnimationDelay(0)
+        val tl = tt.tlayer
+        Impl.camera.removeLayer(tl)
+        Impl.picLayer.addChild(tl)
+        tl.repaint()
+        Impl.picLayer.repaint()
+        _t = tt
+      }
+      else {
+        _t
+      }
     }
     _t
   }
@@ -390,7 +397,6 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
   def decorateWith(painter: Painter) = painter(t)
   def realDraw() {
     painter(t)
-//    t.waitFor()
     Utils.runInSwingThread {
       val tl = tnode
       tl.invalidateFullBounds()

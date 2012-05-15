@@ -120,11 +120,11 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   val figure0 = figure
   val origTurtle = turtle
   
-  def setDefTurtle(t: Turtle) = Utils.runInSwingThreadAndWait {
+  def setDefTurtle(t: Turtle) = {
     turtle = t
   }
 
-  def restoreDefTurtle() = Utils.runInSwingThreadAndWait {
+  def restoreDefTurtle() = {
     turtle = origTurtle
   }
 
@@ -526,8 +526,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       getRoot.getDefaultInputManager.setKeyboardFocus(null)
       
       pictures.removeAllChildren()
+      zoom(1, 0, 0)
     }
-    zoom(1, 0, 0)
   }
 
   def clearPuzzlers() {
@@ -551,7 +551,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
   
   def wipe = Utils.runInSwingThread {
-      pictures.removeAllChildren()
+    pictures.removeAllChildren()
   }
 
   def newFigure(x: Int = 0, y: Int = 0) = {
@@ -568,7 +568,6 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   def newTurtle(x: Int = 0, y: Int = 0) = {
     val ttl = Utils.runInSwingThreadAndWait {
       val t = new Turtle(this, "/images/turtle32.png", x, y)
-//      t.setTurtleListener(megaListener)
       turtles = t :: turtles
       t
     }
@@ -576,21 +575,14 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     ttl
   }
 
-  def newInvisibleTurtle(x: Int = 0, y: Int = 0) = {
-    val ttl = Utils.runInSwingThreadAndWait {
-      val t = new Turtle(this, "/images/turtle32.png", x, y, true)
-//      t.setTurtleListener(megaListener)
-      turtles = t :: turtles
-      t
-    }
-    this.repaint()
-    ttl
+  // needs to be called on swing thread
+  private[kojo] def newInvisibleTurtle(x: Int = 0, y: Int = 0) = {
+    new Turtle(this, "/images/turtle32.png", x, y, true)
   }
 
   def newPuzzler(x: Int = 0, y: Int = 0) = {
     val pzl = Utils.runInSwingThreadAndWait {
       val t = new Turtle(this, "/images/puzzler32.png", x, y, false, true)
-//      t.setTurtleListener(megaListener)
       t.setPenThickness(1)
       t.setPenColor(Color.blue)
       t.setAnimationDelay(10)
