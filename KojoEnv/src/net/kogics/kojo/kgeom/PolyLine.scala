@@ -94,9 +94,9 @@ class PolyLine extends PNode {
   def updateBounds() {
     // the line below significantly slows things down for things like 36 circles
 //    val b = stroke.createStrokedShape(polyLinePath).getBounds2D()
-    val b = polyLinePath.getBounds()
+    val b = polyLinePath.getBounds2D()
     val w = stroke.getLineWidth
-    super.setBounds(b.getX()-w, b.getY()-w, b.getWidth()+2*w, b.getHeight()+2*w)
+    super.setBounds(b.getX()-w/2.0, b.getY()-w/2.0, b.getWidth()+w, b.getHeight()+w)
     repaint()
   }
 
