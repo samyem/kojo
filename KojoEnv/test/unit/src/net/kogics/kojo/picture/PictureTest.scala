@@ -26,13 +26,13 @@ import util.Utils._
 class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands {
   
   val size = 50
-  val pt = 2
-  val w = size + 2*pt + 1
-  val h = size + 2*pt
-  val bx = -(pt+1)
-  val by = -pt
-  val w2 = 107
-  val bx2 = 101
+  val pt = 2.0
+  val w = size + pt
+  val h = size + pt
+  val bx = -pt/2
+  val by = -pt/2
+  val w2 = w * 2
+  val bx2 = size * 2
   
   def testPic = Pic { t =>
     import t._
@@ -65,44 +65,44 @@ class PictureTest extends KojoTestBase with FunSuite with xscala.RepeatCommands 
     val p = testPic
     p.draw()
     val b = p.bounds
-    b.x should equal(bx)
-    b.y should equal(by)
-    b.width should equal(w)
-    b.height should equal(h)
+    b.x should be(bx plusOrMinus 0.01)
+    b.y should be(by plusOrMinus 0.01)
+    b.width should be(w plusOrMinus 0.01)
+    b.height should be(h  plusOrMinus 0.01)
   }  
   
   test("picture translation") {
     val p = trans(50, 0) -> testPic
     p.draw()
     val b = p.bounds
-    b.x should equal(50 + bx)
+    b.x should be(50 + bx  plusOrMinus 0.01)
   }  
 
   test("picture scaling") {
     val p = scale(2,2) -> testPic
     p.draw()
     val b = p.bounds
-    b.x should equal(bx * 2)
-    b.width should equal(w * 2)
-    b.height should equal(h * 2)
+    b.x should be(bx * 2 plusOrMinus 0.01)
+    b.width should be(w * 2 plusOrMinus 0.01)
+    b.height should be(h * 2 plusOrMinus 0.01)
   }  
 
   test("picture scaling after translation") {
     val p = trans(50, 0) * scale(2,2) -> testPic
     p.draw()
     val b = p.bounds
-    b.x should equal(50 + 2 * bx)
-    b.width should equal(w * 2)
-    b.height should equal(h * 2)
+    b.x should be(50 + 2 * bx plusOrMinus 0.01)
+    b.width should be(w * 2 plusOrMinus 0.01)
+    b.height should be(h * 2 plusOrMinus 0.01)
   }
 
   test("picture translation after scaling") {
     val p = scale(2,2) * trans(50, 0) -> testPic
     p.draw()
     val b = p.bounds
-    b.x should equal(50*2 + 2 * bx)
-    b.width should equal(w * 2)
-    b.height should equal(h * 2)
+    b.x should be(50*2 + 2 * bx plusOrMinus 0.01)
+    b.width should be(w * 2 plusOrMinus 0.01)
+    b.height should be(h * 2 plusOrMinus 0.01)
   }
   
   test("3-hpics hp3 bounds") {
