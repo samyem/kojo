@@ -16,8 +16,6 @@
 package net.kogics.kojo
 package xscala
 
-import util.Throttler
-
 trait RepeatCommands {
   def repeat(n: Int) (fn: => Unit) {
     var i = 0
