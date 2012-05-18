@@ -431,7 +431,7 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport with Manip
           runMonitor.reportOutput(errText)
         }
 
-        private def interpreterDone() {
+        private def interpreterDone() = Utils.runInSwingThread {
           enableRunButton(true)
           if (!pendingCommands) {
             stopButton.setEnabled(false)
