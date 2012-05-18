@@ -20,20 +20,8 @@ object Throttler {
 }
 
 class Throttler(size: Int) {
-
-  val MaxDelay = 1000 // ms
-  val ThrottleThreshold = 10 // ms
-  val MaxUninterruptibleCalls = 10
-
-  val lastCallTime = new ThreadLocal[Long] {
-    override def initialValue = System.currentTimeMillis
-  }
-
-  val avgDelay = new ThreadLocal[Float] {
-    override def initialValue = 1000f
-  }
-
-  val uninterruptibleCalls = new ThreadLocal[Int] {
+  val Max_Unint_Call = 300
+  val numCalls = new ThreadLocal[Int] {
     override def initialValue = 0
   }
 
@@ -43,29 +31,17 @@ class Throttler(size: Int) {
    * user can interrupt the runaway thread
    */
   def throttle() {
-    val currTime = System.currentTimeMillis
-    val delta =  currTime - lastCallTime.get
-    lastCallTime.set(currTime)
-
-    avgDelay.set((avgDelay.get + delta) / 2)
-
-    if (avgDelay.get < ThrottleThreshold) {
+    val nc = numCalls.get + 1
+    if (nc > Max_Unint_Call) {
+      numCalls.set(0)
       allowInterruption()
     }
     else {
-      uninterruptibleCalls.set(uninterruptibleCalls.get + 1)
-      if (avgDelay.get > MaxDelay) {
-        avgDelay.set(MaxDelay)
-      }
-    }
-
-    if (uninterruptibleCalls.get > MaxUninterruptibleCalls) {
-      allowInterruption()
+      numCalls.set(nc)
     }
   }
 
   def allowInterruption() {
-    uninterruptibleCalls.set(0)
     Thread.sleep(size) // Throws interrupted exception if the thread has been interrupted
   }
 }

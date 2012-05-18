@@ -19,7 +19,6 @@ import javax.swing._
 import java.awt.{Point => _, _}
 import java.awt.geom._
 import java.awt.event._
-import java.util.logging._
 
 import edu.umd.cs.piccolo._
 import edu.umd.cs.piccolo.nodes._
@@ -43,7 +42,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
 
   import TurtleHelper._
 
-  private val Log = Logger.getLogger(getClass.getName)
+//  private val Log = Logger.getLogger(getClass.getName)
 //  Log.info("Turtle being created in thread: " + Thread.currentThread.getName)
 
   private val layer = new PLayer
@@ -209,6 +208,9 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       if (aDelay > 1) {
         Thread.sleep(aDelay)
       }
+      else {
+        Throttler.throttle()
+      }
       Utils.runInSwingThread {
         forwardNoAnim(n)
       }
@@ -304,11 +306,14 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   def moveTo(x: Double, y: Double) {
-    if (_animationDelay < 5) Utils.runInSwingThread {
-      val newTheta = towardsHelper(x, y)
-      changeHeading(newTheta)
-      val d = distanceTo(x,y)
-      forwardNoAnim(d)
+    if (_animationDelay < 5) {
+      Throttler.throttle()
+      Utils.runInSwingThread {
+        val newTheta = towardsHelper(x, y)
+        changeHeading(newTheta)
+        val d = distanceTo(x,y)
+        forwardNoAnim(d)
+      }
     }
     else {
       val d = Utils.runInSwingThreadAndWait {
@@ -457,8 +462,11 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
       }
     }
     
-    if (_animationDelay < 5) Utils.runInSwingThread {
-      makeArc(forwardNoAnim _, realTurn _)
+    if (_animationDelay < 5) {
+      Throttler.throttle()
+      Utils.runInSwingThread {
+        makeArc(forwardNoAnim _, realTurn _)
+      }
     }
     else {
       makeArc(forward _, turn _)
@@ -483,7 +491,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   }
 
   abstract class AbstractPen extends Pen {
-    val Log = Logger.getLogger(getClass.getName);
+//    val Log = Logger.getLogger(getClass.getName);
 
     val turtle = Turtle.this
     val CapThick = BasicStroke.CAP_ROUND
