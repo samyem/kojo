@@ -15,12 +15,12 @@
 package net.kogics.kojo.util
 
 object Throttler {
-  val systemThrottler = new Throttler(1)
+  val systemThrottler = new Throttler(5)
   def throttle() = systemThrottler.throttle()
 }
 
 class Throttler(size: Int) {
-  val Max_Unint_Call = 300
+  val Max_Unint_Call = 100
   val numCalls = new ThreadLocal[Int] {
     override def initialValue = 0
   }
