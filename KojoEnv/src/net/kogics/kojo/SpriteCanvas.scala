@@ -249,7 +249,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
 //    def isInteger(d: Double) = Utils.doublesEqual(d.floor, d, 0.0000000001)
     def isInteger(label: String) = {
-      val d = label.toDouble
+      val d = Utils.sanitizeDoubleString(label).toDouble
       Utils.doublesEqual(d.floor, d, 0.0000000001)
     }
     
@@ -286,7 +286,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         math.round(d0/10) * 10
       }
       else {
-        val d2 = deltaFinder.format(d0).toDouble
+        val d2 = Utils.sanitizeDoubleString(deltaFinder.format(d0)).toDouble
         if (d2.compare(0) != 0) d2 else 0.0000000005 // MaxPrec-1 zeroes
       }
     }
