@@ -91,7 +91,7 @@ class FloatManipulator(ctx: ManipulationContext) extends NumberManipulator(ctx) 
       9 + math.round((n - ncenter) / delta).toInt
     }
     def uiDouble(s0: String) = {
-      val s = if (Utils.usingSwedish) s0.replaceAll(",", ".") else s0
+      val s = Utils.sanitizeDoubleString(s0)
       val uid = Utils.stripTrailingChar(s, '0')
       if (uid.endsWith(".")) uid + "0" else uid
     }

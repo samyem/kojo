@@ -414,6 +414,15 @@ object Utils {
   def stripTrailingDots(s: String) = stripTrailingChar(s, '.')
   def stripDots(s: String): String = s.filterNot {_ == '.'}
   
+  lazy val (needsSanitizing, decimalSep) = {
+    val tester = "%.1f" format(0.0)
+    (tester != "0.0", tester(1).toString)
+  }
+  
+  def sanitizeDoubleString(d: String) = {
+    if (needsSanitizing) d.replaceAll(decimalSep, ".") else d
+  }
+  
   case class RunCode(code: () => Unit)
   import scala.actors._
   import scala.actors.Actor._
