@@ -15,12 +15,11 @@
 package net.kogics.kojo.util
 
 object Throttler {
-  val systemThrottler = new Throttler(5)
+  val systemThrottler = new Throttler(100, 5)
   def throttle() = systemThrottler.throttle()
 }
 
-class Throttler(size: Int) {
-  val Max_Unint_Call = 100
+class Throttler(after: Int, sleepTime: Int) {
   val numCalls = new ThreadLocal[Int] {
     override def initialValue = 0
   }
@@ -32,7 +31,7 @@ class Throttler(size: Int) {
    */
   def throttle() {
     val nc = numCalls.get + 1
-    if (nc > Max_Unint_Call) {
+    if (nc > after) {
       numCalls.set(0)
       allowInterruption()
     }
@@ -42,6 +41,6 @@ class Throttler(size: Int) {
   }
 
   def allowInterruption() {
-    Thread.sleep(size) // Throws interrupted exception if the thread has been interrupted
+    Thread.sleep(sleepTime) // Throws interrupted exception if the thread has been interrupted
   }
 }
