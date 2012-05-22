@@ -203,8 +203,9 @@ class Builtins extends RepeatCommands {
   // Turtle and Staging Canvas
   class TSCanvasC extends TSCanvasFeatures {
     
+    override def zoom(factor: Double) = tCanvas.zoom(factor)
     override def zoom(factor: Double, cx: Double, cy: Double) = tCanvas.zoom(factor, cx, cy)
-    UserCommand("zoom", List("factor", "cx", "cy"), "Zooms in by the given factor, and positions (cx, cy) at the center of the turtle canvas.")
+    UserCommand("zoom", List("factor"), "Zooms in by the given factor, leaving the center point unchanged.")
     UserCommand.addSynopsisSeparator()
 
     def listPuzzles() = println(PuzzleLoader.listPuzzles)
