@@ -40,7 +40,11 @@ object Help {
     "repeati" -> "repeati(n) {i => } - Repeats the commands within braces n number of times. The current repeat index is available within the braces.",
     "repeatWhile" -> "repeatWhile(cond) {} - Repeats the commands within braces while the given condition is true.",
     "repeatUntil" -> "repeatUntil(cond) {} - Repeats the commands within braces until the given condition is true.",
-    "zoom" -> "zoom(factor, cx, cy) - Zooms in by the given factor, and positions (cx, cy) at the center of the turtle canvas.",
+    "zoom" -> 
+    """zoom(factor) - Zooms in by the given factor, leaving the center point unchanged.<br/>
+       <br/>
+       zoom(factor, cx, cy) - Zooms in by the given factor, and positions (cx, cy) at the center of the turtle canvas.
+""",
     "gridOn" -> "gridOn() - Shows a grid on the turtle canvas.",
     "gridOff" -> "gridOff() - Hides the grid on the turtle canvas.",
     "axesOn" -> "axesOn() - Shows the X and Y axes on the turtle canvas.",

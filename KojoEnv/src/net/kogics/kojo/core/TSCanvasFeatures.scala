@@ -24,6 +24,7 @@ trait TSCanvasFeatures {
   def axesOff(): Unit
   def gridOn(): Unit
   def gridOff(): Unit
+  def zoom(factor: Double)
   def zoom(factor: Double, cx: Double, cy: Double)
   def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double)
   def exportImage(filePrefix: String): java.io.File

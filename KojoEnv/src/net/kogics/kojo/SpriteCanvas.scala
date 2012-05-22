@@ -16,6 +16,7 @@ package net.kogics.kojo
 
 import javax.swing._
 import javax.swing.event._
+import java.awt.geom.Point2D
 import java.awt.{List => _, _}
 import java.awt.event._
 import java.util.logging._
@@ -189,6 +190,13 @@ class SpriteCanvas private extends PCanvas with SCanvas {
         val statusStr = "Mouse Position: (%%.%df, %%.%df)" format(prec, prec)
         StatusDisplayer.getDefault().setStatusText(statusStr format(pos.getX, pos.getY));
       }
+
+      override def mouseWheelRotated(e: PInputEvent) {
+        zoom(currZoom * (1 + e.getWheelRotation * 0.1))
+      }      
+
+//      override def mouseWheelRotatedByBlock(e: PInputEvent) {
+//      }      
     })
 
   def camScale = unitLen match {
@@ -418,7 +426,21 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 //    outputFn("Deltap: %s\n" format(deltap.toString))
   }
 
-  def zoom(factor0: Double, cx: Double, cy: Double) {
+  // meant to be called from swing thread
+  private def currZoom = getCamera.getViewTransformReference.getScaleX
+
+  def zoom(factor0: Double): Unit = {
+    require(factor0 != 0, "Zoom factor can't be 0.")
+    Utils.runInSwingThreadAndWait {
+      val size = getSize(null)
+      val cx = new Point2D.Double(size.width/2d, size.height/2d)
+      val cp = getCamera.localToView(cx)
+      zoom(factor0, cp.getX, cp.getY)
+    }
+  }
+
+  def zoom(factor0: Double, cx: Double, cy: Double): Unit = {
+    require(factor0 != 0, "Zoom factor can't be 0.")
     Utils.runInSwingThreadAndWait {
       val size = getSize(null)
       val factor = factor0 * camScale
@@ -430,6 +452,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
 
   def zoomXY(xfactor0: Double, yfactor0: Double, cx: Double, cy: Double) {
+    require(xfactor0 != 0, "Zoom factor can't be 0.")
+    require(yfactor0 != 0, "Zoom factor can't be 0.")
     Utils.runInSwingThreadAndWait {
       val xfactor = xfactor0 * camScale
       val yfactor = yfactor0 * camScale
