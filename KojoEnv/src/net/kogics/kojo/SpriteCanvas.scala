@@ -192,7 +192,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       }
 
       override def mouseWheelRotated(e: PInputEvent) {
-        zoom(currZoom * (1 + e.getWheelRotation * 0.1))
+        zoomBy(1 + e.getWheelRotation * 0.1, e.getPosition)
       }      
 
 //      override def mouseWheelRotatedByBlock(e: PInputEvent) {
@@ -429,6 +429,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   // meant to be called from swing thread
   private def currZoom = getCamera.getViewTransformReference.getScaleX
 
+  // zoom, leaving the current center point (in canvas/world coordinates) unchanged
   def zoom(factor0: Double): Unit = {
     require(factor0 != 0, "Zoom factor can't be 0.")
     Utils.runInSwingThreadAndWait {
@@ -439,13 +440,34 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     }
   }
 
+  // zoom, leaving the current mouse position point (in canvas/world coordinates) unchanged
+  def zoomBy(factor: Double, mousePos: Point2D): Unit = {
+    require(factor != 0, "Zoom factor can't be 0.")
+    Utils.runInSwingThreadAndWait {
+//      val tx = getCamera.getViewTransformReference.getTranslateX
+//      val ty = getCamera.getViewTransformReference.getTranslateY
+//      val oldZoom = currZoom
+//      getCamera.getViewTransformReference.setToIdentity()
+//      getCamera.getViewTransformReference.scale(oldZoom, -oldZoom)
+//      getCamera.getViewTransformReference.setOffset(tx, ty)
+//      getCamera.getViewTransformReference.translate(mousePos.getX, mousePos.getY)
+//      getCamera.getViewTransformReference.scale(factor, factor)
+//      getCamera.getViewTransformReference.translate(-mousePos.getX, -mousePos.getY)
+
+      getCamera.getViewTransformReference.scaleAboutPoint(factor, mousePos.getX, mousePos.getY)
+      updateAxesAndGrid()
+      repaint()
+    }
+  }
+
   def zoom(factor0: Double, cx: Double, cy: Double): Unit = {
     require(factor0 != 0, "Zoom factor can't be 0.")
     Utils.runInSwingThreadAndWait {
       val size = getSize(null)
       val factor = factor0 * camScale
       getCamera.getViewTransformReference.setToScale(factor, -factor)
-      getCamera.getViewTransformReference.setOffset(size.getWidth/2d - cx*factor, size.getHeight/2d + cy*factor)
+      getCamera.getViewTransformReference.setOffset(size.getWidth/2d, size.getHeight/2d)
+      getCamera.getViewTransformReference.translate(-cx, -cy)
       updateAxesAndGrid()
       repaint()
     }
