@@ -192,11 +192,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       }
 
       override def mouseWheelRotated(e: PInputEvent) {
-        zoomBy(1 + e.getWheelRotation * 0.1, e.getPosition)
+        zoomBy(1 - e.getWheelRotation * 0.1, e.getPosition)
       }      
-
-//      override def mouseWheelRotatedByBlock(e: PInputEvent) {
-//      }      
     })
 
   def camScale = unitLen match {
