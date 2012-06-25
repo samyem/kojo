@@ -88,6 +88,8 @@ trait Picture extends InputAware {
   def setPosition(p: core.Point): Unit = setPosition(p.x, p.y)
   def heading: Double
   def setHeading(angle: Double)
+  def setPenColor(color: Color)
+  def setFillColor(color: Paint)
   def act(fn: Picture => Unit) {
     if (!isDrawn) {
       throw new IllegalStateException("Ask picture to act after you draw it.")
@@ -458,6 +460,26 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
       }
     }
   }
+  
+  def setPenColor(color: Color) = Utils.runInSwingThread {
+    val pp = t.penPaths
+    pp.foreach { pl =>
+      if (pl.points.size > 1) {
+        pl.setStrokePaint(color)
+        pl.repaint()
+      }
+    }
+  }
+  
+  def setFillColor(color: Paint) = Utils.runInSwingThread {
+    val pp = t.penPaths
+    pp.foreach { pl =>
+      if (pl.points.size > 2) {
+        pl.setPaint(color)
+        pl.repaint()
+      }
+    }
+  }
 
   def copy: Picture = Pic(painter)
     
@@ -530,6 +552,18 @@ extends Picture with CorePicOps with TNodeCacher with RedrawStopper {
     }
   }
   
+  def setPenColor(color: Color) {
+    pics.foreach { pic =>
+      pic.setPenColor(color)
+    }
+  }
+  
+  def setFillColor(color: Paint) {
+    pics.foreach { pic =>
+      pic.setFillColor(color)
+    }
+  }
+
   def withGap(n: Double): Picture = {
     padding = n
     this
