@@ -16,6 +16,8 @@
 package net.kogics.kojo
 package picture
 
+import java.awt.Color
+import java.awt.Paint
 import java.awt.geom.AffineTransform
 import util.Utils
 
@@ -45,6 +47,8 @@ trait Transformer extends Picture {
   def setPosition(x: Double, y: Double) = tpic.setPosition(x, y)
   def heading = tpic.heading
   def setHeading(angle: Double) = tpic.setHeading(angle)
+  def setPenColor(color: Color) = tpic.setPenColor(color)
+  def setFillColor(color: Paint) = tpic.setFillColor(color)
   def intersects(other: Picture) = {
     if (this == other) {
       false
