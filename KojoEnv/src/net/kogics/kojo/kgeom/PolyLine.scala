@@ -22,6 +22,14 @@ import edu.umd.cs.piccolo.util._
 
 import scala.collection._
 
+object PolyLine {
+  def apply(points: Seq[Point2D.Double]) = {
+    val result = new PolyLine()
+    points.foreach { result.addPoint }
+    result
+  }
+}
+
 class PolyLine extends PNode {
 
   val polyLinePath = new Path2D.Double()
@@ -78,7 +86,6 @@ class PolyLine extends PNode {
 
   override def paint(paintContext: PPaintContext) {
     val g2 = paintContext.getGraphics()
-//    val path = buildGeneralPath()
     val fillPaint = getPaint()
 
     if (fillPaint != null) {
@@ -121,5 +128,13 @@ class PolyLine extends PNode {
   override def setBounds(x: Double, y: Double, width: Double, height: Double): Boolean = {
     println("Cannot set bounds")
     false
+  }
+  
+  def map(fn: Point2D.Double => Point2D.Double) = {
+    val result = PolyLine(points.map(fn))
+    result.setPaint(getPaint)
+    result.setStrokePaint(strokePaint)
+    result.setStroke(stroke)
+    result
   }
 }

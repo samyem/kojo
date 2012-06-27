@@ -96,7 +96,8 @@ object CodeCompletionUtils {
     "stopMp3" -> "stopMp3()",
     "stopMusic" -> "stopMusic()",
     "addCodeTemplates" -> "addCodeTemplates(${lang}, ${templates})",
-    "addHelpContent" -> "addHelpContent(${lang}, ${content})"
+    "addHelpContent" -> "addHelpContent(${lang}, ${content})",
+    "Point2D" -> "Point2D(${x}, ${y})"
   )
   
   val TwMethodTemplates = Map(
@@ -106,7 +107,9 @@ object CodeCompletionUtils {
     "circle" -> "circle(${radius})",
     "arc" -> "arc(${radius}, ${angle})",
     "show" -> "draw(${pic/s})",
-    "wipe" -> "wipe()"
+    "wipe" -> "wipe()",
+    "morph" -> "morph { polyLines =>\n    ${cursor}\n}",
+    "PolyLine" -> "PolyLine(List(Point2D(${x1}, ${y1}), Point2D(${x2}, ${y2})))"
   ) 
 
   val MwMethodTemplates = Map(

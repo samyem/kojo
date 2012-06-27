@@ -19,6 +19,7 @@ package picture
 import java.awt.Color
 import java.awt.Paint
 import java.awt.geom.AffineTransform
+import net.kogics.kojo.kgeom.PolyLine
 import util.Utils
 
 trait Transformer extends Picture {
@@ -49,14 +50,15 @@ trait Transformer extends Picture {
   def setHeading(angle: Double) = tpic.setHeading(angle)
   def setPenColor(color: Color) = tpic.setPenColor(color)
   def setFillColor(color: Paint) = tpic.setFillColor(color)
+  def morph(fn: Seq[PolyLine] => Seq[PolyLine]) = tpic.morph(fn)
   def intersects(other: Picture) = {
-    if (this == other) {
-      false
+      if (this == other) {
+        false
+      }
+      else {
+        tpic.intersects(other)
+      }
     }
-    else {
-      tpic.intersects(other)
-    }
-  }
   def intersection(other: Picture) = {
     if (this == other) {
       Impl.Gf.createGeometryCollection(null)

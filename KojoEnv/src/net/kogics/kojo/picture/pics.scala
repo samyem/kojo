@@ -22,6 +22,7 @@ import java.awt.Paint
 import java.awt.geom.AffineTransform
 
 import scala.collection.mutable.ArrayBuffer
+import kgeom.PolyLine
 import util.Utils
 import util.Math
 import util.InputAware
@@ -103,6 +104,8 @@ trait Picture extends InputAware {
   // classes can live within sets and maps
   override def equals(other: Any) = this eq other.asInstanceOf[AnyRef]
   override def hashCode = System.identityHashCode(this)
+  
+  def morph(fn: Seq[PolyLine] => Seq[PolyLine])
 }
 
 trait CorePicOps { self: Picture with RedrawStopper =>
@@ -489,6 +492,15 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
     println("Tnode: " + System.identityHashCode(tnode))
     println("<<< Pic End\n")
   }
+  
+  def morph(fn: Seq[PolyLine] => Seq[PolyLine]) = Utils.runInSwingThread {
+    val newPaths = fn(t.penPaths)
+    t.penPaths.foreach { tnode.removeChild }
+    t.penPaths.clear()
+    t.penPaths ++= newPaths
+    t.penPaths.foreach { tnode.addChild }
+    tnode.repaint()
+  }
 }
 
 object Pic0 {
@@ -564,6 +576,12 @@ extends Picture with CorePicOps with TNodeCacher with RedrawStopper {
     }
   }
 
+  def morph(fn: Seq[PolyLine] => Seq[PolyLine]) = Utils.runInSwingThread {
+    pics.foreach { pic =>
+      pic.morph(fn)
+    }
+  }
+   
   def withGap(n: Double): Picture = {
     padding = n
     this
