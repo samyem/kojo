@@ -24,6 +24,10 @@ case class Vector2D(x0: Double, y0: Double) {
   @volatile var vec = new Vec2D(x0, y0)
   def x = vec.getX
   def y = vec.getY
+  
+  def update(xn: Double, yn: Double) {
+    vec = new Vec2D(xn, yn)
+  }
 
   def rotate(angle: Double) {
     vec = vec.rotate(angle.toRadians)

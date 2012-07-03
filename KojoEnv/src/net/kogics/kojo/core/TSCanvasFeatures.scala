@@ -16,6 +16,8 @@
 package net.kogics.kojo
 package core
 
+import picture.Picture
+
 trait TSCanvasFeatures {
   def clearPuzzlers(): Unit
   def newTurtle(x: Int, y: Int): Turtle
@@ -34,4 +36,10 @@ trait TSCanvasFeatures {
   def setUnitLength(ul: UnitLen): Unit
   def clearWithUL(ul: UnitLen): Unit
   def camScale: Double
+  def showStage()
+  def stage: Picture
+  def stageLeft: Picture
+  def stageTop: Picture
+  def stageRight: Picture
+  def stageBot: Picture
 }

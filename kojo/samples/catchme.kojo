@@ -88,23 +88,12 @@ val badguy = fillColor(black) * scale(0.3) -> guy
 val badguy2 = fillColor(black) * trans(-xmax/2, 0) * scale(0.3) -> guy
 val badguy3 = fillColor(black) * trans(2*xmax/3, 0) * scale(0.3) -> guy
 
-val sleft = trans(-xmax, -ymax) -> border(cb.height)
-val stop = trans(-xmax, ymax) * rot(-90) -> border(cb.width)
-val sright = trans(xmax, -ymax) -> border(cb.height)
-val sbot = trans(-xmax, -ymax) * rot(-90) -> border(cb.width)
-
-val stage = GPics(
-    sleft,
-    stop,
-    sright,
-    sbot
-)
-
 playMp3Loop(installDir + "music-loops/Cave.mp3")
 invisible()
 setBackground(Color(150, 150, 255))
-draw(stage, goodguy, badguy, badguy2, badguy3)
+draw(goodguy, badguy, badguy2, badguy3)
 drawAndHide(lostGoodguy, lostMsg, wonMsg)
+showStage()
 
 val bf = 2
 val sf = 1.5
@@ -115,33 +104,8 @@ val HEdge = Vector2D(1, 0)
 def badBehavior(me: Picture, bvec: Vector2D) {
     bvec.rotate(randomDouble(10)-5)
     me.transv(bvec)
-    if (me.collidesWith(sright)) {
-        val a = bvec.angle(VEdge)
-        val a2 = if (a > 90) 180 - a else a
-        val d = if (bvec.heading >= 0) 1 else -1
-        bvec.rotate(2*d*a2)
-        me.transv(bvec * bf)
-    }
-    else if (me.collidesWith(sleft)) {
-        val a = bvec.angle(VEdge)
-        val a2 = if (a > 90) 180 - a else a
-        val d = if (bvec.heading >= 90 && bvec.heading <= 180) -1 else 1
-        bvec.rotate(2*d*a2)
-        me.transv(bvec * bf)
-    }
-    else if (me.collidesWith(stop)) {
-        val a = bvec.angle(HEdge)
-        val a2 = if (a > 90) 180 - a else a
-        val d = if (bvec.heading >= 90) 1 else -1
-        bvec.rotate(2*d*a2)
-        me.transv(bvec * bf)
-    }
-    else if (me.collidesWith(sbot)) {
-        val a = bvec.angle(HEdge)
-        val a2 = if (a > 90) 180 - a else a
-        val d = if (bvec.heading <= 0 && bvec.heading >= -90) 1 else -1
-        bvec.rotate(2*d*a2)
-        me.transv(bvec * bf)
+    bounceOffStage2(bvec, me) {
+      me.transv(bvec)
     }
 }
 
