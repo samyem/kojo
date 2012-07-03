@@ -278,6 +278,12 @@ class Builtins extends RepeatCommands {
     def setUnitLength(ul: UnitLen) = tCanvas.setUnitLength(ul)
     def clearWithUL(ul: UnitLen) = tCanvas.clearWithUL(ul)
     def camScale = tCanvas.camScale
+    def showStage() = tCanvas.showStage()
+    def stage = tCanvas.stage
+    def stageLeft = tCanvas.stageLeft
+    def stageTop = tCanvas.stageTop
+    def stageRight = tCanvas.stageRight
+    def stageBot = tCanvas.stageBot
   }
   val TSCanvas = new TSCanvasC()
 
@@ -644,5 +650,22 @@ Here's a partial list of the available commands:
   }
   def addHelpContent(lang: String, content: Map[String, String]) {
     Help.addContent(lang, content)
+  }
+
+  def bounceOffStage(v: Vector2D, p: Picture) {
+    bounceOffStage2(v, p) {}
+  }
+  def bounceOffStage2(v: Vector2D, p: Picture)(fn: => Unit) {
+    import TSCanvas._
+    val stageparts = List(stageTop, stageBot, stageLeft, stageRight)
+    p.collision(stageparts).foreach {
+      _ match {
+        case p if p == stageTop => v.update(v.x, -v.y); fn
+        case p if p == stageBot => v.update(v.x, -v.y); fn
+        case p if p == stageLeft => v.update(-v.x, v.y); fn
+        case p if p == stageRight => v.update(-v.x, v.y); fn
+        case _ =>
+      }
+    }
   }
 }

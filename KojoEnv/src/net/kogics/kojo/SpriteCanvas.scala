@@ -571,6 +571,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       pictures.removeAllChildren()
       zoom(1, 0, 0)
     }
+    clearStage()
   }
 
   def clearPuzzlers() {
@@ -684,6 +685,46 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
   
   def cbounds = getCamera.getViewBounds()
+  
+  import picture.Picture
+  val noPic = picture.Pic { t => 
+  }
+  @volatile var stage: Picture = _
+  @volatile var stageLeft: Picture = _
+  @volatile var stageTop: Picture = _
+  @volatile var stageRight: Picture = _
+  @volatile var stageBot: Picture = _
+
+  def clearStage() {
+    stage = noPic
+    stageLeft = noPic
+    stageTop = noPic
+    stageRight = noPic
+    stageBot = noPic
+  }
+  
+  def showStage() {
+    def border(size: Double) = picture.Pic { t =>
+      t.forward(size)
+    }
+    val cb = cbounds
+    val xmax = cb.x.abs
+    val ymax = cb.y.abs
+
+    stageLeft = picture.trans(-xmax, -ymax) -> border(cb.height)
+    stageTop = picture.trans(-xmax, ymax) * picture.rot(-90) -> border(cb.width)
+    stageRight = picture.trans(xmax, -ymax) -> border(cb.height)
+    stageBot = picture.trans(-xmax, -ymax) * picture.rot(-90) -> border(cb.width)
+
+    stage = picture.GPics(
+      stageLeft,
+      stageTop,
+      stageRight,
+      stageBot)
+
+    stage.draw()
+  }
+  
 
   class Popup() extends JPopupMenu {
 
