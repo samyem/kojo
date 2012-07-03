@@ -10,6 +10,7 @@ lib
 dist
 proguard
 nsis
+\.cache
 \.settings
 \.manager
 .*hg\.zip
