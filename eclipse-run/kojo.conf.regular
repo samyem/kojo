@@ -1,0 +1,20 @@
+# ${HOME} will be replaced by user home directory according to platform
+default_userdir="${HOME}/.${APPNAME}.dev/dev"
+default_mac_userdir="${HOME}/Library/Application Support/${APPNAME}/dev"
+
+# options used by the launcher by default, can be overridden by explicit
+# command line switches
+
+default_options="--branding kojo -J-client -J-Xms32m -J-Xmx512m -J-Xss1m -J-XX:PermSize=32m -J-XX:MaxPermSize=256m -J-Dapple.laf.useScreenMenuBar=true -J-Dapple.awt.graphics.UseQuartz=true -J-XX:+UseConcMarkSweepGC -J-XX:+CMSClassUnloadingEnabled -J-XX:+CMSPermGenSweepingEnabled --laf Nimbus -J-Duser.defLanguage=true"
+
+# for development purposes you may wish to append: -J-Dnetbeans.logger.console=true -J-ea
+
+# default location of JDK/JRE, can be overridden by using --jdkhome <dir> switch
+#jdkhome="/path/to/jdk"
+#jdkhome=/usr/lib/jvm/java-6-openjdk
+jdkhome=/home/lalit/jdk1.7.0_04_32b
+#jdkhome=/home/lalit/jdk1.6.0_27
+#jdkhome=/home/lalit/jdk1.6.0_27_32b
+
+# clusters' paths separated by path.separator (semicolon on Windows, colon on Unices)
+#extra_clusters=

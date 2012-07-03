@@ -1,0 +1,6 @@
+echo Updating Kojo jar...
+/usr/lib/jvm/jdk1.6.0//bin/jar uf ../kojo/modules/net-kogics-kojo.jar -C ../../../ecbuild .
+echo Deleting Kojo Cache
+rm -rf /home/lalit/.kojo.dev/dev/var/cache
+echo Launching Kojo...
+./kojo
