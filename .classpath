@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="KojoEnv/src"/>
+	<classpathentry kind="src" path="KojoEnv/test/unit/src"/>
+	<classpathentry kind="src" path="ScalaEditorLite/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/AppleJavaExtensions.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/geogebra_cas.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/geogebra_export.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/geogebra_gui.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/geogebra_main.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/geogebra_properties.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/geogebra.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/group-panel.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/httpunit.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/jfugue-4.1.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/jl1.0.1.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/jlatexmath-0.9.3.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/js-1.6R5.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/jtidy-4aug2000r7-dev.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/jts-1.12.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/netscape_javascript.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/piccolo2d-core-1.3.1.jar" sourcepath="/home/lalit/work/piccolo/piccolo2d-core-1.3.1-sources.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/piccolo2d-extras-1.3.1.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/rats.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/scala-compiler.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/scala-library.jar" sourcepath="/home/lalit/work/scala/src/scala-library-src.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/kojo/modules/ext/scala-swing.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-api-java-classpath.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-libs-lucene.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-csl-api.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-diff.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-actions.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-bracesmatching.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-codetemplates.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-completion.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-deprecated-pre65formatting.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-errorstripe-api.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-errorstripe.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-fold.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-guards.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-indent.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-lib.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-lib2.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-settings-storage.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-settings.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor-util.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-editor.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-jumpto.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-lexer.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-options-editor.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-parsing-api.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-parsing-lucene.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-projectapi.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-projectui.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-projectuiapi.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-modules-refactoring-api.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-spi-editor-hints.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-spi-navigator.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-netbeans-spi-tasklist.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/ide/modules/org-openidex-util.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-api-annotations-common.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-api-progress.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-core-execution.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-core-multiview.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-core-output2.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-core-ui.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-core-windows.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-core.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-libs-jna.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-modules-editor-mimelookup-impl.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-modules-editor-mimelookup.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-modules-favorites.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-modules-javahelp.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-modules-keyring.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-modules-masterfs.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-modules-options-api.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-modules-options-keymap.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-modules-queries.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-modules-sendopts.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-modules-settings.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-spi-quicksearch.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-swing-outline.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-swing-plaf.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-netbeans-swing-tabcontrol.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-openide-actions.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-openide-awt.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-openide-dialogs.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-openide-execution.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-openide-explorer.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-openide-io.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-openide-loaders.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-openide-nodes.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-openide-text.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/modules/org-openide-windows.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/core/core.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/core/org-openide-filesystems.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/lib/boot.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/lib/org-openide-modules.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/lib/org-openide-util-lookup.jar"/>
+	<classpathentry kind="lib" path="dist-for-eclipse/kojo/platform/lib/org-openide-util.jar"/>
+	<classpathentry kind="lib" path="ScalaTest/scalatest-1.7.1.jar"/>
+	<classpathentry kind="lib" path="ScalaCheck/release/modules/ext/Scalacheck-1.7-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="JMock 2.5.1/release/modules/ext/cglib-nodep-2.1_3.jar"/>
+	<classpathentry kind="lib" path="JMock 2.5.1/release/modules/ext/hamcrest-core-1.1.jar"/>
+	<classpathentry kind="lib" path="JMock 2.5.1/release/modules/ext/hamcrest-library-1.1.jar"/>
+	<classpathentry kind="lib" path="JMock 2.5.1/release/modules/ext/jmock-2.5.1.jar"/>
+	<classpathentry kind="lib" path="JMock 2.5.1/release/modules/ext/jmock-junit4-2.5.1.jar"/>
+	<classpathentry kind="lib" path="JMock 2.5.1/release/modules/ext/jmock-legacy-2.5.1.jar"/>
+	<classpathentry kind="lib" path="JMock 2.5.1/release/modules/ext/objenesis-1.0.jar"/>
+	<classpathentry kind="lib" path="JUnit4/junit-4.8.2.jar"/>
+	<classpathentry kind="output" path="ecbuild"/>
+</classpath>
