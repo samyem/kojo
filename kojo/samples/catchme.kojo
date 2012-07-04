@@ -90,10 +90,9 @@ val badguy3 = fillColor(black) * trans(2*xmax/3, 0) * scale(0.3) -> guy
 
 playMp3Loop(installDir + "music-loops/Cave.mp3")
 invisible()
-setBackground(Color(150, 150, 255))
 draw(goodguy, badguy, badguy2, badguy3)
 drawAndHide(lostGoodguy, lostMsg, wonMsg)
-showStage()
+showStage(Color(150, 150, 255))
 
 val bf = 2
 val sf = 1.5
