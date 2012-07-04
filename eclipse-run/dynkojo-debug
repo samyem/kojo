@@ -1,10 +1,17 @@
+# Script to debug Kojo from Eclipse
+# *You need to tweak a few lines to make this work for you*. Lines commented with 'To make it work'
+# set -x
 echo Updating Kojo jar...
-/usr/lib/jvm/jdk1.6.0//bin/jar uf ../kojo/modules/net-kogics-kojo.jar -C ../../../ecbuild .
+# To make it work - point to 'jar' on your machine
+/usr/lib/jvm/jdk1.6.0/bin/jar uf ../kojo/modules/net-kogics-kojo.jar -C ../../../ecbuild .
 echo Deleting Kojo Cache
-rm -rf /home/lalit/.kojo.dev/dev/var/cache
-echo Switching conf file
+# To make it work - point to the location of the 'cache' dir on your machine. 
+# By default this is ~/.kojo.dev/dev/var/cache
+rm -rf ~/.kojo.dev/dev/var/cache
+echo Switching conf file to enable debugging
 cp kojo.conf.debug ../etc/kojo.conf
 echo Launching Kojo...
 ./kojo
 echo Switching conf file back
 cp kojo.conf.regular ../etc/kojo.conf
+
