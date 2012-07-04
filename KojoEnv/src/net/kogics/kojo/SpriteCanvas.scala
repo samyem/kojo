@@ -685,6 +685,23 @@ class SpriteCanvas private extends PCanvas with SCanvas {
   }
   
   def cbounds = getCamera.getViewBounds()
+
+  def setCanvasBackground(c: Paint) = Utils.runInSwingThread {
+    val bounds = cbounds
+    val rect = staging.API.rectangle(bounds.x, bounds.y, bounds.width, bounds.height)
+    rect.setFillColor(c)
+    rect.setPenColor(Color.white)
+  }
+  def setBackgroundH(c1: Color, c2: Color) = Utils.runInSwingThread {
+    val bounds = cbounds
+    val paint = new GradientPaint(bounds.x.toFloat, 0, c1, (bounds.x + bounds.width).toFloat, 0, c2)
+    setCanvasBackground(paint)
+  }
+  def setBackgroundV(c1: Color, c2: Color) = Utils.runInSwingThread {
+    val bounds = cbounds
+    val paint = new GradientPaint(0, bounds.y.toFloat, c1, 0, (bounds.y + bounds.height).toFloat, c2)
+    setCanvasBackground(paint)
+  }
   
   import picture.Picture
   val noPic = picture.Pic { t => 
@@ -703,8 +720,8 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     stageBot = noPic
   }
   
-  def showStage() {
-    def border(size: Double) = picture.Pic { t =>
+  def showStage(fillc: Paint) {
+    def border(size: Double) = picture.stroke(Color.darkGray) -> picture.Pic { t =>
       t.forward(size)
     }
     val cb = cbounds
@@ -723,6 +740,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
       stageBot)
 
     stage.draw()
+    setCanvasBackground(fillc)
   }
   
 

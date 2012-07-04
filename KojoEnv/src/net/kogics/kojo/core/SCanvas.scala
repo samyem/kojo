@@ -16,11 +16,15 @@
 package net.kogics.kojo.core
 
 import edu.umd.cs.piccolo.util.PBounds
+import java.awt.Paint
 
 trait SCanvas extends TSCanvasFeatures {
+  // stuff gets added here (instead of in the base class) if any of the following conditions hold:
+  // 1) there's a name clash with TurtleWorld 
+  // 2) the builtin method name is different from the canvas method name
   def turtle0: Turtle
   def clear(): Unit
-  def wipe(): Unit
   def activate(): Unit
   def cbounds: PBounds
+  def setCanvasBackground(c: Paint)
 }

@@ -17,6 +17,8 @@ package net.kogics.kojo
 package core
 
 import picture.Picture
+import java.awt.Paint
+import java.awt.Color
 
 trait TSCanvasFeatures {
   def clearPuzzlers(): Unit
@@ -36,7 +38,10 @@ trait TSCanvasFeatures {
   def setUnitLength(ul: UnitLen): Unit
   def clearWithUL(ul: UnitLen): Unit
   def camScale: Double
-  def showStage()
+  def wipe(): Unit
+  def setBackgroundH(c1: Color, c2: Color)
+  def setBackgroundV(c1: Color, c2: Color)
+  def showStage(fillc: Paint)
   def stage: Picture
   def stageLeft: Picture
   def stageTop: Picture

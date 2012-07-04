@@ -278,7 +278,10 @@ class Builtins extends RepeatCommands {
     def setUnitLength(ul: UnitLen) = tCanvas.setUnitLength(ul)
     def clearWithUL(ul: UnitLen) = tCanvas.clearWithUL(ul)
     def camScale = tCanvas.camScale
-    def showStage() = tCanvas.showStage()
+    def setBackgroundH(c1: Color, c2: Color) = tCanvas.setBackgroundH(c1, c2)
+    def setBackgroundV(c1: Color, c2: Color) = tCanvas.setBackgroundV(c1, c2)
+    def wipe() = tCanvas.wipe()
+    def showStage(fillc: Paint) = tCanvas.showStage(fillc)
     def stage = tCanvas.stage
     def stageLeft = tCanvas.stageLeft
     def stageTop = tCanvas.stageTop
@@ -594,25 +597,8 @@ Here's a partial list of the available commands:
   
   def animate(fn: => Unit) = staging.API.loop(fn)
   def stopAnimation() = ctx.stopAnimation()
-  def wipe() = tCanvas.wipe()
   def isKeyPressed(key: Int) = staging.Inputs.isKeyPressed(key)
   def activateCanvas() = tCanvas.activate()
-  def setBackground(c: Paint) = Utils.runInSwingThread {
-    val bounds = tCanvas.cbounds
-    val rect = staging.API.rectangle(bounds.x, bounds.y, bounds.width, bounds.height)
-    rect.setFillColor(c)
-    rect.setPenColor(white)
-  }
-  def setBackgroundH(c1: Color, c2: Color) = Utils.runInSwingThread {
-    val bounds = tCanvas.cbounds
-    val paint = new GradientPaint(bounds.x.toFloat, 0, c1, (bounds.x + bounds.width).toFloat, 0, c2)
-    setBackground(paint)
-  }
-  def setBackgroundV(c1: Color, c2: Color) = Utils.runInSwingThread {
-    val bounds = tCanvas.cbounds
-    val paint = new GradientPaint(0, bounds.y.toFloat, c1, 0, (bounds.y + bounds.height).toFloat, c2)
-    setBackground(paint)
-  }
   def Color(r: Int, g: Int, b: Int, a: Int=255) = new Color(r, g, b, a)
   def ColorG(x1: Double, y1: Double, c1: Color, x2: Double, y2: Double, c2: Color, cyclic: Boolean = false) = {
     new GradientPaint(x1.toFloat, y1.toFloat, c1, x2.toFloat, y2.toFloat, c2, cyclic)
@@ -638,6 +624,7 @@ Here's a partial list of the available commands:
   
   def installDir = new File(Utils.installDir).getParent + "/"
   def canvasBounds = tCanvas.cbounds
+  def setBackground(c: Paint) = tCanvas.setCanvasBackground(c)
   
   def isMp3Playing = music.KMp3.instance.isMusicPlaying
   def isMusicPlaying = music.FuguePlayer.instance.isMusicPlaying
@@ -651,7 +638,7 @@ Here's a partial list of the available commands:
   def addHelpContent(lang: String, content: Map[String, String]) {
     Help.addContent(lang, content)
   }
-
+  
   def bounceVecOffStage(v: Vector2D, p: Picture) {
     import TSCanvas._
     val stageparts = List(stageTop, stageBot, stageLeft, stageRight)
