@@ -104,8 +104,9 @@ val HEdge = Vector2D(1, 0)
 def badBehavior(me: Picture, bvec: Vector2D) {
     bvec.rotate(randomDouble(10)-5)
     me.transv(bvec)
-    bounceOffStage2(bvec, me) {
-      me.transv(bvec)
+    if (me.collidesWith(stage)) {
+        bounceVecOffStage(bvec, me) 
+        me.transv(bvec)
     }
 }
 

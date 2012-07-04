@@ -652,18 +652,15 @@ Here's a partial list of the available commands:
     Help.addContent(lang, content)
   }
 
-  def bounceOffStage(v: Vector2D, p: Picture) {
-    bounceOffStage2(v, p) {}
-  }
-  def bounceOffStage2(v: Vector2D, p: Picture)(fn: => Unit) {
+  def bounceVecOffStage(v: Vector2D, p: Picture) {
     import TSCanvas._
     val stageparts = List(stageTop, stageBot, stageLeft, stageRight)
     p.collision(stageparts).foreach {
       _ match {
-        case p if p == stageTop => v.update(v.x, -v.y); fn
-        case p if p == stageBot => v.update(v.x, -v.y); fn
-        case p if p == stageLeft => v.update(-v.x, v.y); fn
-        case p if p == stageRight => v.update(-v.x, v.y); fn
+        case p if p == stageTop => v.update(v.x, -v.y)
+        case p if p == stageBot => v.update(v.x, -v.y)
+        case p if p == stageLeft => v.update(-v.x, v.y)
+        case p if p == stageRight => v.update(-v.x, v.y)
         case _ =>
       }
     }

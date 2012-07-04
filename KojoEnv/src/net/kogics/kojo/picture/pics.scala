@@ -106,6 +106,8 @@ trait Picture extends InputAware {
   override def hashCode = System.identityHashCode(this)
   
   def morph(fn: Seq[PolyLine] => Seq[PolyLine])
+  // Todo
+  // def bounceOff(other: Picture, vec: Vector2D)
 }
 
 trait CorePicOps { self: Picture with RedrawStopper =>
