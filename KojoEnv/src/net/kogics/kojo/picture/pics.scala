@@ -90,6 +90,7 @@ trait Picture extends InputAware {
   def heading: Double
   def setHeading(angle: Double)
   def setPenColor(color: Color)
+  def setPenThickness(th: Double)
   def setFillColor(color: Paint)
   def act(fn: Picture => Unit) {
     if (!isDrawn) {
@@ -476,6 +477,17 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
     }
   }
   
+  def setPenThickness(th: Double) = Utils.runInSwingThread {
+    val pp = t.penPaths
+    t.setPenThickness(th)
+    pp.foreach { pl =>
+      if (pl.points.size > 1) {
+        pl.setStroke(t.lineStroke)
+        pl.repaint()
+      }
+    }
+  }
+  
   def setFillColor(color: Paint) = Utils.runInSwingThread {
     val pp = t.penPaths
     pp.foreach { pl =>
@@ -569,6 +581,12 @@ extends Picture with CorePicOps with TNodeCacher with RedrawStopper {
   def setPenColor(color: Color) {
     pics.foreach { pic =>
       pic.setPenColor(color)
+    }
+  }
+  
+  def setPenThickness(th: Double) {
+    pics.foreach { pic =>
+      pic.setPenThickness(th)
     }
   }
   

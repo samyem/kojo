@@ -49,6 +49,7 @@ trait Transformer extends Picture {
   def heading = tpic.heading
   def setHeading(angle: Double) = tpic.setHeading(angle)
   def setPenColor(color: Color) = tpic.setPenColor(color)
+  def setPenThickness(th: Double) = tpic.setPenThickness(th)
   def setFillColor(color: Paint) = tpic.setFillColor(color)
   def morph(fn: Seq[PolyLine] => Seq[PolyLine]) = tpic.morph(fn)
   def intersects(other: Picture) = {
