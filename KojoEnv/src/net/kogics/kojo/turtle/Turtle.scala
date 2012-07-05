@@ -63,7 +63,7 @@ class Turtle(canvas: SpriteCanvas, fname: String, initX: Double = 0d,
   private [kojo] val penPaths = new mutable.ArrayBuffer[PolyLine]
   private var lineColor: Color = _
   private var fillColor: Paint = _
-  private var lineStroke: Stroke = _
+  private [kojo] var lineStroke: Stroke = _
   private var font: Font = _
 
   private val pens = makePens
