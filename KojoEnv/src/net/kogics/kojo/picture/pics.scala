@@ -513,6 +513,7 @@ class Pic(painter: Painter) extends Picture with CorePicOps with TNodeCacher wit
     t.penPaths.clear()
     t.penPaths ++= newPaths
     t.penPaths.foreach { tnode.addChild }
+    _picGeom = null
     tnode.repaint()
   }
 }
