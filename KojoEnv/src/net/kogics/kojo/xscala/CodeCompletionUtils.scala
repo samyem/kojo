@@ -97,7 +97,9 @@ object CodeCompletionUtils {
     "stopMusic" -> "stopMusic()",
     "addCodeTemplates" -> "addCodeTemplates(${lang}, ${templates})",
     "addHelpContent" -> "addHelpContent(${lang}, ${content})",
-    "Point2D" -> "Point2D(${x}, ${y})"
+    "Point2D" -> "Point2D(${x}, ${y})",
+    "drawStage" -> "drawStage(${background})",
+    "bounceVecOffStage" -> "bounceVecOffStage(${vec}, ${forPic})"
   )
   
   val TwMethodTemplates = Map(

@@ -281,7 +281,7 @@ class Builtins extends RepeatCommands {
     def setBackgroundH(c1: Color, c2: Color) = tCanvas.setBackgroundH(c1, c2)
     def setBackgroundV(c1: Color, c2: Color) = tCanvas.setBackgroundV(c1, c2)
     def wipe() = tCanvas.wipe()
-    def showStage(fillc: Paint) = tCanvas.showStage(fillc)
+    def drawStage(fillc: Paint) = tCanvas.drawStage(fillc)
     def stage = tCanvas.stage
     def stageLeft = tCanvas.stageLeft
     def stageTop = tCanvas.stageTop
