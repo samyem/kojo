@@ -41,7 +41,7 @@ trait TSCanvasFeatures {
   def wipe(): Unit
   def setBackgroundH(c1: Color, c2: Color)
   def setBackgroundV(c1: Color, c2: Color)
-  def showStage(fillc: Paint)
+  def drawStage(fillc: Paint)
   def stage: Picture
   def stageLeft: Picture
   def stageTop: Picture

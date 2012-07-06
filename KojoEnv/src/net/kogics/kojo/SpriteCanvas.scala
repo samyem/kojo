@@ -720,7 +720,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     stageBot = noPic
   }
   
-  def showStage(fillc: Paint) {
+  def drawStage(fillc: Paint) {
     def border(size: Double) = picture.stroke(Color.darkGray) -> picture.Pic { t =>
       t.forward(size)
     }
