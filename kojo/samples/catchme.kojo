@@ -92,7 +92,7 @@ playMp3Loop(installDir + "music-loops/Cave.mp3")
 invisible()
 draw(goodguy, badguy, badguy2, badguy3)
 drawAndHide(lostGoodguy, lostMsg, wonMsg)
-showStage(Color(150, 150, 255))
+drawStage(Color(150, 150, 255))
 
 val bf = 2
 val sf = 1.5
