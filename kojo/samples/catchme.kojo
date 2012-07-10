@@ -83,7 +83,6 @@ val cb = canvasBounds
 val xmax = cb.x.abs
 val ymax = cb.y.abs
 val goodguy = fillColor(yellow) * trans(xmax/3, 2) * scale(0.3) -> guy
-val lostGoodguy = fillColor(orange) * trans(-50, 0) * scale(0.3) -> guy
 val badguy = fillColor(black) * scale(0.3) -> guy
 val badguy2 = fillColor(black) * trans(-xmax/2, 0) * scale(0.3) -> guy
 val badguy3 = fillColor(black) * trans(2*xmax/3, 0) * scale(0.3) -> guy
@@ -91,7 +90,7 @@ val badguy3 = fillColor(black) * trans(2*xmax/3, 0) * scale(0.3) -> guy
 playMp3Loop(installDir + "music-loops/Cave.mp3")
 invisible()
 draw(goodguy, badguy, badguy2, badguy3)
-drawAndHide(lostGoodguy, lostMsg, wonMsg)
+drawAndHide(lostMsg, wonMsg)
 drawStage(Color(150, 150, 255))
 
 val bf = 2
@@ -147,10 +146,7 @@ val others = List(badguy, badguy2, badguy3)
 goodguy.act { me => 
     if (me.collision(others).isDefined) {
         stopAnimation()
-        me.invisible()
-        lostGoodguy.setPosition(me.position)
-        lostGoodguy.setHeading(me.heading)
-        lostGoodguy.visible()
+        me.setFillColor(brown)
         lostMsg.setPosition(0, 0)
         lostMsg.visible()
     }
