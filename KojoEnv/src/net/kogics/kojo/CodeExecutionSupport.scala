@@ -661,8 +661,8 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport with Manip
       val promptSpaces = if (outText.length - 12 > 0) outText.length - 12 else 0
 
       OutputTopComponent.findInstance.requestActive
-      IOColorPrint.print(IO, " " * promptSpaces + "Provide Input Below\n", promptMarkColor);
-      IOColorPrint.print(IO, " " * outText.length + "V\n", promptMarkColor);
+//      IOColorPrint.print(IO, " " * promptSpaces + "Provide Input Below\n", promptMarkColor);
+//      IOColorPrint.print(IO, " " * outText.length + "V\n", promptMarkColor);
       IOColorPrint.print(IO, outText, promptColor);
       OutputTopComponent.findInstance().scrollToEnd()
     }
