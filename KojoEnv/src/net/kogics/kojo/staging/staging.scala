@@ -21,6 +21,7 @@ import util.Utils
 import util.Math
 import util.InputAware
 import core.Point
+import core.UnitLen
 
 import java.awt.BasicStroke
 import edu.umd.cs.piccolo.PNode

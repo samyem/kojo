@@ -16,7 +16,6 @@
 package net.kogics.kojo
 package core
 
-import picture.Picture
 import java.awt.Paint
 import java.awt.Color
 

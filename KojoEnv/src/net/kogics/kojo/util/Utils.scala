@@ -17,6 +17,8 @@ package util
 
 import java.awt.{List => _, _}
 import java.util.concurrent.locks.Lock
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import javax.swing._
 import java.awt.event.{ActionListener, ActionEvent}
 import java.io._
@@ -129,6 +131,29 @@ object Utils {
           }
         })
       t
+    }
+  }
+
+  def runInSwingThreadAndWait[T](timeout: Long, msg: String)(fn: => T): T = {
+    if (inSwingThread) {
+      fn
+    }
+    else {
+      var t: T = null.asInstanceOf[T]
+      val latch = new CountDownLatch(1)
+      javax.swing.SwingUtilities.invokeLater(new Runnable {
+        override def run {
+          t = fn
+          latch.countDown()
+        }
+      })
+      val timedOut = !latch.await(timeout, TimeUnit.MILLISECONDS)
+      if (timedOut) {
+        throw new RuntimeException(msg)
+      }
+      else {
+        t
+      }
     }
   }
 
@@ -370,7 +395,7 @@ object Utils {
     }
   }
   
-  private def rgbComps(color: Color) = (color.getRed, color.getGreen, color.getBlue)
+  private def rgbaComps(color: Color) = (color.getRed, color.getGreen, color.getBlue, color.getAlpha())
   
   def checkHsbModFactor(f: Double) {
     if (f < -1 || f > 1) {
@@ -389,28 +414,33 @@ object Utils {
     }
   }
   
+  def hsbColor(h: Float, s: Float, b: Float, a: Int) = {
+    val newrgb = Color.HSBtoRGB(h, s, b)
+    new Color((newrgb & 0x00ffffff) | (a << 24), true)
+  }
+
   def hueMod(c: Color, f: Double) = {
-    val (r, g, b) = rgbComps(c)
+    val (r, g, b, a) = rgbaComps(c)
     val hsb = Color.RGBtoHSB(r, g, b, null)
     val h = modHsb(hsb(0), f).toFloat
-    Color.getHSBColor(h, hsb(1), hsb(2))    
+    hsbColor(h, hsb(1), hsb(2), a)
   }
-  
+
   def satMod(c: Color, f: Double) = {
-    val (r, g, b) = rgbComps(c)
+    val (r, g, b, a) = rgbaComps(c)
     val hsb = Color.RGBtoHSB(r, g, b, null)
     val s = modHsb(hsb(1), f).toFloat
-    Color.getHSBColor(hsb(0), s, hsb(2))
+    hsbColor(hsb(0), s, hsb(2), a)
   }
-  
+
   def britMod(c: Color, f: Double) = {
-    val (r, g, b) = rgbComps(c)
+    val (r, g, b, a) = rgbaComps(c)
     val hsb = Color.RGBtoHSB(r, g, b, null)
     val br = modHsb(hsb(2), f).toFloat
-    Color.getHSBColor(hsb(0), hsb(1), br)
+    hsbColor(hsb(0), hsb(1), br, a)
   }
-  
-  def stripTrailingChar(s: String, c: Char): String = s.reverse.dropWhile(_ == c).reverse
+
+def stripTrailingChar(s: String, c: Char): String = s.reverse.dropWhile(_ == c).reverse
   def stripTrailingDots(s: String) = stripTrailingChar(s, '.')
   def stripDots(s: String): String = s.filterNot {_ == '.'}
   

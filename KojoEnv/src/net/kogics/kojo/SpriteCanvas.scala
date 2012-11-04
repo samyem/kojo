@@ -27,6 +27,10 @@ import edu.umd.cs.piccolo.util.PPaintContext
 import edu.umd.cs.piccolo.event._
 
 import net.kogics.kojo.core.SCanvas
+import net.kogics.kojo.core.Inch
+import net.kogics.kojo.core.Cm
+import net.kogics.kojo.core.UnitLen
+import net.kogics.kojo.core.Pixel
 import net.kogics.kojo.util.Utils
 
 import org.openide.awt.StatusDisplayer
@@ -38,11 +42,6 @@ import figure.Figure
 import turtle.Turtle
 import core.SpriteListener
 import net.kogics.kojo.core.DelegatingSpriteListener
-
-abstract class UnitLen
-case object Pixel extends UnitLen
-case object Cm extends UnitLen
-case object Inch extends UnitLen
 
 object SpriteCanvas extends InitedSingleton[SpriteCanvas] {
   def initedInstance(kojoCtx: KojoCtx) = synchronized {
@@ -703,7 +702,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
     setCanvasBackground(paint)
   }
   
-  import picture.Picture
+  import core.Picture
   val noPic = picture.Pic { t => 
   }
   @volatile var stage: Picture = _
@@ -777,7 +776,7 @@ class SpriteCanvas private extends PCanvas with SCanvas {
 
     val protItem = new JCheckBoxMenuItem(Utils.loadString("S_ShowProtractor"))
     protItem.addActionListener(new ActionListener {
-        @volatile var prot: picture.Picture = _
+        @volatile var prot: Picture = _
         def protOn() {
           showProt = true
           prot = picture.protractor(camScale)
