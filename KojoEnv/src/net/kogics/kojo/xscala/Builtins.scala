@@ -272,9 +272,9 @@ class Builtins extends RepeatCommands {
     def onKeyPress(fn: Int => Unit) = tCanvas.onKeyPress(fn)
     def onMouseClick(fn: (Double, Double) => Unit) =  tCanvas.onMouseClick(fn)
 
-    val Pixel = net.kogics.kojo.Pixel
-    val Inch = net.kogics.kojo.Inch
-    val Cm = net.kogics.kojo.Cm
+    val Pixel = core.Pixel
+    val Inch = core.Inch
+    val Cm = core.Cm
     def setUnitLength(ul: UnitLen) = tCanvas.setUnitLength(ul)
     def clearWithUL(ul: UnitLen) = tCanvas.clearWithUL(ul)
     def camScale = tCanvas.camScale
@@ -517,7 +517,7 @@ Here's a partial list of the available commands:
     urlHandler.gotoUrl(new java.net.URL(url))
   }
   
-  type Picture = picture.Picture
+  type Picture = core.Picture
   type Painter = picture.Painter
   type Pic = picture.Pic
 //  val Pic = picture.Pic

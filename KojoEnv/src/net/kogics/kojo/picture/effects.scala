@@ -13,7 +13,10 @@
  *
  */
 
-package net.kogics.kojo.picture
+package net.kogics.kojo
+package picture
+
+import core.Picture
 
 abstract class Effect extends Transformer {
   def draw() {
