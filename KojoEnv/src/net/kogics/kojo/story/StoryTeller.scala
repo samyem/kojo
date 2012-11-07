@@ -83,9 +83,18 @@ class StoryTeller extends JPanel with music.Mp3Player {
   holder.setBackground(Color.white)
   holder.setLayout(new BoxLayout(holder, BoxLayout.Y_AXIS))
 
-  val uc = new JPanel
-  uc.setBackground(Color.white)
-  holder.add(uc)
+  var uc = new JPanel
+  //  var ucSp = new JScrollPane(uc)
+
+  def removeOldUc() {
+    holder.remove(uc)
+  }
+
+  def addNewUc() {
+    uc = new JPanel
+    uc.setBackground(Color.white)
+    holder.add(uc, 0)
+  }
 
   val (cp, prevButton, nextButton) = makeControlPanel()
   holder.add(cp)
@@ -205,16 +214,32 @@ class StoryTeller extends JPanel with music.Mp3Player {
     }
   }
 
+  def viewPage(page: Int, view: Int) {
+    // needs to run on GUI thread
+    kojoCtx.stopInterpreter()
+    newPage()
+
+    if (story.hasView(page, view)) {
+      story.goto(page, view)
+      displayContent(story.view)
+      updateCp()
+    }
+    else {
+      showStatusError("Nonexistent page#view - %d#%d" format (page, view))
+    }
+  }
+
   private def newPage() {
     // needs to run on GUI thread
-    uc.removeAll()
-    uc.setBorder(BorderFactory.createEmptyBorder())
-    
+    removeOldUc()
+    addNewUc()
     pageFields.clear()
-//    clearStatusBar()
+    //    clearStatusBar()
+    holder.revalidate()
+    sp.revalidate()
+    repaint()
 
     kojoCtx.stopAnimation()
-    repaint()
     stopMp3()
   }
 
@@ -230,17 +255,6 @@ class StoryTeller extends JPanel with music.Mp3Player {
   }
 
   def pageNumber(name: String): Option[Int] = story.pageNumber(name)
-
-  def viewPage(page: Int, view: Int) {
-    if (story.hasView(page, view)) {
-      story.goto(page, view)
-      displayContent(story.view)
-      updateCp()
-    }
-    else {
-      showStatusError("Nonexistent page#view - %d#%d" format(page, view))
-    }
-  }
 
   def done() {
     kojoCtx.stopInterpreter()
@@ -359,13 +373,6 @@ class StoryTeller extends JPanel with music.Mp3Player {
     Utils.runInSwingThread {
       uc.add(c)
       uc.setBorder(BorderFactory.createEtchedBorder())
-      val numC = uc.getComponentCount
-      if (numC > 4) {
-        // hack to allow second row of components
-        val spacing = 5
-        val rowHeight = 20
-        uc.setPreferredSize(new Dimension(20, rowHeight * (numC/4 + 1) + spacing))
-      }
       uc.revalidate()
       uc.repaint()
       scrollEp()
