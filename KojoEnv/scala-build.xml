@@ -193,7 +193,7 @@
     </target>
 
     <target name="run-test-single" > <!-- depends="jar" -->
-        <property name="test.includes" value="**/util/*Test.class"/>
+        <property name="test.includes" value="**/picture/*Test.class"/>
         <antcall target="run-tests-helper"/>
     </target>
 
