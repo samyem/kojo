@@ -45,7 +45,7 @@ public final class SaveAs implements ActionListener {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             cetc.setLastLoadStoreDir(chooser.getSelectedFile().getParent());
             File selectedFile = chooser.getSelectedFile();
-            if (!selectedFile.getName().endsWith("." + ext)) {
+            if (!selectedFile.getName().contains(".")) {
                 selectedFile = new File(selectedFile.getAbsolutePath() + "." + ext);
             }
             return selectedFile;
