@@ -11,7 +11,8 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public final class LoadFrom implements ActionListener {
-	private String ext = "kojo";
+
+    private String ext = "kojo";
 
     public void actionPerformed(ActionEvent e) {
         JFileChooser chooser = new JFileChooser();
@@ -36,12 +37,13 @@ public final class LoadFrom implements ActionListener {
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = chooser.getSelectedFile();
-    			if (!selectedFile.getName().endsWith("." + ext)) {
-    				selectedFile = new File(selectedFile.getAbsolutePath() + "."
-    						+ ext);
-    			}
-                CodeEditorTopComponent.findInstance().setLastLoadStoreDir(selectedFile.getParent());
-                ces.openFileWithoutClose(selectedFile);
+                if (selectedFile.exists()) {
+                    CodeEditorTopComponent.findInstance().setLastLoadStoreDir(selectedFile.getParent());
+                    ces.openFileWithoutClose(selectedFile);
+                }
+                else {
+                    System.out.println("Unable to open: " + selectedFile.getName());
+                }
             }
         } catch (RuntimeException ex) {
             // ignore user cancel
