@@ -875,11 +875,11 @@ class CodeExecutionSupport private extends core.CodeCompletionSupport with Manip
   def hasOpenFile = openedFile.isDefined
 
   def openFileWithoutClose(file: java.io.File) {
-    openedFile = Some(file)
     import util.RichFile._
     val script = file.readAsString
     codePane.setText(script)
     codePane.setCaretPosition(0)
+    openedFile = Some(file)
     CodeEditorTopComponent.findInstance.fileOpened(file)
     saveFileData(script)
   }
