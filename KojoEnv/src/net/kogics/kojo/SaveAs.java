@@ -71,6 +71,9 @@ public final class SaveAs implements ActionListener {
             catch (RuntimeException ex) {
                 // user cancelled save
             }
+            catch (Throwable t) {
+                System.out.println(String.format("Unable to save file: %s", t.getMessage()));
+            }
         }
     }
 }
