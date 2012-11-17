@@ -1,0 +1,1 @@
+jar -uvf ../installerbuild/ide/modules/org-netbeans-modules-editor-lib2.jar org/netbeans/modules/editor/lib2/document/ReadWriteUtils.class
