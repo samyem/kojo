@@ -47,6 +47,10 @@ sh ../i18n/swedish-cp.sh
 jar uvf ide/modules/locale/org-netbeans-modules-editor_sv.jar -C ../i18n/ ./org/netbeans/modules/editor/Bundle_sv.properties 
 cd ..
 
+cd gettext_patch
+sh dopatch.sh
+cd ..
+
 # run IzPack to create installerbuild
 cp installer/* installerbuild/
 cd installerbuild
